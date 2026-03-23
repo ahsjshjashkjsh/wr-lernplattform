@@ -3,7 +3,8 @@ import { PrismaClient } from '@prisma/client'
 import { PrismaPg } from '@prisma/adapter-pg'
 
 const adapter = new PrismaPg({ connectionString: process.env.DIRECT_URL ?? process.env.DATABASE_URL! })
-const prisma = new PrismaClient({ adapter } as Parameters<typeof PrismaClient>[0])
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const prisma = new PrismaClient({ adapter } as any)
 
 async function reconnect() {
   // No-op with PostgreSQL – connection pooling handles this automatically
