@@ -46,8 +46,8 @@ export async function POST(request: Request) {
       data: { name, email, passwordHash },
     })
 
-    await setSession({ userId: user.id, name: user.name, email: user.email })
-    return Response.json({ user: { id: user.id, name: user.name, email: user.email } })
+    await setSession({ userId: user.id, name: user.name, email: user.email, isAdmin: user.isAdmin })
+    return Response.json({ user: { id: user.id, name: user.name, email: user.email, isAdmin: user.isAdmin } })
   } catch (error) {
     console.error('POST /api/auth/register error:', error)
     return Response.json({ error: 'Registrierung fehlgeschlagen. Bitte nochmals versuchen.' }, { status: 500 })

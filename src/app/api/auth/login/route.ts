@@ -22,8 +22,8 @@ export async function POST(request: Request) {
       return Response.json({ error: 'Ungültige E-Mail oder Passwort.' }, { status: 401 })
     }
 
-    await setSession({ userId: user.id, name: user.name, email: user.email })
-    return Response.json({ user: { id: user.id, name: user.name, email: user.email } })
+    await setSession({ userId: user.id, name: user.name, email: user.email, isAdmin: user.isAdmin })
+    return Response.json({ user: { id: user.id, name: user.name, email: user.email, isAdmin: user.isAdmin } })
   } catch (error) {
     console.error('POST /api/auth/login error:', error)
     return Response.json({ error: 'Anmeldung fehlgeschlagen. Bitte nochmals versuchen.' }, { status: 500 })
