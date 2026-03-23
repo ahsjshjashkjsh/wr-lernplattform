@@ -1,0 +1,154 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id           String            @id @default(cuid())
+  name         String
+  email        String            @unique
+  passwordHash String
+  createdAt    DateTime          @default(now())
+  progress     ChapterProgress[]
+  quizAttempts QuizAttempt[]
+}
+
+model Topic {
+  id          String    @id @default(cuid())
+  slug        String    @unique
+  title       String
+  description String
+  icon        String    @default("BookOpen")
+  color       String    @default("blue")
+  examType    String    // "querschnitt" | "abschluss" | "both"
+  category    String    // "bwl" | "vwl" | "recht"
+  order       Int       @default(0)
+  chapters    Chapter[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Chapter {
+  id            String            @id @default(cuid())
+  slug          String
+  title         String
+  subtitle      String?
+  topicId       String
+  topic         Topic             @relation(fields: [topicId], references: [id])
+  order         Int               @default(0)
+  contentStatus String            @default("complete")
+  summary       String?
+  keyTerms      KeyTerm[]
+  corePoints    CorePoint[]
+  examples      Example[]
+  learningGoals LearningGoal[]
+  quizQuestions QuizQuestion[]
+  progress      ChapterProgress[]
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+
+  @@unique([topicId, slug])
+}
+
+model LearningGoal {
+  id        String  @id @default(cuid())
+  text      String
+  chapterId String
+  chapter   Chapter @relation(fields: [chapterId], references: [id])
+  order     Int     @default(0)
+}
+
+model KeyTerm {
+  id         String  @id @default(cuid())
+  term       String
+  definition String
+  chapterId  String
+  chapter    Chapter @relation(fields: [chapterId], references: [id])
+  order      Int     @default(0)
+}
+
+model CorePoint {
+  id        String  @id @default(cuid())
+  text      String
+  chapterId String
+  chapter   Chapter @relation(fields: [chapterId], references: [id])
+  order     Int     @default(0)
+}
+
+model Example {
+  id        String  @id @default(cuid())
+  text      String
+  chapterId String
+  chapter   Chapter @relation(fields: [chapterId], references: [id])
+  order     Int     @default(0)
+}
+
+model QuizQuestion {
+  id           String              @id @default(cuid())
+  chapterId    String
+  chapter      Chapter             @relation(fields: [chapterId], references: [id])
+  questionText String
+  questionType String              @default("multiple_choice")
+  options      QuizOption[]
+  explanation  String
+  difficulty   String              @default("medium")
+  order        Int                 @default(0)
+  answers      QuizAttemptAnswer[]
+}
+
+model QuizOption {
+  id         String       @id @default(cuid())
+  questionId String
+  question   QuizQuestion @relation(fields: [questionId], references: [id])
+  text       String
+  isCorrect  Boolean      @default(false)
+  order      Int          @default(0)
+}
+
+model QuizAttempt {
+  id           String              @id @default(cuid())
+  chapterId    String
+  userId       String?
+  user         User?               @relation(fields: [userId], references: [id])
+  totalQ       Int
+  correctQ     Int
+  scorePercent Float
+  completedAt  DateTime            @default(now())
+  answers      QuizAttemptAnswer[]
+}
+
+model QuizAttemptAnswer {
+  id               String       @id @default(cuid())
+  attemptId        String
+  attempt          QuizAttempt  @relation(fields: [attemptId], references: [id])
+  questionId       String
+  question         QuizQuestion @relation(fields: [questionId], references: [id])
+  selectedOptionId String?
+  isCorrect        Boolean
+}
+
+model ChapterProgress {
+  id          String   @id @default(cuid())
+  chapterId   String
+  chapter     Chapter  @relation(fields: [chapterId], references: [id])
+  userId      String?
+  user        User?    @relation(fields: [userId], references: [id])
+  status      String   @default("not_started")
+  bestScore   Float?
+  lastVisited DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([chapterId, userId])
+}
+
+model AssistantMessage {
+  id        String   @id @default(cuid())
+  sessionId String
+  role      String
+  content   String
+  chapterId String?
+  createdAt DateTime @default(now())
+}

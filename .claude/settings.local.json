@@ -1,0 +1,20 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx prisma:*)",
+      "Bash(npm run:*)",
+      "Bash(PRISMA_USER_CONSENT_FOR_DANGEROUS_AI_ACTION=\"ja\" npm run db:reset)",
+      "Bash(find 'c:\\\\ÜBUNGSTOOL ABSCHLUSSPRÜFUNG WR\\\\wr-lernplattform' -type f -name *.tsx -o -name *.ts -o -name *.json -o -name *.prisma)",
+      "Bash(npm install:*)",
+      "Bash(grep -E \"\\\\.\\(tsx?|json\\)$\")",
+      "Skill(ralph-loop:ralph-loop)",
+      "Skill(update-config)",
+      "Bash(\"C:/Users/3hr90/.claude/plugins/cache/claude-plugins-official/ralph-loop/61c0597779bd/scripts/setup-ralph-loop.sh\":*)",
+      "Bash(C:/Users/3hr90/.claude/plugins/cache/claude-plugins-official/ralph-loop/61c0597779bd/scripts/setup-ralph-loop.sh:*)",
+      "Bash(__NEW_LINE_435a59b8a3ea56a9__ grep:*)",
+      "Bash(node -e \":*)",
+      "Bash(npx tsc:*)",
+      "Bash(find 'c:\\\\ÜBUNGSTOOL ABSCHLUSSPRÜFUNG WR\\\\wr-lernplattform' -name *.md)"
+    ]
+  }
+}

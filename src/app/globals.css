@@ -1,26 +1,149 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
 @import "tailwindcss";
 
+/* ─── Dark theme (default) ─────────────────────────────── */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --bg-base:          #08101e;
+  --bg-surface:       rgba(255, 255, 255, 0.04);
+  --bg-surface-hover: rgba(255, 255, 255, 0.07);
+  --border-color:     rgba(255, 255, 255, 0.08);
+  --border-hover:     rgba(255, 255, 255, 0.16);
+  --text-primary:     #f1f5f9;
+  --text-secondary:   #94a3b8;
+  --text-muted:       #475569;
+  --dot-color:        rgba(255, 255, 255, 0.025);
+  --nav-bg:           rgba(8, 16, 30, 0.8);
+  --nav-border:       rgba(255, 255, 255, 0.07);
+  --input-bg:         rgba(255, 255, 255, 0.05);
+  --input-border:     rgba(255, 255, 255, 0.08);
+  --divider:          rgba(255, 255, 255, 0.06);
+  --icon-bg:          rgba(255, 255, 255, 0.07);
+  --skeleton-from:    rgba(255, 255, 255, 0.04);
+  --skeleton-to:      rgba(255, 255, 255, 0.08);
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+/* ─── Light theme ─────────────────────────────────────── */
+[data-theme="light"] {
+  --bg-base:          #f1f5f9;
+  --bg-surface:       rgba(255, 255, 255, 0.92);
+  --bg-surface-hover: rgba(255, 255, 255, 1);
+  --border-color:     rgba(15, 23, 42, 0.10);
+  --border-hover:     rgba(15, 23, 42, 0.20);
+  --text-primary:     #0f172a;
+  --text-secondary:   #475569;
+  --text-muted:       #94a3b8;
+  --dot-color:        rgba(0, 0, 0, 0.04);
+  --nav-bg:           rgba(248, 250, 252, 0.85);
+  --nav-border:       rgba(15, 23, 42, 0.08);
+  --input-bg:         rgba(15, 23, 42, 0.04);
+  --input-border:     rgba(15, 23, 42, 0.10);
+  --divider:          rgba(15, 23, 42, 0.07);
+  --icon-bg:          rgba(15, 23, 42, 0.06);
+  --skeleton-from:    rgba(15, 23, 42, 0.04);
+  --skeleton-to:      rgba(15, 23, 42, 0.08);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
+/* ─── Base ─────────────────────────────────────────────── */
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--bg-base);
+  color: var(--text-primary);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  min-height: 100vh;
+  transition: background 0.25s ease, color 0.25s ease;
 }
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: radial-gradient(circle, var(--dot-color) 1px, transparent 1px);
+  background-size: 32px 32px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ─── Scrollbar ─────────────────────────────────────────── */
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(100,116,139,0.3); border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(100,116,139,0.5); }
+
+/* ─── Glass ────────────────────────────────────────────── */
+.glass {
+  background: var(--bg-surface);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid var(--border-color);
+  transition: background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.glass-hover:hover {
+  background: var(--bg-surface-hover);
+  border-color: var(--border-hover);
+}
+
+/* ─── Text utilities ─────────────────────────────────────── */
+.gradient-text {
+  background: linear-gradient(135deg, var(--text-primary) 0%, var(--text-secondary) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.gradient-text-blue {
+  background: linear-gradient(135deg, #60a5fa 0%, #a78bfa 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ─── Tailwind color overrides for light mode ─────────────── */
+[data-theme="light"] .text-white     { color: #0f172a; }
+[data-theme="light"] .text-slate-100 { color: #0f172a; }
+[data-theme="light"] .text-slate-200 { color: #1e293b; }
+[data-theme="light"] .text-slate-300 { color: #334155; }
+[data-theme="light"] .text-slate-400 { color: #64748b; }
+[data-theme="light"] .text-slate-500 { color: #94a3b8; }
+[data-theme="light"] .text-slate-600 { color: #64748b; }
+[data-theme="light"] .dark-prose     { color: #334155; }
+
+/* ─── Background overrides for light mode ─────────────────── */
+[data-theme="light"] .bg-slate-800,
+[data-theme="light"] .bg-slate-900 {
+  background: rgba(15, 23, 42, 0.06);
+}
+
+/* ─── Glows ─────────────────────────────────────────────── */
+.glow-blue    { box-shadow: 0 0 30px -5px rgba(59,130,246,0.4), 0 0 0 1px rgba(59,130,246,0.15); }
+.glow-blue-sm { box-shadow: 0 4px 20px -4px rgba(59,130,246,0.35); }
+
+/* ─── Animations ─────────────────────────────────────────── */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position:  200% 0; }
+}
+
+.fade-in { animation: fadeIn 0.35s ease-out; }
+
+.skeleton {
+  background: linear-gradient(90deg, var(--skeleton-from) 25%, var(--skeleton-to) 50%, var(--skeleton-from) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 8px;
+}
+
+/* ─── Hover row ──────────────────────────────────────────── */
+.hover-row { transition: background 0.15s ease; }
+.hover-row:hover { background: var(--bg-surface-hover); }
+
+/* ─── Prose ─────────────────────────────────────────────── */
+.dark-prose { color: #cbd5e1; line-height: 1.75; }
+.dark-prose strong { color: var(--text-primary); font-weight: 600; }
