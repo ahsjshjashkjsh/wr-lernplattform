@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
-const PUBLIC_PATHS = ['/login', '/register', '/api/auth/login', '/api/auth/register']
+const PUBLIC_PATHS = ['/login', '/register', '/banned', '/api/auth/login', '/api/auth/register']
 
 function decodeJwtPayload(token: string): Record<string, unknown> | null {
   try {
@@ -37,9 +37,9 @@ export function middleware(request: NextRequest) {
 
   const payload = decodeJwtPayload(session.value)
 
-  // Gebannte User sofort abmelden
-  if (payload?.isBanned && !pathname.startsWith('/login')) {
-    const res = NextResponse.redirect(new URL('/login', request.url))
+  // Gebannte User sofort abmelden und zu /banned schicken
+  if (payload?.isBanned && !pathname.startsWith('/banned') && !pathname.startsWith('/login')) {
+    const res = NextResponse.redirect(new URL('/banned', request.url))
     res.cookies.delete('wr-session')
     return res
   }

@@ -24,6 +24,10 @@ function LoginForm() {
       })
       const data = await res.json()
       if (!res.ok) {
+        if (data.error === 'BANNED') {
+          window.location.href = '/banned'
+          return
+        }
         setError(data.error ?? 'Anmeldung fehlgeschlagen.')
         return
       }

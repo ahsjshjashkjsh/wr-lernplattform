@@ -22,6 +22,10 @@ export async function POST(request: Request) {
       return Response.json({ error: 'Ungültige E-Mail oder Passwort.' }, { status: 401 })
     }
 
+    if (user.isBanned) {
+      return Response.json({ error: 'BANNED' }, { status: 403 })
+    }
+
     await setSession({ userId: user.id, name: user.name, email: user.email, isAdmin: user.isAdmin })
     return Response.json({ user: { id: user.id, name: user.name, email: user.email, isAdmin: user.isAdmin } })
   } catch (error) {
