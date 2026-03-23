@@ -1,7 +1,7 @@
 'use client'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { BookOpen, LayoutDashboard, TrendingUp, Bot, CheckCircle, Sun, Moon, LogIn, LogOut, User } from 'lucide-react'
+import { BookOpen, LayoutDashboard, TrendingUp, Bot, CheckCircle, Sun, Moon, LogIn, LogOut, User, Shield } from 'lucide-react'
 import { useTheme } from '@/components/ThemeProvider'
 import { useAuth } from '@/components/AuthProvider'
 
@@ -76,6 +76,20 @@ export function Navbar() {
             {!loading && (
               user ? (
                 <div className="flex items-center gap-1 ml-1 pl-1 border-l border-white/10">
+                  {user.isAdmin && (
+                    <Link
+                      href="/admin"
+                      className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all border ${
+                        pathname.startsWith('/admin')
+                          ? 'border-amber-500/20 bg-amber-500/10 text-amber-400'
+                          : 'border-transparent hover:bg-amber-500/10 hover:border-amber-500/20 hover:text-amber-400'
+                      }`}
+                      style={pathname.startsWith('/admin') ? {} : { color: 'var(--text-muted)' }}
+                    >
+                      <Shield size={13} />
+                      <span className="hidden sm:inline">Admin</span>
+                    </Link>
+                  )}
                   <div className="hidden sm:flex items-center gap-1.5 px-2 py-1.5 rounded-lg text-xs" style={{ color: 'var(--text-muted)' }}>
                     <User size={12} className="text-blue-400" />
                     <span className="font-medium text-slate-300">{user.name}</span>

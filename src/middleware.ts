@@ -35,9 +35,17 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(loginUrl)
   }
 
+  const payload = decodeJwtPayload(session.value)
+
+  // Gebannte User sofort abmelden
+  if (payload?.isBanned && !pathname.startsWith('/login')) {
+    const res = NextResponse.redirect(new URL('/login', request.url))
+    res.cookies.delete('wr-session')
+    return res
+  }
+
   // Protect /admin — only for admins
   if (pathname.startsWith('/admin')) {
-    const payload = decodeJwtPayload(session.value)
     if (!payload?.isAdmin) {
       return NextResponse.redirect(new URL('/', request.url))
     }

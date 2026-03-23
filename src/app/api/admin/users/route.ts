@@ -1,5 +1,6 @@
 import { prisma } from '@/lib/prisma'
 import { getCurrentUser } from '@/lib/auth'
+import bcrypt from 'bcryptjs'
 
 async function requireAdmin() {
   const user = await getCurrentUser()
@@ -18,8 +19,10 @@ export async function GET() {
       name: true,
       email: true,
       isAdmin: true,
+      isBanned: true,
       createdAt: true,
       _count: { select: { quizAttempts: true, progress: true } },
+      quizAttempts: { select: { completedAt: true }, orderBy: { completedAt: 'desc' }, take: 1 },
     },
     orderBy: { createdAt: 'desc' },
   })
@@ -27,23 +30,72 @@ export async function GET() {
   return Response.json({ users })
 }
 
-// PATCH — isAdmin togglen
+// POST — neuen User erstellen
+export async function POST(request: Request) {
+  const admin = await requireAdmin()
+  if (!admin) return Response.json({ error: 'Kein Zugriff.' }, { status: 403 })
+
+  const body = await request.json() as { name?: string; email?: string; password?: string; isAdmin?: boolean }
+  const name = body.name?.trim() ?? ''
+  const email = body.email?.trim().toLowerCase() ?? ''
+  const password = body.password ?? ''
+
+  if (!name || !email || !password) {
+    return Response.json({ error: 'Name, E-Mail und Passwort sind erforderlich.' }, { status: 400 })
+  }
+  if (password.length < 6) {
+    return Response.json({ error: 'Passwort muss mindestens 6 Zeichen haben.' }, { status: 400 })
+  }
+
+  const existing = await prisma.user.findUnique({ where: { email } })
+  if (existing) {
+    return Response.json({ error: 'Diese E-Mail ist bereits registriert.' }, { status: 409 })
+  }
+
+  const passwordHash = await bcrypt.hash(password, 12)
+  const user = await prisma.user.create({
+    data: { name, email, passwordHash, isAdmin: body.isAdmin ?? false },
+    select: { id: true, name: true, email: true, isAdmin: true, isBanned: true, createdAt: true },
+  })
+
+  return Response.json({ user })
+}
+
+// PATCH — User bearbeiten (isAdmin, isBanned, name, email, password)
 export async function PATCH(request: Request) {
   const admin = await requireAdmin()
   if (!admin) return Response.json({ error: 'Kein Zugriff.' }, { status: 403 })
 
-  const body = await request.json() as { userId: string; isAdmin: boolean }
+  const body = await request.json() as {
+    userId: string
+    isAdmin?: boolean
+    isBanned?: boolean
+    name?: string
+    email?: string
+    password?: string
+  }
   if (!body.userId) return Response.json({ error: 'userId fehlt.' }, { status: 400 })
 
-  // Eigenen Admin-Status nicht entfernen
-  if (body.userId === admin.id && !body.isAdmin) {
+  if (body.userId === admin.id && body.isAdmin === false) {
     return Response.json({ error: 'Du kannst deinen eigenen Admin-Status nicht entfernen.' }, { status: 400 })
+  }
+  if (body.userId === admin.id && body.isBanned === true) {
+    return Response.json({ error: 'Du kannst dich nicht selbst sperren.' }, { status: 400 })
+  }
+
+  const data: Record<string, unknown> = {}
+  if (body.isAdmin !== undefined) data.isAdmin = body.isAdmin
+  if (body.isBanned !== undefined) data.isBanned = body.isBanned
+  if (body.name?.trim()) data.name = body.name.trim()
+  if (body.email?.trim()) data.email = body.email.trim().toLowerCase()
+  if (body.password && body.password.length >= 6) {
+    data.passwordHash = await bcrypt.hash(body.password, 12)
   }
 
   const updated = await prisma.user.update({
     where: { id: body.userId },
-    data: { isAdmin: body.isAdmin },
-    select: { id: true, name: true, isAdmin: true },
+    data,
+    select: { id: true, name: true, email: true, isAdmin: true, isBanned: true },
   })
 
   return Response.json({ user: updated })

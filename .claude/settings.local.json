@@ -15,7 +15,8 @@
       "Bash(node -e \":*)",
       "Bash(npx tsc:*)",
       "Bash(find 'c:\\\\ÜBUNGSTOOL ABSCHLUSSPRÜFUNG WR\\\\wr-lernplattform' -name *.md)",
-      "Bash(DATABASE_URL=\"postgresql://postgres.xudeuxqxgiozvgojjcas:w778dj8AcyFs2Tef@aws-1-eu-west-1.pooler.supabase.com:5432/postgres\" npx prisma db push)"
+      "Bash(DATABASE_URL=\"postgresql://postgres.xudeuxqxgiozvgojjcas:w778dj8AcyFs2Tef@aws-1-eu-west-1.pooler.supabase.com:5432/postgres\" npx prisma db push)",
+      "Bash(DATABASE_URL=\"postgresql://postgres.xudeuxqxgiozvgojjcas:w778dj8AcyFs2Tef@aws-1-eu-west-1.pooler.supabase.com:5432/postgres\" npx prisma db execute --stdin <<'EOF':*)"
     ]
   }
 }
