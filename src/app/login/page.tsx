@@ -1,10 +1,10 @@
 'use client'
-import { useState } from 'react'
+import { Suspense, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { LogIn, TrendingUp, Eye, EyeOff } from 'lucide-react'
 
-export default function LoginPage() {
+function LoginForm() {
   const searchParams = useSearchParams()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -43,6 +43,95 @@ export default function LoginPage() {
   }
 
   return (
+    <div className="glass rounded-2xl p-6 border" style={{ borderColor: 'rgba(255,255,255,0.08)' }}>
+      <h2 className="text-lg font-semibold text-slate-200 mb-1">Willkommen zurück</h2>
+      <p className="text-xs text-slate-500 mb-5">Melde dich an, um deinen Fortschritt fortzusetzen.</p>
+
+      <form onSubmit={handleSubmit} className="space-y-4">
+
+        {/* Email */}
+        <div>
+          <label className="text-xs font-medium text-slate-400 block mb-1.5">
+            E-Mail-Adresse
+          </label>
+          <input
+            type="email"
+            value={email}
+            onChange={e => setEmail(e.target.value)}
+            className="w-full px-3 py-2.5 rounded-xl text-sm outline-none transition-all"
+            style={inputStyle}
+            placeholder="anna@beispiel.ch"
+            required
+            autoFocus
+            autoComplete="email"
+          />
+        </div>
+
+        {/* Password */}
+        <div>
+          <label className="text-xs font-medium text-slate-400 block mb-1.5">
+            Passwort
+          </label>
+          <div className="relative">
+            <input
+              type={showPassword ? 'text' : 'password'}
+              value={password}
+              onChange={e => setPassword(e.target.value)}
+              className="w-full px-3 py-2.5 rounded-xl text-sm outline-none transition-all pr-10"
+              style={inputStyle}
+              placeholder="Dein Passwort"
+              required
+              autoComplete="current-password"
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword(v => !v)}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 transition-colors"
+              tabIndex={-1}
+            >
+              {showPassword ? <EyeOff size={14} /> : <Eye size={14} />}
+            </button>
+          </div>
+        </div>
+
+        {/* Error */}
+        {error && (
+          <div className="text-xs text-red-400 bg-red-500/10 border border-red-500/20 rounded-xl px-3 py-2.5">
+            {error}
+          </div>
+        )}
+
+        {/* Submit */}
+        <button
+          type="submit"
+          disabled={loading}
+          className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold text-white transition-all disabled:opacity-60"
+          style={{
+            background: 'linear-gradient(135deg, #3b82f6, #6366f1)',
+            boxShadow: '0 4px 20px -4px rgba(99,102,241,0.5)',
+          }}
+        >
+          {loading ? (
+            <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+          ) : (
+            <LogIn size={14} />
+          )}
+          {loading ? 'Anmelden...' : 'Anmelden'}
+        </button>
+      </form>
+
+      <p className="text-center text-xs text-slate-500 mt-5">
+        Noch kein Konto?{' '}
+        <Link href="/register" className="text-blue-400 hover:text-blue-300 font-medium">
+          Jetzt registrieren
+        </Link>
+      </p>
+    </div>
+  )
+}
+
+export default function LoginPage() {
+  return (
     <div className="min-h-[90vh] flex items-center justify-center px-4">
       <div className="w-full max-w-sm">
 
@@ -61,91 +150,9 @@ export default function LoginPage() {
           <p className="text-slate-500 text-sm mt-1">HMS · Abschlussprüfung 2026</p>
         </div>
 
-        {/* Card */}
-        <div className="glass rounded-2xl p-6 border" style={{ borderColor: 'rgba(255,255,255,0.08)' }}>
-          <h2 className="text-lg font-semibold text-slate-200 mb-1">Willkommen zurück</h2>
-          <p className="text-xs text-slate-500 mb-5">Melde dich an, um deinen Fortschritt fortzusetzen.</p>
-
-          <form onSubmit={handleSubmit} className="space-y-4">
-
-            {/* Email */}
-            <div>
-              <label className="text-xs font-medium text-slate-400 block mb-1.5">
-                E-Mail-Adresse
-              </label>
-              <input
-                type="email"
-                value={email}
-                onChange={e => setEmail(e.target.value)}
-                className="w-full px-3 py-2.5 rounded-xl text-sm outline-none transition-all"
-                style={inputStyle}
-                placeholder="anna@beispiel.ch"
-                required
-                autoFocus
-                autoComplete="email"
-              />
-            </div>
-
-            {/* Password */}
-            <div>
-              <label className="text-xs font-medium text-slate-400 block mb-1.5">
-                Passwort
-              </label>
-              <div className="relative">
-                <input
-                  type={showPassword ? 'text' : 'password'}
-                  value={password}
-                  onChange={e => setPassword(e.target.value)}
-                  className="w-full px-3 py-2.5 rounded-xl text-sm outline-none transition-all pr-10"
-                  style={inputStyle}
-                  placeholder="Dein Passwort"
-                  required
-                  autoComplete="current-password"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(v => !v)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 transition-colors"
-                  tabIndex={-1}
-                >
-                  {showPassword ? <EyeOff size={14} /> : <Eye size={14} />}
-                </button>
-              </div>
-            </div>
-
-            {/* Error */}
-            {error && (
-              <div className="text-xs text-red-400 bg-red-500/10 border border-red-500/20 rounded-xl px-3 py-2.5">
-                {error}
-              </div>
-            )}
-
-            {/* Submit */}
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold text-white transition-all disabled:opacity-60"
-              style={{
-                background: 'linear-gradient(135deg, #3b82f6, #6366f1)',
-                boxShadow: '0 4px 20px -4px rgba(99,102,241,0.5)',
-              }}
-            >
-              {loading ? (
-                <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-              ) : (
-                <LogIn size={14} />
-              )}
-              {loading ? 'Anmelden...' : 'Anmelden'}
-            </button>
-          </form>
-
-          <p className="text-center text-xs text-slate-500 mt-5">
-            Noch kein Konto?{' '}
-            <Link href="/register" className="text-blue-400 hover:text-blue-300 font-medium">
-              Jetzt registrieren
-            </Link>
-          </p>
-        </div>
+        <Suspense fallback={<div className="glass rounded-2xl p-6 border" style={{ borderColor: 'rgba(255,255,255,0.08)' }} />}>
+          <LoginForm />
+        </Suspense>
       </div>
     </div>
   )
