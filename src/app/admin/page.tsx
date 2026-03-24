@@ -189,7 +189,9 @@ export default function AdminPage() {
   const banned = users.filter(u => u.isBanned).length
   const online = users.filter(u => isOnline(u.lastOnline)).length
   const pendingFeedback = feedback.filter(f => f.status === 'pending').length
-  const filteredFeedback = feedbackFilter === 'all' ? feedback : feedback.filter(f => f.status === feedbackFilter)
+  const filteredFeedback = feedbackFilter === 'all'
+    ? feedback.filter(f => f.status === 'pending')
+    : feedback.filter(f => f.status === feedbackFilter)
 
   const inputStyle = {
     background: 'rgba(255,255,255,0.05)',
