@@ -52,20 +52,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     ping() // sofort beim Login
     heartbeatRef.current = setInterval(ping, 5_000)
 
-    // Sofort offline markieren wenn Tab geschlossen oder Seite verlassen
-    const onUnload = () => goOffline()
-    const onVisibility = () => {
-      if (document.visibilityState === 'hidden') goOffline()
-      else ping() // sofort wieder online wenn Tab aktiv
-    }
-
-    window.addEventListener('beforeunload', onUnload)
-    document.addEventListener('visibilitychange', onVisibility)
+    // Offline nur wenn Tab wirklich geschlossen wird
+    window.addEventListener('beforeunload', goOffline)
 
     return () => {
       if (heartbeatRef.current) clearInterval(heartbeatRef.current)
-      window.removeEventListener('beforeunload', onUnload)
-      document.removeEventListener('visibilitychange', onVisibility)
+      window.removeEventListener('beforeunload', goOffline)
     }
   }, [user?.id]) // eslint-disable-line react-hooks/exhaustive-deps
 
