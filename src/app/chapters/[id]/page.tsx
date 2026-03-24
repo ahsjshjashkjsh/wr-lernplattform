@@ -1,3 +1,4 @@
+import React from 'react'
 import { prisma } from '@/lib/prisma'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
@@ -5,6 +6,45 @@ import { STATUS_LABELS } from '@/lib/utils'
 import { getCurrentUser } from '@/lib/auth'
 import { MarkLearnedButton } from './MarkLearnedButton'
 import { ArrowLeft, ArrowRight, BookOpen, Target, Lightbulb, Hash, Search, AlertTriangle } from 'lucide-react'
+
+function SummaryText({ text, terms }: { text: string; terms: string[] }) {
+  // Split into sentences for better readability
+  const sentences = text
+    .split(/(?<=[.!?])\s+/)
+    .map(s => s.trim())
+    .filter(Boolean)
+
+  // Highlight key terms within a sentence
+  function highlightTerms(sentence: string): React.ReactNode[] {
+    if (terms.length === 0) return [sentence]
+    const pattern = new RegExp(`(${terms.map(t => t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|')})`, 'gi')
+    const parts = sentence.split(pattern)
+    return parts.map((part, i) =>
+      terms.some(t => t.toLowerCase() === part.toLowerCase())
+        ? <mark key={i} style={{ background: 'rgba(99,102,241,0.18)', color: '#a5b4fc', borderRadius: 3, padding: '0 3px', fontWeight: 600 }}>{part}</mark>
+        : part
+    )
+  }
+
+  if (sentences.length <= 2) {
+    return (
+      <p className="text-sm text-slate-300 leading-relaxed">
+        {sentences.map((s, i) => <span key={i}>{highlightTerms(s)}{i < sentences.length - 1 ? ' ' : ''}</span>)}
+      </p>
+    )
+  }
+
+  return (
+    <ul className="space-y-2.5">
+      {sentences.map((s, i) => (
+        <li key={i} className="flex items-start gap-3 text-sm text-slate-300 leading-relaxed">
+          <span className="shrink-0 w-1.5 h-1.5 rounded-full mt-2" style={{ background: 'rgba(99,102,241,0.5)' }} />
+          <span>{highlightTerms(s)}</span>
+        </li>
+      ))}
+    </ul>
+  )
+}
 
 const STATUS_STYLE: Record<string, string> = {
   complete: 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20',
@@ -132,7 +172,7 @@ export default async function ChapterPage({
           <h2 className="text-xs font-semibold text-slate-500 uppercase tracking-widest mb-4 flex items-center gap-2">
             <BookOpen size={13} /> Zusammenfassung
           </h2>
-          <p className="dark-prose text-sm leading-relaxed whitespace-pre-wrap">{chapter.summary}</p>
+          <SummaryText text={chapter.summary} terms={chapter.keyTerms.map(t => t.term)} />
         </section>
       )}
 
