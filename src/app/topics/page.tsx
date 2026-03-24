@@ -45,10 +45,22 @@ const CATEGORY_ICON_COLOR: Record<string, string> = {
 }
 
 const FRW_TOPICS = [
-  { title: 'Buchführung & Kontenplan', description: 'Grundlagen der doppelten Buchführung, Kontenrahmen und Journaleinträge.' },
-  { title: 'Bilanz & Erfolgsrechnung', description: 'Aufbau und Analyse von Bilanz, Gewinn- und Verlustrechnung.' },
-  { title: 'Kalkulation', description: 'Kostenrechnung, Kalkulation und Preisbestimmung im Unternehmen.' },
-  { title: 'Abschluss & Bewertung', description: 'Jahresabschluss, Abschreibungen und Bewertungsvorschriften.' },
+  { title: 'Bilanz, Erfolgsrechnung & Jahresabschluss', description: 'Buchungssatz, Hauptbuch, Bilanz, Erfolgsrechnung und Jahresabschluss.', ref: 'Band 1, Kap. 1–8' },
+  { title: 'Warenkonten', description: 'Wareneinkauf, Warenverkauf und Warenbestandsveränderungen.', ref: 'Band 1, Kap. 9' },
+  { title: 'Mehrwertsteuer', description: 'Vorsteuer, Umsatzsteuer und Abrechnung mit der ESTV.', ref: 'Band 1, Kap. 11 / Band 3, Kap. 1' },
+  { title: 'Löhne und Gehälter', description: 'Lohnbuchhaltung, Sozialabzüge und Buchung von Lohnzahlungen.', ref: 'Band 2, Kap. 6' },
+  { title: 'Fremde Währungen', description: 'Buchung in Fremdwährungen, Kursdifferenzen und Umrechnungen.', ref: 'Band 2, Kap. 2 / Band 3, Kap. 2' },
+  { title: 'Verrechnungssteuer', description: 'Verrechnungssteuer auf Kapitalerträgen und Rückforderung.', ref: 'Band 1, Kap. 12.4' },
+  { title: 'Immobilien', description: 'Kauf, Verkauf und Abschreibung von Liegenschaften im Anlagevermögen.', ref: 'Band 3, Kap. 4' },
+  { title: 'Wertschriften', description: 'Kauf und Verkauf von Wertpapieren, Bewertung und Kursgewinne/-verluste.', ref: 'Band 3, Kap. 5' },
+  { title: 'Zeitliche Abgrenzungen', description: 'Transitorische Aktiven/Passiven und Rückstellungen.', ref: 'Band 2, Kap. 5' },
+  { title: 'Abschreibungen', description: 'Lineare und degressive Abschreibung auf Anlagegütern.', ref: 'Band 2, Kap. 4' },
+  { title: 'Verluste aus Forderungen', description: 'Debitorenverluste, Delkredere und Wertberichtigung Forderungen.', ref: 'Band 2, Kap. 3' },
+  { title: 'Rechtsformen', description: 'Einzelunternehmung und AG inkl. Gründung und Gewinnverteilung.', ref: 'Band 2, Kap. 7–8' },
+  { title: 'Bewertungsvorschriften & Stille Reserven', description: 'Bilanzbereinigung, stille Reserven und gesetzliche Bewertungsvorschriften.', ref: 'Band 2, Kap. 9.2–9.3 / Band 3, Kap. 3' },
+  { title: 'Kennzahlenanalyse', description: 'Analyse von Bilanz und Erfolgsrechnung mit betriebswirtschaftlichen Kennzahlen.', ref: 'Band 2, Kap. 11' },
+  { title: 'Kostenrechnung & Kalkulation', description: 'Kostenarten, Kostenstellen, Kostenträger, BAB und Nutzschwellenanalyse.', ref: 'Band 3, Kap. 11–12' },
+  { title: 'Geldflussrechnung', description: 'Cash-Flow-Rechnung und Analyse der Zahlungsströme im Unternehmen.', ref: 'Band 3, Kap. 9' },
 ]
 
 function TopicCard({ topic }: { topic: TopicWithCount }) {
@@ -86,7 +98,7 @@ function TopicCard({ topic }: { topic: TopicWithCount }) {
   )
 }
 
-function FrwPlaceholderCard({ title, description }: { title: string; description: string }) {
+function FrwPlaceholderCard({ title, description, ref: chapRef }: { title: string; description: string; ref: string }) {
   return (
     <div className="rounded-2xl overflow-hidden flex flex-col opacity-60" style={{ border: '1px solid rgba(16,185,129,0.15)', background: 'rgba(6,78,59,0.15)' }}>
       <div className="h-1 w-full" style={{ background: 'linear-gradient(90deg, rgba(16,185,129,0.4), rgba(5,150,105,0.1))' }} />
@@ -104,8 +116,8 @@ function FrwPlaceholderCard({ title, description }: { title: string; description
           <p className="text-xs text-slate-500 mt-1.5 line-clamp-2 leading-relaxed">{description}</p>
         </div>
         <div className="flex items-center justify-between pt-3 border-t" style={{ borderColor: 'rgba(16,185,129,0.1)' }}>
-          <span className="text-xs text-slate-600">Kommt bald</span>
-          <span className="text-[11px] px-2 py-0.5 rounded-full" style={{ background: 'rgba(16,185,129,0.08)', color: '#6ee7b7', border: '1px solid rgba(16,185,129,0.15)' }}>FRW</span>
+          <span className="text-xs text-slate-600 truncate">{chapRef}</span>
+          <span className="text-[11px] px-2 py-0.5 rounded-full shrink-0 ml-2" style={{ background: 'rgba(16,185,129,0.08)', color: '#6ee7b7', border: '1px solid rgba(16,185,129,0.15)' }}>FRW</span>
         </div>
       </div>
     </div>
@@ -229,7 +241,7 @@ export default function TopicsPage() {
                 </span>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {FRW_TOPICS.map(t => <FrwPlaceholderCard key={t.title} title={t.title} description={t.description} />)}
+                {FRW_TOPICS.map(t => <FrwPlaceholderCard key={t.title} title={t.title} description={t.description} ref={t.ref} />)}
               </div>
             </div>
           )}
