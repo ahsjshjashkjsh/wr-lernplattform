@@ -45,22 +45,22 @@ const CATEGORY_ICON_COLOR: Record<string, string> = {
 }
 
 const FRW_TOPICS = [
-  { title: 'Bilanz, Erfolgsrechnung & Jahresabschluss', description: 'Buchungssatz, Hauptbuch, Bilanz, Erfolgsrechnung und Jahresabschluss.', ref: 'Band 1, Kap. 1–8' },
-  { title: 'Warenkonten', description: 'Wareneinkauf, Warenverkauf und Warenbestandsveränderungen.', ref: 'Band 1, Kap. 9' },
-  { title: 'Mehrwertsteuer', description: 'Vorsteuer, Umsatzsteuer und Abrechnung mit der ESTV.', ref: 'Band 1, Kap. 11 / Band 3, Kap. 1' },
-  { title: 'Löhne und Gehälter', description: 'Lohnbuchhaltung, Sozialabzüge und Buchung von Lohnzahlungen.', ref: 'Band 2, Kap. 6' },
-  { title: 'Fremde Währungen', description: 'Buchung in Fremdwährungen, Kursdifferenzen und Umrechnungen.', ref: 'Band 2, Kap. 2 / Band 3, Kap. 2' },
-  { title: 'Verrechnungssteuer', description: 'Verrechnungssteuer auf Kapitalerträgen und Rückforderung.', ref: 'Band 1, Kap. 12.4' },
-  { title: 'Immobilien', description: 'Kauf, Verkauf und Abschreibung von Liegenschaften im Anlagevermögen.', ref: 'Band 3, Kap. 4' },
-  { title: 'Wertschriften', description: 'Kauf und Verkauf von Wertpapieren, Bewertung und Kursgewinne/-verluste.', ref: 'Band 3, Kap. 5' },
-  { title: 'Zeitliche Abgrenzungen', description: 'Transitorische Aktiven/Passiven und Rückstellungen.', ref: 'Band 2, Kap. 5' },
-  { title: 'Abschreibungen', description: 'Lineare und degressive Abschreibung auf Anlagegütern.', ref: 'Band 2, Kap. 4' },
-  { title: 'Verluste aus Forderungen', description: 'Debitorenverluste, Delkredere und Wertberichtigung Forderungen.', ref: 'Band 2, Kap. 3' },
-  { title: 'Rechtsformen', description: 'Einzelunternehmung und AG inkl. Gründung und Gewinnverteilung.', ref: 'Band 2, Kap. 7–8' },
-  { title: 'Bewertungsvorschriften & Stille Reserven', description: 'Bilanzbereinigung, stille Reserven und gesetzliche Bewertungsvorschriften.', ref: 'Band 2, Kap. 9.2–9.3 / Band 3, Kap. 3' },
-  { title: 'Kennzahlenanalyse', description: 'Analyse von Bilanz und Erfolgsrechnung mit betriebswirtschaftlichen Kennzahlen.', ref: 'Band 2, Kap. 11' },
-  { title: 'Kostenrechnung & Kalkulation', description: 'Kostenarten, Kostenstellen, Kostenträger, BAB und Nutzschwellenanalyse.', ref: 'Band 3, Kap. 11–12' },
-  { title: 'Geldflussrechnung', description: 'Cash-Flow-Rechnung und Analyse der Zahlungsströme im Unternehmen.', ref: 'Band 3, Kap. 9' },
+  { title: 'Bilanz, Erfolgsrechnung & Jahresabschluss', description: 'Buchungssatz, Hauptbuch, Bilanz, Erfolgsrechnung und Jahresabschluss.', ref: 'Band 1, Kap. 1–8', examType: 'both' },
+  { title: 'Warenkonten', description: 'Wareneinkauf, Warenverkauf und Warenbestandsveränderungen.', ref: 'Band 1, Kap. 9', examType: 'both' },
+  { title: 'Mehrwertsteuer', description: 'Vorsteuer, Umsatzsteuer und Abrechnung mit der ESTV.', ref: 'Band 1, Kap. 11 / Band 3, Kap. 1', examType: 'both' },
+  { title: 'Löhne und Gehälter', description: 'Lohnbuchhaltung, Sozialabzüge und Buchung von Lohnzahlungen.', ref: 'Band 2, Kap. 6', examType: 'both' },
+  { title: 'Fremde Währungen', description: 'Buchung in Fremdwährungen, Kursdifferenzen und Umrechnungen.', ref: 'Band 2, Kap. 2 / Band 3, Kap. 2', examType: 'both' },
+  { title: 'Verrechnungssteuer', description: 'Verrechnungssteuer auf Kapitalerträgen und Rückforderung.', ref: 'Band 1, Kap. 12.4', examType: 'both' },
+  { title: 'Immobilien', description: 'Kauf, Verkauf und Abschreibung von Liegenschaften im Anlagevermögen.', ref: 'Band 3, Kap. 4', examType: 'both' },
+  { title: 'Wertschriften', description: 'Kauf und Verkauf von Wertpapieren, Bewertung und Kursgewinne/-verluste.', ref: 'Band 3, Kap. 5', examType: 'both' },
+  { title: 'Zeitliche Abgrenzungen', description: 'Transitorische Aktiven/Passiven und Rückstellungen.', ref: 'Band 2, Kap. 5', examType: 'both' },
+  { title: 'Abschreibungen', description: 'Lineare und degressive Abschreibung auf Anlagegütern.', ref: 'Band 2, Kap. 4', examType: 'both' },
+  { title: 'Verluste aus Forderungen', description: 'Debitorenverluste, Delkredere und Wertberichtigung Forderungen.', ref: 'Band 2, Kap. 3', examType: 'both' },
+  { title: 'Rechtsformen', description: 'Einzelunternehmung und AG inkl. Gründung und Gewinnverteilung.', ref: 'Band 2, Kap. 7–8', examType: 'abschluss' },
+  { title: 'Bewertungsvorschriften & Stille Reserven', description: 'Bilanzbereinigung, stille Reserven und gesetzliche Bewertungsvorschriften.', ref: 'Band 2, Kap. 9.2–9.3 / Band 3, Kap. 3', examType: 'abschluss' },
+  { title: 'Kennzahlenanalyse', description: 'Analyse von Bilanz und Erfolgsrechnung mit betriebswirtschaftlichen Kennzahlen.', ref: 'Band 2, Kap. 11', examType: 'both' },
+  { title: 'Kostenrechnung & Kalkulation', description: 'Kostenarten, Kostenstellen, Kostenträger, BAB und Nutzschwellenanalyse.', ref: 'Band 3, Kap. 11–12', examType: 'both' },
+  { title: 'Geldflussrechnung', description: 'Cash-Flow-Rechnung und Analyse der Zahlungsströme im Unternehmen.', ref: 'Band 3, Kap. 9', examType: 'abschluss' },
 ]
 
 function TopicCard({ topic }: { topic: TopicWithCount }) {
@@ -98,17 +98,27 @@ function TopicCard({ topic }: { topic: TopicWithCount }) {
   )
 }
 
-function FrwPlaceholderCard({ title, description, ref: chapRef }: { title: string; description: string; ref: string }) {
+const EXAM_STYLE_FRW: Record<string, { label: string; className: string }> = {
+  both:      { label: 'QSP + AP', className: 'text-indigo-400 bg-indigo-500/10 border border-indigo-500/20' },
+  abschluss: { label: 'AP',       className: 'text-amber-400 bg-amber-500/10 border border-amber-500/20' },
+  querschnitt: { label: 'QSP',   className: 'text-emerald-400 bg-emerald-500/10 border border-emerald-500/20' },
+}
+
+function FrwPlaceholderCard({ title, description, ref: chapRef, examType }: { title: string; description: string; ref: string; examType: string }) {
+  const exam = EXAM_STYLE_FRW[examType] ?? EXAM_STYLE_FRW.abschluss
   return (
     <div className="rounded-2xl overflow-hidden flex flex-col opacity-60" style={{ border: '1px solid rgba(16,185,129,0.15)', background: 'rgba(6,78,59,0.15)' }}>
       <div className="h-1 w-full" style={{ background: 'linear-gradient(90deg, rgba(16,185,129,0.4), rgba(5,150,105,0.1))' }} />
       <div className="p-5 flex flex-col gap-4 flex-1">
-        <div className="flex items-start justify-between">
+        <div className="flex items-start justify-between gap-2">
           <div className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0" style={{ background: 'rgba(16,185,129,0.1)' }}>
             <Calculator size={20} className="text-emerald-500" />
           </div>
-          <div className="flex items-center gap-1 text-[11px] font-medium px-2.5 py-1 rounded-full" style={{ background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.2)', color: '#6ee7b7' }}>
-            <Lock size={9} /> In Bearbeitung
+          <div className="flex flex-col items-end gap-1">
+            <span className={`text-[11px] font-medium px-2.5 py-1 rounded-full ${exam.className}`}>{exam.label}</span>
+            <div className="flex items-center gap-1 text-[10px] font-medium px-2 py-0.5 rounded-full" style={{ background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.2)', color: '#6ee7b7' }}>
+              <Lock size={8} /> In Bearbeitung
+            </div>
           </div>
         </div>
         <div className="flex-1">
@@ -241,7 +251,7 @@ export default function TopicsPage() {
                 </span>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {FRW_TOPICS.map(t => <FrwPlaceholderCard key={t.title} title={t.title} description={t.description} ref={t.ref} />)}
+                {FRW_TOPICS.map(t => <FrwPlaceholderCard key={t.title} title={t.title} description={t.description} ref={t.ref} examType={t.examType} />)}
               </div>
             </div>
           )}
