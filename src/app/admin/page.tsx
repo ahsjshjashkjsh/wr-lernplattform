@@ -93,6 +93,20 @@ export default function AdminPage() {
     if (!silent) setLoading(false)
   }, [])
 
+  // SSE: Live-Updates vom Server (alle 3s gepusht, kein Client-Polling)
+  useEffect(() => {
+    const es = new EventSource('/api/admin/stream')
+    es.onmessage = (e) => {
+      const { users: u, bannedIps: ips } = JSON.parse(e.data)
+      setUsers(u)
+      setBannedIps(ips ?? [])
+      setLastRefresh(new Date())
+      setLoading(false)
+    }
+    es.onerror = () => { /* reconnects automatically */ }
+    return () => es.close()
+  }, [])
+
   async function loadFeedback() {
     const res = await fetch('/api/feedback')
     if (res.ok) { const data = await res.json(); setFeedback(data.feedback) }
@@ -111,11 +125,10 @@ export default function AdminPage() {
     setAdminNote('')
   }
 
-  // Auto-refresh every 30s — stilles Update, kein Flackern
+  // Initial load + Feedback polling (Feedback braucht kein SSE)
   useEffect(() => {
-    loadUsers()
     loadFeedback()
-    const interval = setInterval(() => { loadUsers(true); loadFeedback() }, 5_000)
+    const interval = setInterval(loadFeedback, 15_000)
     return () => clearInterval(interval)
   }, [loadUsers])
 

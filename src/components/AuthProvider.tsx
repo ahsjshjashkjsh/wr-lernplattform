@@ -49,7 +49,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const ping = () => fetch('/api/heartbeat', { method: 'POST' }).catch(() => {})
     ping() // sofort beim Login
 
-    heartbeatRef.current = setInterval(ping, 30_000)
+    heartbeatRef.current = setInterval(ping, 5_000)
     return () => {
       if (heartbeatRef.current) clearInterval(heartbeatRef.current)
     }
