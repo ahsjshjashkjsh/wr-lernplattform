@@ -1,7 +1,7 @@
 'use client'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { BookOpen, LayoutDashboard, TrendingUp, Bot, CheckCircle, Sun, Moon, LogIn, LogOut, User, Shield } from 'lucide-react'
+import { BookOpen, LayoutDashboard, TrendingUp, Bot, CheckCircle, Sun, Moon, LogIn, LogOut, User, Shield, MessageSquarePlus } from 'lucide-react'
 import { useTheme } from '@/components/ThemeProvider'
 import { useAuth } from '@/components/AuthProvider'
 
@@ -10,6 +10,7 @@ const nav = [
   { href: '/topics',    label: 'Themen',     icon: BookOpen },
   { href: '/progress',  label: 'Fortschritt', icon: CheckCircle },
   { href: '/assistant', label: 'Assistent',  icon: Bot },
+  { href: '/feedback',  label: 'Feedback',   icon: MessageSquarePlus },
 ]
 
 export function Navbar() {

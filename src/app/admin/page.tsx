@@ -1,6 +1,6 @@
 'use client'
 import { useEffect, useState } from 'react'
-import { Shield, Trash2, Crown, Users, BarChart2, BookOpen, Ban, UserPlus, Pencil, X, Check, Eye, EyeOff, RefreshCw } from 'lucide-react'
+import { Shield, Trash2, Crown, Users, BarChart2, BookOpen, Ban, UserPlus, Pencil, X, Check, Eye, EyeOff, RefreshCw, MessageSquare, CheckCircle2, XCircle, Clock, Bug, Lightbulb, FileText, HelpCircle } from 'lucide-react'
 
 interface AdminUser {
   id: string
@@ -13,7 +13,23 @@ interface AdminUser {
   quizAttempts: { completedAt: string }[]
 }
 
-type Tab = 'users' | 'create'
+interface FeedbackItem {
+  id: string
+  userName: string
+  title: string
+  message: string
+  category: string
+  status: string
+  adminNote: string | null
+  createdAt: string
+  user: { name: string; email: string } | null
+}
+
+const CATEGORY_ICONS: Record<string, typeof Bug> = { bug: Bug, feature: Lightbulb, content: FileText, general: HelpCircle }
+const CATEGORY_LABELS: Record<string, string> = { bug: 'Fehler', feature: 'Vorschlag', content: 'Inhalt', general: 'Allgemein' }
+const CATEGORY_COLORS: Record<string, string> = { bug: '#f87171', feature: '#fbbf24', content: '#60a5fa', general: '#a78bfa' }
+
+type Tab = 'users' | 'create' | 'feedback'
 
 export default function AdminPage() {
   const [users, setUsers] = useState<AdminUser[]>([])
@@ -29,6 +45,10 @@ export default function AdminPage() {
   const [createError, setCreateError] = useState('')
   const [createSuccess, setCreateSuccess] = useState('')
   const [search, setSearch] = useState('')
+  const [feedback, setFeedback] = useState<FeedbackItem[]>([])
+  const [feedbackFilter, setFeedbackFilter] = useState<'all' | 'pending' | 'accepted' | 'rejected'>('all')
+  const [reviewItem, setReviewItem] = useState<FeedbackItem | null>(null)
+  const [adminNote, setAdminNote] = useState('')
 
   async function loadUsers() {
     setLoading(true)
@@ -40,7 +60,25 @@ export default function AdminPage() {
     setLoading(false)
   }
 
-  useEffect(() => { loadUsers() }, [])
+  async function loadFeedback() {
+    const res = await fetch('/api/feedback')
+    if (res.ok) { const data = await res.json(); setFeedback(data.feedback) }
+  }
+
+  async function reviewFeedback(id: string, status: 'accepted' | 'rejected') {
+    setActionLoading('review-' + id)
+    await fetch('/api/feedback', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id, status, adminNote }),
+    })
+    await loadFeedback()
+    setActionLoading(null)
+    setReviewItem(null)
+    setAdminNote('')
+  }
+
+  useEffect(() => { loadUsers(); loadFeedback() }, [])
 
   async function patch(userId: string, data: Record<string, unknown>, key: string) {
     setActionLoading(key)
@@ -106,6 +144,8 @@ export default function AdminPage() {
   const totalQuiz = users.reduce((s, u) => s + u._count.quizAttempts, 0)
   const totalProgress = users.reduce((s, u) => s + u._count.progress, 0)
   const banned = users.filter(u => u.isBanned).length
+  const pendingFeedback = feedback.filter(f => f.status === 'pending').length
+  const filteredFeedback = feedbackFilter === 'all' ? feedback : feedback.filter(f => f.status === feedbackFilter)
 
   const inputStyle = {
     background: 'rgba(255,255,255,0.05)',
@@ -138,7 +178,7 @@ export default function AdminPage() {
           { icon: Users, label: 'Gesamt', value: users.length, color: '#3b82f6' },
           { icon: Ban, label: 'Gesperrt', value: banned, color: '#ef4444' },
           { icon: BarChart2, label: 'Quiz-Versuche', value: totalQuiz, color: '#10b981' },
-          { icon: BookOpen, label: 'Kapitel besucht', value: totalProgress, color: '#8b5cf6' },
+          { icon: MessageSquare, label: 'Feedback offen', value: pendingFeedback, color: '#f59e0b' },
         ].map(({ icon: Icon, label, value, color }) => (
           <div key={label} className="glass rounded-2xl p-4 border" style={{ borderColor: 'rgba(255,255,255,0.08)' }}>
             <div className="flex items-center gap-2 mb-1">
@@ -152,7 +192,7 @@ export default function AdminPage() {
 
       {/* Tabs */}
       <div className="flex gap-2 mb-4">
-        {([['users', Users, 'Benutzer'], ['create', UserPlus, 'Neuer Account']] as const).map(([t, Icon, label]) => (
+        {([['users', Users, 'Benutzer'], ['create', UserPlus, 'Neuer Account'], ['feedback', MessageSquare, `Feedback${pendingFeedback > 0 ? ` (${pendingFeedback})` : ''}`]] as const).map(([t, Icon, label]) => (
           <button
             key={t}
             onClick={() => setTab(t)}
@@ -338,6 +378,129 @@ export default function AdminPage() {
               <UserPlus size={14} />
               {actionLoading === 'create' ? 'Wird erstellt...' : 'Account erstellen'}
             </button>
+          </div>
+        </div>
+      )}
+
+      {/* === TAB: FEEDBACK === */}
+      {tab === 'feedback' && (
+        <div className="space-y-4">
+          {/* Filter */}
+          <div className="flex gap-2">
+            {(['all', 'pending', 'accepted', 'rejected'] as const).map(f => {
+              const labels = { all: 'Alle', pending: 'Offen', accepted: 'Akzeptiert', rejected: 'Abgelehnt' }
+              const colors = { all: '#64748b', pending: '#f59e0b', accepted: '#10b981', rejected: '#f87171' }
+              return (
+                <button key={f} onClick={() => setFeedbackFilter(f)}
+                  className="px-3 py-1.5 rounded-lg text-xs font-medium transition-all border"
+                  style={{
+                    background: feedbackFilter === f ? `${colors[f]}18` : 'rgba(255,255,255,0.04)',
+                    borderColor: feedbackFilter === f ? `${colors[f]}40` : 'rgba(255,255,255,0.08)',
+                    color: feedbackFilter === f ? colors[f] : '#64748b',
+                  }}>
+                  {labels[f]}
+                </button>
+              )
+            })}
+          </div>
+
+          {filteredFeedback.length === 0 ? (
+            <div className="glass rounded-2xl border p-10 text-center text-slate-500 text-sm" style={{ borderColor: 'rgba(255,255,255,0.08)' }}>
+              Kein Feedback vorhanden.
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {filteredFeedback.map(item => {
+                const CatIcon = CATEGORY_ICONS[item.category] ?? HelpCircle
+                const color = CATEGORY_COLORS[item.category] ?? '#a78bfa'
+                const statusIcon = item.status === 'accepted' ? CheckCircle2 : item.status === 'rejected' ? XCircle : Clock
+                const statusColor = item.status === 'accepted' ? '#10b981' : item.status === 'rejected' ? '#f87171' : '#f59e0b'
+                const StatusIcon = statusIcon
+                return (
+                  <div key={item.id} className="glass rounded-2xl border p-5" style={{ borderColor: 'rgba(255,255,255,0.08)' }}>
+                    <div className="flex items-start gap-3">
+                      <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 mt-0.5" style={{ background: `${color}18`, border: `1px solid ${color}30` }}>
+                        <CatIcon size={14} style={{ color }} />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap mb-1">
+                          <span className="text-sm font-semibold text-slate-200">{item.title}</span>
+                          <span className="text-xs px-1.5 py-0.5 rounded-md" style={{ background: `${color}18`, color }}>{CATEGORY_LABELS[item.category]}</span>
+                          <div className="flex items-center gap-1 ml-auto">
+                            <StatusIcon size={12} style={{ color: statusColor }} />
+                            <span className="text-xs" style={{ color: statusColor }}>
+                              {item.status === 'accepted' ? 'Akzeptiert' : item.status === 'rejected' ? 'Abgelehnt' : 'Offen'}
+                            </span>
+                          </div>
+                        </div>
+                        <p className="text-xs text-slate-400 mb-1">{item.userName} · {new Date(item.createdAt).toLocaleDateString('de-CH')}</p>
+                        <p className="text-sm text-slate-300 whitespace-pre-wrap">{item.message}</p>
+                        {item.adminNote && (
+                          <div className="mt-2 px-3 py-2 rounded-lg text-xs text-slate-400 italic" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}>
+                            Admin-Notiz: {item.adminNote}
+                          </div>
+                        )}
+                        {item.status === 'pending' && (
+                          <button
+                            onClick={() => { setReviewItem(item); setAdminNote('') }}
+                            className="mt-3 px-3 py-1.5 rounded-lg text-xs font-medium text-white transition-all"
+                            style={{ background: 'linear-gradient(135deg, #3b82f6, #6366f1)' }}
+                          >
+                            Prüfen
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* === REVIEW MODAL === */}
+      {reviewItem && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(4px)' }}>
+          <div className="glass rounded-2xl border p-6 w-full max-w-md" style={{ borderColor: 'rgba(255,255,255,0.12)' }}>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-sm font-semibold text-slate-200">Feedback prüfen</h2>
+              <button onClick={() => setReviewItem(null)} className="text-slate-500 hover:text-slate-300"><X size={16} /></button>
+            </div>
+            <div className="mb-4 p-3 rounded-xl text-sm text-slate-300" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}>
+              <p className="font-medium text-slate-200 mb-1">{reviewItem.title}</p>
+              <p className="text-xs text-slate-400 mb-2">{reviewItem.userName}</p>
+              <p className="whitespace-pre-wrap">{reviewItem.message}</p>
+            </div>
+            <div className="mb-4">
+              <label className="text-xs text-slate-400 block mb-1.5">Admin-Notiz <span className="text-slate-600">(optional)</span></label>
+              <textarea
+                value={adminNote}
+                onChange={e => setAdminNote(e.target.value)}
+                placeholder="z.B. Wird im nächsten Update umgesetzt..."
+                rows={3}
+                className="w-full px-3 py-2 rounded-xl text-sm outline-none resize-none"
+                style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: 'var(--text-primary)' }}
+              />
+            </div>
+            <div className="flex gap-2">
+              <button
+                onClick={() => reviewFeedback(reviewItem.id, 'accepted')}
+                disabled={actionLoading === 'review-' + reviewItem.id}
+                className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold text-white disabled:opacity-60"
+                style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}
+              >
+                <CheckCircle2 size={14} /> Akzeptieren
+              </button>
+              <button
+                onClick={() => reviewFeedback(reviewItem.id, 'rejected')}
+                disabled={actionLoading === 'review-' + reviewItem.id}
+                className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold text-white disabled:opacity-60"
+                style={{ background: 'linear-gradient(135deg, #ef4444, #dc2626)' }}
+              >
+                <XCircle size={14} /> Ablehnen
+              </button>
+            </div>
           </div>
         </div>
       )}

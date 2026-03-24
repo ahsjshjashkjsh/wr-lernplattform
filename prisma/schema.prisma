@@ -16,6 +16,7 @@ model User {
   createdAt    DateTime          @default(now())
   progress     ChapterProgress[]
   quizAttempts QuizAttempt[]
+  feedback     Feedback[]
 }
 
 model Topic {
@@ -144,6 +145,20 @@ model ChapterProgress {
   updatedAt   DateTime @updatedAt
 
   @@unique([chapterId, userId])
+}
+
+model Feedback {
+  id        String   @id @default(cuid())
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id])
+  userName  String
+  title     String
+  message   String
+  category  String   @default("general")
+  status    String   @default("pending")
+  adminNote String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model AssistantMessage {
