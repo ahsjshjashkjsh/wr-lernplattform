@@ -139,6 +139,53 @@ export default async function DashboardPage() {
         </div>
       </div>
 
+      {/* FRW Teaser — prominent */}
+      <div
+        className="relative rounded-2xl overflow-hidden border"
+        style={{
+          background: 'linear-gradient(135deg, #064e3b 0%, #065f46 40%, #047857 100%)',
+          borderColor: 'rgba(16,185,129,0.4)',
+          boxShadow: '0 0 40px rgba(16,185,129,0.15)',
+        }}
+      >
+        {/* Glow */}
+        <div className="absolute inset-0 pointer-events-none"
+          style={{ background: 'radial-gradient(ellipse at top right, rgba(52,211,153,0.2) 0%, transparent 60%)' }} />
+        <div className="absolute bottom-0 left-0 w-64 h-64 rounded-full opacity-10 pointer-events-none"
+          style={{ background: 'radial-gradient(circle, rgba(16,185,129,0.8) 0%, transparent 70%)', transform: 'translate(-20%, 40%)' }} />
+
+        <div className="relative z-10 flex flex-col sm:flex-row items-center gap-5 p-6 sm:p-8">
+          {/* Icon */}
+          <div
+            className="w-16 h-16 rounded-2xl flex items-center justify-center shrink-0"
+            style={{ background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', boxShadow: '0 4px 20px rgba(0,0,0,0.2)' }}
+          >
+            <Calculator size={30} className="text-emerald-300" />
+          </div>
+
+          {/* Text */}
+          <div className="flex-1 text-center sm:text-left">
+            <div className="flex items-center justify-center sm:justify-start gap-2 mb-2 flex-wrap">
+              <span className="flex items-center gap-1.5 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide"
+                style={{ background: 'rgba(255,255,255,0.15)', color: '#6ee7b7', border: '1px solid rgba(255,255,255,0.2)' }}>
+                <Clock size={10} /> Demnächst verfügbar
+              </span>
+            </div>
+            <h2 className="text-xl sm:text-2xl font-extrabold text-white mb-1">
+              FRW — Finanz- & Rechnungswesen
+            </h2>
+            <p className="text-emerald-200 text-sm leading-relaxed max-w-md">
+              Buchhaltung, Bilanz, Erfolgsrechnung und Kalkulation kommen bald als eigener Bereich auf diese Plattform.
+            </p>
+          </div>
+
+          {/* Badge */}
+          <div className="shrink-0 text-center">
+            <div className="text-4xl font-black text-white opacity-20 select-none hidden sm:block">FRW</div>
+          </div>
+        </div>
+      </div>
+
       {/* Stats */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         {[
@@ -195,38 +242,6 @@ export default async function DashboardPage() {
             </div>
           </div>
         ))}
-      </div>
-
-      {/* FRW Teaser */}
-      <div
-        className="relative rounded-2xl p-6 overflow-hidden border"
-        style={{
-          background: 'linear-gradient(135deg, rgba(16,185,129,0.08) 0%, rgba(5,150,105,0.05) 100%)',
-          borderColor: 'rgba(16,185,129,0.2)',
-        }}
-      >
-        <div className="absolute top-0 right-0 w-48 h-48 rounded-full opacity-10 pointer-events-none"
-          style={{ background: 'radial-gradient(circle, rgba(16,185,129,0.6) 0%, transparent 70%)', transform: 'translate(30%, -30%)' }} />
-        <div className="relative z-10 flex items-center gap-4">
-          <div
-            className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0"
-            style={{ background: 'rgba(16,185,129,0.15)', border: '1px solid rgba(16,185,129,0.25)' }}
-          >
-            <Calculator size={22} className="text-emerald-400" />
-          </div>
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2 flex-wrap mb-1">
-              <span className="text-base font-bold text-white">FRW — Finanz- & Rechnungswesen</span>
-              <span className="flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full"
-                style={{ background: 'rgba(16,185,129,0.15)', border: '1px solid rgba(16,185,129,0.3)', color: '#34d399' }}>
-                <Clock size={10} /> Demnächst
-              </span>
-            </div>
-            <p className="text-sm text-slate-400 leading-relaxed">
-              Buchhaltung, Bilanz, Erfolgsrechnung und mehr — der FRW-Teil ist in Planung und kommt bald auf diese Plattform.
-            </p>
-          </div>
-        </div>
       </div>
 
       {/* CTA */}
