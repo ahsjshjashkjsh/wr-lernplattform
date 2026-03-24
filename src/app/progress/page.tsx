@@ -1,4 +1,5 @@
 import { prisma } from '@/lib/prisma'
+import { getCurrentUser } from '@/lib/auth'
 import Link from 'next/link'
 import { TopicIcon } from '@/components/TopicIcon'
 import { formatScore } from '@/lib/utils'
@@ -7,12 +8,19 @@ import { CheckCircle2, Clock, Circle, Trophy, BookOpen, ArrowRight } from 'lucid
 export const dynamic = 'force-dynamic'
 
 async function getProgressData() {
+  const user = await getCurrentUser()
+  const userId = user?.id ?? null
+
   const topics = await prisma.topic.findMany({
     orderBy: { order: 'asc' },
     include: {
       chapters: {
         orderBy: { order: 'asc' },
-        include: { progress: true },
+        include: {
+          progress: {
+            where: userId ? { userId } : { userId: null },
+          },
+        },
       },
     },
   })
