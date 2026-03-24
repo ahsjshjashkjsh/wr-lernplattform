@@ -656,20 +656,36 @@ export default function AdminPage() {
                 />
               </div>
 
-              {/* Absender-Toggle */}
-              <div className="flex items-center justify-between py-2 px-3 rounded-xl" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}>
-                <div>
-                  <p className="text-xs font-medium text-slate-300">Admin-Absender anzeigen</p>
-                  <p className="text-xs text-slate-500 mt-0.5">Zeigt Shield-Icon und «Admin-Nachricht» im Popup</p>
+              <div className="flex items-center gap-4">
+                {/* Absender-Auswahl */}
+                <div className="flex gap-2 w-full">
+                  <button
+                    type="button"
+                    onClick={() => setMsgShowSender(true)}
+                    className="flex-1 flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-medium transition-all border"
+                    style={{
+                      background: msgShowSender ? 'rgba(139,92,246,0.15)' : 'rgba(255,255,255,0.03)',
+                      borderColor: msgShowSender ? 'rgba(139,92,246,0.4)' : 'rgba(255,255,255,0.08)',
+                      color: msgShowSender ? '#a78bfa' : '#64748b',
+                    }}
+                  >
+                    <Shield size={13} />
+                    Als Admin
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setMsgShowSender(false)}
+                    className="flex-1 flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-medium transition-all border"
+                    style={{
+                      background: !msgShowSender ? 'rgba(100,116,139,0.15)' : 'rgba(255,255,255,0.03)',
+                      borderColor: !msgShowSender ? 'rgba(100,116,139,0.4)' : 'rgba(255,255,255,0.08)',
+                      color: !msgShowSender ? '#94a3b8' : '#64748b',
+                    }}
+                  >
+                    <MessageSquare size={13} />
+                    Anonym
+                  </button>
                 </div>
-                <button
-                  onClick={() => setMsgShowSender(v => !v)}
-                  className="relative w-10 h-5 rounded-full transition-colors shrink-0"
-                  style={{ background: msgShowSender ? '#7c3aed' : 'rgba(255,255,255,0.1)' }}
-                >
-                  <span className="absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform"
-                    style={{ transform: msgShowSender ? 'translateX(20px)' : 'translateX(0)' }} />
-                </button>
               </div>
 
               <button
@@ -684,6 +700,7 @@ export default function AdminPage() {
                       body: JSON.stringify({ message: msgText, targetUserId: msgTarget === 'all' ? null : msgTarget, showSender: msgShowSender }),
                     })
                     setMsgText('')
+                    setMsgShowSender(true)
                     setMsgSent(true)
                     setTimeout(() => setMsgSent(false), 3000)
                   } finally {
