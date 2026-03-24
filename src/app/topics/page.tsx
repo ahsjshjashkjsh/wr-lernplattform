@@ -58,7 +58,7 @@ const FRW_TOPICS = [
   { title: 'Verluste aus Forderungen', description: 'Debitorenverluste, Delkredere und Wertberichtigung Forderungen.', ref: 'Band 2, Kap. 3', examType: 'both' },
   { title: 'Rechtsformen', description: 'Einzelunternehmung und AG inkl. Gründung und Gewinnverteilung.', ref: 'Band 2, Kap. 7–8', examType: 'abschluss' },
   { title: 'Bewertungsvorschriften & Stille Reserven', description: 'Bilanzbereinigung, stille Reserven und gesetzliche Bewertungsvorschriften.', ref: 'Band 2, Kap. 9.2–9.3 / Band 3, Kap. 3', examType: 'abschluss' },
-  { title: 'Kennzahlenanalyse', description: 'Analyse von Bilanz und Erfolgsrechnung mit betriebswirtschaftlichen Kennzahlen.', ref: 'Band 2, Kap. 11', examType: 'both' },
+  { title: 'Kennzahlenanalyse', description: 'Analyse von Bilanz und Erfolgsrechnung mit betriebswirtschaftlichen Kennzahlen.', ref: 'Band 2, Kap. 11', examType: 'querschnitt' },
   { title: 'Kostenrechnung & Kalkulation', description: 'Kostenarten, Kostenstellen, Kostenträger, BAB und Nutzschwellenanalyse.', ref: 'Band 3, Kap. 11–12', examType: 'both' },
   { title: 'Geldflussrechnung', description: 'Cash-Flow-Rechnung und Analyse der Zahlungsströme im Unternehmen.', ref: 'Band 3, Kap. 9', examType: 'abschluss' },
 ]
