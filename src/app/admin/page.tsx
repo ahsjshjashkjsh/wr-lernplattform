@@ -194,6 +194,24 @@ export default function AdminPage() {
   const banned = users.filter(u => u.isBanned).length
   const online = users.filter(u => isOnline(u.lastOnline)).length
   const pendingFeedback = feedback.filter(f => f.status === 'pending').length
+  const avgScore = (() => {
+    const all = users.flatMap(u => u.quizAttempts.map(a => a.scorePercent))
+    return all.length ? Math.round(all.reduce((a, b) => a + b, 0) / all.length) : 0
+  })()
+
+  // Benutzerwachstum: letzte 30 Tage kumuliert
+  const growthData = (() => {
+    const days = 30
+    const now = Date.now()
+    const points: { label: string; total: number }[] = []
+    for (let i = days - 1; i >= 0; i--) {
+      const dayStart = now - i * 86_400_000
+      const label = new Date(dayStart).toLocaleDateString('de-CH', { day: '2-digit', month: '2-digit' })
+      const total = users.filter(u => new Date(u.createdAt ?? 0).getTime() <= dayStart).length
+      points.push({ label, total })
+    }
+    return points
+  })()
   const filteredFeedback = feedbackFilter === 'all'
     ? feedback.filter(f => f.status === 'pending')
     : feedback.filter(f => f.status === feedbackFilter)
@@ -208,44 +226,103 @@ export default function AdminPage() {
     <div className="max-w-5xl mx-auto px-4 py-8">
 
       {/* Header */}
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: 'rgba(245,158,11,0.15)', border: '1px solid rgba(245,158,11,0.3)' }}>
             <Shield size={20} style={{ color: '#f59e0b' }} />
           </div>
           <div>
             <h1 className="text-2xl font-bold text-slate-100">Admin Dashboard</h1>
-            <p className="text-sm text-slate-500">Benutzerverwaltung · Live-Monitoring</p>
+            <p className="text-xs text-slate-500 mt-0.5">HMS-Plattform · Verwaltung & Monitoring</p>
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold" style={{ background: 'rgba(34,197,94,0.1)', color: '#22c55e', border: '1px solid rgba(34,197,94,0.2)' }}>
+          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold" style={{ background: 'rgba(34,197,94,0.1)', color: '#22c55e', border: '1px solid rgba(34,197,94,0.2)' }}>
             <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse"/>
             {online} online
           </div>
-          <button onClick={loadUsers} className="w-8 h-8 flex items-center justify-center rounded-lg transition-all" style={{ background: 'rgba(255,255,255,0.05)', color: '#64748b' }}>
+          <button onClick={loadUsers} className="w-8 h-8 flex items-center justify-center rounded-xl transition-all hover:opacity-80" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', color: '#64748b' }}>
             <RefreshCw size={14} />
           </button>
         </div>
       </div>
 
-      {/* Stats */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
+      {/* Stats grid */}
+      <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 mb-5">
         {[
-          { icon: Users, label: 'Benutzer', value: users.length, color: '#3b82f6' },
-          { icon: Activity, label: 'Gerade online', value: online, color: '#22c55e' },
-          { icon: Ban, label: 'Gesperrt', value: banned, color: '#ef4444' },
-          { icon: MessageSquare, label: 'Feedback offen', value: pendingFeedback, color: '#f59e0b' },
-        ].map(({ icon: Icon, label, value, color }) => (
-          <div key={label} className="glass rounded-2xl p-4 border" style={{ borderColor: 'rgba(255,255,255,0.08)' }}>
-            <div className="flex items-center gap-2 mb-1">
-              <Icon size={13} style={{ color }} />
+          { icon: Users,        label: 'Benutzer',      value: users.length,    color: '#3b82f6', sub: `+${users.filter(u => Date.now() - new Date(u.createdAt).getTime() < 7*86400000).length} diese Woche` },
+          { icon: Activity,     label: 'Online',        value: online,          color: '#22c55e', sub: 'in den letzten 3 Min.' },
+          { icon: BarChart2,    label: 'Quiz-Attempts', value: totalQuiz,       color: '#a855f7', sub: `Ø ${avgScore}% Score` },
+          { icon: Ban,          label: 'Gesperrt',      value: banned,          color: '#ef4444', sub: `${bannedIps.length} IPs blockiert` },
+          { icon: MessageSquare,label: 'Feedback',      value: pendingFeedback, color: '#f59e0b', sub: 'offen' },
+        ].map(({ icon: Icon, label, value, color, sub }) => (
+          <div key={label} className="glass rounded-2xl p-4 border relative overflow-hidden" style={{ borderColor: 'rgba(255,255,255,0.07)' }}>
+            <div className="absolute top-0 left-0 right-0 h-0.5" style={{ background: `linear-gradient(90deg, ${color}60, transparent)` }} />
+            <div className="flex items-center justify-between mb-2">
               <span className="text-xs text-slate-500">{label}</span>
+              <div className="w-6 h-6 rounded-lg flex items-center justify-center" style={{ background: `${color}18` }}>
+                <Icon size={12} style={{ color }} />
+              </div>
             </div>
-            <div className="text-2xl font-bold text-slate-100">{value}</div>
+            <div className="text-3xl font-black text-slate-100">{value}</div>
+            <p className="text-[10px] text-slate-600 mt-1 truncate">{sub}</p>
           </div>
         ))}
       </div>
+
+      {/* Growth Chart */}
+      {growthData.length > 0 && (() => {
+        const W = 800, H = 140, PAD = { t: 16, r: 20, b: 32, l: 36 }
+        const iW = W - PAD.l - PAD.r, iH = H - PAD.t - PAD.b
+        const maxV = Math.max(...growthData.map(d => d.total), 1)
+        const pts = growthData.map((d, i) => ({
+          x: PAD.l + (i / (growthData.length - 1)) * iW,
+          y: PAD.t + iH - (d.total / maxV) * iH,
+          ...d,
+        }))
+        const pathD = pts.map((p, i) => `${i === 0 ? 'M' : 'L'}${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' ')
+        const areaD = `${pathD} L${pts[pts.length-1].x.toFixed(1)},${(PAD.t+iH).toFixed(1)} L${PAD.l},${(PAD.t+iH).toFixed(1)} Z`
+        const labels = pts.filter((_, i) => i === 0 || i === pts.length - 1 || i % 7 === 0)
+        const gridLines = [0, 0.25, 0.5, 0.75, 1].map(r => ({ y: PAD.t + iH - r * iH, v: Math.round(r * maxV) }))
+        return (
+          <div className="glass rounded-2xl border mb-5 overflow-hidden" style={{ borderColor: 'rgba(255,255,255,0.07)' }}>
+            <div className="flex items-center justify-between px-5 pt-4 pb-2">
+              <div>
+                <h3 className="text-sm font-bold text-slate-200">Benutzerwachstum</h3>
+                <p className="text-xs text-slate-500">Letzte 30 Tage · kumuliert</p>
+              </div>
+              <div className="flex items-center gap-1.5 text-xs font-semibold" style={{ color: '#3b82f6' }}>
+                <Users size={12}/> {users.length} total
+              </div>
+            </div>
+            <svg viewBox={`0 0 ${W} ${H}`} className="w-full" style={{ height: 140 }}>
+              <defs>
+                <linearGradient id="chartGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#3b82f6" stopOpacity="0.25"/>
+                  <stop offset="100%" stopColor="#3b82f6" stopOpacity="0"/>
+                </linearGradient>
+              </defs>
+              {/* Grid lines */}
+              {gridLines.map(gl => (
+                <g key={gl.y}>
+                  <line x1={PAD.l} y1={gl.y} x2={W - PAD.r} y2={gl.y} stroke="rgba(255,255,255,0.05)" strokeWidth="1"/>
+                  <text x={PAD.l - 6} y={gl.y + 4} fill="#334155" fontSize="9" textAnchor="end">{gl.v}</text>
+                </g>
+              ))}
+              {/* Area */}
+              <path d={areaD} fill="url(#chartGrad)"/>
+              {/* Line */}
+              <path d={pathD} fill="none" stroke="#3b82f6" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round"/>
+              {/* X labels */}
+              {labels.map(p => (
+                <text key={p.x} x={p.x} y={H - 8} fill="#334155" fontSize="9" textAnchor="middle">{p.label}</text>
+              ))}
+              {/* Last point dot */}
+              <circle cx={pts[pts.length-1].x} cy={pts[pts.length-1].y} r="4" fill="#3b82f6" stroke="#1e293b" strokeWidth="2"/>
+            </svg>
+          </div>
+        )
+      })()}
 
       {/* Banned IPs */}
       {bannedIps.length > 0 && (
