@@ -1,6 +1,8 @@
 import { prisma } from '@/lib/prisma'
 import { getCurrentUser } from '@/lib/auth'
 import Link from 'next/link'
+
+export const dynamic = 'force-dynamic'
 import { TopicIcon } from '@/components/TopicIcon'
 import { EXAM_LABELS, CATEGORY_LABELS } from '@/lib/utils'
 import type { Topic } from '@/types'
@@ -10,22 +12,19 @@ async function getDashboardData() {
   const user = await getCurrentUser()
   const userId = user?.id
 
-  const [topics, totalChapters, progressRecords, quizAttempts] = await Promise.all([
+  const [topics, totalChapters, progressRecords] = await Promise.all([
     prisma.topic.findMany({
       orderBy: { order: 'asc' },
       include: { chapters: { select: { id: true } } },
     }),
     prisma.chapter.count(),
-    prisma.chapterProgress.findMany({ where: userId ? { userId } : undefined }),
-    prisma.quizAttempt.findMany({ where: userId ? { userId } : undefined, select: { scorePercent: true } }),
+    prisma.chapterProgress.findMany({ where: userId ? { userId } : { userId: null } }),
   ])
 
   const completed = progressRecords.filter(p => p.status === 'completed').length
   const inProgress = progressRecords.filter(p => p.status === 'in_progress').length
-  const avgScore =
-    quizAttempts.length > 0
-      ? Math.round(quizAttempts.reduce((sum, a) => sum + a.scorePercent, 0) / quizAttempts.length)
-      : 0
+  const scores = progressRecords.filter(p => p.bestScore != null).map(p => p.bestScore as number)
+  const avgScore = scores.length > 0 ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length) : 0
 
   return { topics, totalChapters, completed, inProgress, avgScore }
 }
