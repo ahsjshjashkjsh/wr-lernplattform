@@ -682,43 +682,46 @@ export default function BuchungssaetzePage() {
               <button key={kat.label} onClick={() => setView({ type: 'study', kat })}
                 className="group text-left rounded-2xl p-5 transition-all duration-200 overflow-hidden"
                 style={{
-                  background: '#0d1829',
-                  border: `1px solid rgba(255,255,255,0.07)`,
+                  background: CARD_SURFACE,
+                  border: `1px solid ${CARD_BORDER}`,
+                  borderLeft: `3px solid ${c.accent}`,
                 }}
                 onMouseEnter={e => {
                   const el = e.currentTarget as HTMLElement
+                  el.style.background = c.soft
                   el.style.borderColor = c.border
-                  el.style.background = '#111e33'
+                  el.style.borderLeftColor = c.accent
                 }}
                 onMouseLeave={e => {
                   const el = e.currentTarget as HTMLElement
-                  el.style.borderColor = 'rgba(255,255,255,0.07)'
-                  el.style.background = '#0d1829'
+                  el.style.background = CARD_SURFACE
+                  el.style.borderColor = CARD_BORDER
+                  el.style.borderLeftColor = c.accent
                 }}
               >
                 {/* Top row: icon + count */}
                 <div className="flex items-start justify-between mb-4">
-                  <div className="w-11 h-11 rounded-xl flex items-center justify-center text-xl shrink-0"
-                    style={{ background: c.soft }}>
+                  <div className="w-10 h-10 rounded-xl flex items-center justify-center text-lg shrink-0"
+                    style={{ background: c.soft, border: `1px solid ${c.border}` }}>
                     {kat.icon}
                   </div>
-                  <span className="text-xs font-bold px-2.5 py-1 rounded-full"
+                  <span className="text-xs font-semibold px-2 py-0.5 rounded-full"
                     style={{ color: c.text, background: c.soft, border: `1px solid ${c.border}` }}>
                     {kat.eintraege.length} Karten
                   </span>
                 </div>
 
                 {/* Label */}
-                <h3 className="font-bold text-sm mb-1.5 leading-snug" style={{ color: '#dde3f0' }}>
+                <h3 className="font-bold text-sm mb-1 leading-snug text-slate-200">
                   {kat.label}
                 </h3>
-                <p className="text-[11px] line-clamp-1 leading-relaxed mb-4" style={{ color: '#3d4d66' }}>
+                <p className="text-[11px] line-clamp-1 leading-relaxed mb-4 text-slate-500">
                   {kat.eintraege[0].fall}
                 </p>
 
                 {/* CTA */}
                 <div className="flex items-center gap-1.5 text-[12px] font-semibold transition-all duration-200 group-hover:gap-2.5"
-                  style={{ color: c.accent }}>
+                  style={{ color: c.text }}>
                   Karten lernen <ArrowRight size={12}/>
                 </div>
               </button>
