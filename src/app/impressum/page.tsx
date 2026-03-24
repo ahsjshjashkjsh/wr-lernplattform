@@ -10,16 +10,9 @@ export default function ImpressumPage() {
         <section className="space-y-2">
           <h2 className="text-base font-semibold text-slate-200">Betreiber</h2>
           <p>
-            Diese Plattform wird von einem Schüler der HMS Handelsmittelschule Zürich, Klasse H3b,
-            als privates, nicht-kommerzielles Schulprojekt betrieben.
-          </p>
-        </section>
-
-        <section className="space-y-2">
-          <h2 className="text-base font-semibold text-slate-200">Schule</h2>
-          <p>
-            HMS Handelsmittelschule Zürich<br />
-            Zürich, Schweiz
+            Diese Plattform wurde von einem Schüler der HMS Handelsmittelschule Zürich, Klasse H3b,
+            als privates Lernwerkzeug entwickelt — mit dem Ziel, das Lernen für Mitschülerinnen
+            und Mitschüler einfacher und strukturierter zu gestalten.
           </p>
         </section>
 
@@ -28,16 +21,18 @@ export default function ImpressumPage() {
           <p>
             Die HMS-Plattform dient der Prüfungsvorbereitung für die Abschlussprüfungen 2026
             im Fach Wirtschaft & Recht (WR) sowie Finanz- und Rechnungswesen (FRW).
-            Sie steht ausgewählten Schülerinnen und Schülern zur Verfügung.
+            Sie ist kein offizielles Angebot der Schule.
           </p>
         </section>
 
         <section className="space-y-2">
           <h2 className="text-base font-semibold text-slate-200">Haftungsausschluss</h2>
           <p>
-            Die Inhalte dieser Plattform wurden sorgfältig erstellt. Für die Richtigkeit,
-            Vollständigkeit und Aktualität der Inhalte wird jedoch keine Gewähr übernommen.
-            Die Plattform ersetzt keine offizielle Lernunterlage oder Lehrperson.
+            Die Inhalte dieser Plattform wurden mit grosser Sorgfalt erstellt, jedoch
+            <strong className="text-slate-300"> bisher nicht von einer Lehrperson geprüft oder freigegeben</strong>.
+            Es kann daher nicht garantiert werden, dass alle Inhalte vollständig korrekt sind.
+            Die Plattform ersetzt keine offizielle Lernunterlage und keine Lehrperson.
+            Die Nutzung erfolgt auf eigene Verantwortung.
           </p>
         </section>
 
