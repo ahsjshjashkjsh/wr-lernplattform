@@ -141,7 +141,7 @@ export default async function DashboardPage() {
 
       {/* FRW Teaser — prominent */}
       <Link
-        href="/topics"
+        href="/buchungssaetze"
         className="relative rounded-2xl overflow-hidden border block group transition-transform hover:scale-[1.01]"
         style={{
           background: 'linear-gradient(135deg, #064e3b 0%, #065f46 40%, #047857 100%)',
@@ -169,20 +169,20 @@ export default async function DashboardPage() {
             <div className="flex items-center justify-center sm:justify-start gap-2 mb-2 flex-wrap">
               <span className="flex items-center gap-1.5 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide"
                 style={{ background: 'rgba(255,255,255,0.15)', color: '#6ee7b7', border: '1px solid rgba(255,255,255,0.2)' }}>
-                <Calculator size={10} /> FRW — In Bearbeitung
+                <Calculator size={10} /> FRW — Nicht fertig, aber benutzbar
               </span>
             </div>
             <h2 className="text-xl sm:text-2xl font-extrabold text-white mb-1">
-              Finanz- & Rechnungswesen kommt!
+              Buchungssätze üben — jetzt neu!
             </h2>
             <p className="text-emerald-200 text-sm leading-relaxed max-w-md">
-              Bilanz, Erfolgsrechnung, Warenkonten, Abschreibungen und mehr — jetzt in Vorschau ansehen.
+              Interaktive Karteikarten zu Warenkonten, MwSt., Löhnen, Abschreibungen und mehr. Weitere FRW-Themen folgen laufend.
             </p>
           </div>
 
           {/* Arrow */}
           <div className="shrink-0 flex items-center gap-2 text-emerald-300 font-semibold text-sm group-hover:translate-x-1 transition-transform">
-            Zur Vorschau <ArrowRight size={16} />
+            Jetzt üben <ArrowRight size={16} />
           </div>
         </div>
       </Link>

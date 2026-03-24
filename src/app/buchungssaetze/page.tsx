@@ -660,6 +660,14 @@ export default function BuchungssaetzePage() {
         </button>
       </div>
 
+      {/* Work-in-progress banner */}
+      <div className="flex items-start gap-3 px-4 py-3 rounded-xl text-sm" style={{ background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.25)' }}>
+        <span style={{ fontSize: 16 }}>⚠️</span>
+        <span style={{ color: '#fcd34d' }}>
+          <strong>Nicht fertig</strong> – aber kann man schon benutzen. Die Buchungssätze sind vollständig, weitere FRW-Themen (Immobilien, Wertschriften, Geldflussrechnung…) folgen laufend.
+        </span>
+      </div>
+
       {/* Grid */}
       <div>
         <p className="text-[11px] font-semibold uppercase tracking-widest mb-3" style={{ color: '#3d4d66' }}>

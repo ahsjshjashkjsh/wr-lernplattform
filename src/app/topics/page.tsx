@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { TopicIcon } from '@/components/TopicIcon'
 import { EXAM_LABELS, CATEGORY_LABELS } from '@/lib/utils'
 import type { Topic } from '@/types'
-import { Search, ArrowRight, SlidersHorizontal, Calculator, Lock } from 'lucide-react'
+import { Search, ArrowRight, SlidersHorizontal, Calculator, AlertTriangle } from 'lucide-react'
 
 type TopicWithCount = Topic & { _count?: { chapters: number }; chapters?: { id: string }[] }
 
@@ -107,19 +107,14 @@ const EXAM_STYLE_FRW: Record<string, { label: string; className: string }> = {
 function FrwPlaceholderCard({ title, description, ref: chapRef, examType }: { title: string; description: string; ref: string; examType: string }) {
   const exam = EXAM_STYLE_FRW[examType] ?? EXAM_STYLE_FRW.abschluss
   return (
-    <div className="rounded-2xl overflow-hidden flex flex-col opacity-60" style={{ border: '1px solid rgba(16,185,129,0.15)', background: 'rgba(6,78,59,0.15)' }}>
+    <div className="rounded-2xl overflow-hidden flex flex-col" style={{ border: '1px solid rgba(16,185,129,0.15)', background: 'rgba(6,78,59,0.15)' }}>
       <div className="h-1 w-full" style={{ background: 'linear-gradient(90deg, rgba(16,185,129,0.4), rgba(5,150,105,0.1))' }} />
       <div className="p-5 flex flex-col gap-4 flex-1">
         <div className="flex items-start justify-between gap-2">
           <div className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0" style={{ background: 'rgba(16,185,129,0.1)' }}>
             <Calculator size={20} className="text-emerald-500" />
           </div>
-          <div className="flex flex-col items-end gap-1">
-            <span className={`text-[11px] font-medium px-2.5 py-1 rounded-full ${exam.className}`}>{exam.label}</span>
-            <div className="flex items-center gap-1 text-[10px] font-medium px-2 py-0.5 rounded-full" style={{ background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.2)', color: '#6ee7b7' }}>
-              <Lock size={8} /> In Bearbeitung
-            </div>
-          </div>
+          <span className={`text-[11px] font-medium px-2.5 py-1 rounded-full ${exam.className}`}>{exam.label}</span>
         </div>
         <div className="flex-1">
           <h3 className="font-semibold text-emerald-300 leading-snug">{title}</h3>
@@ -164,8 +159,6 @@ export default function TopicsPage() {
       const q = search.toLowerCase()
       return t.title.toLowerCase().includes(q) || t.description.toLowerCase().includes(q) || CATEGORY_LABELS[t.category]?.toLowerCase().includes(q)
     })
-
-  const showFrw = filter === 'all' && !search.trim()
 
   return (
     <div className="space-y-8 fade-in">
@@ -244,23 +237,49 @@ export default function TopicsPage() {
           </div>
 
           {/* FRW Section */}
-          {showFrw && (
-            <div>
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-1 h-6 rounded-full" style={{ background: 'linear-gradient(180deg, #10b981, #059669)' }} />
-                <h2 className="text-sm font-bold text-emerald-400 uppercase tracking-widest">Finanz- & Rechnungswesen</h2>
-                <span className="flex items-center gap-1 text-xs px-2 py-0.5 rounded-full text-emerald-400" style={{ background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.2)' }}>
-                  <Lock size={9} /> In Bearbeitung
-                </span>
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {frwDbTopics.map(t => <TopicCard key={t.id} topic={t} />)}
-                {FRW_TOPICS
-                  .filter(t => !frwDbTopics.some(db => db.title === t.title || db.slug.includes('bilanz')))
-                  .map(t => <FrwPlaceholderCard key={t.title} title={t.title} description={t.description} ref={t.ref} examType={t.examType} />)}
-              </div>
+          <div>
+            <div className="flex items-center gap-3 mb-3">
+              <div className="w-1 h-6 rounded-full" style={{ background: 'linear-gradient(180deg, #10b981, #059669)' }} />
+              <h2 className="text-sm font-bold text-emerald-400 uppercase tracking-widest">Finanz- & Rechnungswesen</h2>
             </div>
-          )}
+
+            {/* Banner */}
+            <div className="flex items-center gap-3 px-4 py-3 rounded-xl mb-4 text-sm" style={{ background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.25)', color: '#fcd34d' }}>
+              <AlertTriangle size={15} className="shrink-0 text-amber-400" />
+              <span><strong>Nicht fertig</strong> – aber kann man schon benutzen. Nur Buchungssätze ist aktuell verfügbar, weitere Themen folgen.</span>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {/* Buchungssätze – already available */}
+              <Link href="/buchungssaetze" className="rounded-2xl overflow-hidden flex flex-col group transition-all hover:scale-[1.02]" style={{ border: '1px solid rgba(16,185,129,0.35)', background: 'rgba(6,78,59,0.25)' }}>
+                <div className="h-1 w-full" style={{ background: 'linear-gradient(90deg, #10b981, #059669)' }} />
+                <div className="p-5 flex flex-col gap-4 flex-1">
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0" style={{ background: 'rgba(16,185,129,0.15)' }}>
+                      <Calculator size={20} className="text-emerald-400" />
+                    </div>
+                    <span className="text-[11px] font-bold px-2.5 py-1 rounded-full" style={{ background: 'rgba(16,185,129,0.2)', color: '#6ee7b7', border: '1px solid rgba(16,185,129,0.3)' }}>Verfügbar</span>
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="font-semibold text-emerald-300 group-hover:text-white transition-colors leading-snug">Buchungssätze üben</h3>
+                    <p className="text-xs text-slate-400 mt-1.5 leading-relaxed">Interaktive Karteikarten zu allen Buchungssätzen – Warenkonten, MwSt., Löhne, Abschreibungen und mehr.</p>
+                  </div>
+                  <div className="flex items-center justify-between pt-3 border-t" style={{ borderColor: 'rgba(16,185,129,0.15)' }}>
+                    <span className="text-xs text-slate-500">Karteikarten</span>
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-[11px] px-2 py-0.5 rounded-full" style={{ background: 'rgba(16,185,129,0.08)', color: '#6ee7b7', border: '1px solid rgba(16,185,129,0.15)' }}>FRW</span>
+                      <ArrowRight size={13} className="text-emerald-600 group-hover:text-emerald-400 group-hover:translate-x-0.5 transition-all" />
+                    </div>
+                  </div>
+                </div>
+              </Link>
+
+              {frwDbTopics.map(t => <TopicCard key={t.id} topic={t} />)}
+              {FRW_TOPICS
+                .filter(t => !frwDbTopics.some(db => db.title === t.title || db.slug.includes('bilanz')))
+                .map(t => <FrwPlaceholderCard key={t.title} title={t.title} description={t.description} ref={t.ref} examType={t.examType} />)}
+            </div>
+          </div>
 
         </div>
       )}
