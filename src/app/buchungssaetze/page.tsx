@@ -1,7 +1,7 @@
 'use client'
 
-import { useState } from 'react'
-import { ArrowLeft, ArrowRight, RotateCcw, CheckCircle2, BookMarked, Shuffle } from 'lucide-react'
+import { useState, useCallback } from 'react'
+import { ArrowLeft, ArrowRight, BookMarked, Shuffle, Zap, CheckCircle2, XCircle, Trophy } from 'lucide-react'
 
 type Eintrag = { fall: string; satz: string }
 type Kategorie = { label: string; color: string; icon: string; eintraege: Eintrag[] }
@@ -262,6 +262,237 @@ function shuffle<T>(arr: T[]): T[] {
   return a
 }
 
+// ── Quiz Generator ──────────────────────────────────────────────────────────
+type QuizFrage = { fall: string; richtig: string; optionen: string[] }
+
+function genQuiz(alleEintraege: Eintrag[], anzahl: number): QuizFrage[] {
+  const pool = shuffle(alleEintraege).slice(0, anzahl)
+  const alleAntworten = alleEintraege.map(e => e.satz)
+  return pool.map(e => {
+    const falsch = shuffle(alleAntworten.filter(s => s !== e.satz)).slice(0, 3)
+    return { fall: e.fall, richtig: e.satz, optionen: shuffle([e.satz, ...falsch]) }
+  })
+}
+
+function QuizGenerator({ onBack }: { onBack: () => void }) {
+  // Setup state
+  const [phase, setPhase] = useState<'setup' | 'quiz' | 'result'>('setup')
+  const [selectedKats, setSelectedKats] = useState<Set<string>>(new Set(KATEGORIEN.map(k => k.label)))
+  const [anzahl, setAnzahl] = useState(10)
+  const [fragen, setFragen] = useState<QuizFrage[]>([])
+  const [index, setIndex] = useState(0)
+  const [gewählt, setGewählt] = useState<string | null>(null)
+  const [richtigCount, setRichtigCount] = useState(0)
+  const [falscheListe, setFalscheListe] = useState<QuizFrage[]>([])
+
+  function toggleKat(label: string) {
+    setSelectedKats(prev => {
+      const next = new Set(prev)
+      if (next.has(label)) { if (next.size > 1) next.delete(label) }
+      else next.add(label)
+      return next
+    })
+  }
+
+  function starten() {
+    const pool = KATEGORIEN.filter(k => selectedKats.has(k.label)).flatMap(k => k.eintraege)
+    const q = genQuiz(pool, Math.min(anzahl, pool.length))
+    setFragen(q); setIndex(0); setGewählt(null); setRichtigCount(0); setFalscheListe([])
+    setPhase('quiz')
+  }
+
+  function antworten(opt: string) {
+    if (gewählt) return
+    setGewählt(opt)
+    const correct = opt === fragen[index].richtig
+    if (correct) setRichtigCount(r => r + 1)
+    else setFalscheListe(f => [...f, fragen[index]])
+  }
+
+  function weiter() {
+    if (index + 1 >= fragen.length) { setPhase('result'); return }
+    setIndex(i => i + 1); setGewählt(null)
+  }
+
+  function restart() { setPhase('setup') }
+
+  const score = fragen.length > 0 ? Math.round((richtigCount / fragen.length) * 100) : 0
+
+  if (phase === 'setup') return (
+    <div className="space-y-6 fade-in max-w-2xl mx-auto">
+      <div className="flex items-center gap-3">
+        <button onClick={onBack} className="text-slate-500 hover:text-slate-300 transition-colors"><ArrowLeft size={18} /></button>
+        <div>
+          <h2 className="text-xl font-bold text-white flex items-center gap-2"><Zap size={18} className="text-amber-400" /> Quiz-Generator</h2>
+          <p className="text-slate-500 text-xs mt-0.5">Wähle Themen + Anzahl Fragen — ich mische alles durch</p>
+        </div>
+      </div>
+
+      {/* Kategorien */}
+      <div className="glass rounded-2xl p-5 space-y-3">
+        <div className="flex items-center justify-between">
+          <span className="text-sm font-semibold text-slate-300">Kategorien</span>
+          <button onClick={() => setSelectedKats(new Set(KATEGORIEN.map(k => k.label)))}
+            className="text-xs text-blue-400 hover:text-blue-300">Alle auswählen</button>
+        </div>
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+          {KATEGORIEN.map(k => {
+            const c = COLORS[k.color] ?? COLORS.blue
+            const on = selectedKats.has(k.label)
+            return (
+              <button key={k.label} onClick={() => toggleKat(k.label)}
+                className="flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-medium transition-all border text-left"
+                style={{
+                  background: on ? c.badge : 'rgba(255,255,255,0.03)',
+                  borderColor: on ? c.border : 'rgba(255,255,255,0.08)',
+                  color: on ? c.text : '#64748b',
+                }}>
+                <span>{k.icon}</span>
+                <span className="truncate">{k.label}</span>
+              </button>
+            )
+          })}
+        </div>
+      </div>
+
+      {/* Anzahl */}
+      <div className="glass rounded-2xl p-5 space-y-3">
+        <span className="text-sm font-semibold text-slate-300">Anzahl Fragen</span>
+        <div className="flex gap-2 flex-wrap">
+          {[5, 10, 15, 20, 30].map(n => (
+            <button key={n} onClick={() => setAnzahl(n)}
+              className="px-4 py-2 rounded-xl text-sm font-semibold border transition-all"
+              style={{
+                background: anzahl === n ? 'rgba(59,130,246,0.15)' : 'rgba(255,255,255,0.04)',
+                borderColor: anzahl === n ? 'rgba(59,130,246,0.5)' : 'rgba(255,255,255,0.08)',
+                color: anzahl === n ? '#93c5fd' : '#64748b',
+              }}>{n}</button>
+          ))}
+        </div>
+      </div>
+
+      <button onClick={starten}
+        className="w-full py-3.5 rounded-2xl font-bold text-sm flex items-center justify-center gap-2 transition-all hover:scale-[1.02]"
+        style={{ background: 'linear-gradient(135deg, rgba(59,130,246,0.3), rgba(99,102,241,0.3))', border: '1px solid rgba(99,102,241,0.4)', color: '#a5b4fc' }}>
+        <Zap size={16} /> Quiz starten · {Math.min(anzahl, KATEGORIEN.filter(k => selectedKats.has(k.label)).flatMap(k => k.eintraege).length)} Fragen
+      </button>
+    </div>
+  )
+
+  if (phase === 'result') {
+    const emoji = score >= 90 ? '🏆' : score >= 70 ? '🎉' : score >= 50 ? '💪' : '📚'
+    return (
+      <div className="flex flex-col items-center gap-6 min-h-[60vh] justify-center fade-in">
+        <div className="text-6xl">{emoji}</div>
+        <div className="text-center">
+          <div className="text-4xl font-black text-white mb-1">{score}%</div>
+          <p className="text-slate-400">{richtigCount} von {fragen.length} richtig</p>
+        </div>
+
+        {/* Score bar */}
+        <div className="w-64 h-3 rounded-full bg-white/[0.06]">
+          <div className="h-full rounded-full transition-all duration-1000"
+            style={{ width: `${score}%`, background: score >= 70 ? 'linear-gradient(90deg,#22c55e,#4ade80)' : score >= 50 ? 'linear-gradient(90deg,#f59e0b,#fbbf24)' : 'linear-gradient(90deg,#ef4444,#f87171)' }} />
+        </div>
+
+        {/* Falsche Antworten */}
+        {falscheListe.length > 0 && (
+          <div className="w-full max-w-xl glass rounded-2xl p-4 space-y-3">
+            <p className="text-sm font-semibold text-slate-300 flex items-center gap-2"><XCircle size={14} className="text-red-400" /> Falsch beantwortet</p>
+            {falscheListe.map((f, i) => (
+              <div key={i} className="text-xs space-y-0.5 border-b border-white/[0.05] pb-2 last:border-0 last:pb-0">
+                <p className="text-slate-400">{f.fall}</p>
+                <p className="font-mono font-semibold text-emerald-400">{f.richtig}</p>
+              </div>
+            ))}
+          </div>
+        )}
+
+        <div className="flex gap-3">
+          <button onClick={starten}
+            className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold bg-blue-500/10 border border-blue-500/30 text-blue-400 hover:scale-105 transition-all">
+            <Zap size={14} /> Nochmal
+          </button>
+          <button onClick={restart}
+            className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold bg-white/[0.05] border border-white/10 text-slate-300 hover:scale-105 transition-all">
+            <ArrowLeft size={14} /> Einstellungen
+          </button>
+          <button onClick={onBack}
+            className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold bg-white/[0.05] border border-white/10 text-slate-300 hover:scale-105 transition-all">
+            Themen
+          </button>
+        </div>
+      </div>
+    )
+  }
+
+  // Quiz phase
+  const frage = fragen[index]
+  const progress = (index / fragen.length) * 100
+  const correct = gewählt === frage.richtig
+
+  return (
+    <div className="flex flex-col gap-5 fade-in max-w-2xl mx-auto">
+      {/* Top */}
+      <div className="flex items-center justify-between">
+        <button onClick={onBack} className="flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-300 transition-colors">
+          <ArrowLeft size={14} /> Beenden
+        </button>
+        <span className="text-xs text-slate-500">{index + 1} / {fragen.length}</span>
+        <span className="text-xs font-semibold text-emerald-400">{richtigCount} ✓</span>
+      </div>
+
+      {/* Progress */}
+      <div className="w-full h-1.5 rounded-full bg-white/[0.06]">
+        <div className="h-full rounded-full transition-all duration-300"
+          style={{ width: `${progress}%`, background: 'linear-gradient(90deg,#3b82f6,#6366f1)' }} />
+      </div>
+
+      {/* Frage */}
+      <div className="glass rounded-2xl p-6 text-center min-h-[100px] flex items-center justify-center">
+        <div>
+          <p className="text-[10px] uppercase tracking-widest text-slate-600 mb-3">Buchungsfall</p>
+          <p className="text-base sm:text-lg font-semibold text-slate-100 leading-snug">{frage.fall}</p>
+        </div>
+      </div>
+
+      {/* Optionen */}
+      <div className="grid grid-cols-1 gap-2.5">
+        {frage.optionen.map((opt, i) => {
+          let style: React.CSSProperties = { background: 'rgba(255,255,255,0.04)', borderColor: 'rgba(255,255,255,0.1)', color: '#94a3b8' }
+          if (gewählt) {
+            if (opt === frage.richtig) style = { background: 'rgba(34,197,94,0.12)', borderColor: 'rgba(34,197,94,0.5)', color: '#86efac' }
+            else if (opt === gewählt) style = { background: 'rgba(239,68,68,0.12)', borderColor: 'rgba(239,68,68,0.5)', color: '#fca5a5' }
+          }
+          return (
+            <button key={i} onClick={() => antworten(opt)} disabled={!!gewählt}
+              className="w-full text-left px-4 py-3.5 rounded-xl border text-sm font-mono font-medium transition-all disabled:cursor-default"
+              style={style}>
+              <span className="text-slate-600 mr-3 font-sans">{['A', 'B', 'C', 'D'][i]}.</span>
+              {opt}
+            </button>
+          )
+        })}
+      </div>
+
+      {/* Feedback + Weiter */}
+      {gewählt && (
+        <div className="flex flex-col gap-3 fade-in">
+          <div className={`flex items-center gap-2 text-sm font-semibold px-4 py-3 rounded-xl ${correct ? 'text-emerald-400 bg-emerald-500/10' : 'text-red-400 bg-red-500/10'}`}>
+            {correct ? <CheckCircle2 size={16} /> : <XCircle size={16} />}
+            {correct ? 'Richtig!' : `Falsch — Richtig: ${frage.richtig}`}
+          </div>
+          <button onClick={weiter}
+            className="w-full py-3 rounded-xl text-sm font-bold flex items-center justify-center gap-2 transition-all hover:scale-[1.01]"
+            style={{ background: 'rgba(99,102,241,0.15)', border: '1px solid rgba(99,102,241,0.4)', color: '#a5b4fc' }}>
+            {index + 1 >= fragen.length ? <><Trophy size={15} /> Ergebnis anzeigen</> : <>Weiter <ArrowRight size={15} /></>}
+          </button>
+        </div>
+      )}
+    </div>
+  )
+}
+
 // ── Study Mode ──────────────────────────────────────────────────────────────
 function StudyMode({ kat, onBack }: { kat: Kategorie; onBack: () => void }) {
   const c = COLORS[kat.color] ?? COLORS.blue
@@ -436,19 +667,30 @@ function StudyMode({ kat, onBack }: { kat: Kategorie; onBack: () => void }) {
 }
 
 // ── Category Selection ───────────────────────────────────────────────────────
+type View = { type: 'home' } | { type: 'study'; kat: Kategorie } | { type: 'quiz' }
+
 export default function BuchungssaetzePage() {
-  const [selected, setSelected] = useState<Kategorie | null>(null)
+  const [view, setView] = useState<View>({ type: 'home' })
   const totalCards = KATEGORIEN.reduce((s, k) => s + k.eintraege.length, 0)
 
-  if (selected) return <StudyMode kat={selected} onBack={() => setSelected(null)} />
+  if (view.type === 'study') return <StudyMode kat={view.kat} onBack={() => setView({ type: 'home' })} />
+  if (view.type === 'quiz')  return <QuizGenerator onBack={() => setView({ type: 'home' })} />
 
   return (
     <div className="space-y-6 fade-in">
-      <div>
-        <h1 className="text-2xl font-bold gradient-text">Buchungssätze</h1>
-        <p className="text-slate-500 text-sm mt-0.5">
-          {KATEGORIEN.length} Themen · {totalCards} Karten · Kontenrahmen KMU (HEP)
-        </p>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold gradient-text">Buchungssätze</h1>
+          <p className="text-slate-500 text-sm mt-0.5">
+            {KATEGORIEN.length} Themen · {totalCards} Karten · Kontenrahmen KMU (HEP)
+          </p>
+        </div>
+        <button
+          onClick={() => setView({ type: 'quiz' })}
+          className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold transition-all hover:scale-105 shrink-0"
+          style={{ background: 'linear-gradient(135deg, rgba(245,158,11,0.2), rgba(239,68,68,0.15))', border: '1px solid rgba(245,158,11,0.4)', color: '#fcd34d', boxShadow: '0 0 20px rgba(245,158,11,0.15)' }}>
+          <Zap size={15} /> Quiz-Generator
+        </button>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -457,7 +699,7 @@ export default function BuchungssaetzePage() {
           return (
             <button
               key={kat.label}
-              onClick={() => setSelected(kat)}
+              onClick={() => setView({ type: 'study', kat })}
               className="group text-left rounded-2xl p-5 transition-all duration-200 hover:scale-[1.02] hover:-translate-y-0.5"
               style={{
                 background: `linear-gradient(135deg, ${c.from} 0%, rgba(15,23,42,0.8) 100%)`,
