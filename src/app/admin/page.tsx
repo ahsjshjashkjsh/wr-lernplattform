@@ -37,7 +37,7 @@ type Tab = 'users' | 'create' | 'feedback' | 'messages'
 // Online = lastOnline within last 3 minutes
 function isOnline(lastOnline: string | null) {
   if (!lastOnline) return false
-  return Date.now() - new Date(lastOnline).getTime() < 3 * 60 * 1000
+  return Date.now() - new Date(lastOnline).getTime() < 15_000
 }
 
 function timeAgo(dateStr: string | null) {

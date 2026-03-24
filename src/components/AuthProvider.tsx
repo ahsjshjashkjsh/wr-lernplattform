@@ -39,7 +39,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => { refresh() }, [refresh])
 
-  // Heartbeat: sendet alle 30s eine Anfrage um lastOnline + lastIp zu aktualisieren
+  // Heartbeat: sendet alle 5s eine Anfrage um lastOnline + lastIp zu aktualisieren
   useEffect(() => {
     if (!user) {
       if (heartbeatRef.current) clearInterval(heartbeatRef.current)
@@ -47,11 +47,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
 
     const ping = () => fetch('/api/heartbeat', { method: 'POST' }).catch(() => {})
-    ping() // sofort beim Login
+    const goOffline = () => navigator.sendBeacon('/api/offline')
 
+    ping() // sofort beim Login
     heartbeatRef.current = setInterval(ping, 5_000)
+
+    // Sofort offline markieren wenn Tab geschlossen oder Seite verlassen
+    const onUnload = () => goOffline()
+    const onVisibility = () => {
+      if (document.visibilityState === 'hidden') goOffline()
+      else ping() // sofort wieder online wenn Tab aktiv
+    }
+
+    window.addEventListener('beforeunload', onUnload)
+    document.addEventListener('visibilitychange', onVisibility)
+
     return () => {
       if (heartbeatRef.current) clearInterval(heartbeatRef.current)
+      window.removeEventListener('beforeunload', onUnload)
+      document.removeEventListener('visibilitychange', onVisibility)
     }
   }, [user?.id]) // eslint-disable-line react-hooks/exhaustive-deps
 
