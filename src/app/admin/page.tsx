@@ -79,15 +79,18 @@ export default function AdminPage() {
   const [msgSending, setMsgSending] = useState(false)
   const [msgSent, setMsgSent] = useState(false)
 
-  const loadUsers = useCallback(async () => {
-    setLoading(true)
+  const [lastRefresh, setLastRefresh] = useState<Date | null>(null)
+
+  const loadUsers = useCallback(async (silent = false) => {
+    if (!silent) setLoading(true)
     const res = await fetch('/api/admin/users')
     if (res.ok) {
       const data = await res.json()
       setUsers(data.users)
       setBannedIps(data.bannedIps ?? [])
+      setLastRefresh(new Date())
     }
-    setLoading(false)
+    if (!silent) setLoading(false)
   }, [])
 
   async function loadFeedback() {
@@ -108,11 +111,11 @@ export default function AdminPage() {
     setAdminNote('')
   }
 
-  // Auto-refresh every 30s to show live online status
+  // Auto-refresh every 30s — stilles Update, kein Flackern
   useEffect(() => {
     loadUsers()
     loadFeedback()
-    const interval = setInterval(loadUsers, 30_000)
+    const interval = setInterval(() => { loadUsers(true); loadFeedback() }, 30_000)
     return () => clearInterval(interval)
   }, [loadUsers])
 
@@ -241,7 +244,12 @@ export default function AdminPage() {
             <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse"/>
             {online} online
           </div>
-          <button onClick={loadUsers} className="w-8 h-8 flex items-center justify-center rounded-xl transition-all hover:opacity-80" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', color: '#64748b' }}>
+          {lastRefresh && (
+            <span className="text-[10px] text-slate-600 hidden sm:block">
+              aktualisiert {lastRefresh.toLocaleTimeString('de-CH', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+            </span>
+          )}
+          <button onClick={() => { loadUsers(true); loadFeedback() }} className="w-8 h-8 flex items-center justify-center rounded-xl transition-all hover:opacity-80" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', color: '#64748b' }}>
             <RefreshCw size={14} />
           </button>
         </div>
@@ -323,6 +331,63 @@ export default function AdminPage() {
           </div>
         )
       })()}
+
+      {/* Insights row */}
+      {users.length > 0 && (
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-5">
+          {/* Neuste Benutzer */}
+          <div className="glass rounded-2xl border p-4" style={{ borderColor: 'rgba(255,255,255,0.07)' }}>
+            <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3 flex items-center gap-1.5">
+              <UserPlus size={11}/> Neu registriert
+            </h3>
+            <div className="space-y-2">
+              {[...users].sort((a,b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()).slice(0,5).map(u => (
+                <div key={u.id} className="flex items-center gap-2.5">
+                  <div className="w-7 h-7 rounded-full flex items-center justify-center shrink-0 text-xs font-bold"
+                    style={{ background: 'rgba(59,130,246,0.12)', color: '#60a5fa', border: '1px solid rgba(59,130,246,0.2)' }}>
+                    {u.name[0]?.toUpperCase()}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs font-semibold text-slate-300 truncate">{u.name}</p>
+                    <p className="text-[10px] text-slate-600 truncate">{new Date(u.createdAt).toLocaleDateString('de-CH')}</p>
+                  </div>
+                  {isOnline(u.lastOnline) && <span className="w-1.5 h-1.5 rounded-full bg-green-400 shrink-0"/>}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Top aktive Benutzer */}
+          <div className="glass rounded-2xl border p-4" style={{ borderColor: 'rgba(255,255,255,0.07)' }}>
+            <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3 flex items-center gap-1.5">
+              <BarChart2 size={11}/> Aktivste Benutzer
+            </h3>
+            <div className="space-y-2">
+              {[...users].filter(u => !u.isAdmin).sort((a,b) => b._count.quizAttempts - a._count.quizAttempts).slice(0,5).map((u, i) => {
+                const maxQ = users.reduce((m, x) => Math.max(m, x._count.quizAttempts), 1)
+                const pct = Math.round((u._count.quizAttempts / maxQ) * 100)
+                return (
+                  <div key={u.id} className="flex items-center gap-2.5">
+                    <span className="text-[10px] font-black text-slate-600 w-4 shrink-0">#{i+1}</span>
+                    <div className="flex-1 min-w-0 space-y-0.5">
+                      <div className="flex items-center justify-between">
+                        <p className="text-xs font-semibold text-slate-300 truncate">{u.name}</p>
+                        <span className="text-[10px] text-slate-500 shrink-0">{u._count.quizAttempts} Quiz</span>
+                      </div>
+                      <div className="w-full h-1 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.06)' }}>
+                        <div className="h-full rounded-full transition-all" style={{ width: `${pct}%`, background: 'linear-gradient(90deg,#6366f1,#a855f7)' }}/>
+                      </div>
+                    </div>
+                  </div>
+                )
+              })}
+              {users.filter(u => !u.isAdmin && u._count.quizAttempts === 0).length > 0 && (
+                <p className="text-[10px] text-slate-600 pt-1">{users.filter(u => !u.isAdmin && u._count.quizAttempts === 0).length} Benutzer noch ohne Quiz</p>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Banned IPs */}
       {bannedIps.length > 0 && (
