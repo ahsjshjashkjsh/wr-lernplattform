@@ -3,7 +3,7 @@ Lese alle akzeptierten Feedbacks aus der Datenbank und schlage Verbesserungen vo
 1. Führe folgenden Befehl aus um die akzeptierten Feedbacks zu laden:
 ```
 cd "c:\ÜBUNGSTOOL ABSCHLUSSPRÜFUNG WR\wr-lernplattform" && DATABASE_URL="postgresql://postgres.xudeuxqxgiozvgojjcas:w778dj8AcyFs2Tef@aws-1-eu-west-1.pooler.supabase.com:5432/postgres" npx prisma db execute --stdin <<'EOF'
-SELECT id, "userName", title, message, category, "adminNote", "createdAt" FROM "Feedback" WHERE status = 'accepted' ORDER BY "createdAt" DESC;
+SELECT id, "userName", title, message, category, "adminNote", "createdAt" FROM "Feedback" WHERE status IN ('accepted') ORDER BY "createdAt" DESC;
 EOF
 ```
 

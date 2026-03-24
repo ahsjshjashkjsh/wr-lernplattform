@@ -68,7 +68,7 @@ export default function AdminPage() {
   const [createSuccess, setCreateSuccess] = useState('')
   const [search, setSearch] = useState('')
   const [feedback, setFeedback] = useState<FeedbackItem[]>([])
-  const [feedbackFilter, setFeedbackFilter] = useState<'all' | 'pending' | 'accepted' | 'rejected'>('all')
+  const [feedbackFilter, setFeedbackFilter] = useState<'all' | 'pending' | 'accepted' | 'rejected' | 'implemented'>('all')
   const [reviewItem, setReviewItem] = useState<FeedbackItem | null>(null)
   const [adminNote, setAdminNote] = useState('')
   const [banModal, setBanModal] = useState<AdminUser | null>(null)
@@ -90,7 +90,7 @@ export default function AdminPage() {
     if (res.ok) { const data = await res.json(); setFeedback(data.feedback) }
   }
 
-  async function reviewFeedback(id: string, status: 'accepted' | 'rejected') {
+  async function reviewFeedback(id: string, status: 'accepted' | 'rejected' | 'implemented') {
     setActionLoading('review-' + id)
     await fetch('/api/feedback', {
       method: 'PATCH',
@@ -532,10 +532,10 @@ export default function AdminPage() {
       {/* === TAB: FEEDBACK === */}
       {tab === 'feedback' && (
         <div className="space-y-4">
-          <div className="flex gap-2">
-            {(['all', 'pending', 'accepted', 'rejected'] as const).map(f => {
-              const labels = { all: 'Alle', pending: 'Offen', accepted: 'Akzeptiert', rejected: 'Abgelehnt' }
-              const colors = { all: '#64748b', pending: '#f59e0b', accepted: '#10b981', rejected: '#f87171' }
+          <div className="flex gap-2 flex-wrap">
+            {(['all', 'pending', 'accepted', 'implemented', 'rejected'] as const).map(f => {
+              const labels = { all: 'Alle', pending: 'Offen', accepted: 'Akzeptiert', implemented: 'Erledigt ✓', rejected: 'Abgelehnt' }
+              const colors = { all: '#64748b', pending: '#f59e0b', accepted: '#10b981', implemented: '#6366f1', rejected: '#f87171' }
               return (
                 <button key={f} onClick={() => setFeedbackFilter(f)}
                   className="px-3 py-1.5 rounded-lg text-xs font-medium transition-all border"
@@ -559,8 +559,8 @@ export default function AdminPage() {
               {filteredFeedback.map(item => {
                 const CatIcon = CATEGORY_ICONS[item.category] ?? HelpCircle
                 const color = CATEGORY_COLORS[item.category] ?? '#a78bfa'
-                const statusIcon = item.status === 'accepted' ? CheckCircle2 : item.status === 'rejected' ? XCircle : Clock
-                const statusColor = item.status === 'accepted' ? '#10b981' : item.status === 'rejected' ? '#f87171' : '#f59e0b'
+                const statusIcon = item.status === 'accepted' ? CheckCircle2 : item.status === 'implemented' ? CheckCircle2 : item.status === 'rejected' ? XCircle : Clock
+                const statusColor = item.status === 'accepted' ? '#10b981' : item.status === 'implemented' ? '#6366f1' : item.status === 'rejected' ? '#f87171' : '#f59e0b'
                 const StatusIcon = statusIcon
                 return (
                   <div key={item.id} className="glass rounded-2xl border p-5" style={{ borderColor: 'rgba(255,255,255,0.08)' }}>
@@ -575,7 +575,7 @@ export default function AdminPage() {
                           <div className="flex items-center gap-1 ml-auto">
                             <StatusIcon size={12} style={{ color: statusColor }} />
                             <span className="text-xs" style={{ color: statusColor }}>
-                              {item.status === 'accepted' ? 'Akzeptiert' : item.status === 'rejected' ? 'Abgelehnt' : 'Offen'}
+                              {item.status === 'accepted' ? 'Akzeptiert' : item.status === 'implemented' ? 'Erledigt' : item.status === 'rejected' ? 'Abgelehnt' : 'Offen'}
                             </span>
                           </div>
                         </div>
@@ -591,6 +591,14 @@ export default function AdminPage() {
                             className="mt-3 px-3 py-1.5 rounded-lg text-xs font-medium text-white transition-all"
                             style={{ background: '#3b82f6' }}>
                             Prüfen
+                          </button>
+                        )}
+                        {item.status === 'accepted' && (
+                          <button onClick={() => reviewFeedback(item.id, 'implemented')}
+                            disabled={actionLoading === 'review-' + item.id}
+                            className="mt-3 px-3 py-1.5 rounded-lg text-xs font-medium transition-all"
+                            style={{ background: 'rgba(99,102,241,0.15)', border: '1px solid rgba(99,102,241,0.3)', color: '#a5b4fc' }}>
+                            ✓ Als erledigt markieren
                           </button>
                         )}
                       </div>

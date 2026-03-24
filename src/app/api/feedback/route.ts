@@ -66,7 +66,7 @@ export async function PATCH(request: Request) {
 
     const { id, status, adminNote } = await request.json() as {
       id: string
-      status: 'accepted' | 'rejected'
+      status: 'accepted' | 'rejected' | 'implemented'
       adminNote?: string
     }
 
