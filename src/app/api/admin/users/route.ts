@@ -21,8 +21,10 @@ export async function GET() {
       isAdmin: true,
       isBanned: true,
       createdAt: true,
+      lastOnline: true,
       _count: { select: { quizAttempts: true, progress: true } },
-      quizAttempts: { select: { completedAt: true }, orderBy: { completedAt: 'desc' }, take: 1 },
+      quizAttempts: { select: { completedAt: true, scorePercent: true }, orderBy: { completedAt: 'desc' }, take: 1 },
+      progress: { select: { bestScore: true, status: true }, where: { status: 'completed' } },
     },
     orderBy: { createdAt: 'desc' },
   })

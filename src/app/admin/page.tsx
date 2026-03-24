@@ -9,8 +9,10 @@ interface AdminUser {
   isAdmin: boolean
   isBanned: boolean
   createdAt: string
+  lastOnline: string | null
   _count: { quizAttempts: number; progress: number }
-  quizAttempts: { completedAt: string }[]
+  quizAttempts: { completedAt: string; scorePercent: number }[]
+  progress: { bestScore: number | null; status: string }[]
 }
 
 interface FeedbackItem {
@@ -264,12 +266,22 @@ export default function AdminPage() {
                   </div>
 
                   {/* Stats */}
-                  <div className="hidden md:flex flex-col gap-0.5 text-xs text-slate-500 text-right">
-                    <span>{user._count.quizAttempts} Quiz · {user._count.progress} Kapitel</span>
-                    <span>
-                      {user.quizAttempts[0]
-                        ? `Aktiv: ${new Date(user.quizAttempts[0].completedAt).toLocaleDateString('de-CH')}`
-                        : `Seit: ${new Date(user.createdAt).toLocaleDateString('de-CH')}`}
+                  <div className="hidden md:flex flex-col gap-0.5 text-xs text-right">
+                    <span className="text-slate-400">
+                      {user._count.quizAttempts} Quiz · {user._count.progress} Kapitel abgeschlossen
+                    </span>
+                    {user.progress.length > 0 && (() => {
+                      const scores = user.progress.map(p => p.bestScore).filter((s): s is number => s != null)
+                      const avg = scores.length > 0 ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length) : null
+                      return avg != null ? <span className="text-amber-400 font-medium">Ø Score: {avg}%</span> : null
+                    })()}
+                    <span className="text-slate-500">
+                      Registriert: {new Date(user.createdAt).toLocaleDateString('de-CH')}
+                    </span>
+                    <span className={user.lastOnline ? 'text-emerald-400' : 'text-slate-600'}>
+                      {user.lastOnline
+                        ? `Online: ${new Date(user.lastOnline).toLocaleDateString('de-CH')} ${new Date(user.lastOnline).toLocaleTimeString('de-CH', { hour: '2-digit', minute: '2-digit' })}`
+                        : 'Noch nie eingeloggt'}
                     </span>
                   </div>
 
