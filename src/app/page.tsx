@@ -1,4 +1,5 @@
 import { prisma } from '@/lib/prisma'
+import { getCurrentUser } from '@/lib/auth'
 import Link from 'next/link'
 import { TopicIcon } from '@/components/TopicIcon'
 import { EXAM_LABELS, CATEGORY_LABELS } from '@/lib/utils'
@@ -6,14 +7,17 @@ import type { Topic } from '@/types'
 import { ArrowRight, BookOpen, CheckCircle2, Flame, Sparkles } from 'lucide-react'
 
 async function getDashboardData() {
+  const user = await getCurrentUser()
+  const userId = user?.id
+
   const [topics, totalChapters, progressRecords, quizAttempts] = await Promise.all([
     prisma.topic.findMany({
       orderBy: { order: 'asc' },
       include: { chapters: { select: { id: true } } },
     }),
     prisma.chapter.count(),
-    prisma.chapterProgress.findMany(),
-    prisma.quizAttempt.findMany({ select: { scorePercent: true } }),
+    prisma.chapterProgress.findMany({ where: userId ? { userId } : undefined }),
+    prisma.quizAttempt.findMany({ where: userId ? { userId } : undefined, select: { scorePercent: true } }),
   ])
 
   const completed = progressRecords.filter(p => p.status === 'completed').length
