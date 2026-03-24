@@ -45,7 +45,7 @@ export async function POST(request: Request) {
     }
 
     const existing = await prisma.chapterProgress.findUnique({
-      where: { chapterId_userId: { chapterId, userId: userId ?? '' } },
+      where: { chapterId_userId: { chapterId, userId: userId ?? null } },
     })
 
     const newBestScore =
@@ -54,7 +54,7 @@ export async function POST(request: Request) {
         : bestScore ?? existing?.bestScore ?? null
 
     const record = await prisma.chapterProgress.upsert({
-      where: { chapterId_userId: { chapterId, userId: userId ?? '' } },
+      where: { chapterId_userId: { chapterId, userId: userId ?? null } },
       create: {
         chapterId,
         userId,

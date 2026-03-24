@@ -47,7 +47,7 @@ export async function POST(request: Request) {
 
     // Upsert chapter progress
     const existing = await prisma.chapterProgress.findUnique({
-      where: { chapterId_userId: { chapterId, userId: userId ?? '' } },
+      where: { chapterId_userId: { chapterId, userId: userId ?? null } },
     })
 
     const newBestScore = existing?.bestScore != null
@@ -57,7 +57,7 @@ export async function POST(request: Request) {
     const newStatus = scorePercent >= 60 ? 'completed' : 'in_progress'
 
     await prisma.chapterProgress.upsert({
-      where: { chapterId_userId: { chapterId, userId: userId ?? '' } },
+      where: { chapterId_userId: { chapterId, userId: userId ?? null } },
       create: {
         chapterId,
         userId,
