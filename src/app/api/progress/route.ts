@@ -31,7 +31,8 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     const session = await getSession()
-    const userId = session?.userId ?? null
+    const userId = session?.userId
+    if (!userId) return Response.json({ error: 'Unauthorized' }, { status: 401 })
 
     const body = await request.json()
     const { chapterId, status, bestScore } = body as {
@@ -45,7 +46,7 @@ export async function POST(request: Request) {
     }
 
     const existing = await prisma.chapterProgress.findUnique({
-      where: { chapterId_userId: { chapterId, userId: userId ?? null } },
+      where: { chapterId_userId: { chapterId, userId } },
     })
 
     const newBestScore =
@@ -54,7 +55,7 @@ export async function POST(request: Request) {
         : bestScore ?? existing?.bestScore ?? null
 
     const record = await prisma.chapterProgress.upsert({
-      where: { chapterId_userId: { chapterId, userId: userId ?? null } },
+      where: { chapterId_userId: { chapterId, userId } },
       create: {
         chapterId,
         userId,

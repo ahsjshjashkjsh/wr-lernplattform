@@ -12,7 +12,8 @@ interface AnswerEntry {
 export async function POST(request: Request) {
   try {
     const session = await getSession()
-    const userId = session?.userId ?? null
+    const userId = session?.userId
+    if (!userId) return Response.json({ error: 'Unauthorized' }, { status: 401 })
 
     const body = await request.json()
     const { chapterId, totalQ, correctQ, scorePercent, answers } = body as {
@@ -47,7 +48,7 @@ export async function POST(request: Request) {
 
     // Upsert chapter progress
     const existing = await prisma.chapterProgress.findUnique({
-      where: { chapterId_userId: { chapterId, userId: userId ?? null } },
+      where: { chapterId_userId: { chapterId, userId } },
     })
 
     const newBestScore = existing?.bestScore != null
@@ -57,7 +58,7 @@ export async function POST(request: Request) {
     const newStatus = scorePercent >= 60 ? 'completed' : 'in_progress'
 
     await prisma.chapterProgress.upsert({
-      where: { chapterId_userId: { chapterId, userId: userId ?? null } },
+      where: { chapterId_userId: { chapterId, userId } },
       create: {
         chapterId,
         userId,
