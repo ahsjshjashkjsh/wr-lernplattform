@@ -640,77 +640,86 @@ export default function BuchungssaetzePage() {
     <div className="space-y-8 fade-in">
 
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
-        <div>
-          <div className="flex items-center gap-2 mb-2">
-            <Layers size={12} style={{ color: '#3d4d66' }}/>
-            <span className="text-xs font-semibold uppercase tracking-widest" style={{ color: '#3d4d66' }}>
-              Kontenrahmen KMU · HEP
-            </span>
-          </div>
-          <h1 className="text-3xl sm:text-4xl font-black mb-1" style={{ color: '#e4e4ed' }}>Buchungssätze</h1>
-          <p className="text-sm" style={{ color: '#4a5a78' }}>
-            {KATEGORIEN.length} Themen · <span style={{ color: '#8896b0' }}>{total} Karten</span>
-          </p>
+      <div>
+        <div className="flex items-center gap-2 mb-1">
+          <Layers size={12} style={{ color: '#3d4d66' }}/>
+          <span className="text-xs font-semibold uppercase tracking-widest" style={{ color: '#3d4d66' }}>
+            FRW · Kontenrahmen KMU · HEP
+          </span>
         </div>
-        <button onClick={() => setView({ type: 'quiz' })}
-          className="flex items-center gap-2.5 px-5 py-3 rounded-xl text-sm font-bold transition-all hover:opacity-90 active:scale-[0.98] shrink-0 self-start sm:self-auto"
-          style={{ background: '#f59e0b', color: '#09090e' }}>
-          <Zap size={15}/> Quiz starten
-        </button>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <h1 className="text-3xl sm:text-4xl font-black mb-1" style={{ color: '#e4e4ed' }}>Buchungssätze</h1>
+            <p className="text-sm" style={{ color: '#4a5a78' }}>
+              {KATEGORIEN.length} Kategorien · {total} Karten
+            </p>
+          </div>
+          <button onClick={() => setView({ type: 'quiz' })}
+            className="flex items-center gap-2.5 px-5 py-3 rounded-xl text-sm font-bold transition-all hover:opacity-90 active:scale-[0.98] shrink-0 self-start sm:self-auto"
+            style={{ background: '#f59e0b', color: '#09090e' }}>
+            <Zap size={15}/> Quiz starten
+          </button>
+        </div>
       </div>
 
       {/* Work-in-progress banner */}
-      <div className="flex items-start gap-3 px-4 py-3 rounded-xl text-sm" style={{ background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.25)' }}>
-        <span style={{ fontSize: 16 }}>⚠️</span>
+      <div className="flex items-start gap-3 px-4 py-3 rounded-xl text-sm" style={{ background: 'rgba(245,158,11,0.06)', border: '1px solid rgba(245,158,11,0.2)' }}>
+        <span style={{ fontSize: 15 }}>⚠️</span>
         <span style={{ color: '#fcd34d' }}>
-          <strong>Nicht fertig</strong> – aber kann man schon benutzen. Die Buchungssätze sind vollständig, weitere FRW-Themen (Immobilien, Wertschriften, Geldflussrechnung…) folgen laufend.
+          <strong>Nicht fertig</strong> – aber kann man schon benutzen. Weitere FRW-Themen folgen laufend.
         </span>
       </div>
 
       {/* Grid */}
       <div>
-        <p className="text-[11px] font-semibold uppercase tracking-widest mb-3" style={{ color: '#3d4d66' }}>
-          Thema wählen
+        <p className="text-[11px] font-semibold uppercase tracking-widest mb-4" style={{ color: '#3d4d66' }}>
+          Kategorie wählen
         </p>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
           {KATEGORIEN.map(kat => {
             const c = C[kat.color] ?? C.blue
             return (
               <button key={kat.label} onClick={() => setView({ type: 'study', kat })}
-                className="group text-left rounded-xl p-4 transition-all duration-150 overflow-hidden"
+                className="group text-left rounded-2xl p-5 transition-all duration-200 overflow-hidden"
                 style={{
-                  background: CARD_SURFACE,
-                  border: `1px solid ${CARD_BORDER}`,
-                  borderLeft: `3px solid ${c.accent}`,
+                  background: '#0d1829',
+                  border: `1px solid rgba(255,255,255,0.07)`,
                 }}
                 onMouseEnter={e => {
                   const el = e.currentTarget as HTMLElement
-                  el.style.background = 'rgba(255,255,255,0.05)'
                   el.style.borderColor = c.border
-                  el.style.borderLeftColor = c.accent
+                  el.style.background = '#111e33'
                 }}
                 onMouseLeave={e => {
                   const el = e.currentTarget as HTMLElement
-                  el.style.background = CARD_SURFACE
-                  el.style.borderColor = CARD_BORDER
-                  el.style.borderLeftColor = c.accent
+                  el.style.borderColor = 'rgba(255,255,255,0.07)'
+                  el.style.background = '#0d1829'
                 }}
               >
-                <div className="flex items-start justify-between mb-2.5">
-                  <span className="text-xl leading-none">{kat.icon}</span>
-                  <span className="text-[11px] font-bold px-1.5 py-0.5 rounded"
-                    style={{ color: c.text, background: c.soft }}>
-                    {kat.eintraege.length}
+                {/* Top row: icon + count */}
+                <div className="flex items-start justify-between mb-4">
+                  <div className="w-11 h-11 rounded-xl flex items-center justify-center text-xl shrink-0"
+                    style={{ background: c.soft }}>
+                    {kat.icon}
+                  </div>
+                  <span className="text-xs font-bold px-2.5 py-1 rounded-full"
+                    style={{ color: c.text, background: c.soft, border: `1px solid ${c.border}` }}>
+                    {kat.eintraege.length} Karten
                   </span>
                 </div>
-                <h3 className="font-semibold text-sm mb-1" style={{ color: '#c8d0e0' }}>{kat.label}</h3>
-                <p className="text-[11px] line-clamp-1 leading-relaxed" style={{ color: '#3d4d66' }}>
+
+                {/* Label */}
+                <h3 className="font-bold text-sm mb-1.5 leading-snug" style={{ color: '#dde3f0' }}>
+                  {kat.label}
+                </h3>
+                <p className="text-[11px] line-clamp-1 leading-relaxed mb-4" style={{ color: '#3d4d66' }}>
                   {kat.eintraege[0].fall}
                 </p>
-                <div className="mt-3 text-[11px] font-semibold flex items-center gap-1 transition-all duration-150 group-hover:translate-x-0.5"
+
+                {/* CTA */}
+                <div className="flex items-center gap-1.5 text-[12px] font-semibold transition-all duration-200 group-hover:gap-2.5"
                   style={{ color: c.accent }}>
-                  Lernen <ArrowRight size={11}/>
+                  Karten lernen <ArrowRight size={12}/>
                 </div>
               </button>
             )
