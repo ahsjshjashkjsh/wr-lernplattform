@@ -230,9 +230,7 @@ export default async function DashboardPage() {
             <div className="flex items-center gap-2.5 mb-3">
               <div className={`w-2 h-2 rounded-full ${style.dot}`} style={{ boxShadow: `0 0 8px ${style.glow}` }} />
               <span className="text-xs font-semibold tracking-widest uppercase text-slate-400">{label}</span>
-              <span
-                className={`text-[10px] font-medium px-2 py-0.5 rounded-full border ${style.badge}`}
-              >
+              <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full border ${style.badge}`}>
                 {catTopics.length}
               </span>
             </div>
@@ -243,6 +241,39 @@ export default async function DashboardPage() {
             </div>
           </div>
         ))}
+
+        {/* FRW Section */}
+        <div>
+          <div className="flex items-center gap-2.5 mb-3">
+            <div className="w-2 h-2 rounded-full bg-emerald-400" style={{ boxShadow: '0 0 8px rgba(16,185,129,0.5)' }} />
+            <span className="text-xs font-semibold tracking-widest uppercase text-emerald-400">Finanz- & Rechnungswesen</span>
+            <span className="text-[10px] font-medium px-2 py-0.5 rounded-full border text-amber-400 bg-amber-500/10 border-amber-500/20">
+              In Bearbeitung
+            </span>
+          </div>
+          <div className="space-y-2">
+            <Link
+              href="/buchungssaetze"
+              className="glass glass-hover group flex items-center gap-4 px-4 py-3.5 rounded-xl"
+            >
+              <div className="w-9 h-9 rounded-lg flex items-center justify-center shrink-0" style={{ background: 'rgba(16,185,129,0.12)' }}>
+                <Calculator size={17} className="text-emerald-400" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="font-medium text-slate-200 text-sm group-hover:text-white transition-colors truncate">
+                  Buchungssätze üben
+                </div>
+                <div className="text-xs text-slate-500 truncate mt-0.5">Karteikarten & Quiz zu allen FRW-Buchungssätzen</div>
+              </div>
+              <div className="flex items-center gap-2 shrink-0">
+                <span className="text-[11px] font-medium px-2 py-0.5 rounded-full border text-emerald-400 bg-emerald-500/10 border-emerald-500/20">
+                  Verfügbar
+                </span>
+                <ArrowRight size={14} className="text-slate-600 group-hover:text-emerald-400 group-hover:translate-x-0.5 transition-all" />
+              </div>
+            </Link>
+          </div>
+        </div>
       </div>
 
       {/* CTA */}
