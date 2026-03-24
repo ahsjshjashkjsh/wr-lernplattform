@@ -1,5 +1,5 @@
 export type ExamType = 'querschnitt' | 'abschluss' | 'both'
-export type Category = 'bwl' | 'vwl' | 'recht'
+export type Category = 'bwl' | 'vwl' | 'recht' | 'frw'
 export type ContentStatus = 'complete' | 'partial' | 'draft' | 'missing'
 export type ProgressStatus = 'not_started' | 'in_progress' | 'completed'
 export type QuestionType = 'multiple_choice' | 'true_false'
