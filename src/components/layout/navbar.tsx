@@ -28,49 +28,54 @@ export function Navbar() {
   return (
     <>
       <header
-        className="sticky top-0 z-50"
+        className="sticky top-0 z-50 border-b transition-colors duration-250"
         style={{
           background: 'var(--nav-bg)',
-          borderBottom: '1px solid var(--nav-border)',
+          backdropFilter: 'blur(20px)',
+          WebkitBackdropFilter: 'blur(20px)',
+          borderColor: 'var(--nav-border)',
         }}
       >
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-14">
 
             {/* Logo */}
-            <Link href="/" className="flex items-center gap-2.5 group" onClick={() => setMenuOpen(false)}>
+            <Link href="/" className="flex items-center gap-3 group" onClick={() => setMenuOpen(false)}>
               <div
-                className="w-7 h-7 rounded-md flex items-center justify-center shrink-0"
-                style={{ background: 'var(--accent)', }}
+                className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
+                style={{
+                  background: 'linear-gradient(135deg, #3b82f6, #6366f1)',
+                  boxShadow: '0 0 16px rgba(99,102,241,0.35)',
+                }}
               >
-                <TrendingUp size={14} className="text-white" style={{ color: '#09090e' }} />
+                <TrendingUp size={16} className="text-white" />
               </div>
               <div className="leading-none">
                 <div className="text-sm font-bold tracking-tight" style={{ color: 'var(--text-primary)' }}>
                   HMS-Plattform
                 </div>
-                <div className="text-[10px] mt-0.5 font-medium" style={{ color: 'var(--text-muted)' }}>
+                <div className="text-[10px] mt-0.5" style={{ color: 'var(--text-muted)' }}>
                   HMS · H23b
                 </div>
               </div>
             </Link>
 
             {/* Desktop Nav */}
-            <div className="hidden md:flex items-center gap-0.5">
+            <div className="hidden md:flex items-center gap-1">
               {nav.map(({ href, label, icon: Icon }) => {
                 const active = isActive(href)
                 return (
                   <Link
                     key={href}
                     href={href}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors duration-150"
-                    style={{
-                      color: active ? 'var(--text-primary)' : 'var(--text-muted)',
-                      background: active ? 'var(--bg-surface)' : 'transparent',
-                      fontWeight: active ? 600 : 500,
-                    }}
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-150 border ${
+                      active
+                        ? 'text-blue-400 bg-blue-500/10 border-blue-500/20'
+                        : 'border-transparent hover:bg-white/[0.06]'
+                    }`}
+                    style={active ? {} : { color: 'var(--text-muted)' }}
                   >
-                    <Icon size={12} />
+                    <Icon size={13} />
                     {label}
                   </Link>
                 )
@@ -79,49 +84,42 @@ export function Navbar() {
               {/* User section */}
               {!loading && (
                 user ? (
-                  <div className="flex items-center gap-0.5 ml-2 pl-2" style={{ borderLeft: '1px solid var(--border-color)' }}>
+                  <div className="flex items-center gap-1 ml-1 pl-1 border-l border-white/10">
                     {user.isAdmin && (
                       <Link
                         href="/admin"
-                        className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-colors"
-                        style={{
-                          color: pathname.startsWith('/admin') ? 'var(--accent)' : 'var(--text-muted)',
-                          background: pathname.startsWith('/admin') ? 'var(--accent-dim)' : 'transparent',
-                        }}
+                        className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all border ${
+                          pathname.startsWith('/admin')
+                            ? 'border-amber-500/20 bg-amber-500/10 text-amber-400'
+                            : 'border-transparent hover:bg-amber-500/10 hover:border-amber-500/20 hover:text-amber-400'
+                        }`}
+                        style={pathname.startsWith('/admin') ? {} : { color: 'var(--text-muted)' }}
                       >
-                        <Shield size={12} />
+                        <Shield size={13} />
                         Admin
                       </Link>
                     )}
-                    <div className="flex items-center gap-1.5 px-2 py-1.5 rounded-lg text-xs font-medium" style={{ color: 'var(--text-secondary)' }}>
-                      <User size={11} style={{ color: 'var(--accent)' }} />
-                      {user.name}
+                    <div className="flex items-center gap-1.5 px-2 py-1.5 rounded-lg text-xs" style={{ color: 'var(--text-muted)' }}>
+                      <User size={12} className="text-blue-400" />
+                      <span className="font-medium text-slate-300">{user.name}</span>
                     </div>
                     <button
                       onClick={logout}
-                      className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors"
+                      className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all border border-transparent hover:bg-red-500/10 hover:border-red-500/20 hover:text-red-400"
                       style={{ color: 'var(--text-muted)' }}
-                      onMouseEnter={e => {
-                        ;(e.currentTarget as HTMLElement).style.color = '#ef4444'
-                        ;(e.currentTarget as HTMLElement).style.background = 'rgba(239,68,68,0.08)'
-                      }}
-                      onMouseLeave={e => {
-                        ;(e.currentTarget as HTMLElement).style.color = 'var(--text-muted)'
-                        ;(e.currentTarget as HTMLElement).style.background = 'transparent'
-                      }}
                     >
-                      <LogOut size={12} />
+                      <LogOut size={13} />
                       Abmelden
                     </button>
                   </div>
                 ) : (
-                  <div className="flex items-center ml-2 pl-2" style={{ borderLeft: '1px solid var(--border-color)' }}>
+                  <div className="flex items-center gap-1 ml-1 pl-1 border-l border-white/10">
                     <Link
                       href="/login"
-                      className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-colors"
-                      style={{ color: 'var(--text-secondary)' }}
+                      className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all border border-transparent hover:bg-blue-500/10 hover:border-blue-500/20 hover:text-blue-400"
+                      style={{ color: 'var(--text-muted)' }}
                     >
-                      <LogIn size={12} />
+                      <LogIn size={13} />
                       Anmelden
                     </Link>
                   </div>
@@ -131,15 +129,12 @@ export function Navbar() {
               {/* Theme toggle */}
               <button
                 onClick={toggle}
-                className="ml-1 w-8 h-8 flex items-center justify-center rounded-lg transition-colors"
-                style={{ color: 'var(--text-muted)' }}
+                className="ml-1 w-8 h-8 flex items-center justify-center rounded-lg transition-all border glass glass-hover"
                 title={theme === 'dark' ? 'Helles Design' : 'Dunkles Design'}
-                onMouseEnter={e => (e.currentTarget as HTMLElement).style.background = 'var(--bg-surface)'}
-                onMouseLeave={e => (e.currentTarget as HTMLElement).style.background = 'transparent'}
               >
                 {theme === 'dark'
-                  ? <Sun size={14} style={{ color: 'var(--accent)' }} />
-                  : <Moon size={14} style={{ color: 'var(--blue)' }} />
+                  ? <Sun size={14} className="text-amber-400" />
+                  : <Moon size={14} className="text-indigo-500" />
                 }
               </button>
             </div>
@@ -148,24 +143,19 @@ export function Navbar() {
             <div className="flex md:hidden items-center gap-2">
               <button
                 onClick={toggle}
-                className="w-8 h-8 flex items-center justify-center rounded-lg"
-                style={{ border: '1px solid var(--border-color)' }}
+                className="w-8 h-8 flex items-center justify-center rounded-lg transition-all border glass"
               >
                 {theme === 'dark'
-                  ? <Sun size={14} style={{ color: 'var(--accent)' }} />
-                  : <Moon size={14} style={{ color: 'var(--blue)' }} />
+                  ? <Sun size={14} className="text-amber-400" />
+                  : <Moon size={14} className="text-indigo-500" />
                 }
               </button>
               <button
                 onClick={() => setMenuOpen(v => !v)}
-                className="w-8 h-8 flex items-center justify-center rounded-lg"
-                style={{ border: '1px solid var(--border-color)' }}
+                className="w-8 h-8 flex items-center justify-center rounded-lg transition-all border glass"
                 aria-label="Menü öffnen"
               >
-                {menuOpen
-                  ? <X size={15} style={{ color: 'var(--text-primary)' }} />
-                  : <Menu size={15} style={{ color: 'var(--text-muted)' }} />
-                }
+                {menuOpen ? <X size={16} style={{ color: 'var(--text-primary)' }} /> : <Menu size={16} style={{ color: 'var(--text-muted)' }} />}
               </button>
             </div>
           </div>
@@ -175,10 +165,10 @@ export function Navbar() {
       {/* Mobile Menu */}
       {menuOpen && (
         <div
-          className="md:hidden fixed inset-0 z-40 flex flex-col overflow-y-auto"
-          style={{ top: '56px', background: 'var(--bg-base)', borderTop: '1px solid var(--border-color)' }}
+          className="md:hidden fixed inset-0 z-40 flex flex-col"
+          style={{ top: '56px', background: 'var(--nav-bg)', backdropFilter: 'blur(20px)' }}
         >
-          <div className="px-4 py-4 space-y-0.5">
+          <div className="px-4 py-4 space-y-1 overflow-y-auto">
             {nav.map(({ href, label, icon: Icon }) => {
               const active = isActive(href)
               return (
@@ -186,14 +176,14 @@ export function Navbar() {
                   key={href}
                   href={href}
                   onClick={() => setMenuOpen(false)}
-                  className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors"
-                  style={{
-                    color: active ? 'var(--text-primary)' : 'var(--text-secondary)',
-                    background: active ? 'var(--bg-surface)' : 'transparent',
-                    fontWeight: active ? 600 : 500,
-                  }}
+                  className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all border ${
+                    active
+                      ? 'text-blue-400 bg-blue-500/10 border-blue-500/20'
+                      : 'border-transparent'
+                  }`}
+                  style={active ? {} : { color: 'var(--text-muted)', borderColor: 'transparent' }}
                 >
-                  <Icon size={15} />
+                  <Icon size={16} />
                   {label}
                 </Link>
               )
@@ -203,31 +193,32 @@ export function Navbar() {
               <Link
                 href="/admin"
                 onClick={() => setMenuOpen(false)}
-                className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-colors"
-                style={{
-                  color: pathname.startsWith('/admin') ? 'var(--accent)' : 'var(--text-secondary)',
-                  background: pathname.startsWith('/admin') ? 'var(--accent-dim)' : 'transparent',
-                }}
+                className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all border ${
+                  pathname.startsWith('/admin')
+                    ? 'text-amber-400 bg-amber-500/10 border-amber-500/20'
+                    : 'border-transparent'
+                }`}
+                style={pathname.startsWith('/admin') ? {} : { color: 'var(--text-muted)' }}
               >
-                <Shield size={15} />
+                <Shield size={16} />
                 Admin Dashboard
               </Link>
             )}
 
-            <div className="pt-4 mt-2" style={{ borderTop: '1px solid var(--border-color)' }}>
+            <div className="pt-4 mt-4" style={{ borderTop: '1px solid var(--border-color)' }}>
               {!loading && (
                 user ? (
-                  <div className="space-y-0.5">
-                    <div className="flex items-center gap-3 px-4 py-2 text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>
-                      <User size={15} style={{ color: 'var(--accent)' }} />
-                      {user.name}
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-3 px-4 py-2">
+                      <User size={16} className="text-blue-400" />
+                      <span className="text-sm font-medium text-slate-300">{user.name}</span>
                     </div>
                     <button
                       onClick={() => { logout(); setMenuOpen(false) }}
-                      className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium"
-                      style={{ color: '#ef4444', background: 'rgba(239,68,68,0.08)' }}
+                      className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all text-red-400"
+                      style={{ background: 'rgba(239,68,68,0.08)' }}
                     >
-                      <LogOut size={15} />
+                      <LogOut size={16} />
                       Abmelden
                     </button>
                   </div>
@@ -235,10 +226,10 @@ export function Navbar() {
                   <Link
                     href="/login"
                     onClick={() => setMenuOpen(false)}
-                    className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold"
-                    style={{ color: 'var(--blue)', background: 'var(--blue-dim)' }}
+                    className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-blue-400"
+                    style={{ background: 'rgba(59,130,246,0.08)' }}
                   >
-                    <LogIn size={15} />
+                    <LogIn size={16} />
                     Anmelden
                   </Link>
                 )
