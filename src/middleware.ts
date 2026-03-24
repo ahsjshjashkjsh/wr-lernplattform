@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
+const PUBLIC_PATHS = ['/login', '/register', '/banned', '/api/auth/login', '/api/auth/register']
+
 function decodeJwtPayload(token: string): Record<string, unknown> | null {
   try {
     const parts = token.split('.')
@@ -16,22 +18,33 @@ function decodeJwtPayload(token: string): Record<string, unknown> | null {
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
 
-  // Allow static files
-  if (pathname.startsWith('/_next') || pathname.startsWith('/favicon')) {
+  // Allow public paths and static files
+  if (
+    PUBLIC_PATHS.some(p => pathname.startsWith(p)) ||
+    pathname.startsWith('/_next') ||
+    pathname.startsWith('/favicon')
+  ) {
     return NextResponse.next()
   }
 
+  // Check for session cookie
   const session = request.cookies.get('wr-session')
-  const payload = session?.value ? decodeJwtPayload(session.value) : null
+  if (!session?.value) {
+    const loginUrl = new URL('/login', request.url)
+    loginUrl.searchParams.set('next', pathname)
+    return NextResponse.redirect(loginUrl)
+  }
 
-  // Gebannte User zu /banned schicken
+  const payload = decodeJwtPayload(session.value)
+
+  // Gebannte User sofort abmelden und zu /banned schicken
   if (payload?.isBanned && !pathname.startsWith('/banned') && !pathname.startsWith('/login')) {
     const res = NextResponse.redirect(new URL('/banned', request.url))
     res.cookies.delete('wr-session')
     return res
   }
 
-  // Protect /admin — nur für Admins, Login erforderlich
+  // Protect /admin — only for admins
   if (pathname.startsWith('/admin')) {
     if (!payload?.isAdmin) {
       return NextResponse.redirect(new URL('/', request.url))
