@@ -8,13 +8,8 @@ import { MarkLearnedButton } from './MarkLearnedButton'
 import { ArrowLeft, ArrowRight, BookOpen, Target, Lightbulb, Hash, Search, AlertTriangle } from 'lucide-react'
 
 function SummaryText({ text, terms }: { text: string; terms: string[] }) {
-  // Split into sentences for better readability
-  const sentences = text
-    .split(/(?<=[.!?])\s+/)
-    .map(s => s.trim())
-    .filter(Boolean)
+  const sentences = text.split(/(?<=[.!?])\s+/).map(s => s.trim()).filter(Boolean)
 
-  // Highlight key terms within a sentence
   function highlightTerms(sentence: string): React.ReactNode[] {
     if (terms.length === 0) return [sentence]
     const pattern = new RegExp(`(${terms.map(t => t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|')})`, 'gi')
@@ -26,23 +21,68 @@ function SummaryText({ text, terms }: { text: string; terms: string[] }) {
     )
   }
 
-  if (sentences.length <= 2) {
+  // Detect section headings: sentences with " – " or " — " near the start
+  function isHeading(s: string) {
+    return /^[A-ZÄÖÜ\w]{2,30}\s[–—]\s/.test(s) || /^[A-ZÄÖÜ][^.!?]{3,40}:\s/.test(s.slice(0, 50))
+  }
+
+  // Group sentences into sections
+  type Section = { heading: string | null; points: string[] }
+  const sections: Section[] = []
+  let current: Section = { heading: null, points: [] }
+
+  for (const s of sentences) {
+    if (isHeading(s)) {
+      if (current.heading !== null || current.points.length > 0) sections.push(current)
+      current = { heading: s, points: [] }
+    } else {
+      current.points.push(s)
+    }
+  }
+  sections.push(current)
+
+  // If no structure detected, fallback to simple list
+  const hasStructure = sections.some(s => s.heading !== null)
+
+  if (!hasStructure) {
+    if (sentences.length <= 2) {
+      return <p className="text-sm text-slate-300 leading-relaxed">{sentences.join(' ')}</p>
+    }
     return (
-      <p className="text-sm text-slate-300 leading-relaxed">
-        {sentences.map((s, i) => <span key={i}>{highlightTerms(s)}{i < sentences.length - 1 ? ' ' : ''}</span>)}
-      </p>
+      <ul className="space-y-2">
+        {sentences.map((s, i) => (
+          <li key={i} className="flex items-start gap-3 text-sm text-slate-300 leading-relaxed">
+            <span className="shrink-0 w-1.5 h-1.5 rounded-full mt-[7px]" style={{ background: 'rgba(99,102,241,0.5)' }} />
+            <span>{highlightTerms(s)}</span>
+          </li>
+        ))}
+      </ul>
     )
   }
 
   return (
-    <ul className="space-y-2.5">
-      {sentences.map((s, i) => (
-        <li key={i} className="flex items-start gap-3 text-sm text-slate-300 leading-relaxed">
-          <span className="shrink-0 w-1.5 h-1.5 rounded-full mt-2" style={{ background: 'rgba(99,102,241,0.5)' }} />
-          <span>{highlightTerms(s)}</span>
-        </li>
+    <div className="space-y-5">
+      {sections.map((section, si) => (
+        <div key={si}>
+          {section.heading && (
+            <div className="flex items-center gap-2 mb-2.5">
+              <span className="w-1 h-4 rounded-full shrink-0" style={{ background: 'rgba(99,102,241,0.6)' }} />
+              <h3 className="text-sm font-bold text-slate-200">{highlightTerms(section.heading)}</h3>
+            </div>
+          )}
+          {section.points.length > 0 && (
+            <ul className="space-y-1.5 ml-3">
+              {section.points.map((p, pi) => (
+                <li key={pi} className="flex items-start gap-2.5 text-sm text-slate-400 leading-relaxed">
+                  <span className="shrink-0 w-1 h-1 rounded-full mt-[7px]" style={{ background: 'rgba(148,163,184,0.4)' }} />
+                  <span>{highlightTerms(p)}</span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
       ))}
-    </ul>
+    </div>
   )
 }
 
