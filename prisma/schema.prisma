@@ -175,6 +175,7 @@ model AdminMessage {
   id           String             @id @default(cuid())
   message      String
   targetUserId String?            // null = an alle
+  showSender   Boolean            @default(true)
   createdAt    DateTime           @default(now())
   expiresAt    DateTime
   seenBy       AdminMessageSeen[]

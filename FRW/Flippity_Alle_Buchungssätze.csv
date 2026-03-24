@@ -1,0 +1,161 @@
+﻿Side1,Side2
+Lagerzunahme (Warenkonten),Warenvorrat / Warenaufwand
+Lagerabnahme (Warenkonten),Warenaufwand / Warenvorrat
+"Rechnung von Lieferanten inkl. 7.7% MwSt. – NICHT Investitionen (1. Buchungssatz)","WaA / VLL"
+"Rechnung von Lieferanten inkl. 7.7% MwSt. – NICHT Investitionen (2. Buchungssatz – Vorsteuer)","Vorst. 1170 / VLL"
+"Rechnung von Lieferanten inkl. 7.7% MwSt. – INVESTITIONEN (1. Buchungssatz)","WaA / VLL"
+"Rechnung von Lieferanten inkl. 7.7% MwSt. – INVESTITIONEN (2. Buchungssatz – Vorsteuer)","Vorst. 1177 / VLL"
+"Rechnung an Kunden inkl. MwSt. (1. Buchungssatz – Warenertrag)","FLL / WaE"
+"Rechnung an Kunden inkl. MwSt. (2. Buchungssatz – MwSt)","FLL / Verb. MwSt."
+Verrechnung der MwSt.,Verb. MwSt. / Vorst. 1170
+Banküberweisung der MwSt.,Verb. MwSt. / Bank
+"Kapitalerträge und VST – Bruttomethode (1. Buchungssatz)","Bank / Finanzertrag  (100%)"
+"Kapitalerträge und VST – Bruttomethode (2. Buchungssatz – VST)","Ford. VST / Bank  (35%)"
+"Kapitalerträge und VST – Nettomethode (1. Buchungssatz)","Bank / Finanzertrag  (65%)"
+"Kapitalerträge und VST – Nettomethode (2. Buchungssatz – VST)","Ford. VST / Finanzertrag  (35%)"
+"Forderung entsteht (Delkredere)","FLL / WaE"
+"Kunde zahlt nicht (Delkredere)","Kein Buchungssatz"
+"3. Mahnung mit Verzugszins (Delkredere)","FLL / FinanzE"
+"Start Betreibungsverfahren (Delkredere)","FLL / Kasse"
+"Konkursdividende – Verfahren wird abgeschlossen","Post / FLL"
+"Verlustschein – Verfahren wird abgeschlossen","Verl. Ford. / FLL"
+"Nachträgliche Bezahlung – im gleichen Rechnungsjahr","Bank / Verl. Ford."
+"Nachträgliche Bezahlung – späteres Rechnungsjahr","Bank / A.o. E"
+"Bildung Wertberichtigung Forderungen (Delkredere)","Verl. Ford. / WB Ford."
+"WB Forderungen verkleinern (Delkredere)","WB Ford. / Verl. Ford."
+Abschreibung direkt,Abs / Mob
+Abschreibung indirekt,Abs / WB Mob
+"Verkaufserlös – Verkauf von AV (direkte Methode)","Kasse / Mob"
+"Veräusserungsverlust – Verkauf von AV (direkte Methode)","a.o. A / Mob"
+"(Veräusserungsgewinn) – Verkauf von AV (direkte Methode)","(Mob / a.o. E)"
+"Verkaufserlös – Verkauf von AV (indirekte Methode)","Kasse / Mob"
+"Auflösung WB – Verkauf von AV (indirekte Methode)","WB Mob / Mob"
+"Veräusserungsverlust – Verkauf von AV (indirekte Methode)","a.o. A / Mob"
+"(Veräusserungsgewinn) – Verkauf von AV (indirekte Methode)","(Mob / a.o. E)"
+Bildung Rückstellung,A.o. Aufwand / Rückstellung Prozess
+Abschluss Konto Rückstellung,Rückstellung Prozess / SB
+Zahlung Anwaltskosten (Rückstellung),Rückstellung Prozess / Bank
+Anpassung Rückstellung,A.o. Aufwand / Rückstellung Prozess
+"Geldguthaben (Abgrenzungen)","Aktiv Ra / (Aufwand oder Ertrag)"
+"Leistungsguthaben (Abgrenzungen)","Aktiv Ra / (Aufwand oder Ertrag)"
+"Geldschuld (Abgrenzungen)","(Aufwand oder Ertrag) / Passiv Ra"
+"Leistungsschuld (Abgrenzungen)","(Aufwand oder Ertrag) / Passiv Ra"
+Arbeitnehmerbeiträge,LohnA / Verb. Sozialvers.
+Arbeitgeberbeiträge,Sozialvers.A / Verb. Sozialvers.
+Nettolohn,LohnA / Bank
+Bruttolohn,Kein Buchungssatz
+"Unterbewertung Warenvorrat (Stille Reserven – Bildung)","Warenaufwand / Warenvorrat"
+"Unterbewertung Anlagevermögen (Stille Reserven – Bildung)","Abschreibung / Anlagevermögen"
+"Überbewertung Rückstellungen (Stille Reserven – Bildung)","Sonst. BA / Rückstellungen"
+"Auflösung stille Reserven – Warenvorrat","Warenvorrat / Warenaufwand"
+"Auflösung stille Reserven – Anlagevermögen","Anlagevermögen / Abschreibung"
+"Auflösung stille Reserven – Rückstellungen","Rückstellung / Sonst. BA"
+Private Rechnung (Einzelunternehmen),"Privat / (Bank / Kasse / Post)"
+Privatanteil Fahrzeug (Einzelunternehmen),Privat / Fahrzeugaufwand
+Gutschrift Eigenlohn (Einzelunternehmen),Lohnaufwand / Privat
+Gutschrift Eigenzins (Einzelunternehmen),Finanzaufwand / Privat
+Gutschrift Reisespesen (Einzelunternehmen),Übriger Personalaufwand / Privat
+Kapitalrückzug (Einzelunternehmen),Eigenkapital / Bank
+Sacheinlage Fahrzeug (Einzelunternehmen),Fahrzeug / Eigenkapital
+Übertrag Privatkonto (Einzelunternehmen),Privat / Eigenkapital
+Verlustübertrag (Einzelunternehmen),Jahresverlust / Erfolgsrechnung
+Verlustverbuchung 1. Geschäftsjahr,Eigenkapital / Jahresverlust
+Kapitalverpflichtung (AG),Ford. Aktionäre / Aktienkapital
+Einbringung Kasse (AG),Kasse / Ford. Aktionäre
+Einbringung VLL (AG),Ford. Aktionäre / VLL
+Einzahlung Restbetrag (AG),Bank / Ford. Aktionäre
+Anfangsbestand Gewinnvortrag,ER / Gewinnvortrag
+Übertrag Jahresgewinn,ER / Jahresgewinn
+Verbuchung Jahresgewinn,Jahresgewinn / Gewinnvortrag
+Zuweisung Ges. Gewinnreserve,Gewinnvortrag / Ges. Gewinnreserve
+Zuweisung Dividenden,Gewinnvortrag / Dividenden
+Abschluss Gewinnvortrag,Gewinnvortrag / SB II
+Auszahlung Nettodividende (65%),Dividenden / Bank
+Abzug Verrechnungssteuer (35%),Dividenden / Verbindlichkeit VST
+Überweisung Verrechnungssteuer,Verbindlichkeit VST / Bank
+Übertrag Jahresverlust,Jahresverlust / ER
+Verbuchung Jahresverlust,Verlustvortrag / Jahresverlust
+Verwendung Gewinnvortrag zum Verlustausgleich,Gewinnvortrag / Verlustvortrag
+Auflösung Ges. Gewinnreserve,Ges. Gewinnreserve / Verlustvortrag
+Abschluss Verlustvortrag,SB II / Verlustvortrag
+Erhöhung Aktienkapital,Bank / Aktienkapital
+Agio (Ausgabe über Nennwert),Bank / Gesetzliche Kapitalreserve
+Mietzinseinnahmen (Liegenschaft),Bank / Liegenschaftsertrag
+"Mietwert Geschäftsräume (eigene Liegenschaft)","Raumaufwand / Liegenschaftsertrag"
+Mietwert Privatwohnung,Privat / Liegenschaftsertrag
+Rechnung für Malarbeiten an Liegenschaft,Liegenschaftsaufwand / VLL
+Barzahlung für kleine Reparaturen,Liegenschaftsaufwand / Kasse
+Bankbelastung Hypothekarzins,Liegenschaftsaufwand / Bank
+Bankbelastung Abzahlung Hypothek,Hypothek / Bank
+Rechnung Gebäudeversicherung,Liegenschaftsaufwand / VLL
+Abschreibung der Liegenschaft,Liegenschaftsaufwand / Immobilien
+"Kaufpreis Liegenschaft (Käufer)","Immobilien / VLL"
+"Handänderungskosten (Käufer)","Immobilien / Bank"
+"Übernahme Hypothek (Käufer)","VLL / Hypotheken"
+"Übernahme Heizölvorrat (Käufer)","Liegenschaftsaufwand / VLL"
+"Verrechnung Mietzins (Käufer)","VLL / Liegenschaftsertrag"
+"Banküberweisung Restbetrag (Käufer)","VLL / Bank"
+"Kaufpreis Liegenschaft (Verkäufer)","FLL / Immobilien"
+"Handänderungskosten (Verkäufer)","A.o. Ertrag / Bank"
+"Übernahme Hypothek (Verkäufer)","Hypotheken / FLL"
+"Übernahme Heizölvorrat (Verkäufer)","FLL / Liegenschaftsaufwand"
+"Verrechnung Mietzins (Verkäufer)","Liegenschaftsertrag / FLL"
+"Banküberweisung Restbetrag (Verkäufer)","Bank / FLL"
+Verkaufsgewinn Liegenschaft,Immobilien / A.o. Ertrag
+Finanzierung (Formel),Kaufpreis – Hypothek = Eigene Mittel
+Liegenschaftserfolg (Formel),Mietzinseinnahmen – Hypothekarzinsen – Unterhaltskosten = Liegenschaftsgewinn
+Bruttorendite (Formel),(Liegenschaftserfolg × 100) / Kaufpreis
+Nettorendite (Formel),(Liegenschaftsgewinn × 100) / Eigene Mittel
+Ertragswert (Formel),(Liegenschaftserfolg × 100) / Bruttorendite in %
+Wann liegt eine Unterbilanz OHNE gesetzliche Folgen vor?,"Wenn die Aktiven das ganze Fremdkapital und mindestens die Hälfte des Eigenkapitals (Aktienkapital + gesetzliche Reserven) decken."
+Wann liegt eine Unterbilanz MIT gesetzlichen Folgen vor?,"Wenn die Aktiven das ganze Fremdkapital decken, jedoch weniger als die Hälfte des Eigenkapitals (Aktienkapital + gesetzliche Reserven)."
+Wann liegt eine Überschuldung vor?,"Wenn die Aktiven kleiner als das Fremdkapital sind – kein Eigenkapital mehr vorhanden und Bilanzverlust übersteigt das gesamte Eigenkapital."
+"[Fremde Währungen] Kauf 1'000 Tank Tops aus Portugal. EUR 10'150. Buchkurs 1.08.","Warenaufwand / VLL  →  CHF 10'962.– (EUR 10'150 × 1.08)"
+"[Fremde Währungen] Begleichung Tank-Top-Rechnung per Post. Tageskurs 1.12 / Buchkurs 1.08. (1. Zahlung)","VLL / Post  →  CHF 11'368.– (EUR 10'150 × 1.12)"
+"[Fremde Währungen] Begleichung Tank-Top-Rechnung per Post. Tageskurs 1.12 / Buchkurs 1.08. (2. Kursdifferenz)","Warenaufwand / VLL  →  CHF 406.– (EUR 10'150 × 0.04) = Kursgewinn"
+"[Fremde Währungen] Zinszahlung Hypothek CHF 350'000 zu 2% – letztes Vierteljahr.","LgA / Bank  →  CHF 1'750.– (350'000 × 2% × 3/12)"
+"[Fremde Währungen] Teilrückzahlung Hypothek CHF 50'000.","Hypotheken / Bank  →  CHF 50'000.–"
+"[Fremde Währungen] 50 Aktien Migifit AG. Nennwert CHF 200. Dividende 8%. – Nettobetrag.","Bank / Finanzertrag  →  CHF 520.– (CHF 800 × 65%)"
+"[Fremde Währungen] 50 Aktien Migifit AG. Nennwert CHF 200. Dividende 8%. – VST.","Forderungen VSt. / Finanzertrag  →  CHF 280.– (CHF 800 × 35%)"
+"[Fremde Währungen] Bankgutschrift CHF 1'300 Nettodividende NoRo-Aktien. – Nettobetrag.","Bank / Finanzertrag  →  CHF 1'300.–"
+"[Fremde Währungen] Bankgutschrift CHF 1'300 Nettodividende NoRo-Aktien. – VST.","Forderungen VSt. / Finanzertrag  →  CHF 700.– (1'300 / 65 × 35)"
+"[Fremde Währungen] Mieter überweist Wohnungsmiete CHF 2'050 auf Postkonto.","Post / Immobilienertrag  →  CHF 2'050.–"
+"[Fremde Währungen] RenoFlick Rechnung CHF 42'000 – 60% Wertvermehrung.","Immobilien / VLL  →  CHF 25'200.– (42'000 × 60%)"
+"[Fremde Währungen] RenoFlick Rechnung CHF 42'000 – 40% Unterhaltsarbeiten.","Immobilienaufwand / VLL  →  CHF 16'800.– (42'000 × 40%)"
+"[Fremde Währungen] BraConti Import EUR 65'000. Buchkurs 1.15.","Warenaufwand / VLL  →  CHF 74'750.– (EUR 65'000 × 1.15)"
+"[Fremde Währungen] Rabatt 10% auf BraConti. Buchkurs 1.15. – Rabattbuchung.","VLL / Warenaufwand  →  CHF 7'475.– (EUR 6'500 × 1.15)"
+"[Fremde Währungen] BraConti – Rest per Bank. Tageskurs 1.16. – Zahlung.","VLL / Bank  →  CHF 67'860.– (EUR 58'500 × 1.16)"
+"[Fremde Währungen] BraConti – Kursdifferenz Buchkurs 1.15 zu Tageskurs 1.16 auf Restschuld.","Warenaufwand / VLL  →  CHF 585.– (EUR 58'500 × 0.01) = Kursverlust"
+"[Fremde Währungen] Gärtner CHF 800 bar für Umgebungsarbeiten.","LgA / Kasse  →  CHF 800.–"
+"[Fremde Währungen] Rechnung Strom Vorplatz/Treppenhaus CHF 200.","LgA / VLL  →  CHF 200.–"
+"[Fremde Währungen] Gebäudeversicherung CHF 1'300 per Bank.","LgA / Bank  →  CHF 1'300.–"
+"[Immo-Kauf] Max Birchmeier AG – 1) Kaufpreis CHF 1'880'000 (via Abrechnungskonto).","Immobilien / VLL  →  CHF 1'880'000.–"
+"[Immo-Kauf] Max Birchmeier AG – 2) Handänderungskosten CHF 14'200 / 2 per Bank.","Immobilien / Bank  →  CHF 7'100.– (14'200 / 2)"
+"[Immo-Kauf] Max Birchmeier AG – 3) Hypothek CHF 1'250'000 übernommen.","VLL / Hypothek  →  CHF 1'250'000.–"
+"[Immo-Kauf] Max Birchmeier AG – 4) Gebäudeversicherung CHF 1'320 anteilig 9 Monate.","LgA / VLL  →  CHF 990.– (1'320 × 9/12)"
+"[Immo-Kauf] Max Birchmeier AG – 5) Vorausbezahlter Mietzins CHF 1'700 gutgeschrieben.","VLL / LgE  →  CHF 1'700.–"
+"[Immo-Kauf] Max Birchmeier AG – 6) Heizölvorrat CHF 6'300.","LgA / VLL  →  CHF 6'300.–"
+"[Immo-Kauf] Max Birchmeier AG – 7) Restbetrag per Bank überwiesen.","VLL / Bank  →  CHF 635'590.–"
+"[Warenkonto/MWST] Rechnung CHF 2'140 inkl. 7.7% MWSt für Proteinshakes an Kunden. (1. Nettobetrag)","FLL / Warenertrag  →  CHF 1'987.–"
+"[Warenkonto/MWST] Rechnung CHF 2'140 inkl. 7.7% MWSt für Proteinshakes an Kunden. (2. MWST)","FLL / Verbindlichk. MWSt  →  CHF 153.–"
+"[Warenkonto/MWST] Rücksendung CHF 214 inkl. 7.7% MWSt – Warenertrag.","Warenertrag / FLL  →  CHF 198.70"
+"[Warenkonto/MWST] Rücksendung CHF 214 – MWST-Korrektur.","Verbindlichk. MWSt / FLL  →  CHF 15.30"
+"[Warenkonto/MWST] Restbetrag nach Rücksendung per Postgiro bezahlt.","Post / FLL  →  CHF 1'926.–"
+"[Löhne] Lohnabrechnung April – Nettolohn per Bank (Brutto CHF 6'500).","Lohnaufwand / Bank  →  CHF 6'098.60"
+"[Löhne] Lohnabrechnung April – Arbeitnehmerbeiträge.","Lohnaufwand / Verb. Sozialvers.  →  CHF 401.40"
+"[Löhne] Lohnabrechnung April – Arbeitgeberbeiträge.","Sozialvers.aufwand / Verb. Sozialvers.  →  CHF 336.40"
+"[Löhne] Lohnvorschuss CHF 2'000 aus Geschäftskasse.","Lohnaufwand / Kasse  →  CHF 2'000.–"
+"[Warenkonto/MWST] Heizöl für Liegenschaft CHF 5'670 inkl. 8% MWSt – Nettobetrag.","ImmobilienA / VLL  →  CHF 5'250.–"
+"[Warenkonto/MWST] Heizöl für Liegenschaft CHF 5'670 inkl. 8% MWSt – Vorsteuer.","Vorsteuer MWST / VLL  →  CHF 420.–"
+"[Warenkonto/MWST] Kleintransporter CHF 38'502 inkl. MWSt per Bank – Nettobetrag.","Fz / Bank  →  CHF 35'650.–"
+"[Warenkonto/MWST] Kleintransporter inkl. MWSt – Vorsteuer.","Vorsteuer MWST / Bank  →  CHF 2'852.–"
+"[Löhne] Lohnauszahlung – Nettolohn (Brutto CHF 317'700 – AN-Beiträge CHF 47'655).","LohnA / Bank  →  CHF 270'045.–"
+"[Löhne] Lohnauszahlung – Arbeitnehmerbeiträge CHF 47'655.","LohnA / Verb. Soz.vers.  →  CHF 47'655.–"
+"[Löhne] Lohnauszahlung – Arbeitgeberbeiträge CHF 66'140.","Soz.versA / Verb. Soz.vers.  →  CHF 66'140.–"
+"[Warenkonto/MWST] Verrechnung Vorsteuer 1170 CHF 7'192.40 mit Verb. MWST.","Verb. MWST / Vorst. 1170  →  CHF 7'192.40"
+"[Warenkonto/MWST] Verbleibende MWST-Schuld (10'888.70 – 7'192.40) per Bank.","Verb. MWST / Bank  →  CHF 3'696.30"
+"[Löhne] Spesenentschädigung CHF 1'500 per Banküberweisung.","Übr. PersonalA / Bank  →  CHF 1'500.–"
+"[Löhne] Weiterbildungsrechnung CHF 1'000.","Übr. PersonalA / VLL  →  CHF 1'000.–"
+"[Warenkonto] Lagerbestand: Anfang CHF 35'000 – Ende CHF 42'000. Lagerzunahme.","Warenbestand / Warenaufwand  →  CHF 7'000.–"
+"[Warenkonto] Warenlager Ende Jahr um CHF 23'000 grösser als Anfang Jahr.","Warenbestand / Warenaufwand  →  CHF 23'000.–"
+"[Warenkonto] Vorrat Anfang 230 Stück / Ende 205 Stück. Einstandspreis CHF 34. Lagerabnahme.","Warenaufwand / Warenbestand  →  CHF 850.– (25 × CHF 34)"

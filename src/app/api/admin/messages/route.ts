@@ -5,14 +5,14 @@ export async function POST(request: Request) {
   const session = await getSession()
   if (!session?.isAdmin) return Response.json({ error: 'Unauthorized' }, { status: 403 })
 
-  const { message, targetUserId } = await request.json()
+  const { message, targetUserId, showSender } = await request.json()
   if (!message?.trim()) return Response.json({ error: 'Nachricht fehlt' }, { status: 400 })
 
-  // Nachrichten laufen nach 24h ab
-  const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000)
+  // Nachrichten laufen nach 1h ab
+  const expiresAt = new Date(Date.now() + 60 * 60 * 1000)
 
   const msg = await prisma.adminMessage.create({
-    data: { message: message.trim(), targetUserId: targetUserId || null, expiresAt },
+    data: { message: message.trim(), targetUserId: targetUserId || null, showSender: showSender !== false, expiresAt },
   })
 
   return Response.json({ ok: true, id: msg.id })

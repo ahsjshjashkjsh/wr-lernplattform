@@ -25,5 +25,5 @@ export async function GET() {
     })
   }
 
-  return Response.json({ messages: messages.map(m => ({ id: m.id, message: m.message, createdAt: m.createdAt })) })
+  return Response.json({ messages: messages.map(m => ({ id: m.id, message: m.message, showSender: m.showSender, createdAt: m.createdAt })) })
 }

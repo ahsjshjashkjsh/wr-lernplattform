@@ -75,6 +75,7 @@ export default function AdminPage() {
   const [selectedUser, setSelectedUser] = useState<AdminUser | null>(null)
   const [msgText, setMsgText] = useState('')
   const [msgTarget, setMsgTarget] = useState<string>('all')
+  const [msgShowSender, setMsgShowSender] = useState(true)
   const [msgSending, setMsgSending] = useState(false)
   const [msgSent, setMsgSent] = useState(false)
 
@@ -655,6 +656,22 @@ export default function AdminPage() {
                 />
               </div>
 
+              {/* Absender-Toggle */}
+              <div className="flex items-center justify-between py-2 px-3 rounded-xl" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}>
+                <div>
+                  <p className="text-xs font-medium text-slate-300">Admin-Absender anzeigen</p>
+                  <p className="text-xs text-slate-500 mt-0.5">Zeigt Shield-Icon und «Admin-Nachricht» im Popup</p>
+                </div>
+                <button
+                  onClick={() => setMsgShowSender(v => !v)}
+                  className="relative w-10 h-5 rounded-full transition-colors shrink-0"
+                  style={{ background: msgShowSender ? '#7c3aed' : 'rgba(255,255,255,0.1)' }}
+                >
+                  <span className="absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform"
+                    style={{ transform: msgShowSender ? 'translateX(20px)' : 'translateX(0)' }} />
+                </button>
+              </div>
+
               <button
                 disabled={!msgText.trim() || msgSending}
                 onClick={async () => {
@@ -664,7 +681,7 @@ export default function AdminPage() {
                     await fetch('/api/admin/messages', {
                       method: 'POST',
                       headers: { 'Content-Type': 'application/json' },
-                      body: JSON.stringify({ message: msgText, targetUserId: msgTarget === 'all' ? null : msgTarget }),
+                      body: JSON.stringify({ message: msgText, targetUserId: msgTarget === 'all' ? null : msgTarget, showSender: msgShowSender }),
                     })
                     setMsgText('')
                     setMsgSent(true)
@@ -689,7 +706,7 @@ export default function AdminPage() {
           </div>
 
           <div className="px-4 py-3 rounded-xl text-xs text-slate-500" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}>
-            Nachrichten laufen nach 24 Stunden automatisch ab. Online-Nutzer sehen sie sofort (alle 6 Sekunden geprüft), offline Nutzer beim nächsten Login.
+            Das Popup schliesst sich automatisch nach 10 Sekunden. Online-Nutzer sehen es sofort, offline Nutzer beim nächsten Login (max. 1h).
           </div>
         </div>
       )}

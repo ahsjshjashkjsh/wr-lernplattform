@@ -16,7 +16,15 @@
       "Bash(npx tsc:*)",
       "Bash(find 'c:\\\\ÜBUNGSTOOL ABSCHLUSSPRÜFUNG WR\\\\wr-lernplattform' -name *.md)",
       "Bash(DATABASE_URL=\"postgresql://postgres.xudeuxqxgiozvgojjcas:w778dj8AcyFs2Tef@aws-1-eu-west-1.pooler.supabase.com:5432/postgres\" npx prisma db push)",
-      "Bash(DATABASE_URL=\"postgresql://postgres.xudeuxqxgiozvgojjcas:w778dj8AcyFs2Tef@aws-1-eu-west-1.pooler.supabase.com:5432/postgres\" npx prisma db execute --stdin <<'EOF':*)"
+      "Bash(DATABASE_URL=\"postgresql://postgres.xudeuxqxgiozvgojjcas:w778dj8AcyFs2Tef@aws-1-eu-west-1.pooler.supabase.com:5432/postgres\" npx prisma db execute --stdin <<'EOF':*)",
+      "Bash(node -e \"const bcrypt = require\\(''bcryptjs''\\); bcrypt.hash\\(''admin'', 12\\).then\\(h => console.log\\(h\\)\\)\")",
+      "Bash(DIRECT_URL=\"postgresql://postgres.xudeuxqxgiozvgojjcas:w778dj8AcyFs2Tef@aws-1-eu-west-1.pooler.supabase.com:5432/postgres\" npx tsx -e \":*)",
+      "Bash(sed -i 's/WR Lernplattform/HMS-Plattform/g' src/app/layout.tsx src/app/login/page.tsx src/app/page.tsx src/app/register/page.tsx src/components/layout/navbar.tsx)",
+      "Bash(sed -i 's/Lernplattform für Wirtschaft und Recht/HMS-Plattform für Wirtschaft und Recht/g' src/app/layout.tsx)",
+      "Bash(DATABASE_URL=\"postgresql://postgres.xudeuxqxgiozvgojjcas:w778dj8AcyFs2Tef@aws-1-eu-west-1.pooler.supabase.com:5432/postgres\" node scripts/seed-frw-bilanz.mjs)",
+      "Bash(DATABASE_URL=\"postgresql://postgres.xudeuxqxgiozvgojjcas:w778dj8AcyFs2Tef@aws-1-eu-west-1.pooler.supabase.com:5432/postgres\" node scripts/seed-frw-all.mjs)",
+      "Bash(npx skills:*)",
+      "Bash(DATABASE_URL=\"postgresql://postgres.xudeuxqxgiozvgojjcas:w778dj8AcyFs2Tef@aws-1-eu-west-1.pooler.supabase.com:5432/postgres\" npx prisma db push --skip-generate)"
     ]
   }
 }
