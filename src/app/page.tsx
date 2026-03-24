@@ -37,39 +37,27 @@ function TopicRow({ topic }: { topic: Topic & { chapters: { id: string }[] } }) 
 
   const examColors: Record<string, { color: string; bg: string }> = {
     querschnitt: { color: '#22c55e', bg: 'rgba(34,197,94,0.1)' },
-    abschluss:   { color: 'var(--accent)', bg: 'var(--accent-dim)' },
-    both:        { color: 'var(--blue)', bg: 'var(--blue-dim)' },
+    abschluss:   { color: '#f59e0b', bg: 'rgba(245,158,11,0.12)' },
+    both:        { color: '#3b82f6', bg: 'rgba(59,130,246,0.12)' },
   }
   const ec = examColors[topic.examType] ?? examColors.both
 
   return (
     <Link
       href={`/topics/${topic.slug}`}
-      className="group flex items-center gap-4 px-4 py-3.5 rounded-xl transition-all duration-150"
-      style={{ border: '1px solid var(--border-color)' }}
-      onMouseEnter={e => {
-        const el = e.currentTarget as HTMLElement
-        el.style.borderColor = 'var(--border-hover)'
-        el.style.background = 'var(--bg-surface)'
-      }}
-      onMouseLeave={e => {
-        const el = e.currentTarget as HTMLElement
-        el.style.borderColor = 'var(--border-color)'
-        el.style.background = 'transparent'
-      }}
+      className="topic-row group flex items-center gap-4 px-4 py-3.5 rounded-xl"
     >
-      <div
-        className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
-        style={{ background: 'var(--bg-surface)' }}
-      >
+      <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 topic-row-icon">
         <TopicIcon name={topic.icon} size={15} className="text-slate-400" />
       </div>
 
       <div className="flex-1 min-w-0">
-        <div className="font-semibold text-sm transition-colors truncate" style={{ color: 'var(--text-primary)' }}>
+        <div className="font-semibold text-sm truncate topic-row-title">
           {topic.title}
         </div>
-        <div className="text-xs truncate mt-0.5" style={{ color: 'var(--text-muted)' }}>{topic.description}</div>
+        <div className="text-xs truncate mt-0.5" style={{ color: 'var(--text-muted)' }}>
+          {topic.description}
+        </div>
       </div>
 
       <div className="flex items-center gap-2 shrink-0">
@@ -79,7 +67,9 @@ function TopicRow({ topic }: { topic: Topic & { chapters: { id: string }[] } }) 
         >
           {examLabel}
         </span>
-        <span className="text-xs hidden sm:block" style={{ color: 'var(--text-muted)' }}>{chapterCount} Kap.</span>
+        <span className="text-xs hidden sm:block" style={{ color: 'var(--text-muted)' }}>
+          {chapterCount} Kap.
+        </span>
         <ArrowRight size={13} style={{ color: 'var(--text-muted)' }} className="group-hover:translate-x-0.5 transition-transform" />
       </div>
     </Link>
@@ -98,7 +88,7 @@ export default async function DashboardPage() {
   const progressPct = totalChapters > 0 ? Math.round((completed / totalChapters) * 100) : 0
 
   const catAccents: Record<string, string> = {
-    bwl:   'var(--blue)',
+    bwl:   '#3b82f6',
     vwl:   '#22c55e',
     recht: '#a78bfa',
   }
@@ -122,24 +112,17 @@ export default async function DashboardPage() {
         <div className="flex flex-wrap gap-3 mb-8">
           <Link
             href="/topics"
-            className="inline-flex items-center gap-2 text-sm font-semibold px-5 py-2.5 rounded-xl transition-all duration-150"
-            style={{
-              background: 'var(--accent)',
-              color: '#09090e',
-            }}
+            className="inline-flex items-center gap-2 text-sm font-semibold px-5 py-2.5 rounded-xl"
+            style={{ background: 'var(--accent)', color: '#09090e' }}
           >
             Alle Themen <ArrowRight size={14} />
           </Link>
           <Link
             href="/assistant"
-            className="inline-flex items-center gap-2 text-sm font-medium px-5 py-2.5 rounded-xl transition-colors"
-            style={{
-              background: 'var(--bg-surface)',
-              border: '1px solid var(--border-color)',
-              color: 'var(--text-secondary)',
-            }}
+            className="inline-flex items-center gap-2 text-sm font-medium px-5 py-2.5 rounded-xl glass glass-hover"
           >
-            <Sparkles size={13} style={{ color: 'var(--blue)' }} /> KI-Assistent
+            <Sparkles size={13} style={{ color: 'var(--blue)' }} />
+            <span style={{ color: 'var(--text-secondary)' }}>KI-Assistent</span>
           </Link>
         </div>
 
@@ -153,7 +136,7 @@ export default async function DashboardPage() {
           ].map(s => (
             <div key={s.label} className="flex items-center gap-2">
               <s.icon size={14} style={{ color: s.color }} />
-              <span className="text-lg font-bold" style={{ color: s.color }}>{s.value}</span>
+              <span className="text-xl font-bold" style={{ color: s.color }}>{s.value}</span>
               <span className="text-xs" style={{ color: 'var(--text-muted)' }}>{s.label}</span>
             </div>
           ))}
@@ -172,10 +155,7 @@ export default async function DashboardPage() {
           <div className="h-1.5 rounded-full overflow-hidden" style={{ background: 'var(--bg-surface)' }}>
             <div
               className="h-full rounded-full transition-all duration-500"
-              style={{
-                width: `${progressPct}%`,
-                background: 'var(--accent)',
-              }}
+              style={{ width: `${progressPct}%`, background: 'var(--accent)' }}
             />
           </div>
         </div>
@@ -184,19 +164,7 @@ export default async function DashboardPage() {
       {/* ── FRW Teaser ─────────────────────────────────── */}
       <Link
         href="/topics"
-        className="group relative flex flex-col sm:flex-row items-start sm:items-center gap-5 p-6 rounded-2xl transition-all duration-200"
-        style={{
-          background: 'var(--bg-surface)',
-          border: '1px solid var(--green-border)',
-        }}
-        onMouseEnter={e => {
-          const el = e.currentTarget as HTMLElement
-          el.style.background = 'var(--bg-surface-hover)'
-        }}
-        onMouseLeave={e => {
-          const el = e.currentTarget as HTMLElement
-          el.style.background = 'var(--bg-surface)'
-        }}
+        className="frw-teaser group flex flex-col sm:flex-row items-start sm:items-center gap-5 p-6 rounded-2xl"
       >
         <div
           className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0"
@@ -206,7 +174,7 @@ export default async function DashboardPage() {
         </div>
 
         <div className="flex-1">
-          <div className="flex items-center gap-2 mb-1.5">
+          <div className="mb-1.5">
             <span
               className="text-[10px] font-bold px-2 py-0.5 rounded-md tracking-wider uppercase"
               style={{ color: '#22c55e', background: 'var(--green-dim)' }}
@@ -234,17 +202,13 @@ export default async function DashboardPage() {
       <div className="space-y-8">
         {byCategory.map(({ cat, label, topics: catTopics }) => (
           <div key={cat}>
-            {/* Category Header */}
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2">
                 <div
                   className="w-1 h-4 rounded-full"
                   style={{ background: catAccents[cat] ?? 'var(--text-muted)' }}
                 />
-                <span
-                  className="text-xs font-bold tracking-widest uppercase"
-                  style={{ color: 'var(--text-secondary)' }}
-                >
+                <span className="text-xs font-bold tracking-widest uppercase" style={{ color: 'var(--text-secondary)' }}>
                   {label}
                 </span>
                 <span
@@ -256,10 +220,8 @@ export default async function DashboardPage() {
               </div>
               <Link
                 href="/topics"
-                className="text-xs font-medium flex items-center gap-1 transition-colors"
+                className="text-xs font-medium flex items-center gap-1"
                 style={{ color: 'var(--text-muted)' }}
-                onMouseEnter={e => (e.currentTarget as HTMLElement).style.color = 'var(--text-secondary)'}
-                onMouseLeave={e => (e.currentTarget as HTMLElement).style.color = 'var(--text-muted)'}
               >
                 Alle <ArrowRight size={11} />
               </Link>
@@ -276,11 +238,7 @@ export default async function DashboardPage() {
 
       {/* ── Bottom CTA ─────────────────────────────────── */}
       <div
-        className="flex items-center justify-between gap-4 p-6 rounded-2xl"
-        style={{
-          background: 'var(--bg-surface)',
-          border: '1px solid var(--border-color)',
-        }}
+        className="flex items-center justify-between gap-4 p-6 rounded-2xl glass"
       >
         <div>
           <div className="font-bold text-base" style={{ color: 'var(--text-primary)' }}>Bereit für ein Quiz?</div>
@@ -290,7 +248,7 @@ export default async function DashboardPage() {
         </div>
         <Link
           href="/topics"
-          className="flex items-center gap-2 text-sm font-bold px-5 py-2.5 rounded-xl whitespace-nowrap transition-all"
+          className="flex items-center gap-2 text-sm font-bold px-5 py-2.5 rounded-xl whitespace-nowrap"
           style={{ background: 'var(--accent)', color: '#09090e' }}
         >
           Starten <ArrowRight size={14} />

@@ -178,3 +178,33 @@ body {
   height: 1px;
   background: var(--divider);
 }
+
+/* ─── Topic row hover (CSS only, works in Server Components) ─ */
+.topic-row {
+  border: 1px solid var(--border-color);
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+.topic-row:hover {
+  border-color: var(--border-hover);
+  background: var(--bg-surface);
+}
+.topic-row-icon {
+  background: var(--bg-surface);
+  transition: background 0.15s ease;
+}
+.topic-row:hover .topic-row-icon {
+  background: var(--bg-surface-hover);
+}
+.topic-row-title {
+  color: var(--text-primary);
+}
+
+/* ─── FRW Teaser hover ───────────────────────────────────── */
+.frw-teaser {
+  background: var(--bg-surface);
+  border: 1px solid var(--green-border);
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+.frw-teaser:hover {
+  background: var(--bg-surface-hover);
+}
