@@ -13,23 +13,27 @@ export async function GET() {
   const admin = await requireAdmin()
   if (!admin) return Response.json({ error: 'Kein Zugriff.' }, { status: 403 })
 
-  const users = await prisma.user.findMany({
-    select: {
-      id: true,
-      name: true,
-      email: true,
-      isAdmin: true,
-      isBanned: true,
-      createdAt: true,
-      lastOnline: true,
-      _count: { select: { quizAttempts: true, progress: true } },
-      quizAttempts: { select: { completedAt: true, scorePercent: true }, orderBy: { completedAt: 'desc' }, take: 1 },
-      progress: { select: { bestScore: true, status: true }, where: { status: 'completed' } },
-    },
-    orderBy: { createdAt: 'desc' },
-  })
+  const [users, bannedIps] = await Promise.all([
+    prisma.user.findMany({
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        isAdmin: true,
+        isBanned: true,
+        createdAt: true,
+        lastOnline: true,
+        lastIp: true,
+        _count: { select: { quizAttempts: true, progress: true } },
+        quizAttempts: { select: { completedAt: true, scorePercent: true }, orderBy: { completedAt: 'desc' }, take: 1 },
+        progress: { select: { bestScore: true, status: true }, where: { status: 'completed' } },
+      },
+      orderBy: { createdAt: 'desc' },
+    }),
+    prisma.bannedIp.findMany({ select: { ip: true } }),
+  ])
 
-  return Response.json({ users })
+  return Response.json({ users, bannedIps: bannedIps.map(b => b.ip) })
 }
 
 // POST — neuen User erstellen
@@ -63,7 +67,7 @@ export async function POST(request: Request) {
   return Response.json({ user })
 }
 
-// PATCH — User bearbeiten (isAdmin, isBanned, name, email, password)
+// PATCH — User bearbeiten (isAdmin, isBanned, name, email, password, banIp)
 export async function PATCH(request: Request) {
   const admin = await requireAdmin()
   if (!admin) return Response.json({ error: 'Kein Zugriff.' }, { status: 403 })
@@ -72,6 +76,7 @@ export async function PATCH(request: Request) {
     userId: string
     isAdmin?: boolean
     isBanned?: boolean
+    banIp?: boolean   // wenn true: IP des Users auch sperren
     name?: string
     email?: string
     password?: string
@@ -97,8 +102,22 @@ export async function PATCH(request: Request) {
   const updated = await prisma.user.update({
     where: { id: body.userId },
     data,
-    select: { id: true, name: true, email: true, isAdmin: true, isBanned: true },
+    select: { id: true, name: true, email: true, isAdmin: true, isBanned: true, lastIp: true },
   })
+
+  // IP sperren falls gewünscht und User eine IP hat
+  if (body.isBanned === true && body.banIp && updated.lastIp && updated.lastIp !== 'unknown') {
+    await prisma.bannedIp.upsert({
+      where: { ip: updated.lastIp },
+      create: { ip: updated.lastIp, reason: `Gesperrt zusammen mit Account: ${updated.name}` },
+      update: {},
+    })
+  }
+
+  // IP freigeben falls User entsperrt wird
+  if (body.isBanned === false && updated.lastIp) {
+    await prisma.bannedIp.deleteMany({ where: { ip: updated.lastIp } }).catch(() => {})
+  }
 
   return Response.json({ user: updated })
 }

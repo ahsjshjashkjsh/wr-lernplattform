@@ -14,10 +14,18 @@ model User {
   isAdmin      Boolean           @default(false)
   isBanned     Boolean           @default(false)
   lastOnline   DateTime?
+  lastIp       String?
   createdAt    DateTime          @default(now())
   progress     ChapterProgress[]
   quizAttempts QuizAttempt[]
   feedback     Feedback[]
+}
+
+model BannedIp {
+  id       String   @id @default(cuid())
+  ip       String   @unique
+  reason   String?
+  bannedAt DateTime @default(now())
 }
 
 model Topic {

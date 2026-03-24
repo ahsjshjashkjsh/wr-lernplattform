@@ -1,5 +1,5 @@
 'use client'
-import { createContext, useContext, useEffect, useState, useCallback } from 'react'
+import { createContext, useContext, useEffect, useState, useCallback, useRef } from 'react'
 
 export interface AuthUser {
   id: string
@@ -26,6 +26,7 @@ const AuthContext = createContext<AuthContextValue>({
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null)
   const [loading, setLoading] = useState(true)
+  const heartbeatRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
   const refresh = useCallback(() => {
     setLoading(true)
@@ -37,6 +38,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [])
 
   useEffect(() => { refresh() }, [refresh])
+
+  // Heartbeat: sendet alle 30s eine Anfrage um lastOnline + lastIp zu aktualisieren
+  useEffect(() => {
+    if (!user) {
+      if (heartbeatRef.current) clearInterval(heartbeatRef.current)
+      return
+    }
+
+    const ping = () => fetch('/api/heartbeat', { method: 'POST' }).catch(() => {})
+    ping() // sofort beim Login
+
+    heartbeatRef.current = setInterval(ping, 30_000)
+    return () => {
+      if (heartbeatRef.current) clearInterval(heartbeatRef.current)
+    }
+  }, [user?.id]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const logout = async () => {
     await fetch('/api/auth/logout', { method: 'POST' })

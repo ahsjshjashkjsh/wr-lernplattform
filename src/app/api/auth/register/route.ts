@@ -36,6 +36,16 @@ export async function POST(request: Request) {
       return Response.json({ error: 'Passwörter stimmen nicht überein.' }, { status: 400 })
     }
 
+    const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim()
+      ?? request.headers.get('x-real-ip')
+      ?? 'unknown'
+
+    // Check if IP is banned
+    const bannedIp = await prisma.bannedIp.findUnique({ where: { ip } })
+    if (bannedIp) {
+      return Response.json({ error: 'Registrierung nicht möglich.' }, { status: 403 })
+    }
+
     const existing = await prisma.user.findUnique({ where: { email } })
     if (existing) {
       return Response.json({ error: 'Diese E-Mail-Adresse ist bereits registriert.' }, { status: 409 })
@@ -43,7 +53,7 @@ export async function POST(request: Request) {
 
     const passwordHash = await bcrypt.hash(password, 12)
     const user = await prisma.user.create({
-      data: { name, email, passwordHash },
+      data: { name, email, passwordHash, lastIp: ip },
     })
 
     await setSession({ userId: user.id, name: user.name, email: user.email, isAdmin: user.isAdmin })

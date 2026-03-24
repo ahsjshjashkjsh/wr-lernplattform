@@ -1,6 +1,6 @@
 'use client'
-import { useEffect, useState } from 'react'
-import { Shield, Trash2, Crown, Users, BarChart2, BookOpen, Ban, UserPlus, Pencil, X, Check, Eye, EyeOff, RefreshCw, MessageSquare, CheckCircle2, XCircle, Clock, Bug, Lightbulb, FileText, HelpCircle } from 'lucide-react'
+import { useEffect, useState, useCallback } from 'react'
+import { Shield, Trash2, Crown, Users, BarChart2, Ban, UserPlus, Pencil, X, Check, Eye, EyeOff, RefreshCw, MessageSquare, CheckCircle2, XCircle, Clock, Bug, Lightbulb, FileText, HelpCircle, Wifi, WifiOff, Globe, Activity } from 'lucide-react'
 
 interface AdminUser {
   id: string
@@ -10,6 +10,7 @@ interface AdminUser {
   isBanned: boolean
   createdAt: string
   lastOnline: string | null
+  lastIp: string | null
   _count: { quizAttempts: number; progress: number }
   quizAttempts: { completedAt: string; scorePercent: number }[]
   progress: { bestScore: number | null; status: string }[]
@@ -33,8 +34,27 @@ const CATEGORY_COLORS: Record<string, string> = { bug: '#f87171', feature: '#fbb
 
 type Tab = 'users' | 'create' | 'feedback'
 
+// Online = lastOnline within last 3 minutes
+function isOnline(lastOnline: string | null) {
+  if (!lastOnline) return false
+  return Date.now() - new Date(lastOnline).getTime() < 3 * 60 * 1000
+}
+
+function timeAgo(dateStr: string | null) {
+  if (!dateStr) return 'Nie'
+  const diff = Date.now() - new Date(dateStr).getTime()
+  const mins = Math.floor(diff / 60_000)
+  const hours = Math.floor(diff / 3_600_000)
+  const days = Math.floor(diff / 86_400_000)
+  if (mins < 1) return 'Gerade eben'
+  if (mins < 60) return `vor ${mins} Min.`
+  if (hours < 24) return `vor ${hours} Std.`
+  return `vor ${days} Tagen`
+}
+
 export default function AdminPage() {
   const [users, setUsers] = useState<AdminUser[]>([])
+  const [bannedIps, setBannedIps] = useState<string[]>([])
   const [loading, setLoading] = useState(true)
   const [tab, setTab] = useState<Tab>('users')
   const [actionLoading, setActionLoading] = useState<string | null>(null)
@@ -51,16 +71,19 @@ export default function AdminPage() {
   const [feedbackFilter, setFeedbackFilter] = useState<'all' | 'pending' | 'accepted' | 'rejected'>('all')
   const [reviewItem, setReviewItem] = useState<FeedbackItem | null>(null)
   const [adminNote, setAdminNote] = useState('')
+  const [banModal, setBanModal] = useState<AdminUser | null>(null)
+  const [selectedUser, setSelectedUser] = useState<AdminUser | null>(null)
 
-  async function loadUsers() {
+  const loadUsers = useCallback(async () => {
     setLoading(true)
     const res = await fetch('/api/admin/users')
     if (res.ok) {
       const data = await res.json()
       setUsers(data.users)
+      setBannedIps(data.bannedIps ?? [])
     }
     setLoading(false)
-  }
+  }, [])
 
   async function loadFeedback() {
     const res = await fetch('/api/feedback')
@@ -80,7 +103,13 @@ export default function AdminPage() {
     setAdminNote('')
   }
 
-  useEffect(() => { loadUsers(); loadFeedback() }, [])
+  // Auto-refresh every 30s to show live online status
+  useEffect(() => {
+    loadUsers()
+    loadFeedback()
+    const interval = setInterval(loadUsers, 30_000)
+    return () => clearInterval(interval)
+  }, [loadUsers])
 
   async function patch(userId: string, data: Record<string, unknown>, key: string) {
     setActionLoading(key)
@@ -91,6 +120,18 @@ export default function AdminPage() {
     })
     await loadUsers()
     setActionLoading(null)
+  }
+
+  async function banUser(user: AdminUser, withIp: boolean) {
+    setActionLoading(user.id + '-ban')
+    await fetch('/api/admin/users', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userId: user.id, isBanned: true, banIp: withIp }),
+    })
+    await loadUsers()
+    setActionLoading(null)
+    setBanModal(null)
   }
 
   async function deleteUser(userId: string) {
@@ -140,12 +181,13 @@ export default function AdminPage() {
 
   const filtered = users.filter(u =>
     u.name.toLowerCase().includes(search.toLowerCase()) ||
-    u.email.toLowerCase().includes(search.toLowerCase())
+    u.email.toLowerCase().includes(search.toLowerCase()) ||
+    (u.lastIp ?? '').includes(search)
   )
 
   const totalQuiz = users.reduce((s, u) => s + u._count.quizAttempts, 0)
-  const totalProgress = users.reduce((s, u) => s + u._count.progress, 0)
   const banned = users.filter(u => u.isBanned).length
+  const online = users.filter(u => isOnline(u.lastOnline)).length
   const pendingFeedback = feedback.filter(f => f.status === 'pending').length
   const filteredFeedback = feedbackFilter === 'all' ? feedback : feedback.filter(f => f.status === feedbackFilter)
 
@@ -161,25 +203,31 @@ export default function AdminPage() {
       {/* Header */}
       <div className="flex items-center justify-between mb-8">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #f59e0b, #ef4444)' }}>
-            <Shield size={20} className="text-white" />
+          <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: 'rgba(245,158,11,0.15)', border: '1px solid rgba(245,158,11,0.3)' }}>
+            <Shield size={20} style={{ color: '#f59e0b' }} />
           </div>
           <div>
             <h1 className="text-2xl font-bold text-slate-100">Admin Dashboard</h1>
-            <p className="text-sm text-slate-500">Benutzerverwaltung</p>
+            <p className="text-sm text-slate-500">Benutzerverwaltung · Live-Monitoring</p>
           </div>
         </div>
-        <button onClick={loadUsers} className="w-8 h-8 flex items-center justify-center rounded-lg transition-all" style={{ background: 'rgba(255,255,255,0.05)', color: '#64748b' }}>
-          <RefreshCw size={14} />
-        </button>
+        <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold" style={{ background: 'rgba(34,197,94,0.1)', color: '#22c55e', border: '1px solid rgba(34,197,94,0.2)' }}>
+            <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse"/>
+            {online} online
+          </div>
+          <button onClick={loadUsers} className="w-8 h-8 flex items-center justify-center rounded-lg transition-all" style={{ background: 'rgba(255,255,255,0.05)', color: '#64748b' }}>
+            <RefreshCw size={14} />
+          </button>
+        </div>
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-4 gap-3 mb-6">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
         {[
-          { icon: Users, label: 'Gesamt', value: users.length, color: '#3b82f6' },
+          { icon: Users, label: 'Benutzer', value: users.length, color: '#3b82f6' },
+          { icon: Activity, label: 'Gerade online', value: online, color: '#22c55e' },
           { icon: Ban, label: 'Gesperrt', value: banned, color: '#ef4444' },
-          { icon: BarChart2, label: 'Quiz-Versuche', value: totalQuiz, color: '#10b981' },
           { icon: MessageSquare, label: 'Feedback offen', value: pendingFeedback, color: '#f59e0b' },
         ].map(({ icon: Icon, label, value, color }) => (
           <div key={label} className="glass rounded-2xl p-4 border" style={{ borderColor: 'rgba(255,255,255,0.08)' }}>
@@ -191,6 +239,19 @@ export default function AdminPage() {
           </div>
         ))}
       </div>
+
+      {/* Banned IPs */}
+      {bannedIps.length > 0 && (
+        <div className="mb-4 px-4 py-3 rounded-xl flex items-center gap-3 flex-wrap" style={{ background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.15)' }}>
+          <Globe size={13} style={{ color: '#f87171' }} />
+          <span className="text-xs font-semibold text-red-400">Gesperrte IPs:</span>
+          {bannedIps.map(ip => (
+            <span key={ip} className="text-xs font-mono px-2 py-0.5 rounded" style={{ background: 'rgba(239,68,68,0.12)', color: '#fca5a5' }}>
+              {ip}
+            </span>
+          ))}
+        </div>
+      )}
 
       {/* Tabs */}
       <div className="flex gap-2 mb-4">
@@ -217,13 +278,13 @@ export default function AdminPage() {
           <div className="px-5 py-3 border-b flex items-center gap-3" style={{ borderColor: 'rgba(255,255,255,0.06)' }}>
             <input
               type="text"
-              placeholder="Suchen..."
+              placeholder="Name, E-Mail oder IP suchen..."
               value={search}
               onChange={e => setSearch(e.target.value)}
               className="flex-1 px-3 py-1.5 rounded-lg text-sm outline-none"
               style={inputStyle}
             />
-            <span className="text-xs text-slate-500">{filtered.length} von {users.length}</span>
+            <span className="text-xs text-slate-500 shrink-0">{filtered.length} / {users.length}</span>
           </div>
 
           {loading ? (
@@ -232,117 +293,192 @@ export default function AdminPage() {
             <div className="p-8 text-center text-slate-500 text-sm">Keine Benutzer gefunden.</div>
           ) : (
             <div className="divide-y" style={{ borderColor: 'rgba(255,255,255,0.04)' }}>
-              {filtered.map(user => (
-                <div key={user.id} className={`px-5 py-4 flex items-center gap-4 transition-all ${user.isBanned ? 'opacity-50' : ''}`}>
-                  {/* Avatar */}
-                  <div
-                    className="w-9 h-9 rounded-full flex items-center justify-center text-sm font-semibold flex-shrink-0"
-                    style={{
-                      background: user.isBanned ? 'rgba(239,68,68,0.2)'
-                        : user.isAdmin ? 'linear-gradient(135deg, #f59e0b, #ef4444)'
-                        : 'rgba(99,102,241,0.2)',
-                      color: user.isBanned ? '#f87171' : user.isAdmin ? 'white' : '#818cf8',
-                    }}
-                  >
-                    {user.isBanned ? <Ban size={14} /> : user.name.charAt(0).toUpperCase()}
-                  </div>
+              {filtered.map(user => {
+                const online = isOnline(user.lastOnline)
+                const ipBanned = user.lastIp ? bannedIps.includes(user.lastIp) : false
+                const scores = user.progress.map(p => p.bestScore).filter((s): s is number => s != null)
+                const avgScore = scores.length > 0 ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length) : null
 
-                  {/* Info */}
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <span className="text-sm font-medium text-slate-200 truncate">{user.name}</span>
-                      {user.isAdmin && (
-                        <span className="flex items-center gap-1 text-xs px-1.5 py-0.5 rounded-md font-medium" style={{ background: 'rgba(245,158,11,0.15)', color: '#f59e0b' }}>
-                          <Crown size={10} /> Admin
-                        </span>
-                      )}
-                      {user.isBanned && (
-                        <span className="flex items-center gap-1 text-xs px-1.5 py-0.5 rounded-md font-medium" style={{ background: 'rgba(239,68,68,0.15)', color: '#f87171' }}>
-                          <Ban size={10} /> Gesperrt
-                        </span>
-                      )}
-                    </div>
-                    <div className="text-xs text-slate-500 truncate">{user.email}</div>
-                  </div>
-
-                  {/* Stats */}
-                  <div className="hidden md:flex flex-col gap-0.5 text-xs text-right">
-                    <span className="text-slate-400">
-                      {user._count.quizAttempts} Quiz · {user._count.progress} Kapitel abgeschlossen
-                    </span>
-                    {user.progress.length > 0 && (() => {
-                      const scores = user.progress.map(p => p.bestScore).filter((s): s is number => s != null)
-                      const avg = scores.length > 0 ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length) : null
-                      return avg != null ? <span className="text-amber-400 font-medium">Ø Score: {avg}%</span> : null
-                    })()}
-                    <span className="text-slate-500">
-                      Registriert: {new Date(user.createdAt).toLocaleDateString('de-CH')}
-                    </span>
-                    <span className={user.lastOnline ? 'text-emerald-400' : 'text-slate-600'}>
-                      {user.lastOnline
-                        ? `Online: ${new Date(user.lastOnline).toLocaleDateString('de-CH')} ${new Date(user.lastOnline).toLocaleTimeString('de-CH', { hour: '2-digit', minute: '2-digit' })}`
-                        : 'Noch nie eingeloggt'}
-                    </span>
-                  </div>
-
-                  {/* Actions */}
-                  <div className="flex items-center gap-1.5 flex-shrink-0">
-                    {/* Edit */}
-                    <button
-                      onClick={() => { setEditUser(user); setEditForm({ name: user.name, email: user.email, password: '' }) }}
-                      title="Bearbeiten"
-                      className="w-8 h-8 rounded-lg flex items-center justify-center transition-all"
-                      style={{ background: 'rgba(99,102,241,0.1)', color: '#818cf8' }}
-                    >
-                      <Pencil size={13} />
-                    </button>
-
-                    {/* Admin toggle */}
-                    <button
-                      onClick={() => patch(user.id, { isAdmin: !user.isAdmin }, user.id + '-admin')}
-                      disabled={actionLoading === user.id + '-admin'}
-                      title={user.isAdmin ? 'Admin entfernen' : 'Zum Admin machen'}
-                      className="w-8 h-8 rounded-lg flex items-center justify-center transition-all disabled:opacity-40"
-                      style={{ background: user.isAdmin ? 'rgba(245,158,11,0.2)' : 'rgba(255,255,255,0.05)', color: user.isAdmin ? '#f59e0b' : '#64748b' }}
-                    >
-                      <Crown size={13} />
-                    </button>
-
-                    {/* Ban toggle */}
-                    <button
-                      onClick={() => patch(user.id, { isBanned: !user.isBanned }, user.id + '-ban')}
-                      disabled={actionLoading === user.id + '-ban'}
-                      title={user.isBanned ? 'Entsperren' : 'Sperren'}
-                      className="w-8 h-8 rounded-lg flex items-center justify-center transition-all disabled:opacity-40"
-                      style={{ background: user.isBanned ? 'rgba(239,68,68,0.2)' : 'rgba(255,255,255,0.05)', color: user.isBanned ? '#f87171' : '#64748b' }}
-                    >
-                      <Ban size={13} />
-                    </button>
-
-                    {/* Delete */}
-                    {confirmDelete === user.id ? (
-                      <div className="flex items-center gap-1">
-                        <button onClick={() => deleteUser(user.id)} disabled={actionLoading === user.id + '-del'}
-                          className="text-xs px-2 py-1 rounded-lg font-medium disabled:opacity-40"
-                          style={{ background: 'rgba(239,68,68,0.2)', color: '#f87171' }}>
-                          Löschen
-                        </button>
-                        <button onClick={() => setConfirmDelete(null)}
-                          className="text-xs px-2 py-1 rounded-lg"
-                          style={{ background: 'rgba(255,255,255,0.05)', color: '#64748b' }}>
-                          Abbruch
-                        </button>
+                return (
+                  <div key={user.id} className={`px-5 py-4 transition-all ${user.isBanned ? 'opacity-60' : ''}`}>
+                    <div className="flex items-start gap-3">
+                      {/* Online dot + Avatar */}
+                      <div className="relative shrink-0">
+                        <div
+                          className="w-9 h-9 rounded-full flex items-center justify-center text-sm font-semibold"
+                          style={{
+                            background: user.isBanned ? 'rgba(239,68,68,0.2)'
+                              : user.isAdmin ? 'rgba(245,158,11,0.2)'
+                              : 'rgba(99,102,241,0.2)',
+                            color: user.isBanned ? '#f87171' : user.isAdmin ? '#f59e0b' : '#818cf8',
+                          }}
+                        >
+                          {user.isBanned ? <Ban size={14} /> : user.name.charAt(0).toUpperCase()}
+                        </div>
+                        {/* Live online indicator */}
+                        <div
+                          className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2"
+                          style={{
+                            background: online ? '#22c55e' : '#374151',
+                            borderColor: '#0c1526',
+                            boxShadow: online ? '0 0 6px rgba(34,197,94,0.6)' : 'none',
+                          }}
+                        />
                       </div>
-                    ) : (
-                      <button onClick={() => setConfirmDelete(user.id)} title="Löschen"
-                        className="w-8 h-8 rounded-lg flex items-center justify-center transition-all"
-                        style={{ background: 'rgba(239,68,68,0.1)', color: '#f87171' }}>
-                        <Trash2 size={13} />
-                      </button>
-                    )}
+
+                      {/* Info */}
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap mb-0.5">
+                          <button
+                            className="text-sm font-semibold text-slate-200 hover:text-white transition-colors text-left"
+                            onClick={() => setSelectedUser(selectedUser?.id === user.id ? null : user)}
+                          >
+                            {user.name}
+                          </button>
+                          {user.isAdmin && (
+                            <span className="flex items-center gap-1 text-xs px-1.5 py-0.5 rounded-md font-medium" style={{ background: 'rgba(245,158,11,0.15)', color: '#f59e0b' }}>
+                              <Crown size={9} /> Admin
+                            </span>
+                          )}
+                          {user.isBanned && (
+                            <span className="flex items-center gap-1 text-xs px-1.5 py-0.5 rounded-md font-medium" style={{ background: 'rgba(239,68,68,0.15)', color: '#f87171' }}>
+                              <Ban size={9} /> Gesperrt
+                            </span>
+                          )}
+                          {online && (
+                            <span className="flex items-center gap-1 text-xs font-semibold" style={{ color: '#22c55e' }}>
+                              <Wifi size={9} /> Online
+                            </span>
+                          )}
+                        </div>
+                        <div className="text-xs text-slate-500">{user.email}</div>
+
+                        {/* Inline details */}
+                        <div className="mt-1.5 flex flex-wrap gap-x-4 gap-y-0.5 text-[11px]">
+                          <span style={{ color: '#3d4d66' }}>
+                            {online ? 'Gerade aktiv' : `Zuletzt: ${timeAgo(user.lastOnline)}`}
+                          </span>
+                          {user.lastIp && (
+                            <span className="flex items-center gap-1 font-mono" style={{ color: ipBanned ? '#f87171' : '#3d4d66' }}>
+                              <Globe size={9}/> {user.lastIp} {ipBanned && '(IP gesperrt)'}
+                            </span>
+                          )}
+                          <span style={{ color: '#3d4d66' }}>
+                            {user._count.quizAttempts} Quiz · {user._count.progress} Kapitel
+                          </span>
+                          {avgScore != null && (
+                            <span style={{ color: '#f59e0b' }}>Ø {avgScore}%</span>
+                          )}
+                          <span style={{ color: '#3d4d66' }}>
+                            Seit {new Date(user.createdAt).toLocaleDateString('de-CH')}
+                          </span>
+                        </div>
+
+                        {/* Expanded details */}
+                        {selectedUser?.id === user.id && (
+                          <div className="mt-3 p-3 rounded-xl space-y-1.5 text-xs" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}>
+                            <div className="grid grid-cols-2 gap-2">
+                              <div>
+                                <span className="text-slate-600 block">User-ID</span>
+                                <span className="font-mono text-slate-400 text-[10px]">{user.id}</span>
+                              </div>
+                              <div>
+                                <span className="text-slate-600 block">IP-Adresse</span>
+                                <span className="font-mono text-slate-400">{user.lastIp ?? '–'}</span>
+                              </div>
+                              <div>
+                                <span className="text-slate-600 block">Letzter Login</span>
+                                <span className="text-slate-400">
+                                  {user.lastOnline
+                                    ? `${new Date(user.lastOnline).toLocaleDateString('de-CH')} ${new Date(user.lastOnline).toLocaleTimeString('de-CH', { hour: '2-digit', minute: '2-digit' })}`
+                                    : 'Noch nie'}
+                                </span>
+                              </div>
+                              <div>
+                                <span className="text-slate-600 block">Registriert</span>
+                                <span className="text-slate-400">{new Date(user.createdAt).toLocaleDateString('de-CH')}</span>
+                              </div>
+                              <div>
+                                <span className="text-slate-600 block">Quiz-Versuche</span>
+                                <span className="text-slate-400">{user._count.quizAttempts}</span>
+                              </div>
+                              <div>
+                                <span className="text-slate-600 block">Ø Score</span>
+                                <span className="text-slate-400">{avgScore != null ? `${avgScore}%` : '–'}</span>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Actions */}
+                      <div className="flex items-center gap-1.5 shrink-0">
+                        <button
+                          onClick={() => { setEditUser(user); setEditForm({ name: user.name, email: user.email, password: '' }) }}
+                          title="Bearbeiten"
+                          className="w-8 h-8 rounded-lg flex items-center justify-center transition-all"
+                          style={{ background: 'rgba(99,102,241,0.1)', color: '#818cf8' }}
+                        >
+                          <Pencil size={13} />
+                        </button>
+
+                        <button
+                          onClick={() => patch(user.id, { isAdmin: !user.isAdmin }, user.id + '-admin')}
+                          disabled={actionLoading === user.id + '-admin'}
+                          title={user.isAdmin ? 'Admin entfernen' : 'Zum Admin machen'}
+                          className="w-8 h-8 rounded-lg flex items-center justify-center transition-all disabled:opacity-40"
+                          style={{ background: user.isAdmin ? 'rgba(245,158,11,0.2)' : 'rgba(255,255,255,0.05)', color: user.isAdmin ? '#f59e0b' : '#64748b' }}
+                        >
+                          <Crown size={13} />
+                        </button>
+
+                        {user.isBanned ? (
+                          <button
+                            onClick={() => patch(user.id, { isBanned: false }, user.id + '-ban')}
+                            disabled={actionLoading === user.id + '-ban'}
+                            title="Entsperren"
+                            className="w-8 h-8 rounded-lg flex items-center justify-center transition-all disabled:opacity-40"
+                            style={{ background: 'rgba(239,68,68,0.2)', color: '#f87171' }}
+                          >
+                            <Ban size={13} />
+                          </button>
+                        ) : (
+                          <button
+                            onClick={() => setBanModal(user)}
+                            disabled={actionLoading === user.id + '-ban'}
+                            title="Sperren"
+                            className="w-8 h-8 rounded-lg flex items-center justify-center transition-all disabled:opacity-40"
+                            style={{ background: 'rgba(255,255,255,0.05)', color: '#64748b' }}
+                          >
+                            <Ban size={13} />
+                          </button>
+                        )}
+
+                        {confirmDelete === user.id ? (
+                          <div className="flex items-center gap-1">
+                            <button onClick={() => deleteUser(user.id)} disabled={actionLoading === user.id + '-del'}
+                              className="text-xs px-2 py-1 rounded-lg font-medium disabled:opacity-40"
+                              style={{ background: 'rgba(239,68,68,0.2)', color: '#f87171' }}>
+                              Löschen
+                            </button>
+                            <button onClick={() => setConfirmDelete(null)}
+                              className="text-xs px-2 py-1 rounded-lg"
+                              style={{ background: 'rgba(255,255,255,0.05)', color: '#64748b' }}>
+                              Abbruch
+                            </button>
+                          </div>
+                        ) : (
+                          <button onClick={() => setConfirmDelete(user.id)} title="Löschen"
+                            className="w-8 h-8 rounded-lg flex items-center justify-center transition-all"
+                            style={{ background: 'rgba(239,68,68,0.1)', color: '#f87171' }}>
+                            <Trash2 size={13} />
+                          </button>
+                        )}
+                      </div>
+                    </div>
                   </div>
-                </div>
-              ))}
+                )
+              })}
             </div>
           )}
         </div>
@@ -376,8 +512,7 @@ export default function AdminPage() {
               </div>
             </div>
             <label className="flex items-center gap-2 cursor-pointer">
-              <input type="checkbox" checked={createForm.isAdmin} onChange={e => setCreateForm(f => ({ ...f, isAdmin: e.target.checked }))}
-                className="rounded" />
+              <input type="checkbox" checked={createForm.isAdmin} onChange={e => setCreateForm(f => ({ ...f, isAdmin: e.target.checked }))} className="rounded" />
               <span className="text-sm text-slate-400">Als Admin erstellen</span>
             </label>
 
@@ -385,8 +520,8 @@ export default function AdminPage() {
             {createSuccess && <div className="text-xs text-green-400 bg-green-500/10 border border-green-500/20 rounded-xl px-3 py-2.5">{createSuccess}</div>}
 
             <button onClick={createUser} disabled={actionLoading === 'create'}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-white disabled:opacity-60 transition-all"
-              style={{ background: 'linear-gradient(135deg, #3b82f6, #6366f1)' }}>
+              className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold disabled:opacity-60 transition-all"
+              style={{ background: '#3b82f6', color: '#fff' }}>
               <UserPlus size={14} />
               {actionLoading === 'create' ? 'Wird erstellt...' : 'Account erstellen'}
             </button>
@@ -397,7 +532,6 @@ export default function AdminPage() {
       {/* === TAB: FEEDBACK === */}
       {tab === 'feedback' && (
         <div className="space-y-4">
-          {/* Filter */}
           <div className="flex gap-2">
             {(['all', 'pending', 'accepted', 'rejected'] as const).map(f => {
               const labels = { all: 'Alle', pending: 'Offen', accepted: 'Akzeptiert', rejected: 'Abgelehnt' }
@@ -453,11 +587,9 @@ export default function AdminPage() {
                           </div>
                         )}
                         {item.status === 'pending' && (
-                          <button
-                            onClick={() => { setReviewItem(item); setAdminNote('') }}
+                          <button onClick={() => { setReviewItem(item); setAdminNote('') }}
                             className="mt-3 px-3 py-1.5 rounded-lg text-xs font-medium text-white transition-all"
-                            style={{ background: 'linear-gradient(135deg, #3b82f6, #6366f1)' }}
-                          >
+                            style={{ background: '#3b82f6' }}>
                             Prüfen
                           </button>
                         )}
@@ -468,6 +600,68 @@ export default function AdminPage() {
               })}
             </div>
           )}
+        </div>
+      )}
+
+      {/* === BAN MODAL === */}
+      {banModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(4px)' }}>
+          <div className="glass rounded-2xl border p-6 w-full max-w-sm" style={{ borderColor: 'rgba(239,68,68,0.25)' }}>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-sm font-bold text-red-400 flex items-center gap-2"><Ban size={15}/> Benutzer sperren</h2>
+              <button onClick={() => setBanModal(null)} className="text-slate-500 hover:text-slate-300"><X size={16} /></button>
+            </div>
+
+            <div className="mb-5 p-3 rounded-xl text-sm" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}>
+              <div className="font-semibold text-slate-200">{banModal.name}</div>
+              <div className="text-xs text-slate-500">{banModal.email}</div>
+              {banModal.lastIp && (
+                <div className="text-xs font-mono mt-1.5 flex items-center gap-1.5" style={{ color: '#64748b' }}>
+                  <Globe size={10}/> IP: {banModal.lastIp}
+                </div>
+              )}
+            </div>
+
+            <p className="text-xs text-slate-500 mb-4">
+              Wie soll der Benutzer gesperrt werden?
+            </p>
+
+            <div className="space-y-2">
+              <button
+                onClick={() => banUser(banModal, false)}
+                disabled={actionLoading === banModal.id + '-ban'}
+                className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all disabled:opacity-50 text-left"
+                style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.25)', color: '#f87171' }}
+              >
+                <Ban size={15} className="shrink-0"/>
+                <div>
+                  <div>Nur Account sperren</div>
+                  <div className="text-xs font-normal text-red-400/60">Konto gesperrt, neue Accounts möglich</div>
+                </div>
+              </button>
+
+              {banModal.lastIp && banModal.lastIp !== 'unknown' && (
+                <button
+                  onClick={() => banUser(banModal, true)}
+                  disabled={actionLoading === banModal.id + '-ban'}
+                  className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all disabled:opacity-50 text-left"
+                  style={{ background: 'rgba(239,68,68,0.18)', border: '1px solid rgba(239,68,68,0.4)', color: '#f87171' }}
+                >
+                  <Globe size={15} className="shrink-0"/>
+                  <div>
+                    <div>Account + IP sperren</div>
+                    <div className="text-xs font-normal text-red-400/60">Keine neuen Accounts von {banModal.lastIp} möglich</div>
+                  </div>
+                </button>
+              )}
+
+              <button onClick={() => setBanModal(null)}
+                className="w-full py-2.5 rounded-xl text-sm font-medium text-center"
+                style={{ background: 'rgba(255,255,255,0.04)', color: '#64748b' }}>
+                Abbrechen
+              </button>
+            </div>
+          </div>
         </div>
       )}
 
@@ -486,30 +680,20 @@ export default function AdminPage() {
             </div>
             <div className="mb-4">
               <label className="text-xs text-slate-400 block mb-1.5">Admin-Notiz <span className="text-slate-600">(optional)</span></label>
-              <textarea
-                value={adminNote}
-                onChange={e => setAdminNote(e.target.value)}
+              <textarea value={adminNote} onChange={e => setAdminNote(e.target.value)}
                 placeholder="z.B. Wird im nächsten Update umgesetzt..."
-                rows={3}
-                className="w-full px-3 py-2 rounded-xl text-sm outline-none resize-none"
-                style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: 'var(--text-primary)' }}
-              />
+                rows={3} className="w-full px-3 py-2 rounded-xl text-sm outline-none resize-none"
+                style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: 'var(--text-primary)' }} />
             </div>
             <div className="flex gap-2">
-              <button
-                onClick={() => reviewFeedback(reviewItem.id, 'accepted')}
-                disabled={actionLoading === 'review-' + reviewItem.id}
+              <button onClick={() => reviewFeedback(reviewItem.id, 'accepted')} disabled={actionLoading === 'review-' + reviewItem.id}
                 className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold text-white disabled:opacity-60"
-                style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}
-              >
+                style={{ background: '#10b981' }}>
                 <CheckCircle2 size={14} /> Akzeptieren
               </button>
-              <button
-                onClick={() => reviewFeedback(reviewItem.id, 'rejected')}
-                disabled={actionLoading === 'review-' + reviewItem.id}
+              <button onClick={() => reviewFeedback(reviewItem.id, 'rejected')} disabled={actionLoading === 'review-' + reviewItem.id}
                 className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold text-white disabled:opacity-60"
-                style={{ background: 'linear-gradient(135deg, #ef4444, #dc2626)' }}
-              >
+                style={{ background: '#ef4444' }}>
                 <XCircle size={14} /> Ablehnen
               </button>
             </div>
@@ -523,9 +707,7 @@ export default function AdminPage() {
           <div className="glass rounded-2xl border p-6 w-full max-w-sm" style={{ borderColor: 'rgba(255,255,255,0.12)' }}>
             <div className="flex items-center justify-between mb-5">
               <h2 className="text-sm font-semibold text-slate-200">Benutzer bearbeiten</h2>
-              <button onClick={() => setEditUser(null)} className="text-slate-500 hover:text-slate-300">
-                <X size={16} />
-              </button>
+              <button onClick={() => setEditUser(null)} className="text-slate-500 hover:text-slate-300"><X size={16} /></button>
             </div>
             <div className="space-y-4">
               <div>
@@ -539,7 +721,7 @@ export default function AdminPage() {
                   className="w-full px-3 py-2.5 rounded-xl text-sm outline-none" style={inputStyle} />
               </div>
               <div>
-                <label className="text-xs text-slate-400 block mb-1.5">Neues Passwort <span className="text-slate-600">(leer lassen = nicht ändern)</span></label>
+                <label className="text-xs text-slate-400 block mb-1.5">Neues Passwort <span className="text-slate-600">(leer = nicht ändern)</span></label>
                 <div className="relative">
                   <input type={showEditPw ? 'text' : 'password'} value={editForm.password}
                     onChange={e => setEditForm(f => ({ ...f, password: e.target.value }))}
@@ -553,7 +735,7 @@ export default function AdminPage() {
               <div className="flex gap-2 pt-1">
                 <button onClick={saveEdit} disabled={actionLoading === 'edit'}
                   className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold text-white disabled:opacity-60"
-                  style={{ background: 'linear-gradient(135deg, #3b82f6, #6366f1)' }}>
+                  style={{ background: '#3b82f6' }}>
                   <Check size={14} />
                   {actionLoading === 'edit' ? 'Speichern...' : 'Speichern'}
                 </button>
