@@ -557,68 +557,130 @@ function QuizGenerator({ onBack }: { onBack: () => void }) {
   const c = C[frage.katColor] ?? C.blue
   const isCorrect = gewählt === frage.richtig
 
+  const progress = (index / fragen.length) * 100
+
   return (
-    <div className="flex flex-col gap-4 max-w-2xl mx-auto fade-in">
+    <div className="flex flex-col gap-5 max-w-2xl mx-auto fade-in">
+
       {/* HUD */}
       <div className="flex items-center gap-3">
         <button onClick={onBack}
-          className="w-8 h-8 flex items-center justify-center rounded-lg transition-all"
-          style={{ background: CARD_SURFACE, border: `1px solid ${CARD_BORDER}`, color: '#475569' }}>
-          <ArrowLeft size={13}/>
+          className="w-9 h-9 flex items-center justify-center rounded-xl transition-all hover:opacity-80"
+          style={{ background: CARD_SURFACE, border: `1px solid ${CARD_BORDER}`, color: '#64748b' }}>
+          <ArrowLeft size={14}/>
         </button>
-        <div className="flex-1 h-px overflow-hidden" style={{ background: 'rgba(255,255,255,0.06)' }}>
-          <div className="h-full transition-all duration-300"
-            style={{ width: `${(index / fragen.length) * 100}%`, background: '#3b82f6' }}/>
+
+        {/* Progress bar */}
+        <div className="flex-1 space-y-1.5">
+          <div className="w-full h-2 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.06)' }}>
+            <div className="h-full rounded-full transition-all duration-500"
+              style={{ width: `${progress}%`, background: `linear-gradient(90deg, ${c.accent}, ${c.text})` }}/>
+          </div>
         </div>
-        <div className="flex items-center gap-2 text-xs font-semibold shrink-0">
-          <span style={{ color: '#3d4d66' }}>{index + 1}/{fragen.length}</span>
-          <span className="px-2 py-0.5 rounded-full" style={{ color: '#22c55e', background: 'rgba(34,197,94,0.08)', border: '1px solid rgba(34,197,94,0.2)' }}>
+
+        {/* Score */}
+        <div className="flex items-center gap-2 shrink-0">
+          <span className="text-xs font-semibold" style={{ color: '#475569' }}>{index + 1}/{fragen.length}</span>
+          <span className="text-xs font-bold px-2.5 py-1 rounded-full"
+            style={{ color: '#4ade80', background: 'rgba(34,197,94,0.1)', border: '1px solid rgba(34,197,94,0.25)' }}>
             {richtig} ✓
           </span>
         </div>
       </div>
 
-      {/* Frage */}
-      <div className="rounded-xl p-7 text-center min-h-[110px] flex items-center justify-center"
-        style={{ background: CARD_BG, border: `1px solid ${CARD_BORDER}`, borderTop: `3px solid ${c.accent}` }}>
-        <div className="space-y-2">
-          <p className="text-[10px] uppercase tracking-widest" style={{ color: '#3d4d66' }}>Buchungsfall</p>
-          <p className="text-base sm:text-lg font-semibold leading-snug" style={{ color: '#e4e4ed' }}>{frage.fall}</p>
+      {/* Frage-Karte */}
+      <div className="rounded-2xl overflow-hidden"
+        style={{ boxShadow: `0 0 0 1px ${c.border}, 0 8px 32px rgba(0,0,0,0.2)` }}>
+        <div style={{ height: 4, background: `linear-gradient(90deg, ${c.accent}, ${c.text})` }}/>
+        <div className="p-8 text-center" style={{ background: CARD_BG }}>
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full mb-4 text-[10px] font-bold uppercase tracking-widest"
+            style={{ background: c.soft, color: c.text, border: `1px solid ${c.border}` }}>
+            Buchungsfall
+          </div>
+          <p className="text-lg sm:text-xl font-bold leading-snug" style={{ color: '#f1f5f9' }}>{frage.fall}</p>
         </div>
       </div>
 
-      {/* Optionen */}
-      <div className="grid grid-cols-1 gap-2">
+      {/* Antwort-Optionen */}
+      <div className="grid grid-cols-1 gap-2.5">
         {frage.optionen.map((opt, i) => {
           const letter = ['A', 'B', 'C', 'D'][i]
-          let bg = CARD_SURFACE, border = CARD_BORDER, color = '#64748b'
+          const isRichtig = opt === frage.richtig
+          const isGewählt = opt === gewählt
+
+          let bg = CARD_SURFACE
+          let borderColor = CARD_BORDER
+          let textColor = '#94a3b8'
+          let letterBg = 'rgba(255,255,255,0.05)'
+          let letterColor = '#475569'
+          let shadow = 'none'
+
           if (gewählt) {
-            if (opt === frage.richtig)   { bg = 'rgba(34,197,94,0.08)';  border = 'rgba(34,197,94,0.4)';  color = '#86efac' }
-            else if (opt === gewählt)    { bg = 'rgba(239,68,68,0.08)';  border = 'rgba(239,68,68,0.4)';  color = '#fca5a5' }
+            if (isRichtig) {
+              bg = 'rgba(34,197,94,0.08)'; borderColor = 'rgba(34,197,94,0.35)'
+              textColor = '#86efac'; letterBg = 'rgba(34,197,94,0.15)'; letterColor = '#4ade80'
+              shadow = '0 0 0 1px rgba(34,197,94,0.2)'
+            } else if (isGewählt) {
+              bg = 'rgba(239,68,68,0.08)'; borderColor = 'rgba(239,68,68,0.35)'
+              textColor = '#fca5a5'; letterBg = 'rgba(239,68,68,0.15)'; letterColor = '#f87171'
+              shadow = '0 0 0 1px rgba(239,68,68,0.2)'
+            } else {
+              textColor = '#3d4d66'
+            }
           }
+
           return (
             <button key={i} onClick={() => antworten(opt)} disabled={!!gewählt}
-              className="w-full text-left px-4 py-3.5 rounded-xl border text-sm font-mono font-medium transition-all disabled:cursor-default"
-              style={{ background: bg, borderColor: border, color }}>
-              <span className="inline-flex w-5 h-5 items-center justify-center rounded text-[10px] font-bold mr-3 font-sans shrink-0"
-                style={{ background: 'rgba(255,255,255,0.05)', color: '#475569' }}>{letter}</span>
-              {opt}
+              className="w-full text-left rounded-xl border transition-all duration-200 disabled:cursor-default group"
+              style={{ background: bg, borderColor, boxShadow: shadow }}
+              onMouseEnter={e => {
+                if (!gewählt) (e.currentTarget as HTMLElement).style.borderColor = c.border
+              }}
+              onMouseLeave={e => {
+                if (!gewählt) (e.currentTarget as HTMLElement).style.borderColor = CARD_BORDER
+              }}
+            >
+              <div className="flex items-center gap-3 px-4 py-3.5">
+                <span className="inline-flex w-7 h-7 items-center justify-center rounded-lg text-[11px] font-black shrink-0 transition-all"
+                  style={{ background: letterBg, color: letterColor, border: `1px solid ${borderColor}` }}>
+                  {letter}
+                </span>
+                <span className="text-sm font-mono font-medium transition-colors" style={{ color: textColor }}>
+                  {opt}
+                </span>
+                {gewählt && isRichtig && <CheckCircle2 size={15} className="ml-auto shrink-0 text-emerald-400"/>}
+                {gewählt && isGewählt && !isRichtig && <XCircle size={15} className="ml-auto shrink-0 text-red-400"/>}
+              </div>
             </button>
           )
         })}
       </div>
 
+      {/* Feedback + Weiter */}
       {gewählt && (
-        <div className="space-y-2 fade-in">
-          <div className={`flex items-start gap-3 px-4 py-3 rounded-xl text-sm font-semibold ${isCorrect ? 'text-emerald-300' : 'text-red-300'}`}
-            style={{ background: isCorrect ? 'rgba(34,197,94,0.07)' : 'rgba(239,68,68,0.07)', border: `1px solid ${isCorrect ? 'rgba(34,197,94,0.2)' : 'rgba(239,68,68,0.2)'}` }}>
-            {isCorrect ? <CheckCircle2 size={16} className="shrink-0 mt-0.5"/> : <XCircle size={16} className="shrink-0 mt-0.5"/>}
-            <span>{isCorrect ? 'Richtig!' : <><span className="font-normal" style={{ color: '#64748b' }}>Richtig wäre: </span>{frage.richtig}</>}</span>
+        <div className="space-y-3 fade-in">
+          <div className="flex items-center gap-3 px-4 py-3.5 rounded-xl"
+            style={{
+              background: isCorrect ? 'rgba(34,197,94,0.07)' : 'rgba(239,68,68,0.07)',
+              border: `1px solid ${isCorrect ? 'rgba(34,197,94,0.2)' : 'rgba(239,68,68,0.2)'}`,
+            }}>
+            {isCorrect
+              ? <CheckCircle2 size={18} className="text-emerald-400 shrink-0"/>
+              : <XCircle size={18} className="text-red-400 shrink-0"/>}
+            <div className="text-sm">
+              {isCorrect
+                ? <span className="font-bold text-emerald-300">Richtig!</span>
+                : <><span className="text-slate-500">Richtig wäre: </span><span className="font-bold text-red-300">{frage.richtig}</span></>}
+            </div>
           </div>
+
           <button onClick={weiter}
-            className="w-full py-3.5 rounded-xl text-sm font-black flex items-center justify-center gap-2 transition-all hover:opacity-90"
-            style={{ background: '#3b82f6', color: '#fff' }}>
-            {index + 1 >= fragen.length ? <><Trophy size={14}/> Ergebnis</> : <>Weiter <ArrowRight size={14}/></>}
+            className="w-full py-3.5 rounded-xl text-sm font-bold flex items-center justify-center gap-2 transition-all hover:opacity-90 active:scale-[0.98]"
+            style={{ background: isCorrect ? 'linear-gradient(135deg,#059669,#10b981)' : 'linear-gradient(135deg,#3b82f6,#6366f1)', color: '#fff',
+              boxShadow: isCorrect ? '0 4px 16px rgba(16,185,129,0.3)' : '0 4px 16px rgba(59,130,246,0.3)' }}>
+            {index + 1 >= fragen.length
+              ? <><Trophy size={15}/> Ergebnis anzeigen</>
+              : <>Weiter <ArrowRight size={15}/></>}
           </button>
         </div>
       )}
@@ -685,18 +747,23 @@ export default function BuchungssaetzePage() {
                   background: CARD_SURFACE,
                   border: `1px solid ${CARD_BORDER}`,
                   borderLeft: `3px solid ${c.accent}`,
+                  boxShadow: '0 2px 12px rgba(0,0,0,0.12)',
                 }}
                 onMouseEnter={e => {
                   const el = e.currentTarget as HTMLElement
                   el.style.background = c.soft
                   el.style.borderColor = c.border
                   el.style.borderLeftColor = c.accent
+                  el.style.boxShadow = `0 4px 24px rgba(0,0,0,0.18), 0 0 0 1px ${c.border}`
+                  el.style.transform = 'translateY(-1px)'
                 }}
                 onMouseLeave={e => {
                   const el = e.currentTarget as HTMLElement
                   el.style.background = CARD_SURFACE
                   el.style.borderColor = CARD_BORDER
                   el.style.borderLeftColor = c.accent
+                  el.style.boxShadow = '0 2px 12px rgba(0,0,0,0.12)'
+                  el.style.transform = 'translateY(0)'
                 }}
               >
                 {/* Top row: icon + count */}
