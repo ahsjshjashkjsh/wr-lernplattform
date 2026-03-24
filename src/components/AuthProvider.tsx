@@ -47,17 +47,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
 
     const ping = () => fetch('/api/heartbeat', { method: 'POST' }).catch(() => {})
-    const goOffline = () => navigator.sendBeacon('/api/offline')
 
-    ping() // sofort beim Login
-    heartbeatRef.current = setInterval(ping, 5_000)
-
-    // Offline nur wenn Tab wirklich geschlossen wird
-    window.addEventListener('beforeunload', goOffline)
+    ping()
+    heartbeatRef.current = setInterval(ping, 30_000)
 
     return () => {
       if (heartbeatRef.current) clearInterval(heartbeatRef.current)
-      window.removeEventListener('beforeunload', goOffline)
     }
   }, [user?.id]) // eslint-disable-line react-hooks/exhaustive-deps
 
