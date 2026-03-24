@@ -7,8 +7,8 @@ import { ThemeProvider } from '@/components/ThemeProvider'
 import { AuthProvider } from '@/components/AuthProvider'
 
 export const metadata: Metadata = {
-  title: 'WR Lernplattform – Abschlussprüfung',
-  description: 'Lernplattform für Wirtschaft und Recht – Abschlussprüfung HMS',
+  title: 'HMS-Plattform – Abschlussprüfung',
+  description: 'HMS-Plattform für Wirtschaft und Recht – Abschlussprüfung HMS',
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

@@ -51,7 +51,7 @@ export function Navbar() {
               </div>
               <div className="leading-none">
                 <div className="text-sm font-bold tracking-tight" style={{ color: 'var(--text-primary)' }}>
-                  WR Lernplattform
+                  HMS-Plattform
                 </div>
                 <div className="text-[10px] mt-0.5" style={{ color: 'var(--text-muted)' }}>
                   HMS · H23b

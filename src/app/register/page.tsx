@@ -68,7 +68,7 @@ export default function RegisterPage() {
           >
             <TrendingUp size={28} className="text-white" />
           </div>
-          <h1 className="text-2xl font-bold gradient-text">WR Lernplattform</h1>
+          <h1 className="text-2xl font-bold gradient-text">HMS-Plattform</h1>
           <p className="text-slate-500 text-sm mt-1">HMS · Abschlussprüfung 2026</p>
         </div>
 

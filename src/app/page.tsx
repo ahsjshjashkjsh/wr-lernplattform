@@ -113,7 +113,7 @@ export default async function DashboardPage() {
             HMS Handelsmittelschule Schweiz
           </div>
           <h1 className="text-3xl sm:text-4xl font-extrabold leading-tight mb-2 gradient-text">
-            WR Lernplattform
+            HMS-Plattform
           </h1>
           <p className="text-slate-400 text-sm max-w-md leading-relaxed">
             Strukturierte Prüfungsvorbereitung mit Kapiteln, Quizzes und KI-Assistent.
