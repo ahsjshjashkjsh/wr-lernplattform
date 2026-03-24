@@ -104,7 +104,7 @@ export default async function ProgressPage() {
           <GradientBar value={progressPct} />
 
           {/* Mini stats */}
-          <div className="grid grid-cols-4 gap-3 mt-5">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-5">
             {[
               { label: 'Total',         value: totalChapters, color: 'text-slate-400', bg: 'rgba(100,116,139,0.08)' },
               { label: 'Abgeschlossen', value: completed,     color: 'text-emerald-400', bg: 'rgba(16,185,129,0.08)' },

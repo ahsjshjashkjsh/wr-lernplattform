@@ -140,7 +140,7 @@ export default async function DashboardPage() {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         {[
           { label: 'Kapitel', value: totalChapters, icon: BookOpen, color: 'text-blue-400', glow: 'rgba(59,130,246,0.2)' },
           { label: 'Erledigt', value: completed, icon: CheckCircle2, color: 'text-emerald-400', glow: 'rgba(16,185,129,0.2)' },
