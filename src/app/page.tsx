@@ -6,7 +6,7 @@ export const dynamic = 'force-dynamic'
 import { TopicIcon } from '@/components/TopicIcon'
 import { EXAM_LABELS, CATEGORY_LABELS } from '@/lib/utils'
 import type { Topic } from '@/types'
-import { ArrowRight, BookOpen, CheckCircle2, Flame, Sparkles, Clock, Calculator } from 'lucide-react'
+import { ArrowRight, BookOpen, CheckCircle2, Flame, Sparkles, Calculator } from 'lucide-react'
 
 async function getDashboardData() {
   const user = await getCurrentUser()
@@ -140,8 +140,9 @@ export default async function DashboardPage() {
       </div>
 
       {/* FRW Teaser — prominent */}
-      <div
-        className="relative rounded-2xl overflow-hidden border"
+      <Link
+        href="/topics"
+        className="relative rounded-2xl overflow-hidden border block group transition-transform hover:scale-[1.01]"
         style={{
           background: 'linear-gradient(135deg, #064e3b 0%, #065f46 40%, #047857 100%)',
           borderColor: 'rgba(16,185,129,0.4)',
@@ -168,23 +169,23 @@ export default async function DashboardPage() {
             <div className="flex items-center justify-center sm:justify-start gap-2 mb-2 flex-wrap">
               <span className="flex items-center gap-1.5 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide"
                 style={{ background: 'rgba(255,255,255,0.15)', color: '#6ee7b7', border: '1px solid rgba(255,255,255,0.2)' }}>
-                <Clock size={10} /> Demnächst verfügbar
+                <Calculator size={10} /> FRW — In Bearbeitung
               </span>
             </div>
             <h2 className="text-xl sm:text-2xl font-extrabold text-white mb-1">
-              FRW — Finanz- & Rechnungswesen
+              Finanz- & Rechnungswesen kommt!
             </h2>
             <p className="text-emerald-200 text-sm leading-relaxed max-w-md">
-              Buchhaltung, Bilanz, Erfolgsrechnung und Kalkulation kommen bald als eigener Bereich auf diese Plattform.
+              Bilanz, Erfolgsrechnung, Warenkonten, Abschreibungen und mehr — jetzt in Vorschau ansehen.
             </p>
           </div>
 
-          {/* Badge */}
-          <div className="shrink-0 text-center">
-            <div className="text-4xl font-black text-white opacity-20 select-none hidden sm:block">FRW</div>
+          {/* Arrow */}
+          <div className="shrink-0 flex items-center gap-2 text-emerald-300 font-semibold text-sm group-hover:translate-x-1 transition-transform">
+            Zur Vorschau <ArrowRight size={16} />
           </div>
         </div>
-      </div>
+      </Link>
 
       {/* Stats */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
