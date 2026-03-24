@@ -115,7 +115,7 @@ export default function AdminPage() {
   useEffect(() => {
     loadUsers()
     loadFeedback()
-    const interval = setInterval(() => { loadUsers(true); loadFeedback() }, 30_000)
+    const interval = setInterval(() => { loadUsers(true); loadFeedback() }, 5_000)
     return () => clearInterval(interval)
   }, [loadUsers])
 
