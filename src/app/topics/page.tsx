@@ -147,7 +147,10 @@ export default function TopicsPage() {
       .catch(() => setLoading(false))
   }, [])
 
-  const filtered = topics
+  const wrTopics = topics.filter(t => t.category !== 'frw')
+  const frwDbTopics = topics.filter(t => t.category === 'frw')
+
+  const filtered = wrTopics
     .filter(t => {
       if (filter === 'querschnitt') return t.examType === 'querschnitt' || t.examType === 'both'
       if (filter === 'abschluss')   return t.examType === 'abschluss' || t.examType === 'both'
@@ -251,7 +254,10 @@ export default function TopicsPage() {
                 </span>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {FRW_TOPICS.map(t => <FrwPlaceholderCard key={t.title} title={t.title} description={t.description} ref={t.ref} examType={t.examType} />)}
+                {frwDbTopics.map(t => <TopicCard key={t.id} topic={t} />)}
+                {FRW_TOPICS
+                  .filter(t => !frwDbTopics.some(db => db.title === t.title || db.slug.includes('bilanz')))
+                  .map(t => <FrwPlaceholderCard key={t.title} title={t.title} description={t.description} ref={t.ref} examType={t.examType} />)}
               </div>
             </div>
           )}

@@ -30,6 +30,7 @@ model Topic {
   examType    String    // "querschnitt" | "abschluss" | "both"
   category    String    // "bwl" | "vwl" | "recht"
   order       Int       @default(0)
+  published   Boolean   @default(true)
   chapters    Chapter[]
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
