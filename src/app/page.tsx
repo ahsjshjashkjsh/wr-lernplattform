@@ -6,7 +6,7 @@ export const dynamic = 'force-dynamic'
 import { TopicIcon } from '@/components/TopicIcon'
 import { EXAM_LABELS, CATEGORY_LABELS } from '@/lib/utils'
 import type { Topic } from '@/types'
-import { ArrowRight, BookOpen, CheckCircle2, Flame, Sparkles } from 'lucide-react'
+import { ArrowRight, BookOpen, CheckCircle2, Flame, Sparkles, Clock, Calculator } from 'lucide-react'
 
 async function getDashboardData() {
   const user = await getCurrentUser()
@@ -195,6 +195,38 @@ export default async function DashboardPage() {
             </div>
           </div>
         ))}
+      </div>
+
+      {/* FRW Teaser */}
+      <div
+        className="relative rounded-2xl p-6 overflow-hidden border"
+        style={{
+          background: 'linear-gradient(135deg, rgba(16,185,129,0.08) 0%, rgba(5,150,105,0.05) 100%)',
+          borderColor: 'rgba(16,185,129,0.2)',
+        }}
+      >
+        <div className="absolute top-0 right-0 w-48 h-48 rounded-full opacity-10 pointer-events-none"
+          style={{ background: 'radial-gradient(circle, rgba(16,185,129,0.6) 0%, transparent 70%)', transform: 'translate(30%, -30%)' }} />
+        <div className="relative z-10 flex items-center gap-4">
+          <div
+            className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0"
+            style={{ background: 'rgba(16,185,129,0.15)', border: '1px solid rgba(16,185,129,0.25)' }}
+          >
+            <Calculator size={22} className="text-emerald-400" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 flex-wrap mb-1">
+              <span className="text-base font-bold text-white">FRW — Finanz- & Rechnungswesen</span>
+              <span className="flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full"
+                style={{ background: 'rgba(16,185,129,0.15)', border: '1px solid rgba(16,185,129,0.3)', color: '#34d399' }}>
+                <Clock size={10} /> Demnächst
+              </span>
+            </div>
+            <p className="text-sm text-slate-400 leading-relaxed">
+              Buchhaltung, Bilanz, Erfolgsrechnung und mehr — der FRW-Teil ist in Planung und kommt bald auf diese Plattform.
+            </p>
+          </div>
+        </div>
       </div>
 
       {/* CTA */}
