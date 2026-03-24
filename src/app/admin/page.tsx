@@ -38,7 +38,7 @@ type Tab = 'users' | 'create' | 'feedback' | 'messages'
 function isOnline(lastOnline: string | null) {
   if (!lastOnline) return false
   const ms = Date.now() - new Date(lastOnline).getTime()
-  return ms >= 0 && ms < 12_000
+  return ms > 0 && ms < 20_000
 }
 
 function timeAgo(dateStr: string | null) {
@@ -94,20 +94,6 @@ export default function AdminPage() {
     if (!silent) setLoading(false)
   }, [])
 
-  // SSE: Live-Updates vom Server (alle 3s gepusht, kein Client-Polling)
-  useEffect(() => {
-    const es = new EventSource('/api/admin/stream')
-    es.onmessage = (e) => {
-      const { users: u, bannedIps: ips } = JSON.parse(e.data)
-      setUsers(u)
-      setBannedIps(ips ?? [])
-      setLastRefresh(new Date())
-      setLoading(false)
-    }
-    es.onerror = () => { /* reconnects automatically */ }
-    return () => es.close()
-  }, [])
-
   async function loadFeedback() {
     const res = await fetch('/api/feedback')
     if (res.ok) { const data = await res.json(); setFeedback(data.feedback) }
@@ -126,10 +112,14 @@ export default function AdminPage() {
     setAdminNote('')
   }
 
-  // Initial load + Feedback polling (Feedback braucht kein SSE)
+  // Live-Polling: erster Load mit Spinner, danach alle 3s still
   useEffect(() => {
+    loadUsers()
     loadFeedback()
-    const interval = setInterval(loadFeedback, 15_000)
+    const interval = setInterval(() => {
+      loadUsers(true)
+      loadFeedback()
+    }, 3_000)
     return () => clearInterval(interval)
   }, [loadUsers])
 
