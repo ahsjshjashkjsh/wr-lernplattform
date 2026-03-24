@@ -1,6 +1,6 @@
 'use client'
 import { useEffect, useState, useCallback } from 'react'
-import { Shield, Trash2, Crown, Users, BarChart2, Ban, UserPlus, Pencil, X, Check, Eye, EyeOff, RefreshCw, MessageSquare, CheckCircle2, XCircle, Clock, Bug, Lightbulb, FileText, HelpCircle, Wifi, WifiOff, Globe, Activity } from 'lucide-react'
+import { Shield, Trash2, Crown, Users, BarChart2, Ban, UserPlus, Pencil, X, Check, Eye, EyeOff, RefreshCw, MessageSquare, CheckCircle2, XCircle, Clock, Bug, Lightbulb, FileText, HelpCircle, Wifi, WifiOff, Globe, Activity, Send, Bell } from 'lucide-react'
 
 interface AdminUser {
   id: string
@@ -32,7 +32,7 @@ const CATEGORY_ICONS: Record<string, typeof Bug> = { bug: Bug, feature: Lightbul
 const CATEGORY_LABELS: Record<string, string> = { bug: 'Fehler', feature: 'Vorschlag', content: 'Inhalt', general: 'Allgemein' }
 const CATEGORY_COLORS: Record<string, string> = { bug: '#f87171', feature: '#fbbf24', content: '#60a5fa', general: '#a78bfa' }
 
-type Tab = 'users' | 'create' | 'feedback'
+type Tab = 'users' | 'create' | 'feedback' | 'messages'
 
 // Online = lastOnline within last 3 minutes
 function isOnline(lastOnline: string | null) {
@@ -73,6 +73,10 @@ export default function AdminPage() {
   const [adminNote, setAdminNote] = useState('')
   const [banModal, setBanModal] = useState<AdminUser | null>(null)
   const [selectedUser, setSelectedUser] = useState<AdminUser | null>(null)
+  const [msgText, setMsgText] = useState('')
+  const [msgTarget, setMsgTarget] = useState<string>('all')
+  const [msgSending, setMsgSending] = useState(false)
+  const [msgSent, setMsgSent] = useState(false)
 
   const loadUsers = useCallback(async () => {
     setLoading(true)
@@ -256,8 +260,8 @@ export default function AdminPage() {
       )}
 
       {/* Tabs */}
-      <div className="flex gap-2 mb-4">
-        {([['users', Users, 'Benutzer'], ['create', UserPlus, 'Neuer Account'], ['feedback', MessageSquare, `Feedback${pendingFeedback > 0 ? ` (${pendingFeedback})` : ''}`]] as const).map(([t, Icon, label]) => (
+      <div className="flex gap-2 mb-4 flex-wrap">
+        {([['users', Users, 'Benutzer'], ['create', UserPlus, 'Neuer Account'], ['feedback', MessageSquare, `Feedback${pendingFeedback > 0 ? ` (${pendingFeedback})` : ''}`], ['messages', Bell, 'Nachrichten']] as const).map(([t, Icon, label]) => (
           <button
             key={t}
             onClick={() => setTab(t)}
@@ -610,6 +614,83 @@ export default function AdminPage() {
               })}
             </div>
           )}
+        </div>
+      )}
+
+      {/* === TAB: MESSAGES === */}
+      {tab === 'messages' && (
+        <div className="space-y-4">
+          <div className="glass rounded-2xl border p-6" style={{ borderColor: 'rgba(255,255,255,0.08)' }}>
+            <h3 className="text-sm font-semibold text-slate-200 mb-4 flex items-center gap-2">
+              <Bell size={14} className="text-violet-400" /> Nachricht senden
+            </h3>
+
+            <div className="space-y-3">
+              {/* Empfänger */}
+              <div>
+                <label className="text-xs text-slate-400 block mb-1.5">Empfänger</label>
+                <select
+                  value={msgTarget}
+                  onChange={e => setMsgTarget(e.target.value)}
+                  className="w-full px-3 py-2.5 rounded-xl text-sm outline-none"
+                  style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: 'var(--text-primary)' }}
+                >
+                  <option value="all">Alle Benutzer</option>
+                  {users.filter(u => !u.isBanned && !u.isAdmin).map(u => (
+                    <option key={u.id} value={u.id}>{u.name} ({u.email}){isOnline(u.lastOnline) ? ' 🟢' : ''}</option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Nachricht */}
+              <div>
+                <label className="text-xs text-slate-400 block mb-1.5">Nachricht</label>
+                <textarea
+                  value={msgText}
+                  onChange={e => setMsgText(e.target.value)}
+                  placeholder="Schreibe deine Nachricht..."
+                  rows={4}
+                  className="w-full px-3 py-2.5 rounded-xl text-sm outline-none resize-none"
+                  style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: 'var(--text-primary)' }}
+                />
+              </div>
+
+              <button
+                disabled={!msgText.trim() || msgSending}
+                onClick={async () => {
+                  if (!msgText.trim()) return
+                  setMsgSending(true)
+                  try {
+                    await fetch('/api/admin/messages', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({ message: msgText, targetUserId: msgTarget === 'all' ? null : msgTarget }),
+                    })
+                    setMsgText('')
+                    setMsgSent(true)
+                    setTimeout(() => setMsgSent(false), 3000)
+                  } finally {
+                    setMsgSending(false)
+                  }
+                }}
+                className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold text-white transition-all disabled:opacity-40"
+                style={{ background: 'linear-gradient(135deg, #7c3aed, #a855f7)' }}
+              >
+                <Send size={14} />
+                {msgSending ? 'Senden...' : 'Nachricht senden'}
+              </button>
+
+              {msgSent && (
+                <div className="flex items-center gap-2 text-sm text-emerald-400">
+                  <Check size={14} /> Nachricht gesendet — erscheint beim Nutzer als Popup.
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div className="px-4 py-3 rounded-xl text-xs text-slate-500" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}>
+            Nachrichten laufen nach 24 Stunden automatisch ab. Online-Nutzer sehen sie sofort (alle 6 Sekunden geprüft), offline Nutzer beim nächsten Login.
+          </div>
         </div>
       )}
 

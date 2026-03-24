@@ -171,6 +171,24 @@ model Feedback {
   updatedAt DateTime @updatedAt
 }
 
+model AdminMessage {
+  id           String             @id @default(cuid())
+  message      String
+  targetUserId String?            // null = an alle
+  createdAt    DateTime           @default(now())
+  expiresAt    DateTime
+  seenBy       AdminMessageSeen[]
+}
+
+model AdminMessageSeen {
+  messageId String
+  userId    String
+  seenAt    DateTime     @default(now())
+  message   AdminMessage @relation(fields: [messageId], references: [id], onDelete: Cascade)
+
+  @@id([messageId, userId])
+}
+
 model AssistantMessage {
   id        String   @id @default(cuid())
   sessionId String

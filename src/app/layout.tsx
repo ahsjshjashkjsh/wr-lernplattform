@@ -6,6 +6,7 @@ import { Footer } from '@/components/layout/footer'
 import { FloatingChat } from '@/components/FloatingChat'
 import { ThemeProvider } from '@/components/ThemeProvider'
 import { AuthProvider } from '@/components/AuthProvider'
+import { AdminMessagePopup } from '@/components/AdminMessagePopup'
 
 export const metadata: Metadata = {
   title: 'HMS-Plattform – Abschlussprüfung',
@@ -33,6 +34,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               <Footer />
             </div>
             <FloatingChat />
+            <AdminMessagePopup />
           </AuthProvider>
         </ThemeProvider>
       </body>
