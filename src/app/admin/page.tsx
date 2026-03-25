@@ -11,7 +11,7 @@ interface AdminUser {
   createdAt: string
   lastOnline: string | null
   lastIp: string | null
-  _count: { quizAttempts: number; progress: number; activityLogs: number }
+  _count: { quizAttempts: number; progress: number }
   quizAttempts: { completedAt: string; scorePercent: number }[]
   progress: { bestScore: number | null; status: string }[]
 }
@@ -238,6 +238,12 @@ export default function AdminPage() {
     }
     return points
   })()
+  // Aktivitätsanzahl pro User aus den geladenen Logs (letzte 100)
+  const activityCountByUser: Record<string, number> = {}
+  for (const log of activityLogs) {
+    if (log.userId) activityCountByUser[log.userId] = (activityCountByUser[log.userId] ?? 0) + 1
+  }
+
   const filteredFeedback = feedbackFilter === 'all'
     ? feedback.filter(f => f.status === 'pending')
     : feedback.filter(f => f.status === feedbackFilter)
@@ -386,11 +392,11 @@ export default function AdminPage() {
               <BarChart2 size={11}/> Aktivste Benutzer
             </h3>
             <div className="space-y-2">
-              {[...users].filter(u => !u.isAdmin).sort((a,b) => b._count.activityLogs - a._count.activityLogs).slice(0,5).map((u, i) => {
-                const maxA = users.filter(x => !x.isAdmin).reduce((m, x) => Math.max(m, x._count.activityLogs), 1)
-                const pct = Math.round((u._count.activityLogs / maxA) * 100)
-                // ~2 Minuten pro Aktivität als Schätzung
-                const estMins = u._count.activityLogs * 2
+              {[...users].filter(u => !u.isAdmin).sort((a,b) => (activityCountByUser[b.id]??0) - (activityCountByUser[a.id]??0)).slice(0,5).map((u, i) => {
+                const count = activityCountByUser[u.id] ?? 0
+                const maxA = Math.max(...users.filter(x => !x.isAdmin).map(x => activityCountByUser[x.id] ?? 0), 1)
+                const pct = Math.round((count / maxA) * 100)
+                const estMins = count * 2
                 const estHours = estMins >= 60 ? `~${Math.round(estMins / 60)} Std.` : estMins > 0 ? `~${estMins} Min.` : '–'
                 return (
                   <div key={u.id} className="flex items-center gap-2.5">
@@ -410,8 +416,8 @@ export default function AdminPage() {
                   </div>
                 )
               })}
-              {users.filter(u => !u.isAdmin && u._count.activityLogs === 0).length > 0 && (
-                <p className="text-[10px] text-slate-600 pt-1">{users.filter(u => !u.isAdmin && u._count.activityLogs === 0).length} Benutzer noch nie aktiv</p>
+              {users.filter(u => !u.isAdmin && !activityCountByUser[u.id]).length > 0 && (
+                <p className="text-[10px] text-slate-600 pt-1">{users.filter(u => !u.isAdmin && !activityCountByUser[u.id]).length} Benutzer noch nie aktiv</p>
               )}
             </div>
           </div>

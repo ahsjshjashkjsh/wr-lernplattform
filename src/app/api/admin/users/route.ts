@@ -24,7 +24,7 @@ export async function GET() {
         createdAt: true,
         lastOnline: true,
         lastIp: true,
-        _count: { select: { quizAttempts: true, progress: true, activityLogs: true } },
+        _count: { select: { quizAttempts: true, progress: true } },
         quizAttempts: { select: { completedAt: true, scorePercent: true }, orderBy: { completedAt: 'desc' }, take: 1 },
         progress: { select: { bestScore: true, status: true }, where: { status: 'completed' } },
       },
