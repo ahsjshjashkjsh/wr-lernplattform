@@ -28,11 +28,7 @@ function LoginForm() {
           window.location.href = '/banned'
           return
         }
-        if (data.error === 'EMAIL_NOT_VERIFIED') {
-          setError('Bitte bestätige zuerst deine E-Mail-Adresse. Prüfe deinen Posteingang.')
-          return
-        }
-        setError(data.error ?? 'Anmeldung fehlgeschlagen.')
+setError(data.error ?? 'Anmeldung fehlgeschlagen.')
         return
       }
       const next = searchParams.get('next') ?? '/'
