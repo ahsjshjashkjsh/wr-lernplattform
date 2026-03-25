@@ -173,11 +173,18 @@ export default function TopicsPage() {
   const wrTopics = topics.filter(t => t.category !== 'frw')
   const frwDbTopics = topics.filter(t => t.category === 'frw')
 
+  function matchesExamFilter(examType: string) {
+    if (filter === 'all' || filter === 'frw') return true
+    if (filter === 'querschnitt') return examType === 'querschnitt' || examType === 'both'
+    if (filter === 'abschluss')   return examType === 'abschluss'   || examType === 'both'
+    return false
+  }
+
   const filtered = wrTopics
     .filter(t => {
-      if (filter === 'frw') return true
+      if (filter === 'frw') return false
       if (filter === 'querschnitt') return t.examType === 'querschnitt' || t.examType === 'both'
-      if (filter === 'abschluss')   return t.examType === 'abschluss' || t.examType === 'both'
+      if (filter === 'abschluss')   return t.examType === 'abschluss'   || t.examType === 'both'
       if (filter === 'bwl')   return t.category === 'bwl'
       if (filter === 'vwl')   return t.category === 'vwl'
       if (filter === 'recht') return t.category === 'recht'
@@ -188,6 +195,14 @@ export default function TopicsPage() {
       const q = search.toLowerCase()
       return t.title.toLowerCase().includes(q) || t.description.toLowerCase().includes(q) || CATEGORY_LABELS[t.category]?.toLowerCase().includes(q)
     })
+
+  const filteredFrwDb = frwDbTopics.filter(t => matchesExamFilter(t.examType))
+  const filteredFrwPlaceholder = FRW_TOPICS
+    .filter(t => !frwDbTopics.some(db => db.title === t.title || db.slug.includes('bilanz')))
+    .filter(t => matchesExamFilter(t.examType))
+
+  const showFrwSection = filter === 'all' || filter === 'frw' || filter === 'querschnitt' || filter === 'abschluss'
+  const showWrSection = filter !== 'frw'
 
   return (
     <div className="space-y-8 fade-in">
@@ -244,56 +259,61 @@ export default function TopicsPage() {
         <div className="space-y-8">
 
           {/* WR Section */}
-          <div>
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-1 h-6 rounded-full" style={{ background: 'linear-gradient(180deg, #3b82f6, #6366f1)' }} />
-              <h2 className="text-sm font-bold text-slate-300 uppercase tracking-widest">Wirtschaft & Recht</h2>
-              <span className="text-xs px-2 py-0.5 rounded-full text-blue-400" style={{ background: 'rgba(59,130,246,0.1)', border: '1px solid rgba(59,130,246,0.2)' }}>
-                {filtered.length} Themen
-              </span>
-            </div>
+          {showWrSection && (
+            <div>
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-1 h-6 rounded-full" style={{ background: 'linear-gradient(180deg, #3b82f6, #6366f1)' }} />
+                <h2 className="text-sm font-bold text-slate-300 uppercase tracking-widest">Wirtschaft & Recht</h2>
+                <span className="text-xs px-2 py-0.5 rounded-full text-blue-400" style={{ background: 'rgba(59,130,246,0.1)', border: '1px solid rgba(59,130,246,0.2)' }}>
+                  {filtered.length} Themen
+                </span>
+              </div>
 
-            {filtered.length === 0 ? (
-              <div className="text-center py-16 glass rounded-2xl">
-                <Search size={32} className="text-slate-600 mx-auto mb-3" />
-                <p className="font-medium text-slate-300">Keine Themen gefunden</p>
-                <p className="text-sm text-slate-500 mt-1">Versuche einen anderen Filter.</p>
-                <button onClick={() => { setFilter('all'); setSearch('') }} className="mt-4 text-blue-400 hover:text-blue-300 text-sm font-medium transition-colors">
-                  Filter zurücksetzen
-                </button>
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {filtered.map(topic => <TopicCard key={topic.id} topic={topic} />)}
-              </div>
-            )}
-          </div>
+              {filtered.length === 0 ? (
+                <div className="text-center py-16 glass rounded-2xl">
+                  <Search size={32} className="text-slate-600 mx-auto mb-3" />
+                  <p className="font-medium text-slate-300">Keine Themen gefunden</p>
+                  <p className="text-sm text-slate-500 mt-1">Versuche einen anderen Filter.</p>
+                  <button onClick={() => { setFilter('all'); setSearch('') }} className="mt-4 text-blue-400 hover:text-blue-300 text-sm font-medium transition-colors">
+                    Filter zurücksetzen
+                  </button>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {filtered.map(topic => <TopicCard key={topic.id} topic={topic} />)}
+                </div>
+              )}
+            </div>
+          )}
 
           {/* FRW Section */}
-          <div>
-            <div className="flex items-center gap-3 mb-3">
-              <div className="w-1 h-6 rounded-full" style={{ background: 'linear-gradient(180deg, #10b981, #059669)' }} />
-              <h2 className="text-sm font-bold text-emerald-400 uppercase tracking-widest">Finanz- & Rechnungswesen</h2>
-            </div>
-
-            {/* Banner */}
-            <div className="flex flex-col gap-1 px-4 py-3 rounded-xl mb-4 text-sm" style={{ background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.25)' }}>
-              <div className="flex items-center gap-2" style={{ color: '#fca5a5' }}>
-                <AlertTriangle size={15} className="shrink-0 text-red-400" />
-                <span><strong>Themen vorübergehend nicht verfügbar</strong></span>
+          {showFrwSection && (
+            <div>
+              <div className="flex items-center gap-3 mb-3">
+                <div className="w-1 h-6 rounded-full" style={{ background: 'linear-gradient(180deg, #10b981, #059669)' }} />
+                <h2 className="text-sm font-bold text-emerald-400 uppercase tracking-widest">Finanz- & Rechnungswesen</h2>
+                <span className="text-xs px-2 py-0.5 rounded-full text-emerald-400" style={{ background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.2)' }}>
+                  {filteredFrwDb.length + filteredFrwPlaceholder.length} Themen
+                </span>
               </div>
-              <p className="text-xs text-slate-400 mt-0.5 leading-relaxed pl-[23px]">
-                Die FRW-Inhalte werden aktuell komplett neu aufgebaut — direkt aus dem <strong className="text-slate-300">hep-Lehrmittel Band 1, 2 und 3</strong>. Ziel ist ein vollständiges, geprüftes Lernwerkzeug mit präzisen Zusammenfassungen, Schlüsselbegriffen und Übungsaufgaben — exakt nach Buchinhalt, ohne Fehler. Die Themen sind bald wieder verfügbar.
-              </p>
-            </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {frwDbTopics.map(t => <FrwMaintenanceCard key={t.id} topic={t} />)}
-              {FRW_TOPICS
-                .filter(t => !frwDbTopics.some(db => db.title === t.title || db.slug.includes('bilanz')))
-                .map(t => <FrwPlaceholderCard key={t.title} title={t.title} description={t.description} ref={t.ref} examType={t.examType} />)}
+              {/* Banner */}
+              <div className="flex flex-col gap-1 px-4 py-3 rounded-xl mb-4 text-sm" style={{ background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.25)' }}>
+                <div className="flex items-center gap-2" style={{ color: '#fca5a5' }}>
+                  <AlertTriangle size={15} className="shrink-0 text-red-400" />
+                  <span><strong>Themen vorübergehend nicht verfügbar</strong></span>
+                </div>
+                <p className="text-xs text-slate-400 mt-0.5 leading-relaxed pl-[23px]">
+                  Die FRW-Inhalte werden aktuell komplett neu aufgebaut — direkt aus dem <strong className="text-slate-300">hep-Lehrmittel Band 1, 2 und 3</strong>. Ziel ist ein vollständiges, geprüftes Lernwerkzeug mit präzisen Zusammenfassungen, Schlüsselbegriffen und Übungsaufgaben — exakt nach Buchinhalt, ohne Fehler. Die Themen sind bald wieder verfügbar.
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {filteredFrwDb.map(t => <FrwMaintenanceCard key={t.id} topic={t} />)}
+                {filteredFrwPlaceholder.map(t => <FrwPlaceholderCard key={t.title} title={t.title} description={t.description} ref={t.ref} examType={t.examType} />)}
+              </div>
             </div>
-          </div>
+          )}
 
         </div>
       )}
