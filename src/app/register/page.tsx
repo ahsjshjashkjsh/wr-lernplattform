@@ -2,7 +2,7 @@
 import { useState } from 'react'
 
 import Link from 'next/link'
-import { UserPlus, TrendingUp, Eye, EyeOff, CheckCircle2 } from 'lucide-react'
+import { UserPlus, TrendingUp, Eye, EyeOff, CheckCircle2, Mail } from 'lucide-react'
 
 export default function RegisterPage() {
   const [name, setName] = useState('')
@@ -13,6 +13,7 @@ export default function RegisterPage() {
   const [showConfirm, setShowConfirm] = useState(false)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+  const [verificationSent, setVerificationSent] = useState(false)
 
   const passwordsMatch = confirmPassword.length > 0 && password === confirmPassword
   const passwordStrong = password.length >= 6
@@ -36,6 +37,10 @@ export default function RegisterPage() {
       const data = await res.json()
       if (!res.ok) {
         setError(data.error ?? 'Registrierung fehlgeschlagen.')
+        return
+      }
+      if (data.needsVerification) {
+        setVerificationSent(true)
         return
       }
       window.location.href = '/'
@@ -74,6 +79,26 @@ export default function RegisterPage() {
 
         {/* Card */}
         <div className="glass rounded-2xl p-6 border" style={{ borderColor: 'rgba(255,255,255,0.08)' }}>
+          {verificationSent ? (
+            <div className="text-center space-y-4 py-2">
+              <div className="w-14 h-14 rounded-2xl flex items-center justify-center mx-auto"
+                style={{ background: 'rgba(59,130,246,0.1)', border: '1px solid rgba(59,130,246,0.3)' }}>
+                <Mail size={26} className="text-blue-400" />
+              </div>
+              <div>
+                <h2 className="text-base font-bold text-white">E-Mail bestätigen</h2>
+                <p className="text-xs text-slate-400 mt-2 leading-relaxed">
+                  Wir haben eine E-Mail an <span className="text-slate-200 font-medium">{email}</span> gesendet.
+                  Klicke auf den Link um dein Konto zu aktivieren.
+                </p>
+              </div>
+              <p className="text-[11px] text-slate-600">Der Link ist 24 Stunden gültig.</p>
+              <Link href="/login" className="inline-block text-sm text-blue-400 hover:text-blue-300 font-medium">
+                Zum Login
+              </Link>
+            </div>
+          ) : (
+          <>
           <h2 className="text-lg font-semibold text-slate-200 mb-1">Konto erstellen</h2>
           <p className="text-xs text-slate-500 mb-5">Dein Fortschritt wird gespeichert und ist jederzeit abrufbar.</p>
 
@@ -222,6 +247,8 @@ export default function RegisterPage() {
               Anmelden
             </Link>
           </p>
+          </>
+          )}
         </div>
       </div>
     </div>

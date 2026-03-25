@@ -3,136 +3,136 @@
 import { useState, useEffect, useCallback } from 'react'
 import { ArrowLeft, ArrowRight, Shuffle, Zap, CheckCircle2, XCircle, Trophy, Layers } from 'lucide-react'
 
-type Eintrag  = { fall: string; satz: string }
+type Eintrag  = { fall: string; satz: string; erklaerung?: string }
 type Kategorie = { label: string; color: string; icon: string; eintraege: Eintrag[] }
 
 // ─── DATA ────────────────────────────────────────────────────────────────────
 const KATEGORIEN: Kategorie[] = [
   { label: 'Warenkonten', color: 'blue', icon: '📦', eintraege: [
-    { fall: 'Lagerzunahme', satz: 'Warenbestand / Warenaufwand' },
-    { fall: 'Lagerabnahme', satz: 'Warenaufwand / Warenbestand' },
-    { fall: 'Rechnung an Kunden inkl. MwSt. – Warenertrag', satz: 'FLL / WaE' },
-    { fall: 'Rechnung an Kunden inkl. MwSt. – MwSt.', satz: 'FLL / Verb. MwSt.' },
-    { fall: 'Rücksendung Kunde – Warenertrag', satz: 'Warenertrag / FLL' },
-    { fall: 'Rücksendung Kunde – MwSt.-Korrektur', satz: 'Verbindlichk. MwSt / FLL' },
+    { fall: 'Lagerzunahme', satz: 'Warenbestand / Warenaufwand', erklaerung: 'Ware geht ins Lager → Warenbestand (Aktiv) steigt. Gleichzeitig wird Warenaufwand gebucht.' },
+    { fall: 'Lagerabnahme', satz: 'Warenaufwand / Warenbestand', erklaerung: 'Ware verlässt das Lager → Warenbestand (Aktiv) sinkt. Warenaufwand steigt entsprechend.' },
+    { fall: 'Rechnung an Kunden inkl. MwSt. – Warenertrag', satz: 'FLL / WaE', erklaerung: 'Forderung (FLL) gegenüber Kunden entsteht; Warenertrag wird erzielt.' },
+    { fall: 'Rechnung an Kunden inkl. MwSt. – MwSt.', satz: 'FLL / Verb. MwSt.', erklaerung: 'Die dem Kunden verrechnete MwSt. schulden wir dem Staat → Verbindlichkeit MwSt. (Passiv) entsteht.' },
+    { fall: 'Rücksendung Kunde – Warenertrag', satz: 'Warenertrag / FLL', erklaerung: 'Rücksendung → Warenertrag wird korrigiert (sinkt), Forderung FLL nimmt ab.' },
+    { fall: 'Rücksendung Kunde – MwSt.-Korrektur', satz: 'Verbindlichk. MwSt / FLL', erklaerung: 'MwSt. auf zurückgesandte Ware → Verbindlichkeit MwSt. sinkt, Forderung FLL sinkt.' },
   ]},
   { label: 'MWST', color: 'violet', icon: '🧾', eintraege: [
-    { fall: 'Rechnung Lieferant 8.1% – NICHT Investitionen (1. BS)', satz: 'WaA / VLL' },
-    { fall: 'Rechnung Lieferant 8.1% – NICHT Investitionen (2. BS – Vorsteuer)', satz: 'Vorst. 1170 / VLL' },
-    { fall: 'Rechnung Lieferant 8.1% – INVESTITIONEN (1. BS)', satz: 'WaA / VLL' },
-    { fall: 'Rechnung Lieferant 8.1% – INVESTITIONEN (2. BS – Vorsteuer)', satz: 'Vorst. 1177 / VLL' },
-    { fall: 'Verrechnung der MwSt.', satz: 'Verb. MwSt. / Vorst. 1170' },
-    { fall: 'Banküberweisung der MwSt.', satz: 'Verb. MwSt. / Bank' },
+    { fall: 'Rechnung Lieferant 8.1% – NICHT Investitionen (1. BS)', satz: 'WaA / VLL', erklaerung: 'Warenaufwand entsteht (Soll), Verbindlichkeit gegenüber Lieferant (VLL) entsteht (Haben).' },
+    { fall: 'Rechnung Lieferant 8.1% – NICHT Investitionen (2. BS – Vorsteuer)', satz: 'Vorst. 1170 / VLL', erklaerung: 'Vorsteuer 1170 (nicht für Investitionen) als Forderung ans MwSt.-Amt; Verbindlichkeit VLL sinkt.' },
+    { fall: 'Rechnung Lieferant 8.1% – INVESTITIONEN (1. BS)', satz: 'WaA / VLL', erklaerung: 'Gleich wie Nicht-Investitionen: Warenaufwand entsteht, Verbindlichkeit VLL steigt.' },
+    { fall: 'Rechnung Lieferant 8.1% – INVESTITIONEN (2. BS – Vorsteuer)', satz: 'Vorst. 1177 / VLL', erklaerung: 'Vorsteuer 1177 für Investitionen (sep. Konto) als Forderung; Verbindlichkeit VLL sinkt.' },
+    { fall: 'Verrechnung der MwSt.', satz: 'Verb. MwSt. / Vorst. 1170', erklaerung: 'MwSt.-Schuld und Vorsteuer 1170 werden intern verrechnet (gegeneinander aufgehoben).' },
+    { fall: 'Banküberweisung der MwSt.', satz: 'Verb. MwSt. / Bank', erklaerung: 'Verbleibende MwSt.-Schuld (nach Verrechnung) wird per Bank an den Staat bezahlt.' },
   ]},
   { label: 'Verrechnungssteuer', color: 'amber', icon: '💰', eintraege: [
-    { fall: 'Kapitalerträge VST – Bruttomethode (1. Buchungssatz)', satz: 'Bank / Finanzertrag  (100%)' },
-    { fall: 'Kapitalerträge VST – Bruttomethode (2. BS – VST)', satz: 'Ford. VST / Bank  (35%)' },
-    { fall: 'Kapitalerträge VST – Nettomethode (1. Buchungssatz)', satz: 'Bank / Finanzertrag  (65%)' },
-    { fall: 'Kapitalerträge VST – Nettomethode (2. BS – VST)', satz: 'Ford. VST / Finanzertrag  (35%)' },
-    { fall: '50 Aktien Nennwert CHF 200, Dividende 8% – Nettobetrag', satz: 'Bank / Finanzertrag  (800 × 65%)' },
-    { fall: '50 Aktien Nennwert CHF 200, Dividende 8% – VST', satz: 'Ford. VST / Finanzertrag  (800 × 35%)' },
-    { fall: 'Bankgutschrift Nettodividende CHF 1\'300 – VST rückrechnen', satz: 'Ford. VST / Finanzertrag  (1\'300 / 65 × 35)' },
+    { fall: 'Kapitalerträge VST – Bruttomethode (1. Buchungssatz)', satz: 'Bank / Finanzertrag  (100%)', erklaerung: 'Bruttomethode: Voller Bruttobetrag (100%) als Finanzertrag erfasst. Bank erhält jedoch nur 65%.' },
+    { fall: 'Kapitalerträge VST – Bruttomethode (2. BS – VST)', satz: 'Ford. VST / Bank  (35%)', erklaerung: 'Die einbehaltene VST (35%) wird als Forderung ans Steueramt erfasst; Bank korrigiert.' },
+    { fall: 'Kapitalerträge VST – Nettomethode (1. Buchungssatz)', satz: 'Bank / Finanzertrag  (65%)', erklaerung: 'Nettomethode: Nur der erhaltene Nettobetrag (65%) wird als Finanzertrag erfasst.' },
+    { fall: 'Kapitalerträge VST – Nettomethode (2. BS – VST)', satz: 'Ford. VST / Finanzertrag  (35%)', erklaerung: 'VST (35%) wird nachgebucht als Forderung; Finanzertrag wird auf 100% ergänzt.' },
+    { fall: '50 Aktien Nennwert CHF 200, Dividende 8% – Nettobetrag', satz: 'Bank / Finanzertrag  (800 × 65%)', erklaerung: 'Bruttoertrag = 50 × 200 × 8% = 800. Bank erhält 65% davon. Finanzertrag entsprechend.' },
+    { fall: '50 Aktien Nennwert CHF 200, Dividende 8% – VST', satz: 'Ford. VST / Finanzertrag  (800 × 35%)', erklaerung: 'VST = 800 × 35% = 280 als Forderung; Finanzertrag wird auf Brutto (800) ergänzt.' },
+    { fall: 'Bankgutschrift Nettodividende CHF 1\'300 – VST rückrechnen', satz: 'Ford. VST / Finanzertrag  (1\'300 / 65 × 35)', erklaerung: 'VST rückrechnen: Netto ÷ 65 × 35 = VST-Betrag. Netto ÷ 65 × 100 = Brutto.' },
   ]},
   { label: 'Delkredere / Verluste', color: 'red', icon: '⚠️', eintraege: [
-    { fall: 'Forderung entsteht', satz: 'FLL / WaE' },
-    { fall: 'Kunde zahlt nicht', satz: 'Kein Buchungssatz' },
-    { fall: '3. Mahnung mit Verzugszins', satz: 'FLL / FinanzE' },
-    { fall: 'Start Betreibungsverfahren', satz: 'FLL / Kasse' },
-    { fall: 'Konkursdividende – Verfahren abgeschlossen', satz: 'Post / FLL' },
-    { fall: 'Verlustschein – Verfahren abgeschlossen', satz: 'Verl. Ford. / FLL' },
-    { fall: 'Nachträgliche Bezahlung – gleiches Rechnungsjahr', satz: 'Bank / Verl. Ford.' },
-    { fall: 'Nachträgliche Bezahlung – späteres Rechnungsjahr', satz: 'Bank / A.o. E' },
-    { fall: 'Bildung Wertberichtigung Forderungen (Delkredere)', satz: 'Verl. Ford. / WB Ford.' },
-    { fall: 'WB Forderungen verkleinern', satz: 'WB Ford. / Verl. Ford.' },
+    { fall: 'Forderung entsteht', satz: 'FLL / WaE', erklaerung: 'Forderung (FLL) gegenüber Kunden entsteht; Warenertrag wird erzielt (vereinfacht).' },
+    { fall: 'Kunde zahlt nicht', satz: 'Kein Buchungssatz', erklaerung: 'Solange kein Verfahren eingeleitet wird, ändert sich buchhalterisch nichts – die Forderung bleibt bestehen.' },
+    { fall: '3. Mahnung mit Verzugszins', satz: 'FLL / FinanzE', erklaerung: 'Verzugszins entsteht → FLL (Forderung) steigt; Finanzertrag wird erzielt.' },
+    { fall: 'Start Betreibungsverfahren', satz: 'FLL / Kasse', erklaerung: 'Betreibungskosten werden vorgeschossen → FLL steigt; Kasse sinkt.' },
+    { fall: 'Konkursdividende – Verfahren abgeschlossen', satz: 'Post / FLL', erklaerung: 'Erhaltener Teilbetrag aus Konkursverfahren → Post/Bank+; FLL sinkt entsprechend.' },
+    { fall: 'Verlustschein – Verfahren abgeschlossen', satz: 'Verl. Ford. / FLL', erklaerung: 'Forderung endgültig uneinbringlich → Verlust auf Forderungen entsteht; FLL ausgebucht.' },
+    { fall: 'Nachträgliche Bezahlung – gleiches Rechnungsjahr', satz: 'Bank / Verl. Ford.', erklaerung: 'Doch noch bezahlt im gleichen Jahr → Verlust auf Forderungen wird korrigiert.' },
+    { fall: 'Nachträgliche Bezahlung – späteres Rechnungsjahr', satz: 'Bank / A.o. E', erklaerung: 'Doch noch bezahlt in Folgejahr → Ausserordentlicher Ertrag (da Vorjahresverlust).' },
+    { fall: 'Bildung Wertberichtigung Forderungen (Delkredere)', satz: 'Verl. Ford. / WB Ford.', erklaerung: 'Pauschalwertberichtigung (z.B. 5% der FLL) → Verlust auf Ford. entsteht; WB Ford. (Korrekturposten) gebildet.' },
+    { fall: 'WB Forderungen verkleinern', satz: 'WB Ford. / Verl. Ford.', erklaerung: 'Wertberichtigung wird reduziert (z.B. FLL gesunken) → WB sinkt; Verlust auf Ford. nimmt ab.' },
   ]},
   { label: 'Abschreibungen', color: 'slate', icon: '📉', eintraege: [
-    { fall: 'Abschreibung direkt', satz: 'Abs / Mob' },
-    { fall: 'Abschreibung indirekt', satz: 'Abs / WB Mob' },
-    { fall: 'Verkaufserlös – Verkauf AV direkte Methode', satz: 'Kasse / Mob' },
-    { fall: 'Veräusserungsverlust – Verkauf AV direkte Methode', satz: 'a.o. A / Mob' },
-    { fall: 'Veräusserungsgewinn – Verkauf AV direkte Methode', satz: '(Mob / a.o. E)' },
-    { fall: 'Verkaufserlös – Verkauf AV indirekte Methode', satz: 'Kasse / Mob' },
-    { fall: 'Auflösung WB – Verkauf AV indirekte Methode', satz: 'WB Mob / Mob' },
-    { fall: 'Veräusserungsverlust – Verkauf AV indirekte Methode', satz: 'a.o. A / Mob' },
-    { fall: 'Veräusserungsgewinn – Verkauf AV indirekte Methode', satz: '(Mob / a.o. E)' },
+    { fall: 'Abschreibung direkt', satz: 'Abs / Mob', erklaerung: 'Abschreibungskonto+ (Aufwand), Mobiliar sinkt direkt im Buchwert.' },
+    { fall: 'Abschreibung indirekt', satz: 'Abs / WB Mob', erklaerung: 'Abschreibungskonto+ (Aufwand), WB Mobiliar (Wertberichtigungskonto) entsteht. Mobiliar bleibt auf Anschaffungswert.' },
+    { fall: 'Verkaufserlös – Verkauf AV direkte Methode', satz: 'Kasse / Mob', erklaerung: 'Kasse erhält Erlös; Mobiliar (Restbuchwert) sinkt.' },
+    { fall: 'Veräusserungsverlust – Verkauf AV direkte Methode', satz: 'a.o. A / Mob', erklaerung: 'Erlös < Restbuchwert → Differenz = a.o. Aufwand (Verlust aus Veräusserung).' },
+    { fall: 'Veräusserungsgewinn – Verkauf AV direkte Methode', satz: '(Mob / a.o. E)', erklaerung: 'Erlös > Restbuchwert → Differenz = a.o. Ertrag (Gewinn aus Veräusserung).' },
+    { fall: 'Verkaufserlös – Verkauf AV indirekte Methode', satz: 'Kasse / Mob', erklaerung: 'Kasse erhält Erlös; Mobiliar (Bruttowert) sinkt.' },
+    { fall: 'Auflösung WB – Verkauf AV indirekte Methode', satz: 'WB Mob / Mob', erklaerung: 'WB Mobiliar wird aufgelöst (sinkt); Mobiliar sinkt um den gleichen WB-Betrag.' },
+    { fall: 'Veräusserungsverlust – Verkauf AV indirekte Methode', satz: 'a.o. A / Mob', erklaerung: 'Erlös < Nettowert (Brutto minus WB) → Differenz = a.o. Aufwand.' },
+    { fall: 'Veräusserungsgewinn – Verkauf AV indirekte Methode', satz: '(Mob / a.o. E)', erklaerung: 'Erlös > Nettowert (Brutto minus WB) → Differenz = a.o. Ertrag.' },
   ]},
   { label: 'Rückstellungen', color: 'orange', icon: '🔒', eintraege: [
-    { fall: 'Bildung Rückstellung', satz: 'A.o. Aufwand / Rückstellung Prozess' },
-    { fall: 'Abschluss Konto Rückstellung', satz: 'Rückstellung Prozess / SB' },
-    { fall: 'Zahlung Anwaltskosten (Rückstellung)', satz: 'Rückstellung Prozess / Bank' },
-    { fall: 'Anpassung Rückstellung', satz: 'A.o. Aufwand / Rückstellung Prozess' },
+    { fall: 'Bildung Rückstellung', satz: 'A.o. Aufwand / Rückstellung Prozess', erklaerung: 'Möglicher zukünftiger Aufwand (z.B. Prozess) → a.o. Aufwand+; Rückstellung (Passiv) entsteht.' },
+    { fall: 'Abschluss Konto Rückstellung', satz: 'Rückstellung Prozess / SB', erklaerung: 'Rückstellungskonto wird per Jahresabschluss auf Schlusskonto (SB) abgeschlossen.' },
+    { fall: 'Zahlung Anwaltskosten (Rückstellung)', satz: 'Rückstellung Prozess / Bank', erklaerung: 'Tatsächliche Zahlung erfolgt → Rückstellung wird aufgelöst (sinkt); Bank sinkt.' },
+    { fall: 'Anpassung Rückstellung', satz: 'A.o. Aufwand / Rückstellung Prozess', erklaerung: 'Neue Schätzung ergibt höheren Betrag → a.o. Aufwand+; Rückstellung erhöht.' },
   ]},
   { label: 'Abgrenzungen', color: 'teal', icon: '⏳', eintraege: [
-    { fall: 'Geldguthaben (vorausbezahlter Aufwand / noch nicht erhaltener Ertrag)', satz: 'Aktiv Ra / (Aufwand oder Ertrag)' },
-    { fall: 'Leistungsguthaben (erbrachte Leistung noch nicht verrechnet)', satz: 'Aktiv Ra / (Aufwand oder Ertrag)' },
-    { fall: 'Geldschuld (erhaltenes Geld für noch nicht erbrachte Leistung)', satz: '(Aufwand oder Ertrag) / Passiv Ra' },
-    { fall: 'Leistungsschuld (Aufwand entstanden, noch nicht bezahlt)', satz: '(Aufwand oder Ertrag) / Passiv Ra' },
+    { fall: 'Geldguthaben (vorausbezahlter Aufwand / noch nicht erhaltener Ertrag)', satz: 'Aktiv Ra / (Aufwand oder Ertrag)', erklaerung: 'Bereits bezahlter Aufwand / noch nicht erhaltener Ertrag → auf nächstes Jahr abgrenzen → Aktiv Rechnungsabgrenzung (Aktiv+).' },
+    { fall: 'Leistungsguthaben (erbrachte Leistung noch nicht verrechnet)', satz: 'Aktiv Ra / (Aufwand oder Ertrag)', erklaerung: 'Leistung wurde erbracht, Geld noch nicht erhalten → Forderung aktivieren → Aktiv Rechnungsabgrenzung.' },
+    { fall: 'Geldschuld (erhaltenes Geld für noch nicht erbrachte Leistung)', satz: '(Aufwand oder Ertrag) / Passiv Ra', erklaerung: 'Geld erhalten, Leistung noch nicht erbracht → Schuld gegenüber Empfänger → Passiv Rechnungsabgrenzung (Passiv+).' },
+    { fall: 'Leistungsschuld (Aufwand entstanden, noch nicht bezahlt)', satz: '(Aufwand oder Ertrag) / Passiv Ra', erklaerung: 'Aufwand entstanden, noch nicht bezahlt → Schuld → Passiv Rechnungsabgrenzung.' },
   ]},
   { label: 'Löhne', color: 'green', icon: '👷', eintraege: [
-    { fall: 'Arbeitnehmerbeiträge (AN-Beiträge)', satz: 'LohnA / Verb. Sozialvers.' },
-    { fall: 'Arbeitgeberbeiträge (AG-Beiträge)', satz: 'Sozialvers.A / Verb. Sozialvers.' },
-    { fall: 'Nettolohn – Auszahlung per Bank', satz: 'LohnA / Bank' },
-    { fall: 'Bruttolohn', satz: 'Kein Buchungssatz' },
-    { fall: 'Lohnvorschuss aus Geschäftskasse', satz: 'LohnA / Kasse' },
-    { fall: 'Spesenentschädigung per Banküberweisung', satz: 'Übr. PersonalA / Bank' },
-    { fall: 'Weiterbildungsrechnung', satz: 'Übr. PersonalA / VLL' },
+    { fall: 'Arbeitnehmerbeiträge (AN-Beiträge)', satz: 'LohnA / Verb. Sozialvers.', erklaerung: 'Vom Bruttolohn einbehaltene AHV/ALV/UV-Beiträge → Lohnaufwand+; Verbindlichkeit gegenüber Sozialversicherung entsteht.' },
+    { fall: 'Arbeitgeberbeiträge (AG-Beiträge)', satz: 'Sozialvers.A / Verb. Sozialvers.', erklaerung: 'Arbeitgeberanteil Sozialversicherung (zusätzliche Kosten) → Sozialversicherungsaufwand+; Verbindlichkeit entsteht.' },
+    { fall: 'Nettolohn – Auszahlung per Bank', satz: 'LohnA / Bank', erklaerung: 'Nettolohn (Brutto minus AN-Abzüge) wird per Bank ausbezahlt → Lohnaufwand+; Bank sinkt.' },
+    { fall: 'Bruttolohn', satz: 'Kein Buchungssatz', erklaerung: 'Der Bruttolohn selbst wird nicht als separater Buchungssatz gebucht – er setzt sich aus Nettolohn + AN-Beiträgen zusammen.' },
+    { fall: 'Lohnvorschuss aus Geschäftskasse', satz: 'LohnA / Kasse', erklaerung: 'Vorschuss aus Kasse an Mitarbeiter → Lohnaufwand vorweggenommen; Kasse sinkt.' },
+    { fall: 'Spesenentschädigung per Banküberweisung', satz: 'Übr. PersonalA / Bank', erklaerung: 'Spesen werden erstattet → Übriger Personalaufwand+; Bank sinkt.' },
+    { fall: 'Weiterbildungsrechnung', satz: 'Übr. PersonalA / VLL', erklaerung: 'Weiterbildungskosten in Rechnung gestellt → Übriger Personalaufwand+; Verbindlichkeit (VLL) entsteht.' },
   ]},
   { label: 'Stille Reserven', color: 'indigo', icon: '🔮', eintraege: [
-    { fall: 'Unterbewertung Warenvorrat – Bildung', satz: 'Warenaufwand / Warenvorrat' },
-    { fall: 'Unterbewertung Anlagevermögen – Bildung', satz: 'Abschreibung / Anlagevermögen' },
-    { fall: 'Überbewertung Rückstellungen – Bildung', satz: 'Sonst. BA / Rückstellungen' },
-    { fall: 'Auflösung stille Reserven – Warenvorrat', satz: 'Warenvorrat / Warenaufwand' },
-    { fall: 'Auflösung stille Reserven – Anlagevermögen', satz: 'Anlagevermögen / Abschreibung' },
-    { fall: 'Auflösung stille Reserven – Rückstellungen', satz: 'Rückstellung / Sonst. BA' },
+    { fall: 'Unterbewertung Warenvorrat – Bildung', satz: 'Warenaufwand / Warenvorrat', erklaerung: 'Warenvorrat wird tiefer als effektiver Wert bilanziert → Warenaufwand+ (Gewinn sinkt); stille Reserve entsteht.' },
+    { fall: 'Unterbewertung Anlagevermögen – Bildung', satz: 'Abschreibung / Anlagevermögen', erklaerung: 'Anlagevermögen höher abgeschrieben als nötig → Buchwert unter Realwert; stille Reserve entsteht.' },
+    { fall: 'Überbewertung Rückstellungen – Bildung', satz: 'Sonst. BA / Rückstellungen', erklaerung: 'Rückstellungen höher angesetzt als nötig → sonstiger BA+; stille Reserve in Passiven entsteht.' },
+    { fall: 'Auflösung stille Reserven – Warenvorrat', satz: 'Warenvorrat / Warenaufwand', erklaerung: 'Reserve aufgedeckt → Warenvorrat steigt auf realen Wert; Warenaufwand sinkt (Gewinn steigt).' },
+    { fall: 'Auflösung stille Reserven – Anlagevermögen', satz: 'Anlagevermögen / Abschreibung', erklaerung: 'Reserve aufgedeckt → Anlagevermögen steigt; Abschreibung wird rückgängig gemacht.' },
+    { fall: 'Auflösung stille Reserven – Rückstellungen', satz: 'Rückstellung / Sonst. BA', erklaerung: 'Überhöhte Rückstellung aufgelöst → Rückstellung sinkt; sonstiger BA sinkt (Gewinn steigt).' },
   ]},
   { label: 'Einzelunternehmen', color: 'cyan', icon: '🧑‍💼', eintraege: [
-    { fall: 'Private Rechnung', satz: 'Privat / (Bank / Kasse / Post)' },
-    { fall: 'Privatanteil Fahrzeug', satz: 'Privat / Fahrzeugaufwand' },
-    { fall: 'Gutschrift Eigenlohn', satz: 'Lohnaufwand / Privat' },
-    { fall: 'Gutschrift Eigenzins', satz: 'Finanzaufwand / Privat' },
-    { fall: 'Gutschrift Reisespesen', satz: 'Übriger PersonalA / Privat' },
-    { fall: 'Kapitalrückzug', satz: 'Eigenkapital / Bank' },
-    { fall: 'Sacheinlage Fahrzeug', satz: 'Fahrzeug / Eigenkapital' },
-    { fall: 'Übertrag Privatkonto (Jahresabschluss)', satz: 'Privat / Eigenkapital' },
-    { fall: 'Verlustvortrag (1. Geschäftsjahr)', satz: 'Eigenkapital / Jahresverlust' },
+    { fall: 'Private Rechnung', satz: 'Privat / (Bank / Kasse / Post)', erklaerung: 'Inhaber zahlt privates aus Geschäftsmitteln → Privatkonto belastet (Soll); Geldkonto sinkt.' },
+    { fall: 'Privatanteil Fahrzeug', satz: 'Privat / Fahrzeugaufwand', erklaerung: 'Geschäftsfahrzeug privat genutzt → Privat belastet; Fahrzeugaufwand wird korrigiert (sinkt).' },
+    { fall: 'Gutschrift Eigenlohn', satz: 'Lohnaufwand / Privat', erklaerung: 'Fiktiver Lohn des Inhabers → Lohnaufwand+; Privatkonto (Haben) wird gutgeschrieben.' },
+    { fall: 'Gutschrift Eigenzins', satz: 'Finanzaufwand / Privat', erklaerung: 'Fiktiver Zins auf Eigenkapital → Finanzaufwand+; Privatkonto gutgeschrieben.' },
+    { fall: 'Gutschrift Reisespesen', satz: 'Übriger PersonalA / Privat', erklaerung: 'Spesen des Inhabers → Übriger Personalaufwand+; Privatkonto gutgeschrieben.' },
+    { fall: 'Kapitalrückzug', satz: 'Eigenkapital / Bank', erklaerung: 'Inhaber entnimmt Kapital aus dem Unternehmen → Eigenkapital sinkt; Bank sinkt.' },
+    { fall: 'Sacheinlage Fahrzeug', satz: 'Fahrzeug / Eigenkapital', erklaerung: 'Inhaber bringt sein Fahrzeug als Einlage ins Unternehmen → Anlagevermögen+; Eigenkapital+.' },
+    { fall: 'Übertrag Privatkonto (Jahresabschluss)', satz: 'Privat / Eigenkapital', erklaerung: 'Jahresabschluss: Privatkonto (Saldo aus Entnahmen/Einlagen) wird auf Eigenkapital übertragen.' },
+    { fall: 'Verlustvortrag (1. Geschäftsjahr)', satz: 'Eigenkapital / Jahresverlust', erklaerung: 'Jahresverlust aus erstem Geschäftsjahr wird auf Eigenkapital übertragen → EK sinkt.' },
   ]},
   { label: 'Aktiengesellschaft (AG)', color: 'purple', icon: '🏢', eintraege: [
-    { fall: 'Kapitalverpflichtung (Gründung)', satz: 'Ford. Aktionäre / Aktienkapital' },
-    { fall: 'Liberierung (Einzahlung)', satz: 'Bank / Ford. Aktionäre' },
-    { fall: 'Dividende beschlossen', satz: 'Jahresgewinn / Verb. Dividende' },
-    { fall: 'Dividende ausbezahlt', satz: 'Verb. Dividende / Bank' },
-    { fall: 'Gesetzliche Reserven bilden', satz: 'Jahresgewinn / Gesetzliche Reserven' },
-    { fall: 'Kapitalerhöhung – neue Aktien', satz: 'Bank / Aktienkapital' },
-    { fall: 'Jahresgewinn abschliessen', satz: 'Erfolgsrechnung / Jahresgewinn' },
-    { fall: 'Jahresverlust abschliessen', satz: 'Jahresverlust / Erfolgsrechnung' },
+    { fall: 'Kapitalverpflichtung (Gründung)', satz: 'Ford. Aktionäre / Aktienkapital', erklaerung: 'Aktionäre verpflichten sich zur Einlage → Forderung an Aktionäre+; Aktienkapital (EK) entsteht.' },
+    { fall: 'Liberierung (Einzahlung)', satz: 'Bank / Ford. Aktionäre', erklaerung: 'Aktionäre zahlen ein → Bank+; Forderung an Aktionäre sinkt.' },
+    { fall: 'Dividende beschlossen', satz: 'Jahresgewinn / Verb. Dividende', erklaerung: 'GV beschliesst Dividende → Jahresgewinn sinkt; Verbindlichkeit Dividende (Passiv) entsteht.' },
+    { fall: 'Dividende ausbezahlt', satz: 'Verb. Dividende / Bank', erklaerung: 'Dividende ausbezahlt → Verbindlichkeit sinkt; Bank sinkt.' },
+    { fall: 'Gesetzliche Reserven bilden', satz: 'Jahresgewinn / Gesetzliche Reserven', erklaerung: 'Pflichtteil (5% des Gewinns bis 20% AK) → Jahresgewinn sinkt; Gesetzliche Reserven steigen.' },
+    { fall: 'Kapitalerhöhung – neue Aktien', satz: 'Bank / Aktienkapital', erklaerung: 'Neue Aktien ausgegeben und einbezahlt → Bank+; Aktienkapital (EK) steigt.' },
+    { fall: 'Jahresgewinn abschliessen', satz: 'Erfolgsrechnung / Jahresgewinn', erklaerung: 'Jahresabschluss: ER-Saldo (Gewinn) wird auf Jahresgewinnkonto übertragen.' },
+    { fall: 'Jahresverlust abschliessen', satz: 'Jahresverlust / Erfolgsrechnung', erklaerung: 'Jahresabschluss: Verlust aus der ER wird auf Jahresverlust-Konto übertragen.' },
   ]},
   { label: 'Immobilien / Liegenschaften', color: 'emerald', icon: '🏠', eintraege: [
-    { fall: 'Kauf Liegenschaft (Bankfinanzierung)', satz: 'Liegenschaften / Bank' },
-    { fall: 'Hypothekarkredit aufnehmen', satz: 'Bank / Hypothek' },
-    { fall: 'Hypothekarzinsen bezahlen', satz: 'Hypoth.Zinsen / Bank' },
-    { fall: 'Mieteinnahmen erhalten', satz: 'Bank / Mietzinsertrag' },
-    { fall: 'Unterhaltskosten Liegenschaft', satz: 'Liegenschaftsaufwand / Bank' },
-    { fall: 'Abschreibung Liegenschaft (direkt)', satz: 'Abs Liegenschaften / Liegenschaften' },
+    { fall: 'Kauf Liegenschaft (Bankfinanzierung)', satz: 'Liegenschaften / Bank', erklaerung: 'Liegenschaft gekauft → Anlagevermögen+; Bank sinkt (Finanzierung aus Eigenem).' },
+    { fall: 'Hypothekarkredit aufnehmen', satz: 'Bank / Hypothek', erklaerung: 'Kredit bei Bank aufgenommen → Bank+; Hypothek (langfristige Verbindlichkeit) entsteht.' },
+    { fall: 'Hypothekarzinsen bezahlen', satz: 'Hypoth.Zinsen / Bank', erklaerung: 'Zinslast aus Hypothek bezahlt → Hypothekarzinsaufwand+; Bank sinkt.' },
+    { fall: 'Mieteinnahmen erhalten', satz: 'Bank / Mietzinsertrag', erklaerung: 'Mietgeld erhalten → Bank+; Mietzinsertrag (Ertrag) erzielt.' },
+    { fall: 'Unterhaltskosten Liegenschaft', satz: 'Liegenschaftsaufwand / Bank', erklaerung: 'Kosten für Unterhalt/Reparatur → Liegenschaftsaufwand+; Bank sinkt.' },
+    { fall: 'Abschreibung Liegenschaft (direkt)', satz: 'Abs Liegenschaften / Liegenschaften', erklaerung: 'Wertverlust direkt abgeschrieben → Abschreibungsaufwand+; Liegenschaft sinkt im Buchwert.' },
   ]},
   { label: 'Fremde Währungen', color: 'pink', icon: '💱', eintraege: [
-    { fall: 'Kursgewinn realisiert (Forderung in Fremdwährung)', satz: 'Bank / Kursgewinn' },
-    { fall: 'Kursverlust realisiert (Forderung in Fremdwährung)', satz: 'Kursverlust / Bank' },
-    { fall: 'Kursgewinn realisiert (Verbindlichkeit in Fremdwährung)', satz: 'Verb. Fremdwährung / Kursgewinn' },
-    { fall: 'Kursverlust realisiert (Verbindlichkeit in Fremdwährung)', satz: 'Kursverlust / Verb. Fremdwährung' },
-    { fall: 'Bewertung Jahresende – Kursgewinn (nicht realisiert)', satz: 'FLL / Kursgewinn (passivieren)' },
-    { fall: 'Bewertung Jahresende – Kursverlust (nicht realisiert)', satz: 'Kursverlust / FLL (aktivieren)' },
+    { fall: 'Kursgewinn realisiert (Forderung in Fremdwährung)', satz: 'Bank / Kursgewinn', erklaerung: 'Forderung in Fremdwährung eingegangen → CHF-Betrag höher als erwartet → Kursgewinn (Finanzertrag).' },
+    { fall: 'Kursverlust realisiert (Forderung in Fremdwährung)', satz: 'Kursverlust / Bank', erklaerung: 'Forderung eingegangen → CHF-Betrag tiefer als erwartet → Kursverlust (Finanzaufwand).' },
+    { fall: 'Kursgewinn realisiert (Verbindlichkeit in Fremdwährung)', satz: 'Verb. Fremdwährung / Kursgewinn', erklaerung: 'Verbindlichkeit bezahlt → CHF-Betrag tiefer als verbucht → Kursgewinn; Schuld war weniger wert.' },
+    { fall: 'Kursverlust realisiert (Verbindlichkeit in Fremdwährung)', satz: 'Kursverlust / Verb. Fremdwährung', erklaerung: 'Verbindlichkeit bezahlt → CHF-Betrag höher als verbucht → Kursverlust; Schuld war mehr wert.' },
+    { fall: 'Bewertung Jahresende – Kursgewinn (nicht realisiert)', satz: 'FLL / Kursgewinn (passivieren)', erklaerung: 'Forderung am Jahresende zu aktuellem Kurs bewertet → höherer CHF-Wert → Kursgewinn passivieren (vorsichtig).' },
+    { fall: 'Bewertung Jahresende – Kursverlust (nicht realisiert)', satz: 'Kursverlust / FLL (aktivieren)', erklaerung: 'Forderung am Jahresende zu aktuellem Kurs bewertet → niedrigerer CHF-Wert → Kursverlust aktivieren (Vorsichtsprinzip).' },
   ]},
   { label: 'Formeln Liegenschaften', color: 'yellow', icon: '📐', eintraege: [
-    { fall: 'Finanzierung', satz: 'Kaufpreis − Hypothek = Eigene Mittel' },
-    { fall: 'Liegenschaftserfolg', satz: 'Mietzinseinnahmen − Hypothekarzinsen − Unterhaltskosten = Liegenschaftsgewinn' },
-    { fall: 'Bruttorendite', satz: '(Liegenschaftserfolg × 100) / Kaufpreis' },
-    { fall: 'Nettorendite', satz: '(Liegenschaftsgewinn × 100) / Eigene Mittel' },
-    { fall: 'Ertragswert', satz: '(Liegenschaftserfolg × 100) / Bruttorendite in %' },
+    { fall: 'Finanzierung', satz: 'Kaufpreis − Hypothek = Eigene Mittel', erklaerung: 'Kaufpreis minus aufgenommene Hypothek ergibt das eingesetzte Eigenkapital des Investors.' },
+    { fall: 'Liegenschaftserfolg', satz: 'Mietzinseinnahmen − Hypothekarzinsen − Unterhaltskosten = Liegenschaftsgewinn', erklaerung: 'Mieteinnahmen minus alle Liegenschaftskosten ergibt den jährlichen Liegenschaftsgewinn.' },
+    { fall: 'Bruttorendite', satz: '(Liegenschaftserfolg × 100) / Kaufpreis', erklaerung: 'Rendite bezogen auf den Gesamtkaufpreis (Gesamtinvestition, inkl. Hypothek).' },
+    { fall: 'Nettorendite', satz: '(Liegenschaftsgewinn × 100) / Eigene Mittel', erklaerung: 'Rendite bezogen auf das eingesetzte Eigenkapital (ohne Fremdkapital).' },
+    { fall: 'Ertragswert', satz: '(Liegenschaftserfolg × 100) / Bruttorendite in %', erklaerung: 'Kapitalisierter Liegenschaftserfolg → zeigt, was die Liegenschaft bei gegebener Rendite wert ist.' },
   ]},
   { label: 'Unterbilanz & Überschuldung', color: 'rose', icon: '🚨', eintraege: [
-    { fall: 'Unterbilanz OHNE gesetzliche Folgen', satz: 'Aktiven decken FK + mindestens ½ EK (Aktienkapital + ges. Reserven)' },
-    { fall: 'Unterbilanz MIT gesetzlichen Folgen', satz: 'Aktiven decken FK, aber weniger als ½ EK' },
-    { fall: 'Überschuldung', satz: 'Aktiven < FK → kein EK mehr, Bilanzverlust übersteigt gesamtes EK' },
+    { fall: 'Unterbilanz OHNE gesetzliche Folgen', satz: 'Aktiven decken FK + mindestens ½ EK (Aktienkapital + ges. Reserven)', erklaerung: 'Bilanzverlust vorhanden, aber Aktiven decken noch mindestens die Hälfte von Aktienkapital + ges. Reserven → keine gesetzl. Massnahmen.' },
+    { fall: 'Unterbilanz MIT gesetzlichen Folgen', satz: 'Aktiven decken FK, aber weniger als ½ EK', erklaerung: 'Aktiven decken das FK noch, aber weniger als ½ EK (AK + ges. Reserven) → VR muss Sanierungsmassnahmen einleiten.' },
+    { fall: 'Überschuldung', satz: 'Aktiven < FK → kein EK mehr, Bilanzverlust übersteigt gesamtes EK', erklaerung: 'Aktiven kleiner als Fremdkapital → gesamtes EK aufgezehrt → VR muss Richter benachrichtigen (Konkursrisiko).' },
   ]},
 ]
 
@@ -380,11 +380,11 @@ function StudyMode({ kat, onBack }: { kat: Kategorie; onBack: () => void }) {
 }
 
 // ─── QUIZ GENERATOR ───────────────────────────────────────────────────────────
-type QuizFrage = { fall: string; richtig: string; optionen: string[]; katColor: string }
+type QuizFrage = { fall: string; richtig: string; optionen: string[]; katColor: string; erklaerung?: string }
 
 function genQuiz(pool: Eintrag[], alleAntworten: string[], anzahl: number, katColor: string): QuizFrage[] {
   return shuffle(pool).slice(0, anzahl).map(e => ({
-    fall: e.fall, richtig: e.satz, katColor,
+    fall: e.fall, richtig: e.satz, katColor, erklaerung: e.erklaerung,
     optionen: shuffle([e.satz, ...shuffle(alleAntworten.filter(s => s !== e.satz)).slice(0, 3)]),
   }))
 }
@@ -673,6 +673,13 @@ function QuizGenerator({ onBack }: { onBack: () => void }) {
                 : <><span className="text-slate-500">Richtig wäre: </span><span className="font-bold text-red-300">{frage.richtig}</span></>}
             </div>
           </div>
+
+          {!isCorrect && frage.erklaerung && (
+            <div className="px-4 py-3 rounded-xl text-xs leading-relaxed"
+              style={{ background: 'rgba(99,102,241,0.07)', border: '1px solid rgba(99,102,241,0.2)', color: '#94a3b8' }}>
+              <span className="font-semibold" style={{ color: '#a5b4fc' }}>Erklärung: </span>{frage.erklaerung}
+            </div>
+          )}
 
           <button onClick={weiter}
             className="w-full py-3.5 rounded-xl text-sm font-bold flex items-center justify-center gap-2 transition-all hover:opacity-90 active:scale-[0.98]"

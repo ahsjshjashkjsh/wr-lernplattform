@@ -28,6 +28,10 @@ function LoginForm() {
           window.location.href = '/banned'
           return
         }
+        if (data.error === 'EMAIL_NOT_VERIFIED') {
+          setError('Bitte bestätige zuerst deine E-Mail-Adresse. Prüfe deinen Posteingang.')
+          return
+        }
         setError(data.error ?? 'Anmeldung fehlgeschlagen.')
         return
       }
@@ -124,12 +128,17 @@ function LoginForm() {
         </button>
       </form>
 
-      <p className="text-center text-xs text-slate-500 mt-5">
-        Noch kein Konto?{' '}
-        <Link href="/register" className="text-blue-400 hover:text-blue-300 font-medium">
-          Jetzt registrieren
+      <div className="flex flex-col items-center gap-2 mt-5">
+        <Link href="/forgot-password" className="text-xs text-slate-500 hover:text-slate-300 transition-colors">
+          Passwort vergessen?
         </Link>
-      </p>
+        <p className="text-xs text-slate-500">
+          Noch kein Konto?{' '}
+          <Link href="/register" className="text-blue-400 hover:text-blue-300 font-medium">
+            Jetzt registrieren
+          </Link>
+        </p>
+      </div>
     </div>
   )
 }

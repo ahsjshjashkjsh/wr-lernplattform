@@ -1,7 +1,12 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
-const PUBLIC_PATHS = ['/login', '/register', '/banned', '/api/auth/login', '/api/auth/register']
+const PUBLIC_PATHS = [
+  '/login', '/register', '/banned',
+  '/verify-email', '/forgot-password', '/reset-password',
+  '/api/auth/login', '/api/auth/register',
+  '/api/auth/verify-email', '/api/auth/forgot-password', '/api/auth/reset-password',
+]
 
 function decodeJwtPayload(token: string): Record<string, unknown> | null {
   try {

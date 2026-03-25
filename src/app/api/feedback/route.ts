@@ -43,6 +43,18 @@ export async function POST(request: Request) {
 
     const user = await prisma.user.findUnique({ where: { id: session.userId } })
 
+    // Rate-Limit: max 5 Feedbacks pro User pro Tag
+    if (!user?.isAdmin) {
+      const since = new Date()
+      since.setHours(0, 0, 0, 0)
+      const todayCount = await prisma.feedback.count({
+        where: { userId: session.userId, createdAt: { gte: since } },
+      })
+      if (todayCount >= 5) {
+        return Response.json({ error: 'Du hast heute bereits 5 Feedbacks gesendet. Bitte versuche es morgen wieder.' }, { status: 429 })
+      }
+    }
+
     const feedback = await prisma.feedback.create({
       data: {
         userId: session.userId,
