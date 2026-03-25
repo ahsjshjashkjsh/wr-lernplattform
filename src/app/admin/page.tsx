@@ -390,16 +390,21 @@ export default function AdminPage() {
               <BarChart2 size={11}/> Aktivste Benutzer
             </h3>
             <div className="space-y-2">
-              {[...users].filter(u => !u.isAdmin).sort((a,b) => b._count.quizAttempts - a._count.quizAttempts).slice(0,5).map((u, i) => {
-                const maxQ = users.reduce((m, x) => Math.max(m, x._count.quizAttempts), 1)
-                const pct = Math.round((u._count.quizAttempts / maxQ) * 100)
+              {[...users].filter(u => !u.isAdmin).sort((a,b) => (b._count.quizAttempts + b._count.progress) - (a._count.quizAttempts + a._count.progress)).slice(0,5).map((u, i) => {
+                const score = u._count.quizAttempts + u._count.progress
+                const maxScore = Math.max(...users.filter(x => !x.isAdmin).map(x => x._count.quizAttempts + x._count.progress), 1)
+                const pct = Math.round((score / maxScore) * 100)
                 return (
                   <div key={u.id} className="flex items-center gap-2.5">
                     <span className="text-[10px] font-black text-slate-600 w-4 shrink-0">#{i+1}</span>
                     <div className="flex-1 min-w-0 space-y-0.5">
                       <div className="flex items-center justify-between">
                         <p className="text-xs font-semibold text-slate-300 truncate">{u.name}</p>
-                        <span className="text-[10px] text-slate-500 shrink-0">{u._count.quizAttempts} Quiz</span>
+                        <div className="flex items-center gap-2 shrink-0">
+                          <span className="text-[10px] text-slate-500">{u._count.quizAttempts} Quiz</span>
+                          <span className="text-[10px] text-slate-700">·</span>
+                          <span className="text-[10px] text-violet-400">{u._count.progress} Kapitel</span>
+                        </div>
                       </div>
                       <div className="w-full h-1 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.06)' }}>
                         <div className="h-full rounded-full transition-all" style={{ width: `${pct}%`, background: 'linear-gradient(90deg,#6366f1,#a855f7)' }}/>
@@ -408,8 +413,8 @@ export default function AdminPage() {
                   </div>
                 )
               })}
-              {users.filter(u => !u.isAdmin && u._count.quizAttempts === 0).length > 0 && (
-                <p className="text-[10px] text-slate-600 pt-1">{users.filter(u => !u.isAdmin && u._count.quizAttempts === 0).length} Benutzer noch ohne Quiz</p>
+              {users.filter(u => !u.isAdmin && u._count.quizAttempts === 0 && u._count.progress === 0).length > 0 && (
+                <p className="text-[10px] text-slate-600 pt-1">{users.filter(u => !u.isAdmin && u._count.quizAttempts === 0 && u._count.progress === 0).length} Benutzer noch nicht aktiv</p>
               )}
             </div>
           </div>
