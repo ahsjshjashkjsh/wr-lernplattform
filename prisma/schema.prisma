@@ -24,6 +24,18 @@ model User {
   progress     ChapterProgress[]
   quizAttempts QuizAttempt[]
   feedback     Feedback[]
+  activityLogs ActivityLog[]
+}
+
+model ActivityLog {
+  id        String   @id @default(cuid())
+  userId    String?
+  userName  String
+  action    String
+  detail    String?
+  page      String
+  createdAt DateTime @default(now())
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
 }
 
 model BannedIp {
