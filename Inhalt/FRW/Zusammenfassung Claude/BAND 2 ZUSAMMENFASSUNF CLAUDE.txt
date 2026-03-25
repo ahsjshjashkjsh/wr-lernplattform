@@ -1,0 +1,1171 @@
+APITEL 2: Fremde Währung
+2.1 Grundbegriffe und Währungskurse
+Wenn ein Schweizer Unternehmen Geschäfte mit dem Ausland macht, entstehen Fremdwährungspositionen. Da die Buchhaltung in CHF geführt wird, müssen alle Beträge in CHF umgerechnet werden.
+
+Kursarten der Banken:
+
+Kurs	Bezeichnung	Wer kauft/verkauft?	Für den Kunden
+Geldkurs (Ankaufskurs / Bid)	Bank kauft Devisen	Kunde verkauft Devisen an Bank	Ungünstigerer Kurs
+Briefkurs (Verkaufskurs / Ask)	Bank verkauft Devisen	Kunde kauft Devisen von Bank	Ungünstigerer Kurs
+Tageskurs / Mittelkurs	Durchschnitt	—	Für Buchführung verwendet
+Die Bank verdient immer an der Kursspanne (Spread) zwischen Geld- und Briefkurs.
+
+Faustregel:
+
+Ich kaufe Fremdwährung → ich zahle den Briefkurs (teurer für mich)
+Ich verkaufe Fremdwährung → ich erhalte den Geldkurs (weniger für mich)
+2.2 Entstehung von Kursgewinnen und Kursverlusten
+Kursgewinne und Kursverluste entstehen, wenn zwischen dem Entstehen einer Forderung/Verbindlichkeit und deren Begleichung der Kurs sich verändert hat.
+
+Beispiel Import (Verbindlichkeit in EUR):
+
+Warenkauf: 10 000 EUR, Kurs 1.10 → Verbindlichkeit CHF 11 000
+Zahlung: Kurs ist 1.15 → Zahlung CHF 11 500
+→ Kursverlust CHF 500 (CHF wurde schwächer)
+Beispiel Export (Forderung in EUR):
+
+Warenverkauf: 10 000 EUR, Kurs 1.10 → Forderung CHF 11 000
+Eingang: Kurs ist 1.05 → Eingang CHF 10 500
+→ Kursverlust CHF 500 (EUR fiel)
+2.3 Buchungsvorgänge im Detail
+A) Kauf auf Rechnung (Import, Verbindlichkeit in Fremdwährung)
+
+Entstehung der Verbindlichkeit (Tageskurs bei Buchung):
+Warenaufwand / Kreditoren (Betrag in CHF zum Tageskurs)
+
+Bezahlung — Kurs hat sich verändert:
+
+Kurs gestiegen (CHF schwächer, mehr CHF nötig): Kreditoren / Bank (höherer CHF-Betrag) Kursverlust / Bank (Differenz)
+Kurs gesunken (CHF stärker, weniger CHF nötig): Kreditoren / Bank (niedrigerer CHF-Betrag) Kreditoren / Kursgewinn (Differenz)
+B) Verkauf auf Rechnung (Export, Forderung in Fremdwährung)
+
+Entstehung der Forderung:
+Debitoren / Warenertrag (Betrag in CHF zum Tageskurs)
+
+Geldeingang — Kurs hat sich verändert:
+
+Kurs gestiegen (mehr CHF erhalten): Bank / Debitoren + Kursgewinn (Differenz direkt)
+Kurs gesunken (weniger CHF erhalten): Bank + Kursverlust / Debitoren
+2.4 Neubewertung per 31. Dezember (Bilanzstichtag)
+Alle offenen Fremdwährungspositionen (noch nicht bezahlte Forderungen und Verbindlichkeiten) müssen am 31.12. zum Stichtagskurs neu bewertet werden.
+
+Grund: Das Vorsichtsprinzip verlangt, dass Verluste sofort erfasst werden.
+
+Neubewertung Forderungen (Debitoren in Fremdwährung):
+
+Kurs gestiegen → Forderung in CHF wertvoller: Debitoren / Kursgewinn (→ wird in CH oft nur bei definitiver Realisierung gebucht)
+Kurs gesunken → Forderung in CHF weniger wert: Kursverlust / Debitoren (immer buchen — Vorsichtsprinzip)
+Neubewertung Verbindlichkeiten (Kreditoren in Fremdwährung):
+
+Kurs gestiegen → Schuld in CHF grösser: Kursverlust / Kreditoren (immer buchen)
+Kurs gesunken → Schuld in CHF kleiner: Kreditoren / Kursgewinn
+Jahresabschluss-Rückbuchung am 1.1. (des Folgejahres):
+Alle Neubewertungsbuchungen werden storniert (Gegenbuchung), damit die ursprünglichen Kurse wieder gelten.
+
+2.5 Konten
+Konto	Kontoart	Normalseite	Bedeutung
+Kursgewinn	Ertrag	Haben	Entstanden durch günstige Kursentwicklung
+Kursverlust	Aufwand	Soll	Entstanden durch ungünstige Kursentwicklung
+2.6 Prüfungsrelevante Hinweise
+Kursgewinne und -verluste erscheinen in der Erfolgsrechnung (nicht Bilanz)
+Das Vorsichtsprinzip bedeutet: Kursverluste immer buchen, Kursgewinne nur wenn sicher realisiert
+Merke: Gleiche Buchung bei Zahlung wie bei Entstehung — nur Kurs unterschiedlich → Differenz = Gewinn/Verlust
+KAPITEL 3: Verluste aus Forderungen (inkl. Wertberichtigung Forderungen)
+3.1 Arten von Forderungsausfällen
+Dubiose Forderung (gefährdete Forderung):
+
+Schuldner ist in finanziellen Schwierigkeiten
+Eingang des Geldes unsicher, aber noch möglich
+Lösung: Wertberichtigung bilden (vorsorgliche Abwertung)
+Uneinbringliche Forderung (Debitorenverlust):
+
+Forderung geht definitiv verloren (Konkurs, Nachlassvertrag, Verjährung, Verschollener)
+Lösung: Abschreibung (direkt oder über WB)
+3.2 Methode 1: Direkte Abschreibung
+Anwendung: Bei definitiv uneinbringlichen Forderungen, wenn keine WB-Methode angewendet wird.
+
+Buchung Verlust:
+Debitorenverlust / Debitoren (Bruttobetrag inkl. MWSt)
+
+MWSt-Rückforderung (die MWSt wurde schon an den Fiskus abgeführt, aber nie wirklich kassiert):
+MWSt-Verbindlichkeiten / Debitorenverlust
+→ Dieser Betrag entspricht: Nettobetrag × MWSt-Satz (z.B. 8,1%)
+
+Buchungsbeispiel:
+Forderung CHF 1 081 (= CHF 1 000 netto + CHF 81 MWSt) definitiv verloren:
+
+Debitorenverlust 1 081 / Debitoren 1 081
+MWSt-Verbindlichkeiten 81 / Debitorenverlust 81 → Netto-Debitorenverlust: CHF 1 000
+Wenn Verlust nachträglich doch bezahlt wird:
+Bank / Debitorenverlust (voller Betrag)
+Und MWSt-Buchung rückgängig: Debitorenverlust / MWSt-Verbindlichkeiten
+
+3.3 Methode 2: Indirekte Abschreibung über WB Forderungen
+Konto WB Forderungen (= Wertberichtigungskonto, früher «Delkredere» oder «Dubiosenrücklage»):
+
+Passivkonto (wird auf Passivseite der Bilanz oder als Minusposition beim Debitorenposten gezeigt)
+Zeigt den geschätzten, zukünftigen Verlust auf Forderungen
+Zwei Arten der Wertberichtigung:
+
+A) Einzelwertberichtigung (EWB):
+
+Für konkret bekannte zweifelhafte Schuldner
+Betrag: Schätzung des voraussichtlichen Verlustes
+Abschreibungen auf Forderungen / WB Forderungen (Bildung)
+
+B) Pauschalwertberichtigung (PWB):
+
+Auf den gesamten verbleibenden Debitorenbestand (nach Abzug der EWB und sicherer Forderungen)
+Prozentualer Schätzwert (z.B. 5%, 10%) — vom Betrieb festgelegt
+Jahresende: Anpassung auf Soll-WB (entweder Erhöhung oder Herabsetzung)
+Buchung Erhöhung WB:
+Abschreibungen auf Forderungen / WB Forderungen
+
+Buchung Herabsetzung WB (wenn Debitoren weniger geworden, weniger Risiko):
+WB Forderungen / Abschreibungsertrag
+
+Wenn dubiose Forderung definitiv verloren geht:
+
+WB auflösen: WB Forderungen / Debitoren (soweit durch WB gedeckt)
+Restbetrag wenn WB nicht ausreicht: Debitorenverlust / Debitoren
+MWSt zurückfordern: MWSt-Verbindlichkeiten / Debitorenverlust
+3.4 Vollständiges Buchungsbeispiel (WB-Methode)
+Ausgangslage: Debitoren 200 000, bestehende WB 8 000
+
+Schritt 1: Dubiose Forderung Müller CHF 5 000 (EWB 100%):
+Abschreibungen auf Ford. 5 000 / WB Forderungen 5 000
+→ Debitoren: 200 000, WB: 13 000
+
+Schritt 2: PWB 5% auf restliche Debitoren (200 000 − 5 000 = 195 000):
+→ Soll-WB: 13 000 (EWB) + 9 750 (5% × 195 000) = 22 750
+→ Bisherige WB: 13 000 → Differenz: +9 750
+Abschreibungen auf Ford. 9 750 / WB Forderungen 9 750
+
+Bilanzausweis:
+
+
+Debitoren (brutto)           200 000
+./. WB Forderungen           - 22 750
+Debitoren (netto)            177 250
+3.5 Konten-Übersicht
+Konto	Art	Normalseite	Bedeutung
+Debitoren	Aktiv	Soll	Forderungen aus Lieferungen
+WB Forderungen	Passiv/Korrektur	Haben	Geschätzter Forderungsverlust
+Debitorenverlust	Aufwand	Soll	Definitiver Verlust
+Abschreibungen auf Forderungen	Aufwand	Soll	Wertberichtigungsaufwand
+Abschreibungsertrag	Ertrag	Haben	Auflösung überhöhter WB
+KAPITEL 4: Abschreibungen
+4.1 Grundbegriffe
+Abschreibung = buchhalterische Erfassung der Wertverminderung von Anlagegütern über deren Nutzungsdauer.
+
+Ursachen der Wertverminderung:
+
+Technischer Verschleiss (Gebrauch)
+Wirtschaftliche Überalterung (bessere Technologie verfügbar)
+Zeitablauf (Patente, Konzessionen)
+Marktveränderungen
+Begriff	Definition
+Anschaffungswert (AW)	Kaufpreis + alle Nebenkosten (Transport, Montage, Zoll)
+Buchwert (BW)	AW minus kumulierte Abschreibungen = aktueller Bilanzwert
+Restwert	Geplanter Wert am Ende der Nutzungsdauer (oft 0)
+Nutzungsdauer	Geplante Einsatzdauer des Guts
+Kumulierte Abschreibungen	Summe aller bisherigen Abschreibungen
+4.2 Lineare Abschreibung
+Prinzip: Gleicher Franken-Betrag jedes Jahr.
+
+Formel:
+
+
+Jährliche Abschreibung = (Anschaffungswert – Restwert) / Nutzungsdauer
+Abschreibungssatz: Abschreibung / AW × 100 = gleichbleibend
+
+Beispiel: Maschine CHF 120 000, Nutzung 8 Jahre, Restwert CHF 8 000:
+→ (120 000 − 8 000) / 8 = CHF 14 000/Jahr
+
+Abschreibungsplan (Auszug):
+
+Jahr	BW Anfang	Abschreibung	BW Ende
+1	120 000	14 000	106 000
+2	106 000	14 000	92 000
+3	92 000	14 000	78 000
+…	…	14 000	…
+8	22 000	14 000	8 000
+4.3 Degressive Abschreibung
+Prinzip: Gleicher Prozentsatz auf den Restbuchwert → sinkende Beträge jedes Jahr.
+
+Buchung: Gleich wie linear, nur Betrag nimmt ab.
+
+Beispiel: Fahrzeug CHF 80 000, 40% degressiv:
+
+Jahr	BW Anfang	Abschreibung (40%)	BW Ende
+1	80 000	32 000	48 000
+2	48 000	19 200	28 800
+3	28 800	11 520	17 280
+4	17 280	6 912	10 368
+Bei degressiver Methode wird das Anlagegut nie auf 0 abgeschrieben (theoretisch).
+
+Sobald Linearbetrag > Degressivbetrag → Wechsel auf linear möglich.
+
+Vorteil degressiv: Höhere Abschreibungen in den ersten Jahren → tiefere Steuern zu Beginn → Liquiditätsvorteil.
+
+4.4 Direkte vs. Indirekte Abschreibung
+Direkte Abschreibung:
+
+Konto wird direkt reduziert
+Bilanz zeigt Nettobuchwert
+Abschreibungen / Maschinen 14 000
+
+Indirekte Abschreibung:
+
+Konto bleibt bei Anschaffungswert stehen
+Gegenkonto «Wertberichtigungen» sammelt kumulierte Afa
+Bilanz zeigt brutto und netto (transparenter!)
+Abschreibungen / WB Maschinen 14 000
+
+Bilanzausweis indirekt:
+
+
+Maschinen (AW)                  120 000
+./. Wertberichtigungen Masch.   - 42 000
+Maschinen (Nettobuchwert)        78 000
+4.5 Steuerliche Abschreibungssätze Schweiz (Übersicht)
+Aktivum	Maximal (degressiv)
+Fahrzeuge	40%
+Mobilien / Maschinen	25–30%
+EDV / Software	40%
+Einrichtungen	20–25%
+Liegenschaften (Gebäude)	4–8%
+Goodwill	Maximal 5 Jahre (20% linear)
+Steuerliche Abschreibung ≥ Handelsrechtliche Abschreibung → stille Reserven entstehen.
+
+4.6 Buchungen bei Verkauf / Entsorgung
+Verkauf eines Anlageguts (direkte Methode):
+
+Buchwert: CHF 20 000, Verkaufspreis: CHF 25 000
+Bank 25 000 / Maschinen 20 000 + Anlagegewinn 5 000
+
+Verkaufspreis: CHF 15 000 (unter Buchwert):
+Bank 15 000 + Anlageverlust 5 000 / Maschinen 20 000
+
+Bei indirekter Methode zuerst WB aufheben:
+WB Maschinen / Maschinen (kumulierte Abschreibungen auflösen)
+Dann: Buchung wie oben mit aktuellem Nettobuchwert.
+
+4.7 Ausserplanmässige Abschreibung
+Bei dauerhafter Wertminderung (Schaden, Markteinbruch):
+Ausserplanmässige Abschreibungen / Maschinen
+
+→ Erscheint separat in der Erfolgsrechnung.
+
+KAPITEL 5: Zeitliche Abgrenzungen (inkl. Rückstellungen)
+5.1 Das Prinzip der Periodenabgrenzung
+Die Finanzbuchhaltung muss jeden Aufwand und jeden Ertrag derjenigen Periode zuordnen, in der er wirtschaftlich anfällt — unabhängig vom Zahlungszeitpunkt.
+
+Beispiel: Jahresmiete CHF 12 000 wird im November bezahlt (für Nov.–Okt. nächstes Jahr). CHF 10 000 (Nov.–Dez. = 2/12 nicht gezählt — Fehler! Nur 2 Monate gehören ins laufende Jahr).
+
+5.2 Transitorische Aktiven (Aktive Rechnungsabgrenzung)
+Definition: Beträge, die in der laufenden Periode bereits bezahlt wurden, aber erst in der nächsten Periode als Aufwand gelten.
+
+Oder: Beträge, die in der laufenden Periode als Ertrag anfallen, aber noch nicht kassiert wurden.
+
+Fall	Beschreibung	Buchung 31.12.
+Vorauszahlter Aufwand	Versicherungsprämie für Jan.–Mar. nächstes Jahr schon bezahlt	Transitorische Aktiven / Versicherungsaufwand
+Noch nicht erhaltener Ertrag	Zinsen für Dez. werden erst im Jan. gutgeschrieben	Transitorische Aktiven / Zinsertrag
+Rückbuchung am 1.1.:
+Versicherungsaufwand / Transitorische Aktiven (Gegenbuchung → automatisch im richtigen Jahr)
+
+Bilanzposition: Transitorische Aktiven → Umlaufvermögen
+
+5.3 Transitorische Passiven (Passive Rechnungsabgrenzung)
+Definition: Beträge, die in der laufenden Periode als Aufwand anfallen, aber noch nicht bezahlt wurden.
+
+Oder: Beträge, die in der laufenden Periode bereits kassiert wurden, aber erst in der nächsten Periode als Ertrag gelten.
+
+Fall	Beschreibung	Buchung 31.12.
+Noch nicht bezahlter Aufwand	Dezember-Lohn wird erst im Januar ausbezahlt	Lohnaufwand / Transitorische Passiven
+Vorausbezahlter Ertrag	Miete für Jan.–März nächstes Jahr wurde schon kassiert	Mietertrag / Transitorische Passiven
+Rückbuchung am 1.1.:
+Transitorische Passiven / Lohnaufwand
+
+Bilanzposition: Transitorische Passiven → kurzfristiges Fremdkapital
+
+5.4 Vollständiges Beispiel
+Sachverhalt: Unternehmen bezahlt am 1. Oktober eine Versicherungsprämie von CHF 2 400 für ein Jahr (Okt. – Sept. nächstes Jahr).
+
+Buchung 1. Oktober:
+Versicherungsaufwand 2 400 / Bank 2 400
+
+Abgrenzung per 31. Dezember (9 Monate = CHF 1 800 gehören ins nächste Jahr):
+Transitorische Aktiven 1 800 / Versicherungsaufwand 1 800
+
+→ Im laufenden Jahr verbleibt: CHF 600 Aufwand (Oktober–Dezember)
+
+Rückbuchung 1. Januar:
+Versicherungsaufwand 1 800 / Transitorische Aktiven 1 800
+
+5.5 Rückstellungen
+Definition: Verbindlichkeiten, deren Existenz wahrscheinlich, deren genaue Höhe oder Fälligkeit aber noch unbekannt ist.
+
+Rückstellungen sind keine Rücklagen! Sie sind echte Schulden (Verbindlichkeiten) auf der Passivseite.
+
+Wann werden Rückstellungen gebildet?
+
+Es gibt eine gegenwärtige Verpflichtung (rechtlich oder faktisch)
+Es ist wahrscheinlich, dass sie zu einem Geldabfluss führt
+Die Höhe lässt sich verlässlich schätzen
+Häufige Arten:
+
+Art	Beschreibung
+Garantierückstellung	Für zukünftige Reparaturen und Garantieleistungen
+Prozessrückstellung	Laufende Rechtsstreitigkeiten, Ausgang unsicher
+Steuerrückstellung	Geschätzte Ertragssteuern noch nicht definitiv
+Ferienrückstellung	Noch nicht bezogene Ferien der Mitarbeiter
+Restrukturierungsrückstellung	Geplante Entlassungen / Betriebsänderungen
+Buchung Bildung:
+Rückstellungsaufwand / Rückstellungen
+
+Buchung Verwendung (Verpflichtung tritt ein):
+Rückstellungen / Bank (oder Kreditoren)
+
+Falls Verpflichtung kleiner als Rückstellung:
+Rückstellungen / Rückstellungsertrag (Restbetrag auflösen)
+
+Falls Verpflichtung grösser als Rückstellung:
+Rückstellungsaufwand / Rückstellungen (nachfassen)
+Rückstellungen / Bank
+
+Buchung Auflösung (wenn Risiko weggefallen):
+Rückstellungen / Rückstellungsertrag
+
+5.6 Abgrenzung: Transitorische Passiven vs. Rückstellungen
+Merkmal	Transitorische Passiven	Rückstellungen
+Betrag	Genau bekannt	Geschätzt
+Fälligkeit	Bekannt (nächste Periode)	Ungewiss
+Beispiel	Noch nicht bezahlte Dezember-Löhne	Garantieverpflichtungen
+KAPITEL 6: Löhne und Gehälter
+6.1 Bruttolohn, Abzüge, Nettolohn
+
+BRUTTOLOHN (vertraglich vereinbart)
+./. AHV/IV/EO-Beitrag (Arbeitnehmer-Anteil)
+./. ALV-Beitrag (Arbeitnehmer-Anteil)
+./. BVG-Beitrag (Arbeitnehmer-Anteil)
+./. NBU-Prämie (Nicht-Berufsunfall, 100% AN)
+./. Krankentaggeld-Prämie (50% AN)
+./. Quellensteuer (falls anwendbar)
+= NETTOLOHN (Auszahlung an Arbeitnehmer)
+6.2 Sozialversicherungen — Details
+AHV/IV/EO (Alters- und Hinterlassenenversicherung / Invalidenversicherung / Erwerbsersatzordnung):
+
+Gesamtbeitrag: ~10,6% des Bruttolohns
+Arbeitnehmer: ~5,3% | Arbeitgeber: ~5,3%
+Zweck: Altersrente, Invalidenrente, Mutterschaftsentschädigung
+ALV (Arbeitslosenversicherung):
+
+Bis Lohngrenze (max. versicherter Lohn): je 1,1% AN und AG
+Zweck: Arbeitslosenentschädigung
+BVG (Berufliche Vorsorge / Pensionskasse):
+
+Variiert je nach Unternehmen und Lohn
+Gesetz: AG muss mindestens gleich viel zahlen wie AN
+Zweck: Altersrente (2. Säule)
+UVG — Berufsunfall (BU):
+
+100% Arbeitgeber
+Zweck: Unfälle am Arbeitsplatz und auf dem Arbeitsweg
+UVG — Nicht-Berufsunfall (NBU):
+
+100% Arbeitnehmer (wird vom Lohn abgezogen)
+Gilt für Unfälle in der Freizeit
+Ausnahme: AG kann NBU freiwillig übernehmen
+KTG (Krankentaggeld):
+
+Je nach Versicherungsvertrag (üblich: 50/50)
+Zweck: Lohnfortzahlung bei Krankheit nach Wartefrist
+6.3 Komplette Lohnbuchung — Schritt für Schritt
+Ausgangslage: Bruttolohn CHF 6 000
+
+Abzüge (vereinfacht):
+
+AHV/IV/EO AN: 318 (5,3%)
+ALV AN: 66 (1,1%)
+BVG AN: 200
+NBU AN: 36 → Total Abzüge: 620 → Nettolohn: CHF 5 380
+AG-Anteile:
+
+AHV/IV/EO AG: 318
+ALV AG: 66
+BVG AG: 200
+BU: 30 → Total AG-Anteil: CHF 614
+Buchungsschritte:
+
+1. Lohnaufwand erfassen (Brutto):
+Lohnaufwand 6 000 / Lohnverbindlichkeiten 5 380 + Sozialversicherungsverbindlichkeiten 620
+
+2. Arbeitgeberanteil Sozialversicherungen:
+Sozialversicherungsaufwand 614 / Sozialversicherungsverbindlichkeiten 614
+
+3. Auszahlung Nettolohn:
+Lohnverbindlichkeiten 5 380 / Bank 5 380
+
+4. Abführung Sozialversicherungsbeiträge (AN-Anteil + AG-Anteil):
+Sozialversicherungsverbindlichkeiten 1 234 / Bank 1 234
+
+6.4 Quellensteuer
+Quellensteuer gilt für:
+
+Ausländische Arbeitnehmer ohne Niederlassungsbewilligung (Ausweis B, L)
+Personen mit Wohnsitz im Ausland
+Grenzgänger (in gewissen Kantonen)
+Wesen: Die Quellensteuer ersetzt die normale Einkommenssteuer. Der Arbeitgeber zieht sie direkt vom Lohn ab und führt sie an den Kanton ab.
+
+Buchung Quellensteuer-Abzug:
+Lohnverbindlichkeiten / Quellensteuerverbindlichkeiten
+
+Abführung an Kanton:
+Quellensteuerverbindlichkeiten / Bank
+
+6.5 Lohnausweis
+Am Jahresende erhält jeder Mitarbeiter einen Lohnausweis (für Steuererklärung):
+
+Bruttolohn
+Alle Abzüge (AHV, ALV, BVG, NBU, KTG)
+Nettolohn
+Unentgeltliche Verpflegung / Unterkunft (Naturalleistungen)
+Privatanteil Geschäftsfahrzeug
+6.6 Spesen (Auslagenersatz)
+Spesen sind kein Lohnbestandteil — sie ersetzen dem Mitarbeiter seine Auslagen.
+
+Keine Sozialversicherungsabgaben auf Spesen
+Nicht auf Lohnausweis (wenn effektive Spesen)
+Muss betrieblich begründet sein
+Arten:
+
+Reisespesen, Verpflegungsspesen, Unterkunft
+Repräsentationsausgaben
+Berufliche Auslagen
+Buchung: Spesenaufwand / Bank oder Spesenaufwand / Kreditoren
+
+Pauschalspesen: Fester Monatsbetrag (muss mit Kanton vereinbart sein):
+Spesenaufwand / Lohnverbindlichkeiten
+
+6.7 Naturalbezüge und Warenbezüge von Mitarbeitern
+Wenn Mitarbeiter Waren oder Leistungen des Betriebs vergünstigt oder gratis beziehen:
+
+Der geldwerte Vorteil (Differenz zwischen Einstandspreis und bezahltem Preis) gilt als Lohnbestandteil
+Muss sozialversicherungspflichtig verrechnet werden
+Buchung Warenabgabe an Mitarbeiter zum Einstandspreis:
+Lohnaufwand / Warenertrag (geldwerter Vorteil als Lohn)
+
+MWSt-Behandlung: Wenn Waren zu weniger als EK + 20% abgegeben → Eigenverbrauch → MWSt auf Normalwert
+
+6.8 Behandlung von Werbemitteln / Sachgeschenke
+Werbeartikel bis CHF 500 pro Person/Jahr: Aufwand (keine MWSt-Konsequenz)
+Darüber: Eigenverbrauch → MWSt-Konsequenz
+KAPITEL 7: Einzelunternehmung
+7.1 Merkmale der Einzelunternehmung
+Rechtliche Natur: Einzelunternehmung ist keine juristische Person — sie ist identisch mit dem Inhaber (natürliche Person).
+
+Merkmal	Detail
+Gründung	Formlos — nur durch Aufnahme der Tätigkeit
+Handelsregisterpflicht	Ab CHF 100 000 Umsatz pro Jahr
+Firma (Name)	Familienname des Inhabers + Zusatz möglich
+Haftung	Unbeschränkt mit gesamtem Vermögen (privat + geschäftlich)
+Kapital	Kein gesetzliches Mindestkapital
+Steuern	Gewinn = Einkommen des Inhabers → Einkommenssteuer + Vermögenssteuer
+Buchführungspflicht	Ab CHF 500 000 Umsatz: vollständige Buchhaltung
+Vorteile:
+
+Einfachste und schnellste Gründung
+Volle Entscheidungsfreiheit
+Kein Mindestkapital
+Tiefe Gründungskosten
+Nachteile:
+
+Unbeschränkte persönliche Haftung
+Schwierigere Kapitalbeschaffung
+Unternehmensfortführung nach Tod unsicher
+7.2 Kapitalstruktur und Buchführung
+Die Einzelunternehmung hat zwei Kapitalkonten:
+
+Konto EIGENKAPITAL:
+
+Eröffnung: Anfangskapital (Aktiven − Passiven bei Gründung)
+Laufend: Keine direkten Buchungen → nur Jahresabschluss und Privatbuchungen
+Jahresende: Konto Privat wird abgeschlossen → EK angepasst
+Konto PRIVAT:
+
+Das Privatkonto ist das zentrale Konto des Einzelunternehmers. Es sammelt alle privaten Transaktionen des Inhabers mit dem Betrieb.
+
+Soll (belastet)	Haben (gutgeschrieben)
+Kapitalbezüge (Geldentnahmen)	Privateinlagen (Geld eingebracht)
+Sachbezüge (Waren, Güter entnommen)	Sacheinlagen (Anlagen eingebracht)
+Private Rechnungen via Betrieb gezahlt	
+Privatanteil Fahrzeug, Telefon etc.	
+Wichtig: Konto Privat hat kein fixes Ziel — es gibt keinen «Lohn». Der Unternehmer entnimmt frei, was er braucht.
+
+7.3 Buchungen im Detail
+Geldbezug (Privatentnahme):
+Privat 3 000 / Kasse (oder Bank) 3 000
+
+Sachbezug (Ware für privaten Gebrauch):
+Ware im Wert von CHF 400 (Einstandspreis) entnommen:
+Privat 400 / Warenaufwand 400
+→ Wertansatz immer zum Einstandspreis (= was es den Betrieb gekostet hat)
+
+Private Rechnung über Betrieb bezahlt (z.B. Handyrechnung privat):
+Privat / Kreditoren oder Privat / Bank
+
+Privateinlage (Inhaber legt privates Geld ein):
+Bank / Privat
+
+Privateinlage Sachanlage (z.B. privates Auto wird Betriebsfahrzeug):
+Fahrzeuge / Privat (zum Verkehrswert)
+
+7.4 Jahresabschluss des Privatkontos
+Am 31. Dezember wird Konto Privat auf Konto Eigenkapital abgeschlossen:
+
+Fall 1: Bezüge > Einlagen (Normal — Eigenkapital sinkt):
+Eigenkapital / Privat (Differenz)
+
+Fall 2: Einlagen > Bezüge (Eigenkapital steigt):
+Privat / Eigenkapital (Differenz)
+
+Gesamtbewegung Eigenkapital:
+
+
+Eigenkapital Anfang           + 300 000
++ Jahresgewinn                +  45 000
+./. Netto-Privat (Bezüge − Einlagen)  − 36 000
+= Eigenkapital Ende           = 309 000
+7.5 Gründung und Eröffnungsbilanz
+Gründung mit eigenen Mitteln:
+
+Sabina Hofer gründet Einzelunternehmung. Sie bringt ein:
+
+Bank: CHF 60 000
+Fahrzeug: CHF 14 000
+Mobilien: CHF 8 000
+Waren: CHF 10 000
+Darlehen (Schuld): CHF 20 000
+Eröffnungsbilanz:
+
+
+Aktiven                    Passiven
+Bank        60 000         Darlehen    20 000
+Fahrzeug    14 000         Eigenkapital 72 000
+Mobilien     8 000
+Waren       10 000
+Total       92 000         Total       92 000
+Buchungen der Gründung:
+Bank 60 000 / Eigenkapital 60 000
+Fahrzeug 14 000 / Eigenkapital 14 000
+Mobilien 8 000 / Eigenkapital 8 000
+Waren 10 000 / Eigenkapital 10 000
+Eigenkapital 20 000 / Darlehen 20 000
+
+Oder kompakter: Alle Aktiven / Eigenkapital; Eigenkapital / Alle Passiven
+
+7.6 Das Unternehmerinkommen
+Das Unternehmerinkommen zeigt, was der Einzelunternehmer «verdient» hat — vergleichbar mit dem Lohn eines angestellten Geschäftsführers.
+
+Berechnung:
+
+
+Reingewinn des Unternehmens
++ Kalkulatorische Zinsen auf Eigenkapital
+    (= was hätte er bei Bankanlage verdient?)
++ Kalkulatorischer Unternehmerlohn
+    (= was würde ein angestellter Manager kosten?)
+= Unternehmerinkommen
+Mit Fremdkapital (Gegenüberstellung):
+
+Mit eigenem Kapital	Mit Fremdkapital
+Eigenkapital	200 000	50 000
+Fremdkapital	0	150 000
+Gewinn	30 000	20 000
+./. FK-Zinsen	0	− 9 000
+Gewinn vor Zinsen	30 000	11 000
+EK-Rendite	15%	22%
+→ Zeigt: Fremdkapital erhöht EK-Rendite (Leverage-Effekt) — aber erhöht auch Risiko.
+
+7.7 Privatanteil und MWSt
+Wenn der Unternehmer Güter oder Dienste des Betriebs privat nutzt, entsteht ein Privatanteil:
+
+Beispiele Privatanteil:
+
+Geschäftswagen 30% privat genutzt
+Geschäftstelefon 20% privat
+Private Mahlzeiten im Restaurant über Betrieb bezahlt
+Problem MWSt: Die Vorsteuer (auf betrieblichen Käufen) darf nur für geschäftliche Nutzung abgezogen werden. Für den Privatanteil muss die Vorsteuer zurückgegeben werden.
+
+Buchung Privatanteil:
+Privat / Aufwandkonto (Privatanteil)
+Privat / Vorsteuer (Vorsteuerkorrektur)
+
+Oder in einem Schritt:
+Privat / Aufwand + Vorsteuer (Brutto-Privatanteil)
+
+KAPITEL 8: Aktiengesellschaft (AG) inkl. Gewinnverteilung
+8.1 Merkmale der AG
+Rechtliche Natur: Die AG ist eine juristische Person — sie existiert unabhängig von ihren Aktionären.
+
+Merkmal	Detail
+Gründung	Öffentliche Beurkundung durch Notar, Eintrag HR
+Mindestkapital	CHF 100 000 (mind. CHF 50 000 einbezahlt, mind. 20%)
+Haftung	Nur Gesellschaft haftet — Aktionäre nur bis zur Einlage
+Aktie	Bruchteil des Aktienkapitals (Nennwert mind. CHF 0.01)
+Steuern	Gewinnsteuer + Kapitalsteuer (juristische Person)
+Revision	Eingeschränkte oder ordentliche Revision
+Organe der AG:
+
+
+GENERALVERSAMMLUNG (GV) — oberstes Organ
+    ↓ wählt
+VERWALTUNGSRAT (VR) — Leitung und Kontrolle
+    ↓ ernennt
+GESCHÄFTSFÜHRUNG / CEO — operative Leitung
+    ↓ führt
+MITARBEITER
+Rechte der Aktionäre:
+
+Stimmrecht (1 Aktie = 1 Stimme, ausser Stimmrechtsaktien)
+Dividendenanspruch
+Bezugsrecht bei Kapitalerhöhung
+Auskunftsrecht
+8.2 Kapitalstruktur der AG
+Eigenkapital einer AG:
+
+
+Aktienkapital (gezeichnetes Kapital)
++ Gesetzliche Kapitalreserve (Agio)
++ Gesetzliche Gewinnreserve (mind. 5% des JÜ)
++ Freiwillige Gewinnreserven
++ Gewinnvortrag (aus Vorjahr)
+= Total Eigenkapital
+Aktienkapital: Nennwert × Anzahl Aktien
+
+Beispiel: 1 000 Aktien à CHF 1 000 Nennwert = CHF 1 000 000 Aktienkapital
+
+Gesetzliche Kapitalreserve (Agio):
+
+Entsteht, wenn Aktien über dem Nennwert ausgegeben werden.
+
+Beispiel: Ausgabepreis CHF 1 400, Nennwert CHF 1 000 → Agio CHF 400 je Aktie
+
+8.3 Gründung der AG — vollständige Verbuchung
+Ausgangslage: Sabina Hofer gründet «Hofer Motorenservice AG»
+
+Aktienkapital: CHF 200 000 (200 Aktien à CHF 1 000)
+
+Schritt 1 — Zeichnung der Aktien (Einzahlung der Aktionäre):
+Bank / Aktienkapital 200 000
+
+Schritt 2 — Einbringen von Sachanlagen (Sacheinlage):
+Sabina bringt Fahrzeuge (CHF 50 000), Mobilien (CHF 30 000) und Waren (CHF 20 000) ein:
+Fahrzeuge 50 000 / Aktienkapital 50 000
+Mobilien 30 000 / Aktienkapital 30 000
+Waren 20 000 / Aktienkapital 20 000
+
+Bei Agio (Ausgabepreis höher als Nennwert):
+
+200 Aktien à CHF 1 000 Nennwert, Ausgabepreis CHF 1 400:
+Bank 280 000 / Aktienkapital 200 000 + Gesetzliche Kapitalreserve 80 000
+
+Nach Gründung — Kauf von Betriebsmitteln:
+Fahrzeuge / Bank
+Liegenschaften / Hypothek + Bank
+
+8.4 Jahresabschluss der AG
+Ablauf:
+
+
+1. Alle Aufwand-/Ertragskonten werden über die GuV (Erfolgsrechnung) abgeschlossen
+2. Jahresgewinn (oder -verlust) ergibt sich
+3. GV entscheidet über Gewinnverwendung
+4. Jahresbericht, Revisionsbericht erstellt
+Buchung Abschluss GuV:
+Erfolgsrechnungskonten (Erträge) / Gewinn und Verlust
+Gewinn und Verlust / Aufwandkonten
+Gewinn und Verlust / Jahresgewinn (bei Gewinn)
+Jahresverlust / Gewinn und Verlust (bei Verlust)
+
+Buchung Übertrag auf Gewinnvortrag:
+Jahresgewinn / Gewinnvortrag
+
+8.5 Gewinnverwendung — vollständiger Ablauf
+Bilanzgewinn = Gewinnvortrag aus Vorjahr + Jahresgewinn
+
+Die Generalversammlung beschliesst (auf Antrag des Verwaltungsrats):
+
+Schritt 1 — Zuweisung gesetzliche Gewinnreserve (OR-Pflicht):
+Mindestens 5% des Jahresgewinns, bis die gesetzliche Gewinnreserve 20% des Aktienkapitals beträgt.
+
+Gewinnvortrag / Gesetzliche Gewinnreserve
+
+Schritt 2 — Freiwillige Reserven (falls beschlossen):
+Gewinnvortrag / Freiwillige Gewinnreserven
+
+Schritt 3 — Dividende beschliessen:
+Beispiel: CHF 50 000 Dividende beschlossen
+Gewinnvortrag / Dividendenverbindlichkeiten 50 000
+
+Schritt 4 — Verrechnungssteuer (35%) abziehen und abliefern:
+
+35% von CHF 50 000 = CHF 17 500
+
+Buchung Abzug:
+Dividendenverbindlichkeiten 17 500 / Verrechnungssteuerverbindlichkeiten 17 500
+
+Zahlung Netto-Dividende an Aktionäre (65% = CHF 32 500):
+Dividendenverbindlichkeiten 32 500 / Bank 32 500
+
+Ablieferung VS an Bund:
+Verrechnungssteuerverbindlichkeiten 17 500 / Bank 17 500
+
+Für den Aktionär: Er erhält 65%, kann die 35% bei seiner Steuerveranlagung zurückfordern (wenn in der Schweiz wohnhaft und deklariert).
+
+Schritt 5 — Gewinnvortrag Restbetrag:
+Nicht ausgeschütteter Rest bleibt als Gewinnvortrag auf der Passivseite.
+
+8.6 Vollständige Gewinnverwendungs-Übersicht (Beispiel)
+Position	CHF
+Gewinnvortrag Vorjahr	10 000
++ Jahresgewinn	144 000
+= Bilanzgewinn	154 000
+./. Gesetzliche Gewinnreserve (5%)	− 7 200
+./. Freiwillige Reserven	− 20 000
+./. Dividende	− 100 000
+= Neuer Gewinnvortrag	26 800
+Alle Schritte einzeln buchen (wie oben beschrieben).
+
+8.7 Kapitalerhöhung
+Zweck: AG braucht mehr Kapital (Investitionen, Wachstum, Schuldenabbau).
+
+Vorgehen:
+
+GV beschliesst Kapitalerhöhung (2/3-Mehrheit)
+Neue Aktien werden ausgegeben
+Bestehende Aktionäre haben Bezugsrecht (proportional zu ihrer Beteiligung)
+Beispiel: 50 000 neue Aktien à CHF 100 Nennwert, Ausgabepreis CHF 170:
+
+Aktienkapital erhöht sich um: 50 000 × 100 = CHF 5 000 000
+Gesetzliche Kapitalreserve (Agio): 50 000 × 70 = CHF 3 500 000
+Buchung Einzahlung:
+Bank 8 500 000 / Aktienkapital 5 000 000 + Gesetzliche Kapitalreserve 3 500 000
+
+Danach: Einkauf von Anlagen etc. mit neuem Kapital.
+
+8.8 Verlustverrechnung
+Bei Jahresverlust:
+Jahresverlust / Gewinn- und Verlust
+Verlustvortrag / Jahresverlust
+
+Verrechnung mit Vorjahresgewinnvortrag:
+Gewinnvortrag / Verlustvortrag
+
+Falls Eigenkapital durch Verluste aufgebraucht: Kapitalverlust → gesetzliche Massnahmen (Art. 725 OR).
+
+KAPITEL 9: Bewertungsvorschriften, Stille Reserven, Bilanzbereinigung
+9.1 Gesetzliche Grundlagen (OR)
+Die Bewertung von Aktiven und Passiven ist im Obligationenrecht Art. 958 ff. geregelt.
+
+Grundprinzipien:
+
+Vorsichtsprinzip: Im Zweifel tiefer bewerten → Gläubiger schützen
+Anschaffungswertprinzip: Aktiven max. zu Anschaffungs- oder Herstellungskosten
+Stetigkeitsprinzip: Gleiche Methoden von Jahr zu Jahr
+Wesentlichkeit: Nur bedeutende Positionen aufführen
+Going Concern: Bewertung unter der Annahme der Fortführung
+9.2 Bewertungsregeln nach OR Art. 960 — Übersicht
+Umlaufvermögen:
+
+Position	Bewertungsregel
+Kasse, Bank	Nominalwert
+Debitoren	Nominalwert ./. Wertberichtigung (geschätzte Verluste)
+Warenvorräte	NWP: Anschaffungswert oder Marktwert (tieferer gilt)
+Wertpapiere (kurzfristig)	NWP: Anschaffungswert oder Börsenkurs
+Anlagevermögen:
+
+Position	Bewertungsregel	Max.
+Mobilien, Maschinen	Anschaffungswert ./. kumulierte Afa	= Anschaffungswert
+Fahrzeuge	Anschaffungswert ./. kumulierte Afa	—
+Liegenschaften	Anschaffungswert	Verkehrswert als Obergrenze
+Finanzanlagen (Beteiligungen)	Anschaffungswert	Nicht über AW
+Wertschriften (langfristig)	Anschaffungswert ./. Afa	—
+Das Niederstwertprinzip (NWP) bei Umlaufvermögen:
+
+
+Niederstwert = MIN(Anschaffungswert, Marktwert)
+Falls Marktwert unter Buchwert: Pflicht zur Abwertung (Art. 960c)
+
+Falls Marktwert über Buchwert: Kein Aufwertungsgebot (Vorsichtsprinzip)
+
+9.3 Bewertung von Wertschriften (Aktien)
+Regel 1 — Kotierte Wertschriften:
+Bewertung zu max. Börsenkurs am Bilanzstichtag.
+
+Konto	Regel
+242381	Börsenkurs verwenden
+7/02 201	NWP: zu AK CHF 41 000, Börsenkurs CHF 44 000 → Bewertung CHF 41 000
+Wdp 201	Kann höher ausgewiesen werden bis Börsenkurs
+Regel 2 — Nicht kotierte Wertschriften:
+Bewertung nach Ertragswert (diskontierter zukünftiger Ertrag) oder vergleichbaren Unternehmen.
+
+Buchung Abwertung Wertschriften:
+Wertschriftenaufwand / Wertschriften
+
+Buchung Aufwertung (nur bis max. Anschaffungswert):
+Wertschriften / Wertschriftenertrag
+
+9.4 Bewertung von Warenvorräten — Art. 960c
+Grundregel: Warenvorräte werden zum Niederstwert bewertet.
+
+Zusätzlich erlaubt OR: Pauschalabzug von 1/3 vom Niederstwert als «stille Reserve» — dieser Abzug ist steuerlich anerkannt.
+
+Buchungsbeispiel:
+
+Lagerbestand laut Inventar: CHF 150 000
+Marktpreis: CHF 130 000 (NWP = CHF 130 000)
+Pauschalabzug 1/3 von CHF 130 000 = CHF 43 333
+Bilanzwert: CHF 86 667
+Buchung Abwertung:
+Warenaufwand / Warenvorräte 63 333 (Differenz AK zu Bilanzwert)
+
+9.5 Stille Reserven — vollständige Erklärung
+Definition: Stille Reserven (= versteckte Reserven) entstehen, wenn das Eigenkapital in der Bilanz tiefer ausgewiesen wird als tatsächlich vorhanden.
+
+Ursachen:
+
+Aktiven zu tief bewertet (Unterbewertung Aktiven)
+Passiven zu hoch bewertet (Überbewertung Verbindlichkeiten)
+Stille Reserven = Tatsächliches EK − Ausgewiesenes EK
+
+Entstehung stiller Reserven:
+
+Massnahme	Auswirkung
+Überhöhte Abschreibungen	AV tiefer → Aufwand höher → Gewinn tiefer
+Zu hohe WB Forderungen	Ford. tiefer → Aufwand höher → Gewinn tiefer
+Waren tiefer als NWP bewertet	Waren tiefer → Aufwand höher → Gewinn tiefer
+Überhöhte Rückstellungen	Passiven höher → Aufwand höher → Gewinn tiefer
+Auflösung stiller Reserven:
+
+Massnahme	Auswirkung
+Geringere Abschreibungen als nötig	AV bleibt hoch → Aufwand tiefer → Gewinn höher
+WB Forderungen auflösen	Ertrag entsteht → Gewinn höher
+Waren aufwerten	Ertrag entsteht → Gewinn höher
+Rückstellungen auflösen	Ertrag entsteht → Gewinn höher
+9.6 Arten stiller Reserven
+Gesetzlich erlaubte stille Reserven (Art. 960a OR):
+
+Abschreibungen über das notwendige Mass hinaus
+1/3-Abzug auf Warenvorräten
+Pauschalwertberichtigung auf Forderungen (5%)
+Stille Reserven durch Wahlrechte:
+
+Wahl einer konservativen Abschreibungsmethode
+Bewertung von Liegenschaften weit unter Verkehrswert
+9.7 Interne vs. Externe Schlussbilanz
+Externe Schlussbilanz (nach Gesetz, für Behörden, Öffentlichkeit):
+
+Stille Reserven enthalten
+Aktiven tiefer bewertet
+EK niedriger ausgewiesen
+Gewinn kleiner → tiefere Steuern
+Interne Schlussbilanz (bereinigte Bilanz, für Management):
+
+Stille Reserven aufgedeckt
+Aktiven zu echtem Wert
+EK entspricht tatsächlichem Wert
+Zeigt «wahres Bild» der Vermögens- und Ertragslage
+Bereinigungsformel:
+
+
+Externe Bilanzposition + Stille Reserve = Interne (bereinigte) Position
+9.8 Buchung der Bildung und Auflösung stiller Reserven
+Beispiel Bildung:
+Waren: Buchwert CHF 100 000, Marktwert CHF 80 000, zusätzlicher Abzug CHF 20 000 (stille Reserve):
+Warenaufwand 20 000 / Warenvorräte 20 000
+→ Warenvorräte in Bilanz: CHF 60 000 (statt eigentlich CHF 80 000 nach NWP)
+→ Stille Reserve: CHF 20 000
+
+Beispiel Auflösung im Folgejahr (Waren verkauft zu CHF 90 000):
+Bank / Warenertrag und dadurch werden die stillen Reserven automatisch aufgedeckt
+
+Direkte Auflösung stiller Reserven (z.B. um Jahresgewinn zu verbessern):
+Warenvorräte / Warenertrag
+
+9.9 Steuerliche Bedeutung stiller Reserven
+Stille Reserven entstehen oft, weil steuerrechtlich höhere Abschreibungen erlaubt sind als handelsrechtlich nötig
+In der Schweiz ist der steuerrechtliche Abschluss = handelsrechtlicher (Massgeblichkeitsprinzip)
+Aufdeckung stiller Reserven = steuerbarer Ertrag
+Wichtig für Übernahmen/Fusionen: Stille Reserven erhöhen den wahren Unternehmenswert
+KAPITEL 11: Analyse der Bilanz und Erfolgsrechnung
+11.1 Zweck und Anspruchsgruppen
+Ziel: Aus dem Jahresabschluss (Bilanz + Erfolgsrechnung) die wirtschaftliche Lage eines Unternehmens beurteilen — insbesondere:
+
+Liquidität (Kann das Unternehmen seine Schulden bezahlen?)
+Rentabilität (Ist das Unternehmen profitabel?)
+Kapitalstruktur (Wie ist das Unternehmen finanziert?)
+Sicherheit (Ist das Unternehmen finanziell stabil?)
+Anspruchsgruppen und ihre Hauptfragen:
+
+Gruppe	Hauptfrage
+Banken	Hat das Unternehmen genug Sicherheiten? Kann es Kredite zurückzahlen?
+Investoren / Aktionäre	Wie rentabel ist meine Investition? Gibt es Dividende?
+Lieferanten	Kann das Unternehmen meine Rechnungen bezahlen?
+Management	Wo sind Stärken und Schwächen? Wo muss ich eingreifen?
+Staat / Steuerbehörden	Wie hoch ist der steuerbare Gewinn?
+Mitarbeiter	Ist der Betrieb sicher und wächst er?
+11.2 Analysebereiche
+Vier Hauptbereiche:
+
+Kapitalstruktur → Wie ist das Kapital zusammengesetzt?
+Vermögensstruktur → Wie ist das Vermögen zusammengesetzt?
+Liquidität / Zahlungsbereitschaft → Kurzfristige Zahlungsfähigkeit
+Anlagendeckung → Langfristige Finanzierungsstruktur
+Zwei Analyse-Perspektiven:
+
+Zeitvergleich: Kennzahl jetzt vs. Vorjahr vs. Vorvorjahr → Trend erkennen
+Betriebsvergleich: Eigene Kennzahl vs. Branchendurchschnitt → Position einordnen
+11.3 Ausgangsmaterial: Bereinigte Bilanz
+Für eine aussagekräftige Analyse braucht es die bereinigte Bilanz (stille Reserven aufgedeckt). Die externe Bilanz würde falsche Kennzahlen liefern.
+
+Beispielbilanz «Holzbau Hummel & Stamm AG» (bereinigte Werte):
+
+Aktiven	CHF	Passiven	CHF
+Flüssige Mittel	70 000	Kurzfristiges FK	340 000
+Forderungen L+L	300 000	Langfristiges FK (Hypothek)	1 600 000
+Vorräte / Waren	225 000	Aktienkapital	500 000
+Mobilien	160 000	Gesetzliche Gewinnreserven	100 000
+Maschinen	700 000	Gewinnvortrag	85 000
+Immobilien	1 600 000		
+Gesamtvermögen	3 055 000	Gesamtkapital	3 055 000 (vereinfacht)
+Vereinfachte Beispielwerte für Kennzahlen:
+
+Umlaufvermögen (UV): Fl.Mittel + Forderungen + Vorräte = 595 000
+Anlagevermögen (AV): Mobilien + Maschinen + Immobilien = 2 460 000
+Eigenkapital (EK): Aktienkapital + Reserven + Gewinnvortrag = 685 000
+Kurzfristiges FK: 340 000
+Langfristiges FK: 1 600 000
+Gesamtkapital (GK): 3 055 000 (= Gesamtvermögen)
+Beispiel Erfolgsrechnung:
+
+Umsatz: 4 420 000
+Warenaufwand: 1 788 000
+Personalaufwand: 1 790 000
+Abschreibungen: 81 000
+Finanzaufwand (Zinsen FK): 91 000
+Sonstige BA: 507 000
+Reingewinn: 163 000
+A. KAPITALSTRUKTUR-ANALYSE
+Eigenfinanzierungsgrad:
+
+
+EK / Gesamtkapital × 100
+
+= 685 000 / 3 055 000 × 100 = 22,4%
+Zielgrösse: mindestens 30%
+Interpretation: Zeigt, wie viel Prozent des Kapitals aus eigenen Mitteln stammt. Je höher, desto unabhängiger vom Fremdkapital, desto krisenresistenter. Unter 30% gilt als zu risikoreich.
+
+Fremdfinanzierungsgrad:
+
+
+FK / Gesamtkapital × 100 = 100% − Eigenfinanzierungsgrad
+Selbstfinanzierungsgrad (Anteil des kumulierten einbehaltenen Gewinns am EK):
+Zeigt, wie viel EK durch einbehaltene Gewinne (Reserven) aufgebaut wurde — je höher, desto besser.
+
+B. VERMÖGENSSTRUKTUR-ANALYSE
+Intensität des Umlaufvermögens:
+
+
+Umlaufvermögen / Gesamtvermögen × 100
+= 595 000 / 3 055 000 × 100 = 19,5%
+Intensität des Anlagevermögens:
+
+
+Anlagevermögen / Gesamtvermögen × 100
+= 2 460 000 / 3 055 000 × 100 = 80,5%
+Interpretation:
+
+Hohe AV-Intensität: Kapitalintensiver Betrieb (Industrie, Baugewerbe) → hohe Fixkosten, hoher Finanzierungsbedarf
+Hohe UV-Intensität: Handelsbetriebe, schnelle Umschlagshäufigkeit → flexibler
+C. LIQUIDITÄTS-ANALYSE (Zahlungsbereitschaft)
+Liquiditätsgrad 1 — Cash Ratio:
+
+
+Flüssige Mittel / Kurzfristiges Fremdkapital × 100
+= 70 000 / 340 000 × 100 = 20,6%
+Zielgrösse: mindestens 20%
+Interpretation: Wie viel Prozent der kurzfristigen Schulden kann das Unternehmen sofort (mit vorhandenem Bargeld/Bankguthaben) bezahlen?
+
+Liquiditätsgrad 2 — Quick Ratio:
+
+
+(Flüssige Mittel + Forderungen L+L) / Kurzfristiges FK × 100
+= (70 000 + 300 000) / 340 000 × 100 = 108,8%
+Zielgrösse: mindestens 100%
+Interpretation: Kann das Unternehmen alle kurzfristigen Schulden begleichen, ohne Waren verkaufen zu müssen? Ideal ≥ 100%.
+
+Liquiditätsgrad 3 — Current Ratio:
+
+
+Umlaufvermögen / Kurzfristiges FK × 100
+= 595 000 / 340 000 × 100 = 175%
+Zielgrösse: mindestens 150–200%
+Interpretation: Ist das gesamte Umlaufvermögen ausreichend zur Deckung kurzfristiger Verpflichtungen? Wichtig: Waren sind dabei, aber weniger schnell liquidierbar.
+
+Zusammenfassung Liquiditätsgrade:
+
+Grad	Formel	Ziel	«Hektik»
+LG 1	Fl.Mittel / kurzfr.FK	≥ 20%	Sofort zahlbar
+LG 2	(Fl.M. + Ford.) / kurzfr.FK	≥ 100%	Schnell zahlbar
+LG 3	UV / kurzfr.FK	≥ 150–200%	Mittelfristig zahlbar
+D. ANLAGENDECKUNGS-ANALYSE
+Goldene Bilanzregel: Langfristig gebundenes Anlagevermögen muss durch langfristiges Kapital (EK + langfr. FK) finanziert sein!
+
+Anlagendeckungsgrad 1:
+
+
+Eigenkapital / Anlagevermögen × 100
+= 685 000 / 2 460 000 × 100 = 27,8%
+Zielgrösse: mindestens 50%
+Interpretation: Wie viel Prozent des Anlagevermögens ist durch Eigenkapital gedeckt? Bei einem Baubetrieb mit viel Immobilien typischerweise tiefer.
+
+Anlagendeckungsgrad 2:
+
+
+(Eigenkapital + Langfristiges FK) / Anlagevermögen × 100
+= (685 000 + 1 600 000) / 2 460 000 × 100 = 92,9%
+Zielgrösse: mindestens 100%
+Interpretation: Dies ist die wichtigste Regel: Das gesamte Anlagevermögen sollte durch langfristiges Kapital finanziert sein. Unter 100% = Gefahr (kurzfristiges FK finanziert langfristige Anlagen).
+
+E. RENTABILITÄTS-ANALYSE / ERFOLGSANALYSE
+Eigenkapitalrendite (Return on Equity):
+
+
+Reingewinn / Eigenkapital × 100
+= 163 000 / 685 000 × 100 = 23,8%
+Zielgrösse: mindestens 6%, Industrie 8%
+Vergleich: Obligationenzinssatz + Risikoprämie
+Interpretation: Wie viel % Rendite erzielt das eingesetzte Eigenkapital? Vergleich mit Alternativanlagen (Sparzins, Obligationen). Unternehmen muss deutlich mehr rentieren als risikolose Anlage.
+
+Gesamtkapitalrendite (Return on Assets):
+
+
+(Reingewinn + Fremdkapitalzinsen) / Gesamtkapital × 100
+= (163 000 + 91 000) / 3 055 000 × 100 = 8,3%
+Zielgrösse: mindestens 5%, branchenabhängig höher
+Interpretation: Unabhängig von der Finanzierungsstruktur — wie rentiert das gesamte eingesetzte Kapital? FK-Zinsen werden addiert, da sie Kapitalkosten sind. Wenn GKR > FK-Zinssatz → Fremdfinanzierung ist vorteilhaft (Leverage).
+
+Umsatzrendite (Return on Sales):
+
+
+Reingewinn / Umsatz × 100
+= 163 000 / 4 420 000 × 100 = 3,7%
+Zielgrösse: branchenabhängig (Handel 2–5%, Industrie 5–10%)
+Interpretation: Wie viel Rappen Gewinn bleiben von jedem Umsatz-Franken übrig? Tiefe Marge = viel Umsatz nötig; hohe Marge = Qualitäts- oder Alleinstellungsprodukt.
+
+F. CASHFLOW-ANALYSE
+Was ist der Cashflow?
+
+Der Cashflow zeigt den tatsächlich erwirtschafteten Geldmittelzufluss aus dem Betrieb — unabhängig von buchhalterischen Abschreibungen und anderen nicht zahlungswirksamen Buchungen.
+
+Vereinfachte Berechnung (indirekte Methode):
+
+
+Reingewinn                          163 000
++ Abschreibungen                     81 000
++ Bildung Rückstellungen             (falls vorhanden)
+./. Auflösung Rückstellungen         (falls vorhanden)
+= Cashflow                          244 000
+Abschreibungen sind Aufwand, aber kein Geldabfluss → werden zurückaddiert.
+
+Cashflow-Marge:
+
+
+Cashflow / Umsatz × 100
+= 244 000 / 4 420 000 × 100 = 5,5%
+Zielgrösse: mindestens 5%, Industrie 10–15%
+Interpretation: Wie viele Rappen Cashflow generiert jeder Umsatz-Franken? Wichtig für Investitionsfähigkeit und Schuldenrückzahlung.
+
+Effektivverschuldung:
+
+
+Fremdkapital − Flüssige Mittel − Forderungen
+= (340 000 + 1 600 000) − 70 000 − 300 000
+= 1 940 000 − 370 000 = 1 570 000
+Verschuldungsfaktor (Entschuldungsdauer):
+
+
+Effektivverschuldung / Cashflow
+= 1 570 000 / 244 000 = 6,4 Jahre
+Zielgrösse: weniger als 5 Jahre
+Interpretation: Wie viele Jahre braucht das Unternehmen, um seine Nettoschulden mit dem laufenden Cashflow zurückzuzahlen? 6,4 Jahre ist noch akzeptabel für einen kapitalintensiven Baubetrieb, aber eher hoch. Banken achten sehr auf diesen Wert.
+
+G. AKTIVITÄTS-ANALYSE (Umschlagshäufigkeit)
+Lagerumschlag:
+
+
+Wareneinsatz / Durchschnittlicher Lagerbestand
+= Wareneinsatz / ((Lager Anfang + Lager Ende) / 2)
+Zielgrösse: branchenabhängig (Handel 8–15×/Jahr; Industrie 4–8×)
+Lagerdauer:
+
+
+360 Tage / Lagerumschlag
+Zielgrösse: weniger als 40–45 Tage (branchenabhängig)
+Interpretation: Je kürzer die Lagerdauer, desto geringer die Lagerkosten und das Risiko. Zu kurze Lagerdauer → Lieferschwierigkeiten möglich.
+
+H. GESAMTÜBERSICHT — Alle Kennzahlen auf einen Blick
+KAPITALSTRUKTUR:
+
+Kennzahl	Formel	Zielgrösse
+Eigenfinanzierungsgrad	EK / GK × 100	≥ 30%
+Fremdfinanzierungsgrad	FK / GK × 100	≤ 70%
+Selbstfinanzierungsgrad	Reserven / EK × 100	je höher desto besser
+VERMÖGENSSTRUKTUR:
+
+Kennzahl	Formel	Zielgrösse
+UV-Intensität	UV / GV × 100	abhängig von Branche
+AV-Intensität	AV / GV × 100	abhängig von Branche
+LIQUIDITÄT:
+
+Kennzahl	Formel	Zielgrösse
+LG 1 (Cash Ratio)	Fl.Mittel / kurzfr.FK × 100	≥ 20%
+LG 2 (Quick Ratio)	(Fl.M.+Ford.) / kurzfr.FK × 100	≥ 100%
+LG 3 (Current Ratio)	UV / kurzfr.FK × 100	≥ 150–200%
+ANLAGENDECKUNG:
+
+Kennzahl	Formel	Zielgrösse
+ADG 1	EK / AV × 100	≥ 50%
+ADG 2	(EK+langfr.FK) / AV × 100	≥ 100% (Pflicht!)
+RENTABILITÄT:
+
+Kennzahl	Formel	Zielgrösse
+EK-Rendite	Reingewinn / EK × 100	≥ 6–8%
+GK-Rendite	(Gew.+Zinsen) / GK × 100	≥ 5%
+Umsatzrendite	Reingewinn / Umsatz × 100	branchenabhängig
+CASHFLOW:
+
+Kennzahl	Formel	Zielgrösse
+Cashflow	Reingewinn + Abschreibungen	—
+Cashflow-Marge	CF / Umsatz × 100	≥ 5–15%
+Verschuldungsfaktor	Effektivverschuldung / CF	< 5 Jahre
+AKTIVITÄT:
+
+Kennzahl	Formel	Zielgrösse
+Lagerumschlag	Wareneinsatz / ⌀Lager	branchenabhängig
+Lagerdauer	360 / Lagerumschlag	< 40 Tage
+11.4 Interpretation und Prüfungsanforderungen
+Bei jeder Kennzahl müssen drei Dinge geleistet werden:
+
+Berechnen — korrekte Formel, richtiger Wert
+Beurteilen — Zielgrösse nennen, einordnen (gut/schlecht)
+Interpretieren — was bedeutet das für das Unternehmen? Kontext berücksichtigen!
+Häufige Prüfungsfehler vermeiden:
+
+Formel falsch (z.B. LG2 ohne Forderungen)
+Zielgrösse verwechseln (LG1 ≠ LG3)
+EK vs. FK verwechseln
+Cashflow ohne Abschreibungen
+Effektivverschuldung vergessen beim Verschuldungsfaktor
