@@ -17,6 +17,7 @@ const FILTER_TABS = [
   { key: 'bwl', label: 'BWL' },
   { key: 'vwl', label: 'VWL' },
   { key: 'recht', label: 'Recht' },
+  { key: 'frw', label: 'FRW' },
 ] as const
 
 type FilterKey = (typeof FILTER_TABS)[number]['key']
@@ -174,6 +175,7 @@ export default function TopicsPage() {
 
   const filtered = wrTopics
     .filter(t => {
+      if (filter === 'frw') return false
       if (filter === 'querschnitt') return t.examType === 'querschnitt' || t.examType === 'both'
       if (filter === 'abschluss')   return t.examType === 'abschluss' || t.examType === 'both'
       if (filter === 'bwl')   return t.category === 'bwl'
@@ -216,12 +218,16 @@ export default function TopicsPage() {
         <SlidersHorizontal size={13} className="text-slate-600 mr-1" />
         {FILTER_TABS.map(tab => {
           const active = filter === tab.key
+          const isFrw = tab.key === 'frw'
           return (
             <button
               key={tab.key}
               onClick={() => setFilter(tab.key)}
               className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-150 border ${
-                active ? 'text-blue-400 bg-blue-500/10 border-blue-500/30' : 'text-slate-500 border-transparent hover:text-slate-300 hover:bg-white/[0.05] hover:border-white/[0.08]'
+                active && isFrw ? 'text-emerald-400 bg-emerald-500/10 border-emerald-500/30' :
+                active ? 'text-blue-400 bg-blue-500/10 border-blue-500/30' :
+                isFrw ? 'text-emerald-600 border-transparent hover:text-emerald-400 hover:bg-emerald-500/[0.07] hover:border-emerald-500/20' :
+                'text-slate-500 border-transparent hover:text-slate-300 hover:bg-white/[0.05] hover:border-white/[0.08]'
               }`}
             >
               {tab.label}
@@ -238,7 +244,7 @@ export default function TopicsPage() {
         <div className="space-y-8">
 
           {/* WR Section */}
-          <div>
+          <div className={filter === 'frw' ? 'hidden' : ''}>
             <div className="flex items-center gap-3 mb-4">
               <div className="w-1 h-6 rounded-full" style={{ background: 'linear-gradient(180deg, #3b82f6, #6366f1)' }} />
               <h2 className="text-sm font-bold text-slate-300 uppercase tracking-widest">Wirtschaft & Recht</h2>
