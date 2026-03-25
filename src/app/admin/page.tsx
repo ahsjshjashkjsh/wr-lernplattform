@@ -32,7 +32,7 @@ const CATEGORY_ICONS: Record<string, typeof Bug> = { bug: Bug, feature: Lightbul
 const CATEGORY_LABELS: Record<string, string> = { bug: 'Fehler', feature: 'Vorschlag', content: 'Inhalt', general: 'Allgemein' }
 const CATEGORY_COLORS: Record<string, string> = { bug: '#f87171', feature: '#fbbf24', content: '#60a5fa', general: '#a78bfa' }
 
-type Tab = 'users' | 'create' | 'feedback' | 'messages'
+type Tab = 'users' | 'create' | 'feedback' | 'messages' | 'log'
 
 // Online = lastOnline within last 3 minutes
 function isOnline(lastOnline: string | null) {
@@ -80,6 +80,7 @@ export default function AdminPage() {
   const [msgSent, setMsgSent] = useState(false)
 
   const [lastRefresh, setLastRefresh] = useState<Date | null>(null)
+  const [activityLogs, setActivityLogs] = useState<ActivityLog[]>([])
 
   const loadUsers = useCallback(async (silent = false) => {
     if (!silent) setLoading(true)
@@ -96,6 +97,11 @@ export default function AdminPage() {
   async function loadFeedback() {
     const res = await fetch('/api/feedback')
     if (res.ok) { const data = await res.json(); setFeedback(data.feedback) }
+  }
+
+  async function loadLogs() {
+    const res = await fetch('/api/activity')
+    if (res.ok) { const data = await res.json(); setActivityLogs(data.logs) }
   }
 
   async function reviewFeedback(id: string, status: 'accepted' | 'rejected' | 'implemented') {
@@ -115,11 +121,14 @@ export default function AdminPage() {
   useEffect(() => {
     loadUsers()
     loadFeedback()
+    loadLogs()
     const interval = setInterval(() => {
       loadUsers(true)
       loadFeedback()
+      loadLogs()
     }, 3_000)
     return () => clearInterval(interval)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loadUsers])
 
   async function patch(userId: string, data: Record<string, unknown>, key: string) {
@@ -413,7 +422,7 @@ export default function AdminPage() {
 
       {/* Tabs */}
       <div className="flex gap-2 mb-4 flex-wrap">
-        {([['users', Users, 'Benutzer'], ['create', UserPlus, 'Neuer Account'], ['feedback', MessageSquare, `Feedback${pendingFeedback > 0 ? ` (${pendingFeedback})` : ''}`], ['messages', Bell, 'Nachrichten']] as const).map(([t, Icon, label]) => (
+        {([['users', Users, 'Benutzer'], ['create', UserPlus, 'Neuer Account'], ['feedback', MessageSquare, `Feedback${pendingFeedback > 0 ? ` (${pendingFeedback})` : ''}`], ['messages', Bell, 'Nachrichten'], ['log', Activity, `Live-Log${activityLogs.length > 0 ? ` (${activityLogs.length})` : ''}`]] as const).map(([t, Icon, label]) => (
           <button
             key={t}
             onClick={() => setTab(t)}
@@ -880,6 +889,59 @@ export default function AdminPage() {
           <div className="px-4 py-3 rounded-xl text-xs text-slate-500" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}>
             Das Popup schliesst sich automatisch nach 10 Sekunden. Online-Nutzer sehen es sofort, offline Nutzer beim nächsten Login (max. 1h).
           </div>
+        </div>
+      )}
+
+      {/* === TAB: LOG === */}
+      {tab === 'log' && (
+        <div className="glass rounded-2xl border overflow-hidden" style={{ borderColor: 'rgba(255,255,255,0.08)' }}>
+          <div className="px-5 py-3 border-b flex items-center justify-between" style={{ borderColor: 'rgba(255,255,255,0.06)' }}>
+            <div className="flex items-center gap-2">
+              <Activity size={14} style={{ color: '#22c55e' }} />
+              <span className="text-sm font-semibold text-slate-200">Live-Aktivitäten</span>
+            </div>
+            <span className="text-xs text-slate-500">letzte 60 Aktionen · alle 3s aktualisiert</span>
+          </div>
+          {activityLogs.length === 0 ? (
+            <div className="px-5 py-12 text-center text-slate-600 text-sm">Noch keine Aktivitäten erfasst.</div>
+          ) : (
+            <div className="divide-y" style={{ borderColor: 'rgba(255,255,255,0.04)' }}>
+              {activityLogs.map((log, i) => {
+                const diffMs = Date.now() - new Date(log.createdAt).getTime()
+                const mins = Math.floor(diffMs / 60_000)
+                const secs = Math.floor(diffMs / 1_000)
+                const when = secs < 60 ? `vor ${secs}s` : mins < 60 ? `vor ${mins} Min.` : timeAgo(log.createdAt)
+                const isRecent = secs < 30
+                return (
+                  <div key={log.id} className="px-5 py-3 flex items-start gap-3" style={{ background: i === 0 ? 'rgba(34,197,94,0.03)' : undefined }}>
+                    <div className="w-7 h-7 rounded-full flex items-center justify-center shrink-0 text-xs font-bold mt-0.5"
+                      style={{ background: 'rgba(59,130,246,0.12)', color: '#60a5fa', border: '1px solid rgba(59,130,246,0.2)' }}>
+                      {log.userName[0]?.toUpperCase()}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="text-sm font-semibold text-slate-200">{log.userName}</span>
+                        <span className="text-sm text-slate-400">{log.action}</span>
+                        {log.detail && (
+                          <span className="text-xs font-medium px-2 py-0.5 rounded-full" style={{ background: 'rgba(59,130,246,0.1)', color: '#93c5fd', border: '1px solid rgba(59,130,246,0.2)' }}>
+                            {log.detail}
+                          </span>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-2 mt-0.5">
+                        <span className="text-[10px] text-slate-600">{log.page}</span>
+                        <span className="text-[10px] text-slate-700">·</span>
+                        <span className={`text-[10px] font-medium ${isRecent ? 'text-green-500' : 'text-slate-600'}`}>
+                          {when}
+                        </span>
+                        {isRecent && <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />}
+                      </div>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          )}
         </div>
       )}
 
