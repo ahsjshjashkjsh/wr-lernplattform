@@ -16,6 +16,15 @@ interface AdminUser {
   progress: { bestScore: number | null; status: string }[]
 }
 
+interface ActivityLog {
+  id: string
+  userName: string
+  action: string
+  detail: string | null
+  page: string
+  createdAt: string
+}
+
 interface FeedbackItem {
   id: string
   userName: string
