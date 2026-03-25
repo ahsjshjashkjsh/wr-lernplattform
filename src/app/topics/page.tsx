@@ -271,9 +271,14 @@ export default function TopicsPage() {
             </div>
 
             {/* Banner */}
-            <div className="flex items-center gap-3 px-4 py-3 rounded-xl mb-4 text-sm" style={{ background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.25)', color: '#fca5a5' }}>
-              <AlertTriangle size={15} className="shrink-0 text-red-400" />
-              <span><strong>Fehler</strong> – Die FRW-Themen werden aktuell überarbeitet und sind noch nicht verfügbar.</span>
+            <div className="flex flex-col gap-1 px-4 py-3 rounded-xl mb-4 text-sm" style={{ background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.25)' }}>
+              <div className="flex items-center gap-2" style={{ color: '#fca5a5' }}>
+                <AlertTriangle size={15} className="shrink-0 text-red-400" />
+                <span><strong>Themen vorübergehend nicht verfügbar</strong></span>
+              </div>
+              <p className="text-xs text-slate-400 mt-0.5 leading-relaxed pl-[23px]">
+                Die FRW-Inhalte werden aktuell komplett neu aufgebaut — direkt aus dem <strong className="text-slate-300">hep-Lehrmittel Band 1, 2 und 3</strong>. Ziel ist ein vollständiges, geprüftes Lernwerkzeug mit präzisen Zusammenfassungen, Schlüsselbegriffen und Übungsaufgaben — exakt nach Buchinhalt, ohne Fehler. Die Themen sind bald wieder verfügbar.
+              </p>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
