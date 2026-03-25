@@ -16,16 +16,6 @@ interface AdminUser {
   progress: { bestScore: number | null; status: string }[]
 }
 
-interface ActivityLog {
-  id: string
-  userId: string | null
-  userName: string
-  action: string
-  detail: string | null
-  page: string
-  createdAt: string
-}
-
 interface FeedbackItem {
   id: string
   userName: string
@@ -42,7 +32,7 @@ const CATEGORY_ICONS: Record<string, typeof Bug> = { bug: Bug, feature: Lightbul
 const CATEGORY_LABELS: Record<string, string> = { bug: 'Fehler', feature: 'Vorschlag', content: 'Inhalt', general: 'Allgemein' }
 const CATEGORY_COLORS: Record<string, string> = { bug: '#f87171', feature: '#fbbf24', content: '#60a5fa', general: '#a78bfa' }
 
-type Tab = 'users' | 'create' | 'feedback' | 'messages' | 'log'
+type Tab = 'users' | 'create' | 'feedback' | 'messages'
 
 // Online = lastOnline within last 3 minutes
 function isOnline(lastOnline: string | null) {
@@ -83,8 +73,6 @@ export default function AdminPage() {
   const [adminNote, setAdminNote] = useState('')
   const [banModal, setBanModal] = useState<AdminUser | null>(null)
   const [selectedUser, setSelectedUser] = useState<AdminUser | null>(null)
-  const [activityLogs, setActivityLogs] = useState<ActivityLog[]>([])
-
   const [msgText, setMsgText] = useState('')
   const [msgTarget, setMsgTarget] = useState<string>('all')
   const [msgShowSender, setMsgShowSender] = useState(true)
@@ -110,11 +98,6 @@ export default function AdminPage() {
     if (res.ok) { const data = await res.json(); setFeedback(data.feedback) }
   }
 
-  async function loadLogs() {
-    const res = await fetch('/api/activity')
-    if (res.ok) { const data = await res.json(); setActivityLogs(data.logs) }
-  }
-
   async function reviewFeedback(id: string, status: 'accepted' | 'rejected' | 'implemented') {
     setActionLoading('review-' + id)
     await fetch('/api/feedback', {
@@ -132,14 +115,11 @@ export default function AdminPage() {
   useEffect(() => {
     loadUsers()
     loadFeedback()
-    loadLogs()
     const interval = setInterval(() => {
       loadUsers(true)
       loadFeedback()
-      loadLogs()
     }, 3_000)
     return () => clearInterval(interval)
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loadUsers])
 
   async function patch(userId: string, data: Record<string, unknown>, key: string) {
@@ -238,12 +218,6 @@ export default function AdminPage() {
     }
     return points
   })()
-  // Aktivitätsanzahl pro User aus den geladenen Logs (letzte 100)
-  const activityCountByUser: Record<string, number> = {}
-  for (const log of activityLogs) {
-    if (log.userId) activityCountByUser[log.userId] = (activityCountByUser[log.userId] ?? 0) + 1
-  }
-
   const filteredFeedback = feedbackFilter === 'all'
     ? feedback.filter(f => f.status === 'pending')
     : feedback.filter(f => f.status === feedbackFilter)
@@ -278,7 +252,7 @@ export default function AdminPage() {
               aktualisiert {lastRefresh.toLocaleTimeString('de-CH', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
             </span>
           )}
-          <button onClick={() => { loadUsers(true); loadFeedback(); loadLogs() }} className="w-8 h-8 flex items-center justify-center rounded-xl transition-all hover:opacity-80" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', color: '#64748b' }}>
+          <button onClick={() => { loadUsers(true); loadFeedback() }} className="w-8 h-8 flex items-center justify-center rounded-xl transition-all hover:opacity-80" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', color: '#64748b' }}>
             <RefreshCw size={14} />
           </button>
         </div>
@@ -392,22 +366,16 @@ export default function AdminPage() {
               <BarChart2 size={11}/> Aktivste Benutzer
             </h3>
             <div className="space-y-2">
-              {[...users].filter(u => !u.isAdmin).sort((a,b) => (activityCountByUser[b.id]??0) - (activityCountByUser[a.id]??0)).slice(0,5).map((u, i) => {
-                const count = activityCountByUser[u.id] ?? 0
-                const maxA = Math.max(...users.filter(x => !x.isAdmin).map(x => activityCountByUser[x.id] ?? 0), 1)
-                const pct = Math.round((count / maxA) * 100)
-                const estMins = count * 2
-                const estHours = estMins >= 60 ? `~${Math.round(estMins / 60)} Std.` : estMins > 0 ? `~${estMins} Min.` : '–'
+              {[...users].filter(u => !u.isAdmin).sort((a,b) => b._count.quizAttempts - a._count.quizAttempts).slice(0,5).map((u, i) => {
+                const maxQ = users.reduce((m, x) => Math.max(m, x._count.quizAttempts), 1)
+                const pct = Math.round((u._count.quizAttempts / maxQ) * 100)
                 return (
                   <div key={u.id} className="flex items-center gap-2.5">
                     <span className="text-[10px] font-black text-slate-600 w-4 shrink-0">#{i+1}</span>
                     <div className="flex-1 min-w-0 space-y-0.5">
                       <div className="flex items-center justify-between">
                         <p className="text-xs font-semibold text-slate-300 truncate">{u.name}</p>
-                        <div className="flex items-center gap-2 shrink-0">
-                          <span className="text-[10px] text-violet-400 font-medium">{estHours}</span>
-                          <span className="text-[10px] text-slate-600">{u._count.quizAttempts} Quiz</span>
-                        </div>
+                        <span className="text-[10px] text-slate-500 shrink-0">{u._count.quizAttempts} Quiz</span>
                       </div>
                       <div className="w-full h-1 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.06)' }}>
                         <div className="h-full rounded-full transition-all" style={{ width: `${pct}%`, background: 'linear-gradient(90deg,#6366f1,#a855f7)' }}/>
@@ -416,8 +384,8 @@ export default function AdminPage() {
                   </div>
                 )
               })}
-              {users.filter(u => !u.isAdmin && !activityCountByUser[u.id]).length > 0 && (
-                <p className="text-[10px] text-slate-600 pt-1">{users.filter(u => !u.isAdmin && !activityCountByUser[u.id]).length} Benutzer noch nie aktiv</p>
+              {users.filter(u => !u.isAdmin && u._count.quizAttempts === 0).length > 0 && (
+                <p className="text-[10px] text-slate-600 pt-1">{users.filter(u => !u.isAdmin && u._count.quizAttempts === 0).length} Benutzer noch ohne Quiz</p>
               )}
             </div>
           </div>
@@ -439,7 +407,7 @@ export default function AdminPage() {
 
       {/* Tabs */}
       <div className="flex gap-2 mb-4 flex-wrap">
-        {([['users', Users, 'Benutzer'], ['create', UserPlus, 'Neuer Account'], ['feedback', MessageSquare, `Feedback${pendingFeedback > 0 ? ` (${pendingFeedback})` : ''}`], ['messages', Bell, 'Nachrichten'], ['log', Activity, `Live-Log${activityLogs.length > 0 ? ` (${activityLogs.length})` : ''}`]] as const).map(([t, Icon, label]) => (
+        {([['users', Users, 'Benutzer'], ['create', UserPlus, 'Neuer Account'], ['feedback', MessageSquare, `Feedback${pendingFeedback > 0 ? ` (${pendingFeedback})` : ''}`], ['messages', Bell, 'Nachrichten']] as const).map(([t, Icon, label]) => (
           <button
             key={t}
             onClick={() => setTab(t)}
@@ -904,104 +872,6 @@ export default function AdminPage() {
           </div>
         </div>
       )}
-
-      {/* === TAB: LOG === */}
-      {tab === 'log' && (() => {
-        // Neueste Aktion pro User (für "Gerade aktiv")
-        const latestPerUser: Record<string, ActivityLog> = {}
-        for (const log of activityLogs) {
-          const key = log.userId ?? log.userName
-          if (!latestPerUser[key]) latestPerUser[key] = log
-        }
-        const nowActive = Object.values(latestPerUser).filter(log => {
-          const user = users.find(u => u.id === log.userId)
-          return user ? isOnline(user.lastOnline) : Date.now() - new Date(log.createdAt).getTime() < 3 * 60 * 1000
-        })
-
-        return (
-          <div className="space-y-4">
-            {/* Gerade aktiv — schnelle Übersicht */}
-            <div className="glass rounded-2xl border overflow-hidden" style={{ borderColor: 'rgba(34,197,94,0.15)' }}>
-              <div className="px-5 py-3 border-b flex items-center gap-2" style={{ borderColor: 'rgba(34,197,94,0.1)', background: 'rgba(34,197,94,0.04)' }}>
-                <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse"/>
-                <span className="text-sm font-semibold text-green-400">Gerade aktiv</span>
-                <span className="text-xs text-slate-600 ml-auto">aktualisiert alle 3s</span>
-              </div>
-              {nowActive.length === 0 ? (
-                <div className="px-5 py-6 text-center text-slate-600 text-sm">Niemand ist gerade online.</div>
-              ) : (
-                <div className="divide-y" style={{ borderColor: 'rgba(255,255,255,0.04)' }}>
-                  {nowActive.map(log => (
-                    <div key={log.id} className="px-5 py-3 flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-full flex items-center justify-center shrink-0 text-xs font-bold"
-                        style={{ background: 'rgba(34,197,94,0.12)', color: '#4ade80', border: '1px solid rgba(34,197,94,0.25)' }}>
-                        {log.userName[0]?.toUpperCase()}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <span className="text-sm font-semibold text-slate-200">{log.userName}</span>
-                        <span className="text-sm text-slate-400"> ist auf </span>
-                        <span className="text-sm font-medium text-blue-300">{log.page}</span>
-                        {log.detail && (
-                          <span className="text-sm text-slate-400"> · <span className="text-slate-300">{log.detail}</span></span>
-                        )}
-                      </div>
-                      <span className="text-[10px] text-green-600 font-medium shrink-0">
-                        {(() => { const s = Math.floor((Date.now() - new Date(log.createdAt).getTime()) / 1000); return s < 60 ? `vor ${s}s` : `vor ${Math.floor(s/60)} Min.` })()}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* Vollständiger Log */}
-            <div className="glass rounded-2xl border overflow-hidden" style={{ borderColor: 'rgba(255,255,255,0.08)' }}>
-              <div className="px-5 py-3 border-b flex items-center justify-between" style={{ borderColor: 'rgba(255,255,255,0.06)' }}>
-                <div className="flex items-center gap-2">
-                  <Activity size={14} style={{ color: '#64748b' }} />
-                  <span className="text-sm font-semibold text-slate-300">Alle Aktionen</span>
-                </div>
-                <span className="text-xs text-slate-600">letzte 100 Einträge</span>
-              </div>
-              {activityLogs.length === 0 ? (
-                <div className="px-5 py-12 text-center text-slate-600 text-sm">Noch keine Aktivitäten erfasst.</div>
-              ) : (
-                <div className="divide-y" style={{ borderColor: 'rgba(255,255,255,0.04)' }}>
-                  {activityLogs.map((log, i) => {
-                    const diffMs = Date.now() - new Date(log.createdAt).getTime()
-                    const secs = Math.floor(diffMs / 1_000)
-                    const mins = Math.floor(diffMs / 60_000)
-                    const when = secs < 60 ? `vor ${secs}s` : mins < 60 ? `vor ${mins} Min.` : timeAgo(log.createdAt)
-                    const isRecent = secs < 30
-                    return (
-                      <div key={log.id} className="px-5 py-2.5 flex items-center gap-3" style={{ background: i === 0 ? 'rgba(59,130,246,0.03)' : undefined }}>
-                        <div className="w-6 h-6 rounded-full flex items-center justify-center shrink-0 text-[10px] font-bold"
-                          style={{ background: 'rgba(59,130,246,0.1)', color: '#60a5fa' }}>
-                          {log.userName[0]?.toUpperCase()}
-                        </div>
-                        <div className="flex-1 min-w-0 flex items-center gap-2 flex-wrap">
-                          <span className="text-xs font-semibold text-slate-300">{log.userName}</span>
-                          <span className="text-xs text-slate-500">{log.action}</span>
-                          {log.detail && (
-                            <span className="text-[10px] px-1.5 py-0.5 rounded-full" style={{ background: 'rgba(59,130,246,0.08)', color: '#93c5fd' }}>
-                              {log.detail}
-                            </span>
-                          )}
-                          <span className="text-[10px] text-slate-700 truncate">{log.page}</span>
-                        </div>
-                        <span className={`text-[10px] font-medium shrink-0 ${isRecent ? 'text-green-500' : 'text-slate-600'}`}>
-                          {when}
-                          {isRecent && <span className="inline-block w-1.5 h-1.5 rounded-full bg-green-400 ml-1 animate-pulse align-middle" />}
-                        </span>
-                      </div>
-                    )
-                  })}
-                </div>
-              )}
-            </div>
-          </div>
-        )
-      })()}
 
       {/* === BAN MODAL === */}
       {banModal && (

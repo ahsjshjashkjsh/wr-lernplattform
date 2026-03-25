@@ -207,26 +207,6 @@ function StudyMode({ kat, onBack }: { kat: Kategorie; onBack: () => void }) {
     return () => window.removeEventListener('keydown', onKey)
   }, [goNext, goPrev])
 
-  // Aktivität loggen – nach 800ms auf einer Karte (debounced)
-  useEffect(() => {
-    if (done) return
-    const card = cards[index]
-    if (!card) return
-    const timer = setTimeout(() => {
-      fetch('/api/activity', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          action: 'lernt Karteikarte',
-          detail: `${kat.label} – ${card.fall}`,
-          page: 'Buchungssätze',
-        }),
-      }).catch(() => {})
-    }, 800)
-    return () => clearTimeout(timer)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [index, done])
-
   function restart() { setCards(shuffle(kat.eintraege)); setIndex(0); setFlip(false); setDone(false) }
 
   if (done) return (

@@ -37,8 +37,7 @@ export async function GET() {
 
   const logs = await prisma.activityLog.findMany({
     orderBy: { createdAt: 'desc' },
-    take: 100,
-    select: { id: true, userId: true, userName: true, action: true, detail: true, page: true, createdAt: true },
+    take: 60,
   })
 
   return Response.json({ logs })
