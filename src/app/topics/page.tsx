@@ -175,7 +175,7 @@ export default function TopicsPage() {
 
   const filtered = wrTopics
     .filter(t => {
-      if (filter === 'frw') return false
+      if (filter === 'frw') return true
       if (filter === 'querschnitt') return t.examType === 'querschnitt' || t.examType === 'both'
       if (filter === 'abschluss')   return t.examType === 'abschluss' || t.examType === 'both'
       if (filter === 'bwl')   return t.category === 'bwl'
@@ -244,7 +244,7 @@ export default function TopicsPage() {
         <div className="space-y-8">
 
           {/* WR Section */}
-          <div className={filter === 'frw' ? 'hidden' : ''}>
+          <div>
             <div className="flex items-center gap-3 mb-4">
               <div className="w-1 h-6 rounded-full" style={{ background: 'linear-gradient(180deg, #3b82f6, #6366f1)' }} />
               <h2 className="text-sm font-bold text-slate-300 uppercase tracking-widest">Wirtschaft & Recht</h2>
