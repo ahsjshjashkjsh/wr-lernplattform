@@ -218,6 +218,12 @@ export default function AdminPage() {
     }
     return points
   })()
+  // Neueste Seite pro User-Name aus den Activity-Logs
+  const lastPageByName: Record<string, string> = {}
+  for (const log of [...activityLogs].reverse()) {
+    lastPageByName[log.userName] = log.page
+  }
+
   const filteredFeedback = feedbackFilter === 'all'
     ? feedback.filter(f => f.status === 'pending')
     : feedback.filter(f => f.status === feedbackFilter)
@@ -508,7 +514,11 @@ export default function AdminPage() {
                         {/* Inline details */}
                         <div className="mt-1.5 flex flex-wrap gap-x-4 gap-y-0.5 text-[11px]">
                           <span style={{ color: '#3d4d66' }}>
-                            {online ? 'Gerade aktiv' : `Zuletzt: ${timeAgo(user.lastOnline)}`}
+                            {online
+                              ? lastPageByName[user.name]
+                                ? <><span style={{ color: '#22c55e' }}>●</span> {lastPageByName[user.name]}</>
+                                : 'Gerade aktiv'
+                              : `Zuletzt: ${timeAgo(user.lastOnline)}`}
                           </span>
                           {user.lastIp && (
                             <span className="flex items-center gap-1 font-mono" style={{ color: ipBanned ? '#f87171' : '#3d4d66' }}>
