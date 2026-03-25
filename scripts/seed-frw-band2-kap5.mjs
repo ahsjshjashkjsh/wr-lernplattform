@@ -4,6 +4,13 @@ const { Client } = pg
 const client = new Client({ connectionString: process.env.DATABASE_URL })
 await client.connect()
 function id() { return randomUUID() }
+async function insertTopic(slug, title, description, examType, order) {
+  const topicId = id()
+  await client.query(`INSERT INTO "Topic" (id,slug,title,description,icon,color,"examType",category,"order",published,"createdAt","updatedAt") VALUES ($1,$2,$3,$4,'Globe','blue',$5,'frw',$6,true,NOW(),NOW()) ON CONFLICT (slug) DO NOTHING`,
+    [topicId, slug, title, description, examType, order])
+  const r = await client.query(`SELECT id FROM "Topic" WHERE slug=$1`, [slug])
+  return r.rows[0].id
+}
 async function getTopicId(slug) {
   const r = await client.query(`SELECT id FROM "Topic" WHERE slug=$1`, [slug])
   return r.rows[0].id
@@ -43,16 +50,16 @@ async function addQuiz(chId, questions) {
   }
 }
 
-const tId = await getTopicId('frw-band2')
+const tId = await insertTopic('frw-zeitliche-abgrenzungen', 'Zeitliche Abgrenzungen & Rückstellungen', 'Transitorische Aktiven/Passiven, Periodenabgrenzung und Rückstellungen.', 'abschluss', 13)
 
 const ch = await insertChapter(tId,
   'zeitliche-abgrenzungen',
   'Zeitliche Abgrenzungen',
   'Transitorische Aktiven/Passiven und Rückstellungen',
-  4,
-  `Aufwände und Erträge müssen derjenigen Periode zugeordnet werden, in der sie wirtschaftlich anfallen — unabhängig vom Zahlungszeitpunkt.
+  1,
+  `Aufwände und Erträge müssen derjenigen Periode zugeordnet werden, in der sie wirtschaftlich anfallen — unabhängig vom Zahlungszeitpunkt (Periodenabgrenzungsprinzip).
 
-TRANSITORISCHE AKTIVEN (Aktive Rechnungsabgrenzung):
+TRANSITORISCHE AKTIVEN (Aktive Rechnungsabgrenzung) — Bilanzposition: Umlaufvermögen:
 1. Vorauszahlter Aufwand: Bereits bezahlt, betrifft aber erst das nächste Jahr
    Buchung 31.12.: Transitorische Aktiven / Aufwandkonto
    Rückbuchung 1.1.: Aufwandkonto / Transitorische Aktiven
@@ -60,7 +67,7 @@ TRANSITORISCHE AKTIVEN (Aktive Rechnungsabgrenzung):
    Buchung 31.12.: Transitorische Aktiven / Ertragskonto
    Rückbuchung 1.1.: Ertragskonto / Transitorische Aktiven
 
-TRANSITORISCHE PASSIVEN (Passive Rechnungsabgrenzung):
+TRANSITORISCHE PASSIVEN (Passive Rechnungsabgrenzung) — Bilanzposition: kurzfristiges FK:
 1. Noch nicht bezahlter Aufwand: Anfällt in diesem Jahr, aber noch nicht bezahlt
    Buchung 31.12.: Aufwandkonto / Transitorische Passiven
    Rückbuchung 1.1.: Transitorische Passiven / Aufwandkonto
@@ -68,17 +75,19 @@ TRANSITORISCHE PASSIVEN (Passive Rechnungsabgrenzung):
    Buchung 31.12.: Ertragskonto / Transitorische Passiven
    Rückbuchung 1.1.: Transitorische Passiven / Ertragskonto
 
-RÜCKSTELLUNGEN:
-Verbindlichkeiten, deren Existenz wahrscheinlich, deren Höhe/Fälligkeit aber unbekannt ist.
+RÜCKSTELLUNGEN — Definition:
+Verbindlichkeiten, deren Existenz wahrscheinlich, deren genaue Höhe oder Fälligkeit aber unbekannt ist.
+Sind KEINE Rücklagen — sie sind echte Schulden auf der Passivseite!
 Wann bilden: 1. Wahrscheinliche Verpflichtung, 2. Geldabfluss wahrscheinlich, 3. Betrag schätzbar
-Arten: Garantierückstellung, Prozessrückstellung, Steuerrückstellung, Ferienrückstellung
+Arten: Garantierückstellung, Prozessrückstellung, Steuerrückstellung, Ferienrückstellung, Restrukturierungsrückstellung
 Bildung: Rückstellungsaufwand / Rückstellungen
-Verwendung: Rückstellungen / Bank
-Auflösung (nicht gebraucht): Rückstellungen / Rückstellungsertrag
+Verwendung (Verpflichtung tritt ein): Rückstellungen / Bank
+Auflösung (Risiko weggefallen): Rückstellungen / Rückstellungsertrag
+Falls Verpflichtung kleiner als Rückstellung: Rückstellungen / Rückstellungsertrag (Rest auflösen)
 
-UNTERSCHIED Transitorische Passiven vs. Rückstellungen:
-• Transitorische Passiven: Betrag UND Fälligkeit bekannt (z.B. Dezember-Lohn)
-• Rückstellungen: Betrag ODER Fälligkeit unbekannt (z.B. Garantiefälle)`
+VERGLEICH TRANSITORISCHE PASSIVEN vs. RÜCKSTELLUNGEN:
+• Transitorische Passiven: Betrag UND Fälligkeit genau bekannt (z.B. Dezember-Lohn wird im Jan. bezahlt)
+• Rückstellungen: Betrag ODER Fälligkeit unbekannt (z.B. Garantieverpflichtungen, Prozessrisiken)`
 )
 
 await addGoals(ch, [

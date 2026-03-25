@@ -24,7 +24,11 @@
       "Bash(DATABASE_URL=\"postgresql://postgres.xudeuxqxgiozvgojjcas:w778dj8AcyFs2Tef@aws-1-eu-west-1.pooler.supabase.com:5432/postgres\" node scripts/seed-frw-bilanz.mjs)",
       "Bash(DATABASE_URL=\"postgresql://postgres.xudeuxqxgiozvgojjcas:w778dj8AcyFs2Tef@aws-1-eu-west-1.pooler.supabase.com:5432/postgres\" node scripts/seed-frw-all.mjs)",
       "Bash(npx skills:*)",
-      "Bash(DATABASE_URL=\"postgresql://postgres.xudeuxqxgiozvgojjcas:w778dj8AcyFs2Tef@aws-1-eu-west-1.pooler.supabase.com:5432/postgres\" npx prisma db push --skip-generate)"
+      "Bash(DATABASE_URL=\"postgresql://postgres.xudeuxqxgiozvgojjcas:w778dj8AcyFs2Tef@aws-1-eu-west-1.pooler.supabase.com:5432/postgres\" npx prisma db push --skip-generate)",
+      "Bash(DATABASE_URL=\"postgresql://postgres.xudeuxqxgiozvgojjcas:w778dj8AcyFs2Tef@aws-1-eu-west-1.pooler.supabase.com:5432/postgres\" node -e \":*)",
+      "Bash(DATABASE_URL=\"postgresql://postgres.xudeuxqxgiozvgojjcas:w778dj8AcyFs2Tef@aws-1-eu-west-1.pooler.supabase.com:5432/postgres\" npx tsx -e \":*)",
+      "Bash(DATABASE_URL=\"postgresql://postgres.xudeuxqxgiozvgojjcas:w778dj8AcyFs2Tef@aws-1-eu-west-1.pooler.supabase.com:5432/postgres\" npx tsx scripts/query-feedback.ts)",
+      "Bash(DATABASE_URL=\"postgresql://postgres.xudeuxqxgiozvgojjcas:w778dj8AcyFs2Tef@aws-1-eu-west-1.pooler.supabase.com:5432/postgres\" npx prisma db push --accept-data-loss)"
     ]
   }
 }

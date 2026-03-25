@@ -96,6 +96,11 @@
       "sourceType": "github",
       "computedHash": "529161d734da8508d68924f326bb5f4b9942683d0a3aed5dcc2b1e43245e2856"
     },
+    "skill-creator": {
+      "source": "anthropics/skills",
+      "sourceType": "github",
+      "computedHash": "57f470f512f45bdac598e302bc72fd62bf2b649fc7fad032efe97720149cde4d"
+    },
     "teach-impeccable": {
       "source": "pbakaus/impeccable",
       "sourceType": "github",

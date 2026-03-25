@@ -50,12 +50,12 @@ async function addQuiz(chId, questions) {
 }
 
 // ══════════════════════════════════════════════════
-// TOPIC: FRW Band 2
+// TOPIC: Fremde Währungen
 // ══════════════════════════════════════════════════
 const tId = await insertTopic(
-  'frw-band2',
-  'FRW Band 2',
-  'Vertieftes Finanzielles Rechnungswesen: Fremde Währung, Forderungen, Abschreibungen, Abgrenzungen, Löhne, Einzelunternehmung, AG, Bewertung und Bilanzanalyse.',
+  'frw-fremde-waehrungen',
+  'Fremde Währungen',
+  'Kursgewinne und Kursverluste bei Import/Export, Neubewertung per 31.12. und Rückbuchung am 1.1.',
   'abschluss',
   10
 )
@@ -67,33 +67,41 @@ const ch2 = await insertChapter(tId,
   'fremde-waehrung',
   'Fremde Währung',
   'Kursgewinne, Kursverluste und Neubewertung per Jahresende',
-  1,
+  10,
   `Wenn ein Schweizer Unternehmen Geschäfte mit dem Ausland macht, entstehen Fremdwährungspositionen. Da die Buchhaltung in CHF geführt wird, müssen alle Beträge umgerechnet werden.
 
-KURSE:
-• Geldkurs (Ankaufskurs): Bank kauft Devisen vom Kunden — für den Kunden ungünstiger
-• Briefkurs (Verkaufskurs): Bank verkauft Devisen an Kunden — für den Kunden teurer
-• Tageskurs: Für laufende Buchungen verwendet
+KURSE UND FAUSTREGEL:
+• Geldkurs (Ankaufskurs / Bid): Bank kauft Devisen vom Kunden — für den Kunden ungünstiger
+• Briefkurs (Verkaufskurs / Ask): Bank verkauft Devisen an Kunden — für den Kunden teurer
+• Tageskurs / Mittelkurs: Für laufende Buchungen verwendet
+• FAUSTREGEL: Ich kaufe Fremdwährung → zahle Briefkurs (teurer). Ich verkaufe → erhalte Geldkurs (weniger).
+• Die Bank verdient immer an der Kursspanne (Spread) zwischen Geld- und Briefkurs.
 
 KURSGEWINNE UND -VERLUSTE entstehen, wenn zwischen Entstehung und Begleichung einer Forderung/Verbindlichkeit der Kurs sich verändert.
 
 BUCHUNG IMPORT (Kreditoren in Fremdwährung):
 • Entstehung: Warenaufwand / Kreditoren (zum Tageskurs)
-• Zahlung bei gestiegenem Kurs (CHF schwächer): Kreditoren / Bank + Kursverlust
-• Zahlung bei gesunkenem Kurs (CHF stärker): Kreditoren + Kursgewinn / Bank
+• Zahlung bei gestiegenem Kurs (CHF schwächer, mehr CHF nötig): Kreditoren / Bank + Kursverlust
+• Zahlung bei gesunkenem Kurs (CHF stärker, weniger CHF nötig): Kreditoren + Kursgewinn / Bank
 
 BUCHUNG EXPORT (Debitoren in Fremdwährung):
 • Entstehung: Debitoren / Warenertrag (zum Tageskurs)
-• Eingang bei gestiegenem Kurs: Bank / Debitoren + Kursgewinn
-• Eingang bei gesunkenem Kurs: Bank + Kursverlust / Debitoren
+• Eingang bei gestiegenem Kurs (mehr CHF erhalten): Bank / Debitoren + Kursgewinn
+• Eingang bei gesunkenem Kurs (weniger CHF erhalten): Bank + Kursverlust / Debitoren
 
-NEUBEWERTUNG PER 31.12.:
+NEUBEWERTUNG PER 31.12. (Vorsichtsprinzip):
 Alle offenen Fremdwährungspositionen werden zum Stichtagskurs neu bewertet.
-• Forderung gesunken → Kursverlust / Debitoren (IMMER buchen — Vorsichtsprinzip)
+• Forderung gesunken → Kursverlust / Debitoren (IMMER buchen — Vorsichtsprinzip verlangt es)
 • Verbindlichkeit gestiegen → Kursverlust / Kreditoren (IMMER buchen)
-• Kursgewinne: nur buchen wenn sicher realisiert
+• Kursgewinne: in CH oft nur bei definitiver Realisierung gebucht
+• Forderung gestiegen → Debitoren / Kursgewinn (nur wenn sicher realisiert)
+• Verbindlichkeit gesunken → Kreditoren / Kursgewinn
 
-Konten: Kursgewinn (Ertrag) / Kursverlust (Aufwand)`
+RÜCKBUCHUNG AM 1.1. (des Folgejahres):
+Alle Neubewertungsbuchungen werden storniert (Gegenbuchung), damit die ursprünglichen Kurse wieder gelten.
+
+Konten: Kursgewinn (Ertrag, Haben) / Kursverlust (Aufwand, Soll)
+Beide Konten erscheinen in der Erfolgsrechnung — nicht in der Bilanz.`
 )
 
 await addGoals(ch2, [

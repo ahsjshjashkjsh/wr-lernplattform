@@ -4,6 +4,13 @@ const { Client } = pg
 const client = new Client({ connectionString: process.env.DATABASE_URL })
 await client.connect()
 function id() { return randomUUID() }
+async function insertTopic(slug, title, description, examType, order) {
+  const topicId = id()
+  await client.query(`INSERT INTO "Topic" (id,slug,title,description,icon,color,"examType",category,"order",published,"createdAt","updatedAt") VALUES ($1,$2,$3,$4,'Globe','blue',$5,'frw',$6,true,NOW(),NOW()) ON CONFLICT (slug) DO NOTHING`,
+    [topicId, slug, title, description, examType, order])
+  const r = await client.query(`SELECT id FROM "Topic" WHERE slug=$1`, [slug])
+  return r.rows[0].id
+}
 async function getTopicId(slug) {
   const r = await client.query(`SELECT id FROM "Topic" WHERE slug=$1`, [slug])
   return r.rows[0].id
@@ -43,49 +50,55 @@ async function addQuiz(chId, questions) {
   }
 }
 
-const tId = await getTopicId('frw-band2')
+const tId = await insertTopic('frw-einzelunternehmung', 'Einzelunternehmung', 'Konto Privat, Unternehmerinkommen, Gründung und Bilanz der Einzelunternehmung.', 'abschluss', 14)
 
 const ch = await insertChapter(tId,
   'einzelunternehmung',
   'Einzelunternehmung',
   'Gründung, Konto Privat, Unternehmerinkommen und Privatanteile',
-  6,
+  1,
   `Die Einzelunternehmung ist die einfachste Unternehmensform — der Inhaber und das Unternehmen sind rechtlich identisch.
 
 MERKMALE:
-• Keine juristische Person — Inhaber = Unternehmen
-• Gründung: formlos, keine Beurkundung
-• HR-Pflicht: ab CHF 100 000 Jahresumsatz
-• Haftung: UNBESCHRÄNKT — privates und geschäftliches Vermögen haften
+• Keine juristische Person — Inhaber = Unternehmen (identisch)
+• Gründung: formlos, nur durch Aufnahme der Tätigkeit (kein Notar, kein Mindestkapital)
+• HR-Pflicht: ab CHF 100 000 Jahresumsatz im Handelsregister eintragen
+• Buchführungspflicht: ab CHF 500 000 Umsatz vollständige Buchhaltung
+• Haftung: UNBESCHRÄNKT — privates und geschäftliches Vermögen haften gleichermassen
 • Kapital: kein gesetzliches Mindestkapital
-• Steuern: Gewinn = Einkommen des Inhabers → Einkommenssteuer
+• Steuern: Gewinn = Einkommen des Inhabers → Einkommenssteuer + Vermögenssteuer
 
-KONTEN:
-1. Konto EIGENKAPITAL: Anfangskapital bei Gründung. Wird jährlich um Gewinn/Verlust und Netto-Privatbewegung angepasst.
-2. Konto PRIVAT: Sammelt alle privaten Transaktionen des Inhabers
-   Soll (Belastungen): Kapitalbezüge (Geldentnahmen), Sachbezüge (Waren entnommen), private Rechnungen
-   Haben (Gutschriften): Privateinlagen (Geld/Sachen eingebracht)
-   → Am Jahresende: Konto Privat wird auf Eigenkapital abgeschlossen
+KONTO PRIVAT — Schema:
+Soll (belastet)                   Haben (gutgeschrieben)
+Kapitalbezüge (Geldentnahmen)     Privateinlagen (Geld eingebracht)
+Sachbezüge (Waren entnommen)      Sacheinlagen (Anlagen eingebracht)
+Private Rechnungen via Betrieb
+Privatanteil Fahrzeug, Telefon
 
 BUCHUNGEN:
-• Geldbezug: Privat / Kasse
-• Sachbezug Waren: Privat / Warenaufwand (zum Einstandspreis)
-• Private Rechnung: Privat / Kreditoren
+• Geldbezug: Privat / Kasse (oder Bank)
+• Sachbezug Waren: Privat / Warenaufwand (immer zum EINSTANDSPREIS)
+• Private Rechnung: Privat / Kreditoren (oder Bank)
 • Privateinlage Geld: Bank / Privat
-• Jahresabschluss: Eigenkapital / Privat (wenn Bezüge > Einlagen) oder Privat / Eigenkapital
+• Sacheinlage Anlage: Fahrzeuge / Privat (zum Verkehrswert)
 
-GRÜNDUNG:
-Bareinlagen: Bank / Eigenkapital
-Sacheinlagen: Fahrzeuge / Eigenkapital (usw.)
-Mit Fremdkapital: Eigenkapital / Darlehen (Verbindlichkeit mitgebracht)
+JAHRESABSCHLUSS KONTO PRIVAT → EIGENKAPITAL:
+• Bezüge > Einlagen (Normal): Eigenkapital / Privat (EK sinkt)
+• Einlagen > Bezüge: Privat / Eigenkapital (EK steigt)
+• EK Ende = EK Anfang + Jahresgewinn − Netto-Privatbezüge (Bezüge − Einlagen)
+
+GRÜNDUNG (Eröffnungsbilanz):
+Bareinlagen: Bank / Eigenkapital | Sacheinlagen: Fahrzeuge / Eigenkapital usw.
+Fremdkapital mitgebracht: Eigenkapital / Darlehen
 
 UNTERNEHMERINKOMMEN:
-= Reingewinn + kalkulatorische EK-Zinsen (was hätte er anderswo verdient?)
-Zeigt den «Gesamtverdienst» des Unternehmers
+= Reingewinn + kalkulatorische Zinsen auf EK (was hätte er bei Bankanlage verdient?)
+  + kalkulatorischer Unternehmerlohn (was würde ein angestellter Manager kosten?)
+Zeigt den «echten Gesamtverdienst» des Unternehmers im Vergleich zu einer Anstellung
 
 PRIVATANTEIL (MWSt-Korrektur):
-Wenn betriebliche Güter privat genutzt werden → Privatanteil
-Buchung: Privat / Aufwandkonto (+ MWSt-Korrektur: Privat / Vorsteuer)`
+Wenn betriebliche Güter/Dienste privat genutzt werden → Privatanteil
+Buchung: Privat / Aufwandkonto + Privat / Vorsteuer (Vorsteuerkorrektur für private Nutzung)`
 )
 
 await addGoals(ch, [

@@ -5,6 +5,13 @@ const client = new Client({ connectionString: process.env.DATABASE_URL })
 await client.connect()
 function id() { return randomUUID() }
 
+async function insertTopic(slug, title, description, examType, order) {
+  const topicId = id()
+  await client.query(`INSERT INTO "Topic" (id,slug,title,description,icon,color,"examType",category,"order",published,"createdAt","updatedAt") VALUES ($1,$2,$3,$4,'Globe','blue',$5,'frw',$6,true,NOW(),NOW()) ON CONFLICT (slug) DO NOTHING`,
+    [topicId, slug, title, description, examType, order])
+  const r = await client.query(`SELECT id FROM "Topic" WHERE slug=$1`, [slug])
+  return r.rows[0].id
+}
 async function getTopicId(slug) {
   const r = await client.query(`SELECT id FROM "Topic" WHERE slug=$1`, [slug])
   return r.rows[0].id
@@ -44,47 +51,51 @@ async function addQuiz(chId, questions) {
   }
 }
 
-const tId = await getTopicId('frw-band2')
+const tId = await insertTopic('frw-abschreibungen', 'Abschreibungen', 'Lineare und degressive Abschreibung, direkte und indirekte Methode, Verkauf von Anlagegütern.', 'abschluss', 12)
 
 const ch = await insertChapter(tId,
   'abschreibungen',
   'Abschreibungen',
   'Linear, degressiv, direkt und indirekt — Anlagegüter korrekt abschreiben',
-  3,
-  `Abschreibungen erfassen die Wertverminderung von Anlagegütern über ihre Nutzungsdauer.
+  1,
+  `Abschreibungen erfassen die Wertverminderung von Anlagegütern (technischer Verschleiss, wirtschaftliche Überalterung, Zeitablauf) über ihre Nutzungsdauer.
 
 GRUNDBEGRIFFE:
 • Anschaffungswert (AW): Kaufpreis + alle Nebenkosten (Transport, Montage, Zoll)
 • Buchwert (BW): AW minus kumulierte Abschreibungen = aktueller Bilanzwert
 • Restwert: Geplanter Wert am Ende der Nutzungsdauer (oft CHF 0 oder symbolisch CHF 1)
 • Nutzungsdauer: Geplante Einsatzdauer des Anlageguts
+• Kumulierte Abschreibungen: Summe aller bisherigen Abschreibungen
 
 METHODE 1 — LINEARE ABSCHREIBUNG:
 Formel: (AW − Restwert) / Nutzungsdauer = gleicher CHF-Betrag pro Jahr
-→ Buchwert sinkt gleichmässig
+→ Abschreibungssatz: Abschreibung / AW × 100 = gleichbleibend
 → Buchung: Abschreibungen / Anlagekonto
 
 METHODE 2 — DEGRESSIVE ABSCHREIBUNG:
 Gleicher Prozentsatz auf den Restbuchwert → sinkende Beträge jedes Jahr
-→ Höhere Abschreibungen zu Beginn, tiefer gegen Ende
-→ Vorteil: Steuerersparnis in den Anfangsjahren (Liquiditätsvorteil)
-→ Schweizer Steuersätze z.B.: Fahrzeuge 40%, Mobilien 25%, Liegenschaften 4–8%
+→ Vorteil: Höhere Abschreibungen in den Anfangsjahren → tiefere Steuern → Liquiditätsvorteil
+→ Sobald Linearbetrag > Degressivbetrag: Wechsel auf linear möglich
 
-DIREKTE ABSCHREIBUNG:
-Aktivkonto wird direkt vermindert. Bilanz zeigt Nettobuchwert.
-Buchung: Abschreibungen / Maschinen (direkter Abzug)
+STEUERLICHE ABSCHREIBUNGSSÄTZE SCHWEIZ (degressiv, Maximal):
+• Fahrzeuge: 40% | EDV / Software: 40% | Mobilien / Maschinen: 25–30%
+• Einrichtungen: 20–25% | Liegenschaften / Gebäude: 4–8%
+• Goodwill: max. 5 Jahre (20% linear)
 
-INDIREKTE ABSCHREIBUNG:
-Aktivkonto bleibt bei AW. Kumulierte Abschreibungen auf Gegenkonto «WB Maschinen».
-Buchung: Abschreibungen / WB Maschinen
-Bilanzausweis: Maschinen AW − WB Maschinen = Nettobuchwert (transparenter!)
+DIREKTE vs. INDIREKTE ABSCHREIBUNG:
+Direkt: Aktivkonto wird direkt vermindert → Bilanz zeigt Nettobuchwert
+  Buchung: Abschreibungen / Maschinen
+Indirekt: Aktivkonto bleibt bei AW, kumulierte Afa auf Gegenkonto «WB Maschinen»
+  Buchung: Abschreibungen / WB Maschinen
+  Bilanzausweis: Maschinen AW − WB Maschinen = Nettobuchwert (transparenter!)
 
-VERKAUF EINES ANLAGEGUTS:
-• Direktmethode: Preis > BW → Anlagegewinn; Preis < BW → Anlageverlust
-• Indirekte Methode: Zuerst WB auflösen, dann wie direkt
+VERKAUF EINES ANLAGEGUTS (Direktmethode):
+• Preis > BW → Bank / Anlagekonto + Anlagegewinn (Ertrag)
+• Preis < BW → Bank + Anlageverlust / Anlagekonto (Aufwand)
+• Indirekte Methode: zuerst WB auflösen (WB Maschinen / Maschinen), dann wie direkt
 
 AUSSERPLANMÄSSIGE ABSCHREIBUNG:
-Bei dauerhafter Wertminderung (Schaden, Markteinbruch): Ausserplanmässige Abschreibungen / Anlagekonto`
+Bei dauerhafter unerwarteter Wertminderung (Schaden, Markteinbruch): Ausserplanmässige Abschreibungen / Anlagekonto`
 )
 
 await addGoals(ch, [

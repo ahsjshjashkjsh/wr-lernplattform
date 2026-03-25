@@ -43,46 +43,55 @@ async function addQuiz(chId, questions) {
   }
 }
 
-const tId = await getTopicId('frw-band2')
+const tId = await getTopicId('frw-loehne-gehaelter')
 
 const ch = await insertChapter(tId,
   'loehne-gehaelter',
   'Löhne und Gehälter',
   'Lohnabrechnung, Sozialversicherungen und Spesen buchen',
-  5,
+  10,
   `Die Lohnbuchhaltung erfasst alle Kosten des Arbeitgebers für seine Mitarbeitenden.
 
 LOHNABRECHNUNG (von Brutto zu Netto):
 Bruttolohn (vertraglich vereinbart)
 ./. AHV/IV/EO Arbeitnehmer-Anteil (~5,3%)
 ./. ALV Arbeitnehmer-Anteil (1,1%)
-./. BVG Arbeitnehmer-Anteil (variiert)
-./. NBU Prämie (100% Arbeitnehmer)
-./. KTG Prämie (50% Arbeitnehmer, falls vorhanden)
+./. BVG Arbeitnehmer-Anteil (variiert je nach Unternehmen und Alter)
+./. NBU Prämie (100% Arbeitnehmer — Freizeitunfälle)
+./. KTG Prämie (50% Arbeitnehmer, falls vorhanden — Krankentaggeld)
 ./. Quellensteuer (nur bei Ausländern ohne C-Ausweis)
-= NETTOLOHN (Auszahlung)
+= NETTOLOHN (Auszahlung an Arbeitnehmer)
 
-SOZIALVERSICHERUNGEN — AUFTEILUNG:
-• AHV/IV/EO: je ~5,3% AN + AG (total ~10,6%)
-• ALV: je 1,1% AN + AG
-• BVG (Pensionskasse): AG zahlt mind. gleich viel wie AN
-• BU (Berufsunfall): 100% Arbeitgeber
-• NBU (Nicht-Berufsunfall): 100% Arbeitnehmer
+SOZIALVERSICHERUNGEN — AUFTEILUNG UND SÄTZE:
+• AHV/IV/EO: Gesamtbeitrag ~10,6% — je ~5,3% AN und AG (Altersrente, Invalidenrente, Mutterschaft)
+• ALV: je 1,1% AN + AG (bis zum versicherten Maximallohn) — Arbeitslosenentschädigung
+• BVG (Pensionskasse / 2. Säule): AG zahlt gesetzlich mind. gleich viel wie AN — Altersrente
+• BU (Berufsunfall): 100% Arbeitgeber — Unfälle am Arbeitsplatz und Wegunfälle
+• NBU (Nicht-Berufsunfall): 100% Arbeitnehmer — Freizeitunfälle
+• KTG (Krankentaggeld): üblich 50% AN / 50% AG
 
 BUCHUNGSSCHRITTE:
-1. Lohnaufwand / Lohnverbindlichkeiten (Brutto) + Sozialversicherungsverbindlichkeiten (AN-Anteil)
-2. Sozialversicherungsaufwand / Sozialversicherungsverbindlichkeiten (AG-Anteil)
+1. Lohnaufwand / Lohnverbindlichkeiten (Netto) + SV-Verbindlichkeiten (AN-Abzüge) — Bruttolohn erfassen
+2. Sozialversicherungsaufwand / SV-Verbindlichkeiten (AG-Anteil separat)
 3. Lohnverbindlichkeiten / Bank (Nettolohn auszahlen)
-4. Sozialversicherungsverbindlichkeiten / Bank (SV-Beiträge abführen)
-
-SPESEN (Auslagenersatz):
-Kein Lohnbestandteil → keine SV-Abgaben, nicht auf Lohnausweis
-Buchung: Spesenaufwand / Bank (oder Kreditoren)
+4. SV-Verbindlichkeiten / Bank (AN + AG Anteile abführen)
 
 QUELLENSTEUER:
-Gilt für Ausländer ohne Niederlassungsbewilligung (Ausweis B, L, G)
-Arbeitgeber zieht vom Lohn ab und führt an Kanton ab
-Buchung: Lohnverbindlichkeiten / Quellensteuerverbindlichkeiten`
+Gilt für: Ausländer ohne Niederlassungsbewilligung (Ausweis B, L, G) und Grenzgänger (kantonal)
+Ersetzt die normale Einkommenssteuer — AG zieht ab und führt direkt an Kanton ab
+Buchung Abzug: Lohnverbindlichkeiten / Quellensteuerverbindlichkeiten
+Abführung: Quellensteuerverbindlichkeiten / Bank
+
+SPESEN (Auslagenersatz — kein Lohnbestandteil):
+• Keine SV-Abgaben auf Spesen • Nicht auf Lohnausweis (wenn effektive Spesen)
+• Muss betrieblich begründet sein: Reisespesen, Verpflegung, Repräsentation
+Buchung: Spesenaufwand / Bank (oder Kreditoren)
+Pauschalspesen: Spesenaufwand / Lohnverbindlichkeiten (muss mit Kanton vereinbart sein)
+
+NATURALBEZÜGE UND WARENBEZÜGE VON MITARBEITERN:
+• Geldwerter Vorteil (Differenz EK − bezahlter Preis) gilt als Lohnbestandteil → SV-pflichtig
+• Buchung: Lohnaufwand / Warenertrag (geldwerter Vorteil)
+• Lohnausweis: Bruttolohn, alle Abzüge, Naturalleistungen, Privatanteil Geschäftsfahrzeug`
 )
 
 await addGoals(ch, [

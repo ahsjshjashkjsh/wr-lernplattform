@@ -4,6 +4,13 @@ const { Client } = pg
 const client = new Client({ connectionString: process.env.DATABASE_URL })
 await client.connect()
 function id() { return randomUUID() }
+async function insertTopic(slug, title, description, examType, order) {
+  const topicId = id()
+  await client.query(`INSERT INTO "Topic" (id,slug,title,description,icon,color,"examType",category,"order",published,"createdAt","updatedAt") VALUES ($1,$2,$3,$4,'Globe','blue',$5,'frw',$6,true,NOW(),NOW()) ON CONFLICT (slug) DO NOTHING`,
+    [topicId, slug, title, description, examType, order])
+  const r = await client.query(`SELECT id FROM "Topic" WHERE slug=$1`, [slug])
+  return r.rows[0].id
+}
 async function getTopicId(slug) {
   const r = await client.query(`SELECT id FROM "Topic" WHERE slug=$1`, [slug])
   return r.rows[0].id
@@ -43,14 +50,14 @@ async function addQuiz(chId, questions) {
   }
 }
 
-const tId = await getTopicId('frw-band2')
+const tId = await insertTopic('frw-bilanzanalyse', 'Analyse der Bilanz & Erfolgsrechnung', 'Alle wichtigen Kennzahlen: Liquidität, Rentabilität, Kapitalstruktur, Cashflow und Anlagendeckung.', 'abschluss', 17)
 
 const ch = await insertChapter(tId,
   'bilanzanalyse',
   'Analyse der Bilanz und Erfolgsrechnung',
   'Kennzahlen: Liquidität, Rentabilität, Kapitalstruktur und Cashflow',
-  9,
-  `Die Bilanz- und Erfolgsanalyse beurteilt die wirtschaftliche Lage eines Unternehmens anhand von Kennzahlen.
+  1,
+  `Die Bilanz- und Erfolgsanalyse beurteilt die wirtschaftliche Lage eines Unternehmens anhand von Kennzahlen. Immer: 1. Berechnen 2. Zielgrösse nennen 3. Interpretieren. Für Analyse stets bereinigte Bilanz (stille Reserven aufgedeckt) verwenden.
 
 KAPITALSTRUKTUR:
 • Eigenfinanzierungsgrad = EK / GK × 100 → Ziel: ≥ 30%
@@ -60,31 +67,37 @@ VERMÖGENSSTRUKTUR:
 • UV-Intensität = Umlaufvermögen / Gesamtvermögen × 100
 • AV-Intensität = Anlagevermögen / Gesamtvermögen × 100
 
-LIQUIDITÄT (Zahlungsbereitschaft):
+LIQUIDITÄT (Zahlungsbereitschaft) — alle 3 Formeln mit Zielgrössen:
 • LG 1 (Cash Ratio) = Flüssige Mittel / kurzfr.FK × 100 → Ziel: ≥ 20%
+  (Sofort zahlbar — nur Kasse, Bank, kurzfristige Wertschriften)
 • LG 2 (Quick Ratio) = (Fl.Mittel + Forderungen) / kurzfr.FK × 100 → Ziel: ≥ 100%
+  (Ohne Warenverkauf kurzfristige Schulden decken)
 • LG 3 (Current Ratio) = Umlaufvermögen / kurzfr.FK × 100 → Ziel: ≥ 150–200%
+  (Gesamtes UV gegen kurzfristiges FK — mittelfristige Zahlungsfähigkeit)
 
 ANLAGENDECKUNG (Goldene Bilanzregel):
 • ADG 1 = EK / AV × 100 → Ziel: ≥ 50%
-• ADG 2 = (EK + langfr.FK) / AV × 100 → Ziel: ≥ 100% (Pflicht!)
+• ADG 2 = (EK + langfr.FK) / AV × 100 → Ziel: ≥ 100% (PFLICHT! Goldene Bilanzregel)
+  AV muss durch langfristiges Kapital gedeckt sein — kurzfristiges FK darf nicht ins AV fliessen
 
 RENTABILITÄT:
 • EK-Rendite = Reingewinn / EK × 100 → Ziel: ≥ 6–8%
+  (Rendite auf das investierte Eigenkapital)
 • GK-Rendite = (Reingewinn + FK-Zinsen) / GK × 100 → Ziel: ≥ 5%
+  (Unabhängig von der Finanzierungsstruktur — vergleichbar zwischen Firmen)
 • Umsatzrendite = Reingewinn / Umsatz × 100 → branchenabhängig
 
 CASHFLOW-ANALYSE:
-• Cashflow = Reingewinn + Abschreibungen (+ nicht zahlungswirksame Aufwände)
+• Cashflow = Reingewinn + Abschreibungen (+ weitere nicht zahlungswirksame Aufwände)
+  (Abschreibungen sind Aufwand aber kein Geldabfluss → werden zurückaddiert)
 • Cashflow-Marge = Cashflow / Umsatz × 100 → Ziel: ≥ 5–15%
-• Effektivverschuldung = FK − Flüssige Mittel − Forderungen
+• Effektivverschuldung = FK − Flüssige Mittel − Forderungen (= «echte» Nettoschulden)
 • Verschuldungsfaktor = Effektivverschuldung / Cashflow → Ziel: < 5 Jahre
+  (Wie viele Jahre braucht das Unternehmen um Nettoschulden zu tilgen — Banken achten stark darauf)
 
 AKTIVITÄTSANALYSE:
 • Lagerumschlag = Wareneinsatz / ∅Lagerbestand → branchenabhängig
-• Lagerdauer = 360 / Lagerumschlag → Ziel: < 40 Tage
-
-Bei jeder Kennzahl: 1. Berechnen 2. Zielgrösse nennen 3. Interpretieren (Kontext!)`
+• Lagerdauer = 360 / Lagerumschlag → Ziel: < 40 Tage`
 )
 
 await addGoals(ch, [

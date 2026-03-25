@@ -5,6 +5,13 @@ const client = new Client({ connectionString: process.env.DATABASE_URL })
 await client.connect()
 function id() { return randomUUID() }
 
+async function insertTopic(slug, title, description, examType, order) {
+  const topicId = id()
+  await client.query(`INSERT INTO "Topic" (id,slug,title,description,icon,color,"examType",category,"order",published,"createdAt","updatedAt") VALUES ($1,$2,$3,$4,'Globe','blue',$5,'frw',$6,true,NOW(),NOW()) ON CONFLICT (slug) DO NOTHING`,
+    [topicId, slug, title, description, examType, order])
+  const r = await client.query(`SELECT id FROM "Topic" WHERE slug=$1`, [slug])
+  return r.rows[0].id
+}
 async function getTopicId(slug) {
   const r = await client.query(`SELECT id FROM "Topic" WHERE slug=$1`, [slug])
   return r.rows[0].id
@@ -44,7 +51,7 @@ async function addQuiz(chId, questions) {
   }
 }
 
-const tId = await getTopicId('frw-band2')
+const tId = await insertTopic('frw-forderungsverluste', 'Verluste aus Forderungen', 'Direkte Abschreibung, Wertberichtigung Forderungen und MWSt-Rückforderung bei Debitorenverlusten.', 'abschluss', 11)
 
 // ══════════════════════════════════════════════════
 // KAPITEL 3: Verluste aus Forderungen
@@ -53,37 +60,40 @@ const ch = await insertChapter(tId,
   'verluste-forderungen',
   'Verluste aus Forderungen',
   'Direkte Abschreibung, WB-Methode und MWSt-Rückforderung',
-  2,
+  1,
   `Nicht alle Forderungen (Debitoren) werden vollständig bezahlt. Unternehmen müssen drohende Verluste frühzeitig erfassen.
 
 ARTEN VON FORDERUNGSAUSFÄLLEN:
 • Dubiose Forderung: Eingang unsicher (Schuldner in finanziellen Schwierigkeiten) → Wertberichtigung bilden
-• Uneinbringliche Forderung: Verlust definitiv (Konkurs, Pfändung) → Abschreibung
+• Uneinbringliche Forderung: Verlust definitiv (Konkurs, Nachlassvertrag, Verjährung) → Abschreibung
 
 METHODE 1 — DIREKTE ABSCHREIBUNG:
-Bei definitiv uneinbringlichen Forderungen:
+Bei definitiv uneinbringlichen Forderungen (keine WB-Methode angewendet):
 1. Buchung Verlust: Debitorenverlust / Debitoren (Bruttobetrag inkl. MWSt)
-2. MWSt zurückfordern: MWSt-Verbindlichkeiten / Debitorenverlust (Netto × MWSt-Satz)
+2. MWSt zurückfordern: MWSt-Verbindlichkeiten / Debitorenverlust (Nettobetrag × MWSt-Satz)
+→ Formel MWSt-Rückforderung: Nettobetrag × MWSt-Satz (z.B. 8,1%)
 → Netto-Debitorenverlust = Bruttobetrag − MWSt-Rückforderung
+→ Beispiel: CHF 1 081 brutto (= 1 000 netto + 81 MWSt): Verlust netto = CHF 1 000
 
 METHODE 2 — INDIREKTE ABSCHREIBUNG (WB-Methode):
-Konto «WB Forderungen» (Wertberichtigungskonto) = Dubiosenrücklage
+Konto «WB Forderungen» (Passivkonto / Korrekturposten zu Debitoren) = früher «Delkredere»
 A) Einzelwertberichtigung (EWB): für konkret bekannte zweifelhafte Schuldner
-   Buchung Bildung: Abschreibungen auf Forderungen / WB Forderungen
-B) Pauschalwertberichtigung (PWB): % auf verbleibende Debitoren (z.B. 5%)
-   Anpassung auf Soll-WB:
-   • Erhöhung: Abschreibungen auf Forderungen / WB Forderungen
-   • Herabsetzung: WB Forderungen / Abschreibungsertrag
+   → Buchung Bildung: Abschreibungen auf Forderungen / WB Forderungen
+B) Pauschalwertberichtigung (PWB): % auf verbleibenden Debitorenbestand (nach Abzug EWB)
+   → Soll-WB berechnen; mit Ist-WB vergleichen; Differenz buchen
+   → Erhöhung: Abschreibungen auf Forderungen / WB Forderungen
+   → Herabsetzung: WB Forderungen / Abschreibungsertrag
 
 WENN WB-FORDERUNG DEFINITIV VERLOREN GEHT:
 1. WB Forderungen / Debitoren (soweit durch WB gedeckt)
 2. Debitorenverlust / Debitoren (Restbetrag falls WB nicht reicht)
-3. MWSt-Verbindlichkeiten / Debitorenverlust (MWSt zurückfordern)
+3. MWSt-Verbindlichkeiten / Debitorenverlust (MWSt zurückfordern auf Nettobetrag)
 
 BILANZAUSWEIS:
-Debitoren brutto − WB Forderungen = Debitoren netto
+Debitoren brutto − WB Forderungen = Debitoren netto (WB erscheint als Minusposition)
 
-Konten: Debitorenverlust (Aufwand), Abschreibungen auf Forderungen (Aufwand), Abschreibungsertrag (Ertrag), WB Forderungen (Passivkorrektur)`
+Konten: Debitorenverlust (Aufwand, Soll), Abschreibungen auf Forderungen (Aufwand, Soll),
+Abschreibungsertrag (Ertrag, Haben), WB Forderungen (Passivkorrektur, Haben)`
 )
 
 await addGoals(ch, [

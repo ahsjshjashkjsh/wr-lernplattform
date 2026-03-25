@@ -4,6 +4,13 @@ const { Client } = pg
 const client = new Client({ connectionString: process.env.DATABASE_URL })
 await client.connect()
 function id() { return randomUUID() }
+async function insertTopic(slug, title, description, examType, order) {
+  const topicId = id()
+  await client.query(`INSERT INTO "Topic" (id,slug,title,description,icon,color,"examType",category,"order",published,"createdAt","updatedAt") VALUES ($1,$2,$3,$4,'Globe','blue',$5,'frw',$6,true,NOW(),NOW()) ON CONFLICT (slug) DO NOTHING`,
+    [topicId, slug, title, description, examType, order])
+  const r = await client.query(`SELECT id FROM "Topic" WHERE slug=$1`, [slug])
+  return r.rows[0].id
+}
 async function getTopicId(slug) {
   const r = await client.query(`SELECT id FROM "Topic" WHERE slug=$1`, [slug])
   return r.rows[0].id
@@ -43,44 +50,54 @@ async function addQuiz(chId, questions) {
   }
 }
 
-const tId = await getTopicId('frw-band2')
+const tId = await insertTopic('frw-ag-gewinnverteilung', 'Aktiengesellschaft (AG) & Gewinnverteilung', 'Gründung, Gewinnverwendung, Verrechnungssteuer 35% und Kapitalerhöhung der AG.', 'abschluss', 15)
 
 const ch = await insertChapter(tId,
   'aktiengesellschaft',
   'Aktiengesellschaft (AG)',
   'Gründung, Gewinnverteilung, Verrechnungssteuer und Kapitalerhöhung',
-  7,
+  1,
   `Die AG ist eine juristische Person mit beschränkter Haftung — häufigste Rechtsform für grosse Unternehmen.
 
 MERKMALE DER AG:
-• Juristische Person (eigenständiges Rechtssubjekt)
-• Mindestkapital: CHF 100 000 (mind. CHF 50 000 einbezahlt)
+• Juristische Person (eigenständiges Rechtssubjekt — von Aktionären unabhängig)
+• Mindestkapital: CHF 100 000 (mind. CHF 50 000 oder 20% bei Gründung einbezahlt)
 • Haftung: NUR das Gesellschaftsvermögen — Aktionäre verlieren maximal ihre Einlage
-• Gründung: öffentliche Beurkundung + Handelsregistereintrag
-• Organe: Generalversammlung (GV) → Verwaltungsrat (VR) → Geschäftsführung
+• Gründung: öffentliche Beurkundung durch Notar + Handelsregistereintrag
+• Organe: Generalversammlung (GV) → Verwaltungsrat (VR) → Geschäftsführung / CEO
 
 EIGENKAPITAL DER AG:
-• Aktienkapital: Nennwert × Anzahl Aktien
-• Gesetzliche Kapitalreserve: Agio (Ausgabepreis > Nennwert)
-• Gesetzliche Gewinnreserve: mind. 5% des JÜ, bis 20% des AK
-• Freiwillige Gewinnreserven
-• Gewinnvortrag (aus Vorjahr)
+• Aktienkapital: Nennwert × Anzahl Aktien (mind. Nennwert CHF 0.01)
+• Gesetzliche Kapitalreserve: Agio (Ausgabepreis − Nennwert) — darf nicht ausgeschüttet werden
+• Gesetzliche Gewinnreserve: mind. 5% des Jahresgewinns, bis Reserve 20% des AK erreicht
+• Freiwillige Gewinnreserven (GV-Beschluss)
+• Gewinnvortrag (nicht ausgeschütteter Restgewinn aus Vorjahr)
+• Bilanzgewinn = Jahresgewinn + Gewinnvortrag Vorjahr
 
 GRÜNDUNG (Verbuchung):
-Einzahlung Aktionäre: Bank / Aktienkapital
-Mit Agio: Bank / Aktienkapital + Gesetzliche Kapitalreserve
-Sacheinlagen: Fahrzeuge / Aktienkapital usw.
+• Ohne Agio: Bank / Aktienkapital (Nennwert)
+• Mit Agio: Bank / Aktienkapital (Nennwert) + Gesetzliche Kapitalreserve (Agio)
+• Sacheinlagen: Fahrzeuge / Aktienkapital usw.
 
-GEWINNVERWENDUNG (Reihenfolge):
-1. Gesetzliche Gewinnreserve: mind. 5% bis 20% AK → Gewinnvortrag / Ges. Gewinnreserve
-2. Freiwillige Reserven (falls beschlossen): Gewinnvortrag / Freiwillige Gewinnreserven
-3. Dividende: Gewinnvortrag / Dividendenverbindlichkeiten
-4. Verrechnungssteuer 35%: Dividendenverbindlichkeiten / VS-Verbindlichkeiten
-5. Netto-Dividende 65% auszahlen: Dividendenverbindlichkeiten / Bank
-6. VS abliefern: VS-Verbindlichkeiten / Bank
+GEWINNVERWENDUNGSSCHRITTE (Reihenfolge zwingend nach OR):
+1. Gesetzliche Gewinnreserve (Pflicht): mind. 5% des JÜ, bis 20% AK
+   → Gewinnvortrag / Gesetzliche Gewinnreserve
+2. Freiwillige Reserven (falls beschlossen):
+   → Gewinnvortrag / Freiwillige Gewinnreserven
+3. Dividende beschliessen:
+   → Gewinnvortrag / Dividendenverbindlichkeiten (Brutto-Dividende)
+4. Verrechnungssteuer 35% abziehen:
+   → Dividendenverbindlichkeiten / VS-Verbindlichkeiten (35% der Brutto-Dividende)
+5. Netto-Dividende 65% auszahlen:
+   → Dividendenverbindlichkeiten / Bank
+6. VS an Bund abliefern:
+   → VS-Verbindlichkeiten / Bank
+→ Aktionär erhält 65%, kann die 35% VS beim Steueramt zurückfordern (wenn in CH wohnhaft und deklariert)
 
-KAPITALERHÖHUNG:
-Neue Aktien ausgeben → Bank / Aktienkapital (+ Gesetzliche Kapitalreserve bei Agio)`
+KAPITALERHÖHUNG MIT AGIO:
+• GV beschliesst (2/3-Mehrheit), neue Aktien ausgeben
+• Bestehende Aktionäre haben Bezugsrecht (proportional zur Beteiligung)
+• Buchung: Bank / Aktienkapital (Nennwert) + Gesetzliche Kapitalreserve (Agio)`
 )
 
 await addGoals(ch, [

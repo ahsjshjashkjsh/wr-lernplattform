@@ -4,6 +4,13 @@ const { Client } = pg
 const client = new Client({ connectionString: process.env.DATABASE_URL })
 await client.connect()
 function id() { return randomUUID() }
+async function insertTopic(slug, title, description, examType, order) {
+  const topicId = id()
+  await client.query(`INSERT INTO "Topic" (id,slug,title,description,icon,color,"examType",category,"order",published,"createdAt","updatedAt") VALUES ($1,$2,$3,$4,'Globe','blue',$5,'frw',$6,true,NOW(),NOW()) ON CONFLICT (slug) DO NOTHING`,
+    [topicId, slug, title, description, examType, order])
+  const r = await client.query(`SELECT id FROM "Topic" WHERE slug=$1`, [slug])
+  return r.rows[0].id
+}
 async function getTopicId(slug) {
   const r = await client.query(`SELECT id FROM "Topic" WHERE slug=$1`, [slug])
   return r.rows[0].id
@@ -43,46 +50,50 @@ async function addQuiz(chId, questions) {
   }
 }
 
-const tId = await getTopicId('frw-band2')
+const tId = await insertTopic('frw-bewertungsvorschriften', 'Bewertungsvorschriften & Stille Reserven', 'OR-Bewertungsregeln, Niederstwertprinzip, Stille Reserven bilden und auflösen.', 'abschluss', 16)
 
 const ch = await insertChapter(tId,
   'bewertungsvorschriften',
   'Bewertungsvorschriften & Stille Reserven',
   'OR-Bewertungsregeln, stille Reserven bilden und auflösen, Bilanzbereinigung',
-  8,
+  1,
   `Die Bewertung von Aktiven und Passiven ist gesetzlich geregelt (OR Art. 958 ff.) und schützt Gläubiger durch konservative Ansätze.
 
 GRUNDPRINZIPIEN (OR):
-• Vorsichtsprinzip: Im Zweifel tiefer bewerten — Gläubiger schützen
+• Vorsichtsprinzip: Im Zweifel tiefer bewerten — Verluste sofort, Gewinne nur bei Realisierung
 • Anschaffungswertprinzip: Aktiven max. zu Anschaffungs- oder Herstellungskosten
-• Niederstwertprinzip (NWP): Umlaufvermögen zum tieferen Wert (AW oder Marktwert)
-• Stetigkeitsprinzip: Gleiche Methoden über mehrere Jahre
+• Niederstwertprinzip (NWP): Umlaufvermögen zum tieferen Wert aus AW und Marktwert
+  Formel: Niederstwert = MIN(Anschaffungswert, Marktwert) — Pflicht zur Abwertung bei MK < AW
+• Stetigkeitsprinzip: Gleiche Methoden von Jahr zu Jahr (Methodenwechsel muss begründet werden)
+• Going Concern: Bewertung unter Annahme der Fortführung des Unternehmens
 
 BEWERTUNGSREGELN nach Positionen:
 • Kasse/Bank: Nominalwert
-• Debitoren: Nominalwert ./. WB (geschätzte Verluste)
-• Warenvorräte: NWP — Anschaffungswert oder Marktwert (tieferer); + 1/3-Pauschalabzug zulässig
-• Wertschriften (kotiert): Börsenkurs (NWP)
+• Debitoren: Nominalwert ./. WB Forderungen (geschätzte Verluste)
+• Warenvorräte: NWP (MIN aus AW und Marktwert) — bei Marktwert < AW: Pflicht zur Abwertung
+  + 1/3-Pauschalabzug auf NWP steuerlich zulässig (zusätzliche stille Reserve)
+• Wertschriften (kotiert / kurzfristig): NWP = Börsenkurs
 • Wertschriften (nicht kotiert): Ertragswert
-• Mobilien/Maschinen: AW ./. kumulierte Abschreibungen
+• Mobilien / Maschinen: AW ./. kumulierte Abschreibungen
 • Liegenschaften: AW (Verkehrswert als Obergrenze möglich)
+• Finanzanlagen (Beteiligungen): Anschaffungswert (nicht über AW)
 
 STILLE RESERVEN:
-= Ausgewiesenes EK ist tiefer als tatsächliches EK
-Entstehung: Aktiven zu tief ODER Passiven zu hoch bewertet
-Bildung (Aufwand ↑, Gewinn ↓, EK ↓):
+Definition: Stille Reserven = tatsächliches EK − ausgewiesenes EK
+Entstehung: Aktiven zu tief bewertet ODER Passiven zu hoch bewertet
+Bildung stiller Reserven (Aufwand ↑, Gewinn ↓, EK ↓, Steuern ↓):
 • Überhöhte Abschreibungen → Abschreibungen / Anlagekonto
-• Zu hohe WB Forderungen → Abschreibungen / WB Forderungen
+• Zu hohe WB Forderungen → Abschreibungen auf Forderungen / WB Forderungen
 • Waren unter NWP → Warenaufwand / Warenvorräte
 • Überhöhte Rückstellungen → Rückstellungsaufwand / Rückstellungen
-Auflösung (Ertrag ↑, Gewinn ↑, EK ↑):
-• Aufwertung Waren → Warenvorräte / Warenertrag
+Auflösung stiller Reserven (Ertrag ↑, Gewinn ↑, EK ↑, Steuern ↑):
+• Warenaufwertung → Warenvorräte / Warenertrag
 • WB senken → WB Forderungen / Abschreibungsertrag
 • Rückstellungen auflösen → Rückstellungen / Rückstellungsertrag
 
 INTERNE vs. EXTERNE BILANZ:
-• Externe Bilanz (nach OR): stille Reserven vorhanden, EK tiefer, Steuern tiefer
-• Interne Bilanz (bereinigt): stille Reserven aufgedeckt, zeigt wahres Bild`
+• Externe Bilanz (nach OR, für Behörden/Öffentlichkeit): stille Reserven vorhanden → EK tiefer, Steuern tiefer
+• Interne Bilanz (bereinigt, für Management): stille Reserven aufgedeckt → zeigt wahres Bild des tatsächlichen EK`
 )
 
 await addGoals(ch, [
