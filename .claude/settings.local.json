@@ -28,7 +28,12 @@
       "Bash(DATABASE_URL=\"postgresql://postgres.xudeuxqxgiozvgojjcas:w778dj8AcyFs2Tef@aws-1-eu-west-1.pooler.supabase.com:5432/postgres\" node -e \":*)",
       "Bash(DATABASE_URL=\"postgresql://postgres.xudeuxqxgiozvgojjcas:w778dj8AcyFs2Tef@aws-1-eu-west-1.pooler.supabase.com:5432/postgres\" npx tsx -e \":*)",
       "Bash(DATABASE_URL=\"postgresql://postgres.xudeuxqxgiozvgojjcas:w778dj8AcyFs2Tef@aws-1-eu-west-1.pooler.supabase.com:5432/postgres\" npx tsx scripts/query-feedback.ts)",
-      "Bash(DATABASE_URL=\"postgresql://postgres.xudeuxqxgiozvgojjcas:w778dj8AcyFs2Tef@aws-1-eu-west-1.pooler.supabase.com:5432/postgres\" npx prisma db push --accept-data-loss)"
+      "Bash(DATABASE_URL=\"postgresql://postgres.xudeuxqxgiozvgojjcas:w778dj8AcyFs2Tef@aws-1-eu-west-1.pooler.supabase.com:5432/postgres\" npx prisma db push --accept-data-loss)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git config:*)",
+      "Bash(git push:*)",
+      "Bash(node_modules/.bin/tsc --noEmit)"
     ]
   }
 }
