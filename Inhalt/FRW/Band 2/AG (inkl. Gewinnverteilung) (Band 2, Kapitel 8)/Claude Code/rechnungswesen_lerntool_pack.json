@@ -1,0 +1,1073 @@
+{
+  "title": "Rechnungswesen Lerntool Pack",
+  "language": "de",
+  "domain": "Schweizer Rechnungswesen",
+  "chapters": [
+    {
+      "title": "Abschreibungen",
+      "language": "de",
+      "domain": "Schweizer Rechnungswesen",
+      "source_scope": "Zusammenfassung auf Basis der fotografierten Buchseiten 91-101 des Kapitels 'Abschreibungen'",
+      "audience": "Claude Code / Lerntool / Quizgenerator / Lernapp",
+      "learning_objectives": [
+        "Abschreibungen definieren und wirtschaftlich begründen",
+        "Anschaffungskosten korrekt bestimmen",
+        "lineare und degressive Abschreibungen berechnen",
+        "Buchwert, Anschaffungswert und Totalabschreibungen unterscheiden",
+        "direkte und indirekte Verbuchung anwenden",
+        "Gewinn oder Verlust beim Verkauf von Anlagen korrekt buchen"
+      ],
+      "terminology": {
+        "Abschreibung": "Planmässige Erfassung der Wertverminderung einer Anlage als Aufwand.",
+        "Anschaffungswert": "Betrag, der als Ausgangswert der Anlage aktiviert und später abgeschrieben wird.",
+        "Anschaffungskosten": "Bereinigter Kaufpreis zuzüglich direkt zurechenbarer Nebenkosten.",
+        "Buchwert": "Aktueller Bilanzwert einer Anlage nach Abzug der bisherigen Abschreibungen.",
+        "Restwert": "Im Kapitel synonym zum Buchwert bei degressiver Berechnung verwendet.",
+        "Wertberichtigungskonto": "Korrekturkonto zur indirekten Abschreibung; steht als Minusposten bei den Aktiven, folgt aber den Regeln eines Passivkontos.",
+        "Direkte Abschreibung": "Abschreibung direkt auf das Anlagekonto.",
+        "Indirekte Abschreibung": "Abschreibung auf ein separates Wertberichtigungskonto.",
+        "A.o. Aufwand": "Ausserordentlicher Aufwand, z. B. Verlust beim Anlagenverkauf.",
+        "A.o. Ertrag": "Ausserordentlicher Ertrag, z. B. Gewinn beim Anlagenverkauf.",
+        "Verb. L+L": "Verbindlichkeiten aus Lieferungen und Leistungen.",
+        "Ford. L+L": "Forderungen aus Lieferungen und Leistungen."
+      },
+      "core_principles": [
+        "Anlagen verlieren durch Nutzung, Alterung und technischen Fortschritt an Wert.",
+        "Dieser Wertverlust muss periodengerecht als Aufwand erfasst werden.",
+        "Abschreibungen sind erfolgswirksam, aber nicht liquiditätswirksam.",
+        "Abschreibungen dienen der Bilanzkorrektur, der richtigen Erfolgsermittlung und der Selbstfinanzierung."
+      ],
+      "theory_blocks": [
+        {
+          "id": "zweck",
+          "title": "Zweck von Abschreibungen",
+          "points": [
+            "Anpassung der Bilanzwerte von Sachanlagen an den tatsächlichen Wertverlauf.",
+            "Verteilung des Aufwands auf die Nutzungsdauer für einen richtigen Erfolgsausweis.",
+            "Förderung der Selbstfinanzierung durch Zurückbehalten liquider Mittel für Ersatzinvestitionen."
+          ],
+          "important_note": "Abschreibungen stellen Aufwand dar und führen zu kleinerem Gewinn, sind aber keine Ausgaben und müssen nicht bezahlt werden."
+        },
+        {
+          "id": "anschaffungskosten",
+          "title": "Berechnung der Anschaffungskosten",
+          "formula_words": "Kaufpreis brutto minus Rabatt/Skonto minus vorsteuerfähige MWST plus Transport/Installation = Anschaffungswert",
+          "includes": [
+            "Kaufpreis der Anlage",
+            "Transportkosten",
+            "Installationskosten",
+            "weitere direkt zurechenbare Beschaffungskosten"
+          ],
+          "excludes_or_deductions": [
+            "Rabatt",
+            "Skonto",
+            "vorsteuerfähige Mehrwertsteuer"
+          ],
+          "activation_rule": {
+            "typical_threshold_small_companies_chf": 1000,
+            "conditions": [
+              "Der Gegenstand ist längerfristig nutzbar.",
+              "Die Anschaffungskosten erreichen mindestens CHF 1000."
+            ]
+          }
+        },
+        {
+          "id": "linear",
+          "title": "Lineare Abschreibung",
+          "definition": "Jedes Jahr wird derselbe Betrag vom Anschaffungswert abgeschrieben.",
+          "formulas": {
+            "annual_amount": "Anschaffungskosten / Nutzungsdauer",
+            "rate": "100 % / Nutzungsdauer"
+          },
+          "properties": [
+            "konstanter jährlicher Aufwand",
+            "gleichmässiger Rückgang des Buchwerts",
+            "Buchwert erreicht am Ende der Nutzungsdauer 0 (oder in der Praxis 1 als Pro-Memoria-Posten)"
+          ],
+          "advantages": [
+            "einfach zu berechnen",
+            "einfach zu planen",
+            "am Ende der Nutzungsdauer klarer Zielwert"
+          ]
+        },
+        {
+          "id": "degressive",
+          "title": "Degressive Abschreibung",
+          "definition": "Jedes Jahr wird ein Prozentsatz vom aktuellen Buchwert abgeschrieben.",
+          "properties": [
+            "hohe Abschreibungen am Anfang",
+            "sinkende Beträge in späteren Jahren",
+            "Buchwert sinkt zuerst stark, dann immer flacher"
+          ],
+          "important_note": "Konsequent angewandt erreicht die degressive Methode den Wert 0 nicht exakt; im letzten Nutzungsjahr wird der Rest abgeschrieben.",
+          "advantages": [
+            "entspricht oft besser der tatsächlichen Wertverminderung",
+            "vorsichtiger, weil am Anfang höhere Beträge erfasst werden",
+            "schafft späteren Spielraum"
+          ]
+        },
+        {
+          "id": "verbuchung",
+          "title": "Verbuchung der Abschreibungen",
+          "direct_method": {
+            "booking_logic": "Abschreibungen / Anlagekonto",
+            "effect": [
+              "Das Anlagekonto wird direkt reduziert.",
+              "Der Saldo des Anlagekontos entspricht dem Buchwert.",
+              "Der ursprüngliche Anschaffungswert ist später nicht mehr direkt sichtbar."
+            ]
+          },
+          "indirect_method": {
+            "booking_logic": "Abschreibungen / WB Anlagekonto",
+            "effect": [
+              "Das Anlagekonto bleibt zum Anschaffungswert bestehen.",
+              "Das WB-Konto sammelt die Totalabschreibungen.",
+              "In der Bilanz wird der Buchwert als Anschaffungswert minus WB ausgewiesen."
+            ],
+            "special_note": "Das WB-Konto ist ein Minus-Aktivkonto, folgt aber den Buchungsregeln eines Passivkontos."
+          }
+        },
+        {
+          "id": "verkauf",
+          "title": "Buchungen beim Verkauf von Anlagen",
+          "steps": [
+            "Verkaufserlös buchen.",
+            "Bei indirekter Abschreibung allfällige Wertberichtigung auflösen.",
+            "Gewinn oder Verlust zur Bereinigung des Anlagekontos buchen."
+          ],
+          "decision_rules": [
+            "Verkaufserlös > Buchwert => Gewinn => Anlagekonto / A.o. Ertrag",
+            "Buchwert > Verkaufserlös => Verlust => A.o. Aufwand / Anlagekonto"
+          ]
+        }
+      ],
+      "formulas": [
+        {
+          "name": "Anschaffungswert",
+          "expression": "Kaufpreis brutto - Rabatt - Skonto - vorsteuerfähige MWST + Transport + Installation"
+        },
+        {
+          "name": "Lineare Abschreibung pro Jahr",
+          "expression": "Anschaffungskosten / Nutzungsdauer"
+        },
+        {
+          "name": "Linearer Abschreibungssatz",
+          "expression": "100 % / Nutzungsdauer"
+        },
+        {
+          "name": "Buchwert",
+          "expression": "Anschaffungswert - Totalabschreibungen"
+        },
+        {
+          "name": "Verkaufsgewinn",
+          "expression": "Verkaufserlös - Buchwert"
+        },
+        {
+          "name": "Verkaufsverlust",
+          "expression": "Buchwert - Verkaufserlös"
+        }
+      ],
+      "worked_examples": [
+        {
+          "id": "taxi_intro",
+          "title": "Einführungsbeispiel Taxi",
+          "data": {
+            "purchase_vehicle_chf": 44000,
+            "useful_life_years": 4,
+            "annual_depreciation_chf": 11000,
+            "provisional_profit_chf": 24200,
+            "corrected_profit_chf": 13200,
+            "vehicle_value_after_year_1_chf": 33000
+          },
+          "insight": "Die Abschreibung reduziert sowohl den Bilanzwert des Fahrzeugs als auch den ausgewiesenen Gewinn."
+        },
+        {
+          "id": "acquisition_office_furniture",
+          "title": "Anschaffungskosten einer Büroeinrichtung",
+          "data": {
+            "supplier_invoice_chf": 25800,
+            "discount_percent": 10,
+            "discount_chf": 2580,
+            "transport_chf": 780,
+            "acquisition_cost_chf": 24000
+          },
+          "journal_entries": [
+            "Mobiliar / Verb. L+L 25'800",
+            "Mobiliar / Kasse 780",
+            "Verb. L+L / Mobiliar 2'580",
+            "Verb. L+L / Bank 23'220"
+          ]
+        },
+        {
+          "id": "linear_8_years",
+          "title": "Lineare Abschreibung einer Büroeinrichtung",
+          "data": {
+            "acquisition_cost_chf": 24000,
+            "useful_life_years": 8,
+            "annual_amount_chf": 3000,
+            "rate_percent": 12.5
+          },
+          "schedule": [
+            {
+              "year": 1,
+              "depreciation": 3000,
+              "book_value_end": 21000
+            },
+            {
+              "year": 2,
+              "depreciation": 3000,
+              "book_value_end": 18000
+            },
+            {
+              "year": 3,
+              "depreciation": 3000,
+              "book_value_end": 15000
+            },
+            {
+              "year": 4,
+              "depreciation": 3000,
+              "book_value_end": 12000
+            },
+            {
+              "year": 5,
+              "depreciation": 3000,
+              "book_value_end": 9000
+            },
+            {
+              "year": 6,
+              "depreciation": 3000,
+              "book_value_end": 6000
+            },
+            {
+              "year": 7,
+              "depreciation": 3000,
+              "book_value_end": 3000
+            },
+            {
+              "year": 8,
+              "depreciation": 3000,
+              "book_value_end": 0
+            }
+          ]
+        },
+        {
+          "id": "degressive_25_percent",
+          "title": "Degressive Abschreibung 25 % vom Buchwert",
+          "data": {
+            "acquisition_cost_chf": 24000,
+            "rate_percent": 25
+          },
+          "schedule": [
+            {
+              "year": 1,
+              "base": 24000,
+              "depreciation": 6000,
+              "book_value_end": 18000
+            },
+            {
+              "year": 2,
+              "base": 18000,
+              "depreciation": 4500,
+              "book_value_end": 13500
+            },
+            {
+              "year": 3,
+              "base": 13500,
+              "depreciation": 3375,
+              "book_value_end": 10125
+            },
+            {
+              "year": 4,
+              "base": 10125,
+              "depreciation": 2531,
+              "book_value_end": 7594
+            },
+            {
+              "year": 5,
+              "base": 7594,
+              "depreciation": 1899,
+              "book_value_end": 5695
+            },
+            {
+              "year": 6,
+              "base": 5695,
+              "depreciation": 1424,
+              "book_value_end": 4271
+            },
+            {
+              "year": 7,
+              "base": 4271,
+              "depreciation": 1068,
+              "book_value_end": 3203
+            },
+            {
+              "year": 8,
+              "base": 3203,
+              "depreciation": 801,
+              "book_value_end": 2402
+            }
+          ],
+          "important_note": "Im letzten tatsächlichen Nutzungsjahr muss der verbleibende Rest vollständig abgeschrieben werden."
+        },
+        {
+          "id": "sale_direct_loss",
+          "title": "Verkauf bei direkter Abschreibung mit Verlust",
+          "data": {
+            "acquisition_cost_chf": 24000,
+            "method": "linear direkt",
+            "annual_depreciation_chf": 3000,
+            "years_used": 3,
+            "book_value_chf": 15000,
+            "sale_price_chf": 8800,
+            "loss_chf": 6200
+          },
+          "journal_entries": [
+            "Kasse / Mobiliar 8'800",
+            "A.o. Aufwand / Mobiliar 6'200"
+          ]
+        },
+        {
+          "id": "sale_indirect_gain",
+          "title": "Verkauf bei indirekter Abschreibung mit Gewinn",
+          "data": {
+            "acquisition_cost_chf": 24000,
+            "method": "linear indirekt",
+            "annual_depreciation_chf": 3000,
+            "years_used": 5,
+            "total_depreciation_chf": 15000,
+            "book_value_chf": 9000,
+            "sale_price_chf": 10500,
+            "gain_chf": 1500
+          },
+          "journal_entries": [
+            "Kasse / Mobiliar 10'500",
+            "WB Mobiliar / Mobiliar 15'000",
+            "Mobiliar / A.o. Ertrag 1'500"
+          ]
+        }
+      ],
+      "booking_templates": {
+        "direct_depreciation": [
+          "Abschreibungen / Mobiliar",
+          "Abschreibungen / Fahrzeuge",
+          "Abschreibungen / Maschinen"
+        ],
+        "indirect_depreciation": [
+          "Abschreibungen / WB Mobiliar",
+          "Abschreibungen / WB Fahrzeuge",
+          "Abschreibungen / WB Maschinen"
+        ],
+        "sale_step_1_proceeds": [
+          "Kasse / Mobiliar",
+          "Ford. L+L / Mobiliar"
+        ],
+        "sale_step_2_reverse_wb_if_indirect": [
+          "WB Mobiliar / Mobiliar",
+          "WB Fahrzeuge / Fahrzeuge"
+        ],
+        "sale_gain": [
+          "Mobiliar / A.o. Ertrag",
+          "Immobilien / A.o. Ertrag"
+        ],
+        "sale_loss": [
+          "A.o. Aufwand / Mobiliar",
+          "A.o. Aufwand / Immobilien"
+        ]
+      },
+      "comparison": {
+        "linear_vs_degressive": [
+          {
+            "criterion": "Rechenbasis",
+            "linear": "Anschaffungswert",
+            "degressive": "Buchwert / Restwert"
+          },
+          {
+            "criterion": "Jährlicher Betrag",
+            "linear": "gleichbleibend",
+            "degressive": "abnehmend"
+          },
+          {
+            "criterion": "Belastung der ersten Jahre",
+            "linear": "moderater",
+            "degressive": "höher"
+          },
+          {
+            "criterion": "Buchwertverlauf",
+            "linear": "gleichmässig",
+            "degressive": "zuerst stark, später flach"
+          },
+          {
+            "criterion": "Planbarkeit",
+            "linear": "sehr einfach",
+            "degressive": "etwas komplexer"
+          }
+        ],
+        "direct_vs_indirect": [
+          {
+            "criterion": "Buchung",
+            "direct": "Abschreibungen / Anlagekonto",
+            "indirect": "Abschreibungen / WB Anlagekonto"
+          },
+          {
+            "criterion": "Anschaffungswert sichtbar",
+            "direct": "nein",
+            "indirect": "ja"
+          },
+          {
+            "criterion": "Buchwert direkt sichtbar",
+            "direct": "ja",
+            "indirect": "nur als Differenz"
+          },
+          {
+            "criterion": "Informationsgehalt",
+            "direct": "geringer",
+            "indirect": "höher"
+          }
+        ]
+      },
+      "tax_notes": {
+        "max_rates_examples": [
+          {
+            "asset": "Mobiliar",
+            "degressive_max_percent": 25,
+            "linear_max_percent": 12.5
+          },
+          {
+            "asset": "Fahrzeuge",
+            "degressive_max_percent": 40,
+            "linear_max_percent": 20
+          }
+        ],
+        "result_effect": "Hohe Abschreibungen senken den ausgewiesenen Gewinn und können steuerliche Spielräume beeinflussen."
+      },
+      "common_mistakes": [
+        "Beim Anschaffungswert Rabatte oder Skonti vergessen.",
+        "Transport und Installation nicht aktivieren.",
+        "Bei degressiver Abschreibung fälschlich vom Anschaffungswert statt vom Buchwert rechnen.",
+        "Direkte und indirekte Verbuchung verwechseln.",
+        "Beim Verkauf Gewinn/Verlust mit dem Anschaffungswert statt mit dem Buchwert vergleichen.",
+        "Bei indirekter Methode die Auflösung der Wertberichtigung vergessen.",
+        "Abschreibungen als Ausgabe statt als nicht liquiditätswirksamen Aufwand verstehen."
+      ],
+      "quick_rules": [
+        "Abschreibungen mindern Gewinn und Vermögen.",
+        "Abschreibungen sind Aufwand, aber keine Ausgabe.",
+        "Linear = gleicher Betrag pro Jahr.",
+        "Degressiv = gleicher Prozentsatz vom Buchwert.",
+        "Direkt = Anlagekonto sinkt.",
+        "Indirekt = WB-Konto steigt.",
+        "Verkaufserlös über Buchwert = Gewinn.",
+        "Buchwert über Verkaufserlös = Verlust."
+      ],
+      "flashcards": [
+        {
+          "front": "Was ist der Hauptzweck einer Abschreibung?",
+          "back": "Die planmässige Erfassung der Wertverminderung einer Anlage als Aufwand und die Anpassung des Bilanzwerts an den tatsächlichen Wertverlauf."
+        },
+        {
+          "front": "Warum sind Abschreibungen nicht liquiditätswirksam?",
+          "back": "Weil der Geldabfluss bereits beim Kauf der Anlage stattgefunden hat; die spätere Abschreibung verursacht keine neue Auszahlung."
+        },
+        {
+          "front": "Wie lautet die Formel für lineare Abschreibung pro Jahr?",
+          "back": "Anschaffungskosten / Nutzungsdauer."
+        },
+        {
+          "front": "Wie lautet die Formel für den linearen Abschreibungssatz?",
+          "back": "100 % / Nutzungsdauer."
+        },
+        {
+          "front": "Wovon wird bei der degressiven Abschreibung gerechnet?",
+          "back": "Vom aktuellen Buchwert bzw. Restwert."
+        },
+        {
+          "front": "Wie lautet der Buchungssatz bei direkter Abschreibung eines Mobiliarpostens?",
+          "back": "Abschreibungen / Mobiliar."
+        },
+        {
+          "front": "Wie lautet der Buchungssatz bei indirekter Abschreibung eines Mobiliarpostens?",
+          "back": "Abschreibungen / WB Mobiliar."
+        },
+        {
+          "front": "Was gilt beim Verkauf indirekt abgeschriebener Anlagen zusätzlich?",
+          "back": "Die Wertberichtigung muss aufgelöst werden, z. B. WB Mobiliar / Mobiliar."
+        },
+        {
+          "front": "Wann entsteht beim Verkauf ein Gewinn?",
+          "back": "Wenn der Verkaufserlös grösser ist als der Buchwert."
+        },
+        {
+          "front": "Wann entsteht beim Verkauf ein Verlust?",
+          "back": "Wenn der Buchwert grösser ist als der Verkaufserlös."
+        }
+      ],
+      "question_bank": [
+        {
+          "type": "open",
+          "question": "Erkläre den Unterschied zwischen Aufwand und Ausgabe am Beispiel der Abschreibung.",
+          "expected_points": [
+            "Abschreibung ist Aufwand, weil sie den Gewinn mindert.",
+            "Sie ist keine Ausgabe, weil kein neuer Geldabfluss stattfindet.",
+            "Der Geldabfluss geschah beim Kauf der Anlage."
+          ]
+        },
+        {
+          "type": "calculation",
+          "question": "Eine Anlage kostet brutto CHF 18'500. Es gibt 5 % Rabatt und CHF 400 Transport. Die MWST ist vorsteuerabzugsfähig und soll ignoriert werden. Wie hoch ist der Anschaffungswert?",
+          "answer": "18'500 - 925 + 400 = CHF 17'975"
+        },
+        {
+          "type": "calculation",
+          "question": "Eine Maschine mit Anschaffungswert CHF 30'000 wird linear über 6 Jahre abgeschrieben. Wie hoch sind jährlicher Betrag und Abschreibungssatz?",
+          "answer": "CHF 5'000 pro Jahr und 16.67 %"
+        },
+        {
+          "type": "calculation",
+          "question": "Ein Fahrzeug mit Buchwert CHF 12'000 wird für CHF 14'500 verkauft. Entsteht Gewinn oder Verlust und wie gross ist er?",
+          "answer": "Gewinn von CHF 2'500"
+        },
+        {
+          "type": "calculation",
+          "question": "Ein Mobiliar mit Anschaffungswert CHF 20'000 wird indirekt abgeschrieben. Total WB beträgt CHF 8'000. Verkaufserlös CHF 9'000. Wie hoch ist der Buchwert und was entsteht beim Verkauf?",
+          "answer": "Buchwert CHF 12'000; Verlust CHF 3'000"
+        }
+      ],
+      "implementation_hints_for_learning_tool": {
+        "recommended_modules": [
+          "theory viewer",
+          "formula trainer",
+          "worked-example stepper",
+          "journal-entry trainer",
+          "flashcards",
+          "quiz mode",
+          "mistake diagnosis"
+        ],
+        "useful_tags": [
+          "definition",
+          "formula",
+          "booking",
+          "comparison",
+          "example",
+          "exam-tip",
+          "common-mistake"
+        ],
+        "adaptive_learning_ideas": [
+          "Wenn der Lernende lineare und degressive Abschreibung verwechselt, automatisch Vergleichsaufgaben einblenden.",
+          "Wenn Fehler bei Verkauf von Anlagen auftreten, zuerst Buchwert-Berechnung trainieren, danach Buchungssätze.",
+          "Bei Unsicherheit über direkte/indirekte Verbuchung T-Konten visualisieren lassen."
+        ]
+      }
+    },
+    {
+      "title": "Aktiengesellschaft",
+      "language": "de",
+      "domain": "Schweizer Rechnungswesen",
+      "source_scope": "Zusammenfassung auf Basis der fotografierten Buchseiten 195-203 und 206 des Kapitels 'Aktiengesellschaft'",
+      "coverage_note": "Die Seiten 204-205 lagen nicht vor. Die Datei deckt nur die auf den gelieferten Seiten sichtige Theorie ab.",
+      "audience": "Claude Code / Lerntool / Quizgenerator / Lernapp",
+      "learning_objectives": [
+        "die Aktiengesellschaft als juristische Person und Eigenkapitalform erklären",
+        "Voraussetzungen, Rechte, Pflichten und Organe einer AG beschreiben",
+        "die Gründung einer AG mit Bar- und Sacheinlagen buchen",
+        "das Konto 'Forderungen gegenüber Aktionären' sicher anwenden",
+        "den zeitlichen Ablauf von Abschluss, Revision, Generalversammlung und Gewinnverwendung erklären",
+        "besondere Konten der AG voneinander abgrenzen",
+        "Gewinnverwendung mit Gewinnvortrag, Reservezuweisung und Dividende buchen",
+        "Dividendenausschüttungen inklusive Verrechnungssteuer korrekt verbuchen",
+        "Jahresverluste über Verlustvortrag, Gewinnvortrag und Reserven abbilden",
+        "Revisions- und Offenlegungspflichten einer AG erläutern",
+        "Kapitalerhöhungen mit Agio korrekt berechnen und buchen"
+      ],
+      "terminology": {
+        "Aktiengesellschaft": "Juristische Person mit eigenem Vermögen; Gegenstand der Buchhaltung ist das Unternehmen selbst.",
+        "Aktionär": "Eigentümer einer oder mehrerer Aktien; hat Vermögens- und Mitgliedschaftsrechte.",
+        "Aktienkapital": "Grundkapital der AG gemäss Statuten und Handelsregister, zum Nennwert ausgewiesen.",
+        "Nennwert": "Grundwert einer Aktie.",
+        "Ausgabepreis": "Tatsächlicher Preis, zu dem eine Aktie ausgegeben wird.",
+        "Agio": "Mehrpreis über dem Nennwert; wird der gesetzlichen Kapitalreserve zugewiesen.",
+        "Bezugsrecht": "Recht der bisherigen Aktionäre, neue Aktien im Verhältnis ihrer bisherigen Beteiligung zu übernehmen.",
+        "Ford. Aktionäre": "Forderungen gegenüber Aktionären; Gründungskonto zur Erfassung der Kapitalverpflichtung und ihrer Erfüllung.",
+        "Sacheinlage": "Einbringung von Vermögenswerten oder eines bestehenden Unternehmens anstelle einer Bareinzahlung.",
+        "Dividenden": "Noch nicht ausbezahlte Gewinnanteile; kurzfristige Schuld gegenüber Aktionären.",
+        "Verbindlichkeit VST": "Schuld gegenüber der Steuerverwaltung aus abgezogener Verrechnungssteuer.",
+        "Gesetzliche Kapitalreserve": "Einbezahlte Beträge über dem Nennwert, z. B. Agio.",
+        "Gesetzliche Gewinnreserve": "Zurückbehaltene, nicht ausgeschüttete Gewinne.",
+        "Freiwillige Gewinnreserve": "Zusätzliche Reserven gemäss Statuten oder Beschluss der Generalversammlung.",
+        "Gewinnvortrag": "Nicht verteilter Rest eines Gewinns; Konto für spätere Gewinnverteilung.",
+        "Jahresgewinn": "Unternehmensgewinn des Geschäftsjahres.",
+        "Jahresverlust": "Unternehmensverlust des Geschäftsjahres.",
+        "Bilanzgewinn": "Summe aus Gewinnvortrag und Jahresgewinn.",
+        "Verlustvortrag": "Nicht gedeckter Verlust, als Minusposten des Eigenkapitals ausgewiesen.",
+        "Verrechnungssteuer": "Auf Dividenden in der Schweiz abgezogene Steuer von 35 %.",
+        "Revisionsstelle": "Unabhängige Prüfstelle für Buchhaltung und Jahresabschluss.",
+        "Anhang": "Ergänzender Bestandteil der Jahresrechnung mit zusätzlichen Informationen.",
+        "Nicht einbezahltes Kapital": "Aktivkonto als Korrektur des Eigenkapitals, wenn gezeichnetes Kapital noch nicht vollständig einbezahlt ist."
+      },
+      "core_principles": [
+        "Die AG ist rechtlich und buchhalterisch vom Aktionär getrennt.",
+        "Aktionäre haften grundsätzlich nicht persönlich; die AG haftet mit Gesellschaftsvermögen.",
+        "Die Gründung erfasst zuerst die Kapitalverpflichtung der Aktionäre und danach deren Erfüllung.",
+        "Gewinnverwendung wird erst nach Beschluss der Generalversammlung gebucht.",
+        "Dividenden sind Ausschüttungen aus dem Eigenkapital und führen zu Liquiditätsabfluss.",
+        "Verluste mindern das Eigenkapital; nicht gedeckte Verluste bleiben als Verlustvortrag bestehen.",
+        "Ein über dem Nennwert liegender Ausgabepreis ist kein Gewinn, sondern Kapitalreserve."
+      ],
+      "theory_blocks": [
+        {
+          "id": "gruendung_und_zweck",
+          "title": "Gründung einer Aktiengesellschaft",
+          "points": [
+            "Eine AG wird oft gegründet, wenn ein Unternehmen wächst, zusätzliches Eigenkapital braucht und die persönliche Haftung beschränkt werden soll.",
+            "Die AG eignet sich für grössere Unternehmen oder Unternehmen mit höherem Kapitalbedarf und grösserem Geschäftsrisiko.",
+            "Die AG ist eine juristische Person; Gegenstand der Buchhaltung ist das Unternehmen, nicht der Aktionär."
+          ]
+        },
+        {
+          "id": "voraussetzungen",
+          "title": "Voraussetzungen der AG",
+          "points": [
+            "Mindestens eine natürliche oder juristische Person muss Aktionär sein.",
+            "Mindestkapital: CHF 100000.",
+            "Vorläufig müssen mindestens 20 % des Aktienkapitals, mindestens aber CHF 50000, einbezahlt oder als Sacheinlage eingebracht werden.",
+            "Vor der Gründung werden Statuten erstellt und die Gründung öffentlich beurkundet.",
+            "Einzahlungen erfolgen vor der Gründung auf ein Sperrkonto bei einer Bank.",
+            "Verwaltungsrat und Revisionsstelle werden bestimmt.",
+            "Die AG entsteht erst durch den Handelsregistereintrag.",
+            "Die Firma muss den Zusatz 'AG' enthalten; derselbe Firmenname darf in der Schweiz nur einmal vorkommen."
+          ]
+        },
+        {
+          "id": "merkmale",
+          "title": "Merkmale der AG",
+          "points": [
+            "Haftung nur mit Gesellschaftsvermögen.",
+            "Persönliche Haftung der Aktionäre ist ausgeschlossen.",
+            "Der Verwaltungsrat wird von der Generalversammlung gewählt und ist für die Geschäftsführung zuständig.",
+            "Aktionäre haben Vermögensrechte (z. B. Dividende, Bezugsrecht) und Mitgliedschaftsrechte (z. B. Teilnahme-, Stimm-, Wahl- und Auskunftsrechte).",
+            "Die AG ist selbst steuerpflichtig und versteuert Gewinn und Eigenkapital."
+          ]
+        },
+        {
+          "id": "verbuchung_grundung",
+          "title": "Verbuchung der Gründung",
+          "steps": [
+            "Zuerst wird die Kapitalverpflichtung erfasst: Ford. Aktionäre / Aktienkapital.",
+            "Danach werden Sacheinlagen und Bareinzahlungen gegen das Konto Ford. Aktionäre gebucht.",
+            "Bei eingebrachten Passiven wird Ford. Aktionäre im Soll belastet.",
+            "Das Konto Ford. Aktionäre muss am Ende ausgeglichen sein (Saldo 0)."
+          ],
+          "important_note": "Bei Sacheinlagen ist eine besondere Prüfungsbestätigung der Revisionsstelle erforderlich."
+        },
+        {
+          "id": "abschlussablauf",
+          "title": "Zeitlicher Ablauf von Abschluss und Gewinnverwendung",
+          "flow": [
+            "Abschlusstermin",
+            "Erstellen Jahresabschluss",
+            "Revision des Abschlusses",
+            "Generalversammlung",
+            "Verbuchung der Gewinnverwendung"
+          ],
+          "points": [
+            "Der Abschluss erfolgt meist per 31. Dezember.",
+            "Danach werden Bilanz, Erfolgsrechnung und Anhang erstellt.",
+            "Die Generalversammlung muss innerhalb von sechs Monaten stattfinden.",
+            "Erst nach dem GV-Beschluss wird die Gewinnverwendung verbucht."
+          ]
+        },
+        {
+          "id": "besondere_konten",
+          "title": "Besondere Konten der AG",
+          "definitions": {
+            "Dividenden": "Noch nicht ausbezahlte Gewinnanteile; kurzfristige Schuld.",
+            "Verbindlichkeit VST": "Abgezogene Verrechnungssteuer; kurzfristige Schuld.",
+            "Aktienkapital": "Grundkapital zum Nennwert.",
+            "Gesetzliche Kapitalreserve": "Agio und ähnliche Kapitalzuschüsse.",
+            "Gesetzliche Gewinnreserve": "Zurückbehaltene Gewinne.",
+            "Freiwillige Gewinnreserve": "Zusätzliche Reserven gemäss Statuten oder GV-Beschluss.",
+            "Gewinnvortrag": "Nicht verteilter Rest eines Gewinns.",
+            "Jahresgewinn oder Jahresverlust": "Ergebnis des Geschäftsjahres.",
+            "Nicht einbezahltes Kapital": "Aktivkonto als wirtschaftliche Korrektur des Eigenkapitals."
+          }
+        },
+        {
+          "id": "gewinnverwendung",
+          "title": "Gewinnverwendung",
+          "points": [
+            "Bilanzgewinn setzt sich aus Gewinnvortrag und Jahresgewinn zusammen.",
+            "Aus dem Bilanzgewinn können Reserven gebildet und Dividenden ausgeschüttet werden.",
+            "Ein Rest verbleibt als neuer Gewinnvortrag."
+          ],
+          "formula": "Bilanzgewinn = Gewinnvortrag + Jahresgewinn"
+        },
+        {
+          "id": "dividende_und_vst",
+          "title": "Dividende und Verrechnungssteuer",
+          "points": [
+            "Bei Dividendenausschüttungen zieht die AG 35 % Verrechnungssteuer ab.",
+            "Nur 65 % der beschlossenen Dividende werden netto an die Aktionäre ausbezahlt.",
+            "Die abgezogene Verrechnungssteuer wird an die Steuerverwaltung überwiesen."
+          ],
+          "formulas": {
+            "nettodividende": "Beschlossene Dividende * 0.65",
+            "verrechnungssteuer": "Beschlossene Dividende * 0.35"
+          }
+        },
+        {
+          "id": "verlustverbuchung",
+          "title": "Verlustverbuchung",
+          "points": [
+            "Jahresverluste werden zunächst auf das Konto Verlustvortrag übertragen.",
+            "Gewinnvorträge und Gewinnreserven können zur Deckung des Verlusts aufgelöst werden.",
+            "Nicht gedeckte Verluste verbleiben als Verlustvortrag.",
+            "Der Verlustvortrag wird als Minusposten des Eigenkapitals ausgewiesen."
+          ]
+        },
+        {
+          "id": "revision_und_anhang",
+          "title": "Revision und Anhang",
+          "points": [
+            "AGs müssen grundsätzlich durch eine Revisionsstelle geprüft werden.",
+            "Für grössere Gesellschaften gilt die ordentliche Revision.",
+            "Für andere AGs genügt oft die eingeschränkte Revision.",
+            "Bei nicht mehr als zehn Vollzeitstellen kann auf die Revision verzichtet werden, wenn alle Aktionäre einverstanden sind.",
+            "Der Anhang ergänzt Bilanz und Erfolgsrechnung um entscheidende Zusatzinformationen."
+          ],
+          "annex_items": [
+            "Auskunft über die angewandten Grundsätze",
+            "Angaben und Erläuterungen zu Positionen der Bilanz und Erfolgsrechnung",
+            "Grössere Auflösungen von stillen Reserven",
+            "Detailangaben zu Beteiligungen",
+            "Angaben über eigene Aktien",
+            "Verbindlichkeiten aus Leasinggeschäften",
+            "Verpfändete Aktiven und Aktiven unter Eigentumsvorbehalt",
+            "Bürgschaften / Eventualverpflichtungen zugunsten Dritter",
+            "Vergütungen an Verwaltungsräte und Geschäftsleitung bei börsenkotierten Gesellschaften"
+          ]
+        },
+        {
+          "id": "kapitalerhoehung",
+          "title": "Kapitalerhöhungen",
+          "points": [
+            "Kapitalerhöhungen dienen der Stärkung des Eigenkapitals bei weiterem Wachstum.",
+            "Neue Aktien können über dem Nennwert ausgegeben werden.",
+            "Der Betrag über dem Nennwert ist Agio und erhöht die gesetzliche Kapitalreserve.",
+            "Bisherige Aktionäre haben ein Bezugsrecht entsprechend ihrer bisherigen Beteiligung."
+          ],
+          "formulas": {
+            "agio_pro_aktie": "Ausgabepreis - Nennwert",
+            "erhoehung_aktienkapital": "Anzahl neue Aktien * Nennwert",
+            "zunahme_kapitalreserve": "Anzahl neue Aktien * (Ausgabepreis - Nennwert)"
+          }
+        }
+      ],
+      "key_formulas_and_rules": [
+        "Bilanzgewinn = Gewinnvortrag + Jahresgewinn",
+        "Dividende = Dividendenprozentsatz * Aktienkapital",
+        "Nettodividende = 65 % der beschlossenen Dividende",
+        "Verrechnungssteuer = 35 % der beschlossenen Dividende",
+        "Agio = Ausgabepreis - Nennwert",
+        "Erhöhung Aktienkapital = Anzahl neuer Aktien * Nennwert",
+        "Gesetzliche Kapitalreserve aus Kapitalerhöhung = Anzahl neuer Aktien * Agio"
+      ],
+      "journal_patterns": [
+        {
+          "situation": "Kapitalverpflichtung bei Gründung",
+          "booking": "Ford. Aktionäre / Aktienkapital",
+          "meaning": "Die AG erfasst ihren Anspruch gegen die Aktionäre auf Einzahlung des gezeichneten Kapitals."
+        },
+        {
+          "situation": "Einbringung von Aktiven als Sacheinlage",
+          "booking": "Aktivkonto / Ford. Aktionäre",
+          "meaning": "Die Aktiven decken einen Teil der Kapitalverpflichtung."
+        },
+        {
+          "situation": "Übernahme von Passiven aus einer Sacheinlage",
+          "booking": "Ford. Aktionäre / Passivkonto",
+          "meaning": "Die AG übernimmt Schulden des eingebrachten Unternehmens."
+        },
+        {
+          "situation": "Bareinzahlung eines Aktionärs",
+          "booking": "Bank / Ford. Aktionäre",
+          "meaning": "Die Kapitalverpflichtung wird durch Einzahlung erfüllt."
+        },
+        {
+          "situation": "Übertrag Jahresgewinn in Gewinnvortrag",
+          "booking": "Jahresgewinn / Gewinnvortrag",
+          "meaning": "Der Jahresgewinn wird für die Gewinnverteilung bereitgestellt."
+        },
+        {
+          "situation": "Zuweisung gesetzliche Gewinnreserve",
+          "booking": "Gewinnvortrag / Ges. Gewinnreserve",
+          "meaning": "Ein Teil des Bilanzgewinns wird nicht ausgeschüttet, sondern reserviert."
+        },
+        {
+          "situation": "Beschluss Dividende",
+          "booking": "Gewinnvortrag / Dividenden",
+          "meaning": "Die beschlossene Ausschüttung wird als Schuld gegenüber Aktionären erfasst."
+        },
+        {
+          "situation": "Nettodividende auszahlen",
+          "booking": "Dividenden / Bank",
+          "meaning": "Auszahlung des Nettoanteils an die Aktionäre."
+        },
+        {
+          "situation": "Verrechnungssteuer abziehen",
+          "booking": "Dividenden / Verbindlichkeit VST",
+          "meaning": "Der Steueranteil wird als Schuld gegenüber der Steuerverwaltung erfasst."
+        },
+        {
+          "situation": "Verrechnungssteuer überweisen",
+          "booking": "Verbindlichkeit VST / Bank",
+          "meaning": "Begleichung der Steuerschuld."
+        },
+        {
+          "situation": "Jahresverlust übertragen",
+          "booking": "Verlustvortrag / Jahresverlust",
+          "meaning": "Der Verlust wird in die Verlustverwendung überführt."
+        },
+        {
+          "situation": "Gewinnvortrag zur Verlustdeckung verwenden",
+          "booking": "Gewinnvortrag / Verlustvortrag",
+          "meaning": "Vorhandene alte Gewinne reduzieren den Verlust."
+        },
+        {
+          "situation": "Gewinnreserve zur Verlustdeckung auflösen",
+          "booking": "Ges. Gewinnreserve / Verlustvortrag",
+          "meaning": "Reservierte Gewinne werden zur Verlustdeckung eingesetzt."
+        },
+        {
+          "situation": "Kapitalerhöhung zum Nennwert",
+          "booking": "Bank / Aktienkapital",
+          "meaning": "Der Nennwert der neu ausgegebenen Aktien erhöht das Aktienkapital."
+        },
+        {
+          "situation": "Kapitalerhöhung über pari (Agio)",
+          "booking": "Bank / Gesetzliche Kapitalreserve",
+          "meaning": "Der Mehrpreis über dem Nennwert erhöht die gesetzliche Kapitalreserve."
+        }
+      ],
+      "worked_examples": [
+        {
+          "title": "Gründung der Hofer Malergeschäft AG",
+          "facts": {
+            "aktienkapital": 200000,
+            "sabine_hofer_aktien": 100000,
+            "stefan_frei_aktien": 50000,
+            "markus_gisler_aktien": 50000
+          },
+          "sole_proprietorship_balance": {
+            "assets": {
+              "Kasse": 1400,
+              "Bank": 28700,
+              "Forderungen L+L": 60200,
+              "Betriebseinrichtungen": 14200,
+              "Mobiliar": 20400,
+              "Fahrzeuge": 42100
+            },
+            "liabilities": {
+              "Verbindlichkeiten L+L": 33600,
+              "Passivdarlehen": 40000,
+              "Eigenkapital": 93400
+            }
+          },
+          "entries": [
+            "Ford. Aktionäre / Aktienkapital 200000",
+            "Kasse / Ford. Aktionäre 1400",
+            "Bank / Ford. Aktionäre 28700",
+            "Ford. L+L / Ford. Aktionäre 60200",
+            "Betriebseinrichtungen / Ford. Aktionäre 14200",
+            "Mobiliar / Ford. Aktionäre 20400",
+            "Fahrzeuge / Ford. Aktionäre 42100",
+            "Ford. Aktionäre / Verb. L+L 33600",
+            "Ford. Aktionäre / Passivdarlehen 40000",
+            "Bank / Ford. Aktionäre 6600",
+            "Bank / Ford. Aktionäre 50000",
+            "Bank / Ford. Aktionäre 50000"
+          ],
+          "resulting_opening_balance": {
+            "assets": {
+              "Kasse": 1400,
+              "Bank": 135300,
+              "Forderungen L+L": 60200,
+              "Betriebseinrichtungen": 14200,
+              "Mobiliar": 20400,
+              "Fahrzeuge": 42100
+            },
+            "liabilities": {
+              "Verbindlichkeiten L+L": 33600,
+              "Passivdarlehen": 40000,
+              "Aktienkapital": 200000
+            }
+          }
+        },
+        {
+          "title": "Gewinnverwendung",
+          "facts": {
+            "gewinnvortrag": 1600,
+            "jahresgewinn": 29700,
+            "bilanzgewinn": 31300,
+            "zuweisung_gesetzliche_gewinnreserve": 12000,
+            "dividende_9_prozent_von_200000": 18000,
+            "neuer_gewinnvortrag": 1300
+          },
+          "entries": [
+            "EB / Gewinnvortrag 1600",
+            "ER / Jahresgewinn 29700",
+            "Jahresgewinn / Gewinnvortrag 29700",
+            "Gewinnvortrag / Ges. Gewinnreserve 12000",
+            "Gewinnvortrag / Dividenden 18000",
+            "Gewinnvortrag / SB II 1300"
+          ]
+        },
+        {
+          "title": "Dividendenauszahlung mit Verrechnungssteuer",
+          "facts": {
+            "beschlossene_dividende": 18000,
+            "nettodividende_65_prozent": 11700,
+            "verrechnungssteuer_35_prozent": 6300
+          },
+          "entries": [
+            "Dividenden / Bank 11700",
+            "Dividenden / Verbindlichkeit VST 6300",
+            "Verbindlichkeit VST / Bank 6300"
+          ]
+        },
+        {
+          "title": "Verlustverbuchung",
+          "facts": {
+            "jahresverlust": 53900,
+            "gewinnvortrag_zur_deckung": 1200,
+            "gesetzliche_gewinnreserve_zur_deckung": 21100,
+            "restlicher_verlustvortrag": 31600
+          },
+          "entries": [
+            "Jahresverlust / ER 53900",
+            "Verlustvortrag / Jahresverlust 53900",
+            "Gewinnvortrag / Verlustvortrag 1200",
+            "Ges. Gewinnreserve / Verlustvortrag 21100",
+            "SB II / Verlustvortrag 31600"
+          ]
+        },
+        {
+          "title": "Kapitalerhöhung mit Agio",
+          "facts": {
+            "bisheriges_aktienkapital": 2000000,
+            "neues_aktienkapital": 3000000,
+            "nennwert_pro_neuer_aktie": 100,
+            "ausgabepreis_pro_neuer_aktie": 170,
+            "anzahl_neue_aktien": 10000,
+            "bankzunahme": 1700000,
+            "erhoehung_aktienkapital": 1000000,
+            "gesetzliche_kapitalreserve": 700000
+          },
+          "entries": [
+            "Bank / Aktienkapital 1000000",
+            "Bank / Gesetzliche Kapitalreserve 700000"
+          ]
+        }
+      ],
+      "common_mistakes": [
+        "Gewinnverwendung vor dem Generalversammlungsbeschluss buchen.",
+        "Dividende fälschlich vom Jahresgewinn statt vom Aktienkapital berechnen, obwohl die Aufgabe einen Prozentsatz des Aktienkapitals vorgibt.",
+        "Verrechnungssteuer von 35 % vergessen.",
+        "Agio dem Aktienkapital statt der gesetzlichen Kapitalreserve zuordnen.",
+        "Verlustvortrag nicht als Minusposten des Eigenkapitals darstellen.",
+        "Bei Sacheinlagen das Konto Ford. Aktionäre nicht verwenden.",
+        "Annehmen, dass das Konto Nicht einbezahltes Kapital echtes Vermögen darstellt; wirtschaftlich ist es eine Eigenkapitalkorrektur."
+      ],
+      "flashcards": [
+        {
+          "question": "Womit haftet eine AG grundsätzlich?",
+          "answer": "Nur mit ihrem Gesellschaftsvermögen."
+        },
+        {
+          "question": "Wann entsteht eine AG rechtlich?",
+          "answer": "Erst mit dem Eintrag im Handelsregister."
+        },
+        {
+          "question": "Wie lautet die Buchung der Kapitalverpflichtung bei der Gründung?",
+          "answer": "Ford. Aktionäre / Aktienkapital."
+        },
+        {
+          "question": "Was ist ein Agio?",
+          "answer": "Der Betrag, um den der Ausgabepreis einer Aktie den Nennwert übersteigt."
+        },
+        {
+          "question": "Welche Formel gilt für den Bilanzgewinn?",
+          "answer": "Bilanzgewinn = Gewinnvortrag + Jahresgewinn."
+        },
+        {
+          "question": "Wie hoch ist die Verrechnungssteuer auf Dividenden?",
+          "answer": "35 %."
+        },
+        {
+          "question": "Wie hoch ist die Nettodividende in Prozent der beschlossenen Dividende?",
+          "answer": "65 %."
+        },
+        {
+          "question": "Wozu dient das Konto Verlustvortrag?",
+          "answer": "Zur Erfassung eines nicht gedeckten Verlusts, der als Minusposten des Eigenkapitals weitergeführt wird."
+        },
+        {
+          "question": "Was passiert mit dem Agio bei einer Kapitalerhöhung?",
+          "answer": "Es wird der gesetzlichen Kapitalreserve zugewiesen."
+        },
+        {
+          "question": "Wann darf auf eine Revision verzichtet werden?",
+          "answer": "Wenn die Gesellschaft nicht mehr als zehn Vollzeitstellen hat und alle Aktionäre einverstanden sind."
+        }
+      ],
+      "quiz_questions": [
+        {
+          "type": "calculation",
+          "prompt": "Eine AG hat ein Aktienkapital von CHF 500000. Die Generalversammlung beschliesst eine Dividende von 6 %. Berechne die Bruttodividende, Nettodividende und Verrechnungssteuer.",
+          "expected_steps": [
+            "Dividende = 6 % von 500000 = 30000",
+            "Nettodividende = 65 % von 30000 = 19500",
+            "Verrechnungssteuer = 35 % von 30000 = 10500"
+          ]
+        },
+        {
+          "type": "booking",
+          "prompt": "Welche Buchung erfasst die Kapitalverpflichtung der Aktionäre bei der Gründung?",
+          "expected_answer": "Ford. Aktionäre / Aktienkapital"
+        },
+        {
+          "type": "concept",
+          "prompt": "Erkläre den Unterschied zwischen Aktienkapital und gesetzlicher Kapitalreserve.",
+          "expected_answer": "Aktienkapital ist das Grundkapital zum Nennwert. Die gesetzliche Kapitalreserve enthält Einzahlungen über dem Nennwert, z. B. Agio."
+        },
+        {
+          "type": "booking",
+          "prompt": "Wie wird die Auszahlung der Nettodividende und der Abzug der Verrechnungssteuer gebucht?",
+          "expected_answer": [
+            "Dividenden / Bank",
+            "Dividenden / Verbindlichkeit VST"
+          ]
+        },
+        {
+          "type": "booking",
+          "prompt": "Wie wird eine Kapitalerhöhung mit Agio gebucht?",
+          "expected_answer": [
+            "Bank / Aktienkapital",
+            "Bank / Gesetzliche Kapitalreserve"
+          ]
+        }
+      ],
+      "model_instructions_for_tutor": [
+        "Erkläre zuerst die wirtschaftliche Logik und danach die Buchung.",
+        "Trenne sauber zwischen Gründung, Jahresabschluss, Gewinnverwendung und Kapitalerhöhung.",
+        "Wenn Prozentangaben vorkommen, prüfe immer, ob sie sich auf das Aktienkapital, den Bilanzgewinn oder etwas anderes beziehen.",
+        "Betone bei Dividendenausschüttungen immer die Verrechnungssteuer von 35 %.",
+        "Zeige bei Verlusten klar, welche Teile durch Gewinnvortrag und Reserven gedeckt werden und welcher Rest als Verlustvortrag übrig bleibt.",
+        "Betone, dass Agio kein Gewinn, sondern Eigenkapitalreserve ist."
+      ]
+    }
+  ],
+  "notes": [
+    "Dieses Paket bündelt mehrere thematische Wissensdateien für ein Lerntool.",
+    "Die Kapitel basieren auf den vom Nutzer gelieferten Buchseiten.",
+    "Das Kapitel 'Aktiengesellschaft' basiert nur auf den gelieferten Seiten 195-203 und 206; fehlende Seiten wurden nicht ergänzt."
+  ]
+}
