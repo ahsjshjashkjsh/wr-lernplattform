@@ -5,7 +5,8 @@ import { notFound } from 'next/navigation'
 import { STATUS_LABELS } from '@/lib/utils'
 import { getCurrentUser } from '@/lib/auth'
 import { MarkLearnedButton } from './MarkLearnedButton'
-import { ArrowLeft, ArrowRight, BookOpen, Target, Lightbulb, Hash, Search, AlertTriangle } from 'lucide-react'
+import { ArrowLeft, ArrowRight, BookOpen, Target, Lightbulb, Hash, Search, AlertTriangle, BookMarked, Calculator, GraduationCap } from 'lucide-react'
+import { ChapterTabNav } from './ChapterTabNav'
 
 function SummaryText({ text, terms }: { text: string; terms: string[] }) {
   const sentences = text.split(/(?<=[.!?])\s+/).map(s => s.trim()).filter(Boolean)
@@ -21,12 +22,10 @@ function SummaryText({ text, terms }: { text: string; terms: string[] }) {
     )
   }
 
-  // Detect section headings: sentences with " – " or " — " near the start
   function isHeading(s: string) {
     return /^[A-ZÄÖÜ\w]{2,30}\s[–—]\s/.test(s) || /^[A-ZÄÖÜ][^.!?]{3,40}:\s/.test(s.slice(0, 50))
   }
 
-  // Group sentences into sections
   type Section = { heading: string | null; points: string[] }
   const sections: Section[] = []
   let current: Section = { heading: null, points: [] }
@@ -41,7 +40,6 @@ function SummaryText({ text, terms }: { text: string; terms: string[] }) {
   }
   sections.push(current)
 
-  // If no structure detected, fallback to simple list
   const hasStructure = sections.some(s => s.heading !== null)
 
   if (!hasStructure) {
@@ -95,10 +93,13 @@ const STATUS_STYLE: Record<string, string> = {
 
 export default async function ChapterPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ id: string }>
+  searchParams: Promise<{ tab?: string }>
 }) {
   const { id } = await params
+  const { tab = 'verstehen' } = await searchParams
   const user = await getCurrentUser()
 
   const chapter = await prisma.chapter.findUnique({
@@ -109,16 +110,23 @@ export default async function ChapterPage({
           chapters: { orderBy: { order: 'asc' }, select: { id: true, title: true, order: true } },
         },
       },
-      learningGoals: { orderBy: { order: 'asc' } },
-      keyTerms:      { orderBy: { order: 'asc' } },
-      corePoints:    { orderBy: { order: 'asc' } },
-      examples:      { orderBy: { order: 'asc' } },
-      quizQuestions: { select: { id: true } },
+      learningGoals:  { orderBy: { order: 'asc' } },
+      keyTerms:       { orderBy: { order: 'asc' } },
+      corePoints:     { orderBy: { order: 'asc' } },
+      examples:       { orderBy: { order: 'asc' } },
+      bookingEntries: { orderBy: { order: 'asc' } },
+      formulas:       { orderBy: { order: 'asc' } },
+      quizQuestions:  { select: { id: true } },
       progress: user ? { where: { userId: user.id } } : false,
     },
   })
 
   if (!chapter) notFound()
+
+  const isFrw = chapter.topic.category === 'frw'
+  const hasBookingEntries = chapter.bookingEntries.length > 0
+  const hasFormulas = chapter.formulas.length > 0
+  const hasQuiz = chapter.quizQuestions.length > 0
 
   const statusLabel = STATUS_LABELS[chapter.contentStatus as keyof typeof STATUS_LABELS] ?? chapter.contentStatus
   const statusClass = STATUS_STYLE[chapter.contentStatus] ?? STATUS_STYLE.missing
@@ -138,7 +146,11 @@ export default async function ChapterPage({
       <nav className="flex items-center gap-1.5 text-xs text-slate-600 flex-wrap">
         <Link href="/" className="hover:text-slate-400 transition-colors">Dashboard</Link>
         <span>/</span>
-        <Link href="/topics" className="hover:text-slate-400 transition-colors">Themen</Link>
+        {isFrw ? (
+          <Link href="/frw" className="hover:text-slate-400 transition-colors">FRW</Link>
+        ) : (
+          <Link href="/topics" className="hover:text-slate-400 transition-colors">Themen</Link>
+        )}
         <span>/</span>
         <Link href={`/topics/${chapter.topic.slug}`} className="hover:text-slate-400 transition-colors">
           {chapter.topic.title}
@@ -168,7 +180,9 @@ export default async function ChapterPage({
       <div className="glass rounded-2xl p-6 relative overflow-hidden">
         <div
           className="absolute inset-0 pointer-events-none opacity-40"
-          style={{ background: 'radial-gradient(ellipse at top right, rgba(99,102,241,0.15) 0%, transparent 60%)' }}
+          style={{ background: isFrw
+            ? 'radial-gradient(ellipse at top right, rgba(245,158,11,0.15) 0%, transparent 60%)'
+            : 'radial-gradient(ellipse at top right, rgba(99,102,241,0.15) 0%, transparent 60%)' }}
         />
         <div className="relative z-10 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
           <div>
@@ -182,6 +196,11 @@ export default async function ChapterPage({
               >
                 {chapter.topic.title}
               </Link>
+              {isFrw && chapter.topic.band && (
+                <span className="text-[11px] px-2.5 py-0.5 rounded-full border text-amber-400/80 border-amber-500/20 bg-amber-500/8">
+                  Band {chapter.topic.band}
+                </span>
+              )}
             </div>
             <h1 className="text-2xl sm:text-3xl font-bold text-white">{chapter.title}</h1>
             {chapter.subtitle && (
@@ -194,7 +213,10 @@ export default async function ChapterPage({
               {chapter.keyTerms.length > 0 && (
                 <span className="flex items-center gap-1.5"><Hash size={12} className="text-blue-400" /> {chapter.keyTerms.length} Begriffe</span>
               )}
-              {chapter.quizQuestions.length > 0 && (
+              {hasBookingEntries && (
+                <span className="flex items-center gap-1.5"><BookMarked size={12} className="text-amber-400" /> {chapter.bookingEntries.length} Buchungssätze</span>
+              )}
+              {hasQuiz && (
                 <span className="flex items-center gap-1.5"><BookOpen size={12} className="text-violet-400" /> {chapter.quizQuestions.length} Quizfragen</span>
               )}
             </div>
@@ -206,147 +228,302 @@ export default async function ChapterPage({
         </div>
       </div>
 
-      {/* Summary */}
-      {chapter.summary && (
-        <section className="glass rounded-2xl p-6">
-          <h2 className="text-xs font-semibold text-slate-500 uppercase tracking-widest mb-4 flex items-center gap-2">
-            <BookOpen size={13} /> Zusammenfassung
-          </h2>
-          <SummaryText text={chapter.summary} terms={chapter.keyTerms.map(t => t.term)} />
-        </section>
+      {/* Tab Nav — only for FRW chapters with booking entries */}
+      {isFrw && (hasBookingEntries || hasFormulas) && (
+        <ChapterTabNav
+          chapterId={chapter.id}
+          activeTab={tab}
+          hasBookingEntries={hasBookingEntries || hasFormulas}
+          hasQuiz={hasQuiz}
+        />
       )}
 
-      {/* Lernziele */}
-      {chapter.learningGoals.length > 0 && (
-        <section className="glass rounded-2xl p-6">
-          <h2 className="text-xs font-semibold text-slate-500 uppercase tracking-widest mb-4 flex items-center gap-2">
-            <Target size={13} /> Lernziele
-          </h2>
-          <ul className="space-y-2.5">
-            {chapter.learningGoals.map(goal => (
-              <li key={goal.id} className="flex items-start gap-3">
-                <div
-                  className="w-5 h-5 rounded-full flex items-center justify-center shrink-0 mt-0.5 text-emerald-400 text-xs font-bold"
-                  style={{ background: 'rgba(16,185,129,0.12)', border: '1px solid rgba(16,185,129,0.25)' }}
-                >
-                  ✓
-                </div>
-                <span className="text-sm text-slate-300 leading-relaxed">{goal.text}</span>
-              </li>
-            ))}
-          </ul>
-        </section>
-      )}
-
-      {/* Begriffe */}
-      {chapter.keyTerms.length > 0 && (
-        <section className="glass rounded-2xl p-6">
-          <h2 className="text-xs font-semibold text-slate-500 uppercase tracking-widest mb-4 flex items-center gap-2">
-            <Hash size={13} /> Wichtige Begriffe
-          </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            {chapter.keyTerms.map(term => (
-              <div
-                key={term.id}
-                className="rounded-xl p-4"
-                style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}
-              >
-                <dt className="font-semibold text-blue-400 text-sm mb-1">{term.term}</dt>
-                <dd className="text-slate-400 text-xs leading-relaxed">{term.definition}</dd>
-              </div>
-            ))}
-          </div>
-        </section>
-      )}
-
-      {/* Kernpunkte */}
-      {chapter.corePoints.length > 0 && (
-        <section className="glass rounded-2xl p-6">
-          <h2 className="text-xs font-semibold text-slate-500 uppercase tracking-widest mb-4 flex items-center gap-2">
-            <Lightbulb size={13} /> Kernpunkte
-          </h2>
-          <ul className="space-y-3">
-            {chapter.corePoints.map((point, idx) => (
-              <li key={point.id} className="flex items-start gap-3">
-                <div
-                  className="w-6 h-6 rounded-full text-xs font-bold shrink-0 flex items-center justify-center text-blue-400"
-                  style={{ background: 'rgba(59,130,246,0.12)', border: '1px solid rgba(59,130,246,0.2)' }}
-                >
-                  {idx + 1}
-                </div>
-                <span className="text-sm text-slate-300 leading-relaxed">{point.text}</span>
-              </li>
-            ))}
-          </ul>
-        </section>
-      )}
-
-      {/* Beispiele */}
-      {chapter.examples.length > 0 && (
-        <section className="glass rounded-2xl p-6">
-          <h2 className="text-xs font-semibold text-slate-500 uppercase tracking-widest mb-4 flex items-center gap-2">
-            <Search size={13} /> Beispiele
-          </h2>
-          <div className="space-y-3">
-            {chapter.examples.map((example, idx) => (
-              <div
-                key={example.id}
-                className="rounded-xl p-4"
-                style={{ background: 'rgba(245,158,11,0.06)', border: '1px solid rgba(245,158,11,0.15)' }}
-              >
-                <span className="text-xs font-semibold text-amber-400 block mb-1">Beispiel {idx + 1}</span>
-                <p className="text-sm text-slate-300 leading-relaxed">{example.text}</p>
-              </div>
-            ))}
-          </div>
-        </section>
-      )}
-
-      {/* Actions */}
-      <div className="glass rounded-2xl p-5 flex flex-wrap items-center gap-3">
-        {chapter.quizQuestions.length > 0 && (
-          <Link
-            href={`/quiz/${chapter.id}`}
-            className="flex items-center gap-2 text-sm font-semibold text-white px-5 py-2.5 rounded-xl transition-all glow-blue-sm"
-            style={{ background: 'linear-gradient(135deg, #3b82f6, #6366f1)' }}
-          >
-            <BookOpen size={14} /> Quiz starten ({chapter.quizQuestions.length})
-          </Link>
-        )}
-        <Link
-          href={`/assistant?chapter=${chapter.id}`}
-          className="flex items-center gap-2 text-sm font-semibold text-violet-300 px-5 py-2.5 rounded-xl transition-all"
-          style={{ background: 'rgba(139,92,246,0.12)', border: '1px solid rgba(139,92,246,0.25)' }}
-        >
-          <span>✦</span> Assistent fragen
-        </Link>
-        <div className="ml-auto flex items-center gap-2">
-          {prevChapter && (
-            <Link
-              href={`/chapters/${prevChapter.id}`}
-              className="flex items-center gap-1.5 text-sm text-slate-400 hover:text-slate-200 transition-colors"
-            >
-              <ArrowLeft size={14} /> Vorheriges
-            </Link>
+      {/* TAB: VERSTEHEN */}
+      {tab === 'verstehen' && (
+        <>
+          {/* Summary */}
+          {chapter.summary && (
+            <section className="glass rounded-2xl p-6">
+              <h2 className="text-xs font-semibold text-slate-500 uppercase tracking-widest mb-4 flex items-center gap-2">
+                <BookOpen size={13} /> Zusammenfassung
+              </h2>
+              <SummaryText text={chapter.summary} terms={chapter.keyTerms.map(t => t.term)} />
+            </section>
           )}
-          {!prevChapter && (
-            <Link
-              href={`/topics/${chapter.topic.slug}`}
-              className="flex items-center gap-1.5 text-sm text-slate-400 hover:text-slate-200 transition-colors"
-            >
-              <ArrowLeft size={14} /> Zurück
-            </Link>
+
+          {/* Lernziele */}
+          {chapter.learningGoals.length > 0 && (
+            <section className="glass rounded-2xl p-6">
+              <h2 className="text-xs font-semibold text-slate-500 uppercase tracking-widest mb-4 flex items-center gap-2">
+                <Target size={13} /> Lernziele
+              </h2>
+              <ul className="space-y-2.5">
+                {chapter.learningGoals.map(goal => (
+                  <li key={goal.id} className="flex items-start gap-3">
+                    <div
+                      className="w-5 h-5 rounded-full flex items-center justify-center shrink-0 mt-0.5 text-emerald-400 text-xs font-bold"
+                      style={{ background: 'rgba(16,185,129,0.12)', border: '1px solid rgba(16,185,129,0.25)' }}
+                    >
+                      ✓
+                    </div>
+                    <span className="text-sm text-slate-300 leading-relaxed">{goal.text}</span>
+                  </li>
+                ))}
+              </ul>
+            </section>
           )}
-          {nextChapter && (
-            <Link
-              href={`/chapters/${nextChapter.id}`}
-              className="flex items-center gap-1.5 text-sm font-medium text-blue-400 hover:text-blue-300 transition-colors"
-            >
-              Nächstes <ArrowRight size={14} />
-            </Link>
+
+          {/* Begriffe */}
+          {chapter.keyTerms.length > 0 && (
+            <section className="glass rounded-2xl p-6">
+              <h2 className="text-xs font-semibold text-slate-500 uppercase tracking-widest mb-4 flex items-center gap-2">
+                <Hash size={13} /> Wichtige Begriffe
+              </h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {chapter.keyTerms.map(term => (
+                  <div
+                    key={term.id}
+                    className="rounded-xl p-4"
+                    style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}
+                  >
+                    <dt className="font-semibold text-blue-400 text-sm mb-1">{term.term}</dt>
+                    <dd className="text-slate-400 text-xs leading-relaxed">{term.definition}</dd>
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
+
+          {/* Kernpunkte */}
+          {chapter.corePoints.length > 0 && (
+            <section className="glass rounded-2xl p-6">
+              <h2 className="text-xs font-semibold text-slate-500 uppercase tracking-widest mb-4 flex items-center gap-2">
+                <Lightbulb size={13} /> Kernpunkte
+              </h2>
+              <ul className="space-y-3">
+                {chapter.corePoints.map((point, idx) => (
+                  <li key={point.id} className="flex items-start gap-3">
+                    <div
+                      className="w-6 h-6 rounded-full text-xs font-bold shrink-0 flex items-center justify-center text-blue-400"
+                      style={{ background: 'rgba(59,130,246,0.12)', border: '1px solid rgba(59,130,246,0.2)' }}
+                    >
+                      {idx + 1}
+                    </div>
+                    <span className="text-sm text-slate-300 leading-relaxed">{point.text}</span>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
+
+          {/* Beispiele */}
+          {chapter.examples.length > 0 && (
+            <section className="glass rounded-2xl p-6">
+              <h2 className="text-xs font-semibold text-slate-500 uppercase tracking-widest mb-4 flex items-center gap-2">
+                <Search size={13} /> Beispiele
+              </h2>
+              <div className="space-y-3">
+                {chapter.examples.map((example, idx) => (
+                  <div
+                    key={example.id}
+                    className="rounded-xl p-4"
+                    style={{ background: 'rgba(245,158,11,0.06)', border: '1px solid rgba(245,158,11,0.15)' }}
+                  >
+                    <span className="text-xs font-semibold text-amber-400 block mb-1">Beispiel {idx + 1}</span>
+                    <p className="text-sm text-slate-300 leading-relaxed">{example.text}</p>
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
+
+          {/* Hint to booking entries tab for FRW */}
+          {isFrw && hasBookingEntries && (
+            <div className="rounded-xl px-5 py-4 flex items-center gap-3" style={{ background: 'rgba(245,158,11,0.06)', border: '1px solid rgba(245,158,11,0.15)' }}>
+              <BookMarked size={16} className="text-amber-400 shrink-0" />
+              <div className="flex-1">
+                <p className="text-sm text-amber-300 font-medium">Buchungssätze vorhanden</p>
+                <p className="text-xs text-slate-500 mt-0.5">Wechsle zum Tab «Buchungssätze» für alle Buchungseinträge dieses Kapitels.</p>
+              </div>
+              <Link href={`/chapters/${chapter.id}?tab=buchungssaetze`} className="text-xs font-semibold text-amber-400 hover:text-amber-300 transition-colors shrink-0">
+                Zum Tab →
+              </Link>
+            </div>
+          )}
+        </>
+      )}
+
+      {/* TAB: BUCHUNGSSÄTZE */}
+      {tab === 'buchungssaetze' && (
+        <div className="space-y-6">
+          {/* Formulas */}
+          {hasFormulas && (
+            <section className="glass rounded-2xl p-6">
+              <h2 className="text-xs font-semibold text-slate-500 uppercase tracking-widest mb-4 flex items-center gap-2">
+                <Calculator size={13} className="text-amber-400" /> Formeln
+              </h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {chapter.formulas.map(f => (
+                  <div key={f.id} className="rounded-xl p-4" style={{ background: 'rgba(245,158,11,0.06)', border: '1px solid rgba(245,158,11,0.15)' }}>
+                    <p className="text-xs font-bold text-amber-400 mb-1.5">{f.name}</p>
+                    <p className="font-mono text-sm text-white bg-black/20 rounded-lg px-3 py-2">{f.formel}</p>
+                    {f.erklaerung && <p className="text-xs text-slate-500 mt-2 leading-relaxed">{f.erklaerung}</p>}
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
+
+          {/* Booking Entries */}
+          {hasBookingEntries && (
+            <section className="glass rounded-2xl overflow-hidden">
+              <div className="px-6 py-4" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+                <h2 className="text-xs font-semibold text-slate-500 uppercase tracking-widest flex items-center gap-2">
+                  <BookMarked size={13} className="text-amber-400" /> Buchungssätze ({chapter.bookingEntries.length})
+                </h2>
+              </div>
+              <div className="divide-y" style={{ borderColor: 'rgba(255,255,255,0.04)' }}>
+                {chapter.bookingEntries.map((entry, idx) => (
+                  <div key={entry.id} className="px-6 py-5" style={{ background: idx % 2 === 0 ? 'transparent' : 'rgba(255,255,255,0.01)' }}>
+                    <p className="text-sm text-slate-300 font-medium mb-3">{entry.situation}</p>
+                    {entry.betragHint && (
+                      <p className="text-xs font-mono text-amber-400/70 mb-3">{entry.betragHint}</p>
+                    )}
+                    <div className="grid grid-cols-2 gap-2 mb-3">
+                      <div className="rounded-xl p-3" style={{ background: 'rgba(59,130,246,0.08)', border: '1px solid rgba(59,130,246,0.15)' }}>
+                        <p className="text-[10px] font-bold text-blue-400 uppercase tracking-wider mb-1">Soll</p>
+                        <p className="font-semibold text-white text-sm font-mono">{entry.sollKonto}</p>
+                      </div>
+                      <div className="rounded-xl p-3" style={{ background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.15)' }}>
+                        <p className="text-[10px] font-bold text-emerald-400 uppercase tracking-wider mb-1">Haben</p>
+                        <p className="font-semibold text-white text-sm font-mono">{entry.habenKonto}</p>
+                      </div>
+                    </div>
+                    <div className="rounded-lg px-3 py-2" style={{ background: 'rgba(255,255,255,0.02)' }}>
+                      <p className="text-xs font-mono text-slate-500 text-center">{entry.sollKonto} / {entry.habenKonto}</p>
+                    </div>
+                    {entry.erklaerung && (
+                      <p className="text-xs text-slate-500 mt-2.5 leading-relaxed">{entry.erklaerung}</p>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </section>
           )}
         </div>
-      </div>
+      )}
+
+      {/* TAB: ÜBEN */}
+      {tab === 'ueben' && (
+        <div className="glass rounded-2xl p-8 text-center space-y-4">
+          <div className="w-14 h-14 rounded-2xl flex items-center justify-center mx-auto" style={{ background: 'rgba(245,158,11,0.12)', border: '1px solid rgba(245,158,11,0.2)' }}>
+            <GraduationCap size={24} className="text-amber-400" />
+          </div>
+          <div>
+            <h3 className="font-bold text-white text-lg">Buchungssatz-Trainer</h3>
+            <p className="text-slate-500 text-sm mt-1.5 max-w-sm mx-auto">
+              Starte den Trainer mit den {chapter.bookingEntries.length} Buchungssätzen aus diesem Kapitel — Karte für Karte mit sofortigem Feedback.
+            </p>
+          </div>
+          <Link
+            href={`/frw/trainer?chapterId=${chapter.id}`}
+            className="inline-flex items-center gap-2 px-6 py-3 rounded-xl font-semibold text-sm text-white transition-all"
+            style={{ background: 'linear-gradient(135deg, #f59e0b, #ea580c)', boxShadow: '0 0 20px rgba(245,158,11,0.25)' }}
+          >
+            Trainer starten ({chapter.bookingEntries.length} Karten)
+          </Link>
+        </div>
+      )}
+
+      {/* TAB: QUIZ */}
+      {tab === 'quiz' && hasQuiz && (
+        <div className="glass rounded-2xl p-8 text-center space-y-4">
+          <div className="w-14 h-14 rounded-2xl flex items-center justify-center mx-auto" style={{ background: 'rgba(139,92,246,0.12)', border: '1px solid rgba(139,92,246,0.2)' }}>
+            <BookOpen size={24} className="text-violet-400" />
+          </div>
+          <div>
+            <h3 className="font-bold text-white text-lg">Quiz</h3>
+            <p className="text-slate-500 text-sm mt-1.5">{chapter.quizQuestions.length} Fragen zu diesem Kapitel</p>
+          </div>
+          <Link
+            href={`/quiz/${chapter.id}`}
+            className="inline-flex items-center gap-2 px-6 py-3 rounded-xl font-semibold text-sm text-white transition-all"
+            style={{ background: 'linear-gradient(135deg, #8b5cf6, #6366f1)' }}
+          >
+            <BookOpen size={14} /> Quiz starten
+          </Link>
+        </div>
+      )}
+
+      {/* Actions (non-FRW or fallback) */}
+      {(!isFrw || !(hasBookingEntries || hasFormulas)) && (
+        <div className="glass rounded-2xl p-5 flex flex-wrap items-center gap-3">
+          {hasQuiz && (
+            <Link
+              href={`/quiz/${chapter.id}`}
+              className="flex items-center gap-2 text-sm font-semibold text-white px-5 py-2.5 rounded-xl transition-all glow-blue-sm"
+              style={{ background: 'linear-gradient(135deg, #3b82f6, #6366f1)' }}
+            >
+              <BookOpen size={14} /> Quiz starten ({chapter.quizQuestions.length})
+            </Link>
+          )}
+          <Link
+            href={`/assistant?chapter=${chapter.id}`}
+            className="flex items-center gap-2 text-sm font-semibold text-violet-300 px-5 py-2.5 rounded-xl transition-all"
+            style={{ background: 'rgba(139,92,246,0.12)', border: '1px solid rgba(139,92,246,0.25)' }}
+          >
+            <span>✦</span> Assistent fragen
+          </Link>
+          <div className="ml-auto flex items-center gap-2">
+            {prevChapter && (
+              <Link href={`/chapters/${prevChapter.id}`} className="flex items-center gap-1.5 text-sm text-slate-400 hover:text-slate-200 transition-colors">
+                <ArrowLeft size={14} /> Vorheriges
+              </Link>
+            )}
+            {!prevChapter && (
+              <Link href={`/topics/${chapter.topic.slug}`} className="flex items-center gap-1.5 text-sm text-slate-400 hover:text-slate-200 transition-colors">
+                <ArrowLeft size={14} /> Zurück
+              </Link>
+            )}
+            {nextChapter && (
+              <Link href={`/chapters/${nextChapter.id}`} className="flex items-center gap-1.5 text-sm font-medium text-blue-400 hover:text-blue-300 transition-colors">
+                Nächstes <ArrowRight size={14} />
+              </Link>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* FRW bottom nav */}
+      {isFrw && (hasBookingEntries || hasFormulas) && (
+        <div className="glass rounded-2xl p-4 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            {prevChapter ? (
+              <Link href={`/chapters/${prevChapter.id}`} className="flex items-center gap-1.5 text-sm text-slate-400 hover:text-slate-200 transition-colors">
+                <ArrowLeft size={14} /> Vorheriges
+              </Link>
+            ) : (
+              <Link href={`/topics/${chapter.topic.slug}`} className="flex items-center gap-1.5 text-sm text-slate-400 hover:text-slate-200 transition-colors">
+                <ArrowLeft size={14} /> Zurück
+              </Link>
+            )}
+          </div>
+          <Link
+            href={`/assistant?chapter=${chapter.id}`}
+            className="flex items-center gap-2 text-sm font-semibold text-violet-300 px-4 py-2 rounded-xl transition-all"
+            style={{ background: 'rgba(139,92,246,0.12)', border: '1px solid rgba(139,92,246,0.25)' }}
+          >
+            <span>✦</span> Assistent fragen
+          </Link>
+          <div>
+            {nextChapter && (
+              <Link href={`/chapters/${nextChapter.id}`} className="flex items-center gap-1.5 text-sm font-medium text-amber-400 hover:text-amber-300 transition-colors">
+                Nächstes <ArrowRight size={14} />
+              </Link>
+            )}
+          </div>
+        </div>
+      )}
 
     </div>
   )

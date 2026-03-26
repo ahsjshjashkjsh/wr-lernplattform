@@ -36,9 +36,31 @@ export interface Chapter {
   examples?: Example[]
   learningGoals?: LearningGoal[]
   quizQuestions?: QuizQuestion[]
+  bookingEntries?: BookingEntry[]
+  formulas?: Formula[]
   progress?: ChapterProgress | null
   createdAt: string
   updatedAt: string
+}
+
+export interface BookingEntry {
+  id: string
+  situation: string
+  sollKonto: string
+  habenKonto: string
+  betragHint?: string | null
+  erklaerung: string
+  chapterId: string
+  order: number
+}
+
+export interface Formula {
+  id: string
+  name: string
+  formel: string
+  erklaerung: string
+  chapterId: string
+  order: number
 }
 
 export interface LearningGoal {

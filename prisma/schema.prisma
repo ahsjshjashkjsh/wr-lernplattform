@@ -53,7 +53,8 @@ model Topic {
   icon        String    @default("BookOpen")
   color       String    @default("blue")
   examType    String    // "querschnitt" | "abschluss" | "both"
-  category    String    // "bwl" | "vwl" | "recht"
+  category    String    // "bwl" | "vwl" | "recht" | "frw"
+  band        String?   // Nur FRW: "1" | "2" | "3"
   order       Int       @default(0)
   published   Boolean   @default(true)
   chapters    Chapter[]
@@ -77,6 +78,8 @@ model Chapter {
   learningGoals LearningGoal[]
   quizQuestions QuizQuestion[]
   progress      ChapterProgress[]
+  bookingEntries BookingEntry[]
+  formulas      Formula[]
   createdAt     DateTime          @default(now())
   updatedAt     DateTime          @updatedAt
 
@@ -114,6 +117,28 @@ model Example {
   chapterId String
   chapter   Chapter @relation(fields: [chapterId], references: [id])
   order     Int     @default(0)
+}
+
+model BookingEntry {
+  id          String  @id @default(cuid())
+  situation   String
+  sollKonto   String
+  habenKonto  String
+  betragHint  String?
+  erklaerung  String
+  chapterId   String
+  chapter     Chapter @relation(fields: [chapterId], references: [id], onDelete: Cascade)
+  order       Int     @default(0)
+}
+
+model Formula {
+  id         String  @id @default(cuid())
+  name       String
+  formel     String
+  erklaerung String
+  chapterId  String
+  chapter    Chapter @relation(fields: [chapterId], references: [id], onDelete: Cascade)
+  order      Int     @default(0)
 }
 
 model QuizQuestion {

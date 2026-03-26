@@ -82,12 +82,20 @@ export const CATEGORY_LABELS: Record<string, string> = {
   bwl: 'Betriebswirtschaft',
   vwl: 'Volkswirtschaft',
   recht: 'Recht',
+  frw: 'Finanz- & Rechnungswesen',
 }
 
 export const CATEGORY_COLORS: Record<string, string> = {
   bwl: 'from-blue-500 to-blue-700',
   vwl: 'from-emerald-500 to-emerald-700',
   recht: 'from-violet-500 to-violet-700',
+  frw: 'from-amber-500 to-orange-600',
+}
+
+export const FRW_BAND_LABELS: Record<string, string> = {
+  '1': 'Band 1 — Grundlagen',
+  '2': 'Band 2 — Vertiefung',
+  '3': 'Band 3 — Erweitert',
 }
 
 export const TOPIC_ICON_COLORS: Record<string, string> = {
