@@ -129,8 +129,19 @@ export default async function ProgressPage() {
       </div>
 
       {/* Per-topic breakdown */}
-      <div className="space-y-4">
-        {topics.map(topic => {
+      {(['wr', 'frw'] as const).map(section => {
+        const sectionTopics = topics.filter(t => section === 'frw' ? t.category === 'frw' : t.category !== 'frw')
+        if (sectionTopics.length === 0) return null
+        return (
+        <div key={section} className="space-y-3">
+          <div className="flex items-center gap-3">
+            <div className="w-1 h-5 rounded-full" style={{ background: section === 'frw' ? 'linear-gradient(180deg,#10b981,#059669)' : 'linear-gradient(180deg,#3b82f6,#6366f1)' }} />
+            <h2 className="text-xs font-bold uppercase tracking-widest" style={{ color: section === 'frw' ? '#34d399' : '#93c5fd' }}>
+              {section === 'frw' ? 'Finanz- & Rechnungswesen' : 'Wirtschaft & Recht'}
+            </h2>
+          </div>
+          <div className="space-y-4">
+        {sectionTopics.map(topic => {
           const getTopicChapterProg = (c: (typeof topic.chapters)[number]) =>
             Array.isArray(c.progress) ? c.progress[0] ?? null : null
           const chaptersCompleted = topic.chapters.filter(c => getTopicChapterProg(c)?.status === 'completed').length
@@ -232,7 +243,10 @@ export default async function ProgressPage() {
             </div>
           )
         })}
-      </div>
+          </div>
+        </div>
+        )
+      })}
     </div>
   )
 }
