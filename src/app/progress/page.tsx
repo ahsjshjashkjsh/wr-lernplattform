@@ -140,6 +140,15 @@ export default async function ProgressPage() {
               {section === 'frw' ? 'Finanz- & Rechnungswesen' : 'Wirtschaft & Recht'}
             </h2>
           </div>
+          {section === 'frw' ? (
+            <div className="rounded-2xl px-5 py-4 flex items-start gap-3" style={{ background: 'rgba(245,158,11,0.06)', border: '1px solid rgba(245,158,11,0.2)' }}>
+              <span style={{ fontSize: 16 }}>🚧</span>
+              <div>
+                <p className="text-sm font-semibold" style={{ color: '#fcd34d' }}>In Bearbeitung</p>
+                <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>Die FRW-Inhalte werden noch aufgebaut und sind bald verfügbar.</p>
+              </div>
+            </div>
+          ) : (
           <div className="space-y-4">
         {sectionTopics.map(topic => {
           const getTopicChapterProg = (c: (typeof topic.chapters)[number]) =>
@@ -244,6 +253,7 @@ export default async function ProgressPage() {
           )
         })}
           </div>
+          )}
         </div>
         )
       })}
