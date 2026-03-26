@@ -139,6 +139,19 @@ export default async function DashboardPage() {
         </div>
       </div>
 
+      {/* HEP update notice */}
+      <div className="rounded-2xl px-5 py-4 flex items-start gap-4" style={{ background: 'rgba(99,102,241,0.06)', border: '1px solid rgba(99,102,241,0.2)' }}>
+        <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 text-base" style={{ background: 'rgba(99,102,241,0.12)', border: '1px solid rgba(99,102,241,0.2)' }}>
+          📚
+        </div>
+        <div>
+          <p className="text-sm font-semibold mb-0.5" style={{ color: '#a5b4fc' }}>Themen werden gerade überarbeitet</p>
+          <p className="text-xs leading-relaxed" style={{ color: 'var(--text-muted)' }}>
+            Die Inhalte aller Themen werden aktuell direkt mit dem <span style={{ color: '#c4b5fd' }}>hep-Lehrmittel</span> abgeglichen — Ziel ist eine präzise, vollständige Zusammenfassung exakt nach Buchinhalt. Einige Kapitel sind deshalb vorübergehend eingeschränkt.
+          </p>
+        </div>
+      </div>
+
       {/* FRW Teaser — prominent */}
       <Link
         href="/buchungssaetze"
