@@ -7,6 +7,7 @@ import { getCurrentUser } from '@/lib/auth'
 import { MarkLearnedButton } from './MarkLearnedButton'
 import { ArrowLeft, ArrowRight, BookOpen, Target, Lightbulb, Hash, Search, AlertTriangle, BookMarked, Calculator, GraduationCap } from 'lucide-react'
 import { ChapterTabNav } from './ChapterTabNav'
+import ReactMarkdown from 'react-markdown'
 
 // ─── SummaryText ──────────────────────────────────────────────────────────────
 function SummaryText({ text, terms }: { text: string; terms: string[] }) {
@@ -318,13 +319,50 @@ export default async function ChapterPage({
       {tab === 'lernen' && isFrw && (
         <div className="space-y-6">
 
-          {/* Summary / Theory */}
+          {/* Summary / Theory — rendered as full Markdown */}
           {chapter.summary && (
             <section className="glass rounded-2xl p-6">
-              <h2 className="text-xs font-semibold text-slate-500 uppercase tracking-widest mb-4 flex items-center gap-2">
+              <h2 className="text-xs font-semibold text-slate-500 uppercase tracking-widest mb-5 flex items-center gap-2">
                 <Lightbulb size={13} className="text-amber-400" /> Theorie
               </h2>
-              <SummaryText text={chapter.summary} terms={chapter.keyTerms.map(t => t.term)} />
+              <div className="frw-markdown">
+                <ReactMarkdown
+                  components={{
+                    h1: ({ children }) => <h1 className="text-lg font-bold text-white mt-6 mb-3 pb-2" style={{ borderBottom: '1px solid rgba(245,158,11,0.2)' }}>{children}</h1>,
+                    h2: ({ children }) => <h2 className="text-base font-bold text-amber-300 mt-6 mb-2">{children}</h2>,
+                    h3: ({ children }) => <h3 className="text-sm font-semibold text-slate-200 mt-4 mb-2">{children}</h3>,
+                    h4: ({ children }) => <h4 className="text-sm font-semibold text-blue-300 mt-3 mb-1">{children}</h4>,
+                    p: ({ children }) => <p className="text-sm text-slate-300 leading-relaxed mb-3">{children}</p>,
+                    ul: ({ children }) => <ul className="space-y-1.5 mb-3 ml-2">{children}</ul>,
+                    ol: ({ children }) => <ol className="space-y-1.5 mb-3 ml-2 list-decimal list-inside">{children}</ol>,
+                    li: ({ children }) => (
+                      <li className="flex items-start gap-2.5 text-sm text-slate-300 leading-relaxed">
+                        <span className="shrink-0 w-1.5 h-1.5 rounded-full mt-[7px]" style={{ background: 'rgba(245,158,11,0.5)' }} />
+                        <span>{children}</span>
+                      </li>
+                    ),
+                    strong: ({ children }) => <strong className="font-bold text-white">{children}</strong>,
+                    em: ({ children }) => <em className="text-amber-300 not-italic font-medium">{children}</em>,
+                    code: ({ children }) => <code className="font-mono text-sm text-amber-300 bg-black/30 px-1.5 py-0.5 rounded">{children}</code>,
+                    blockquote: ({ children }) => (
+                      <blockquote className="border-l-2 border-amber-500/40 pl-4 my-3 text-sm text-slate-400 italic">{children}</blockquote>
+                    ),
+                    hr: () => <hr className="my-5" style={{ borderColor: 'rgba(255,255,255,0.07)' }} />,
+                    table: ({ children }) => (
+                      <div className="overflow-x-auto mb-4 rounded-xl" style={{ border: '1px solid rgba(255,255,255,0.08)' }}>
+                        <table className="w-full text-sm">{children}</table>
+                      </div>
+                    ),
+                    thead: ({ children }) => <thead style={{ background: 'rgba(245,158,11,0.1)' }}>{children}</thead>,
+                    th: ({ children }) => <th className="px-4 py-2 text-left text-xs font-bold text-amber-400 uppercase tracking-wider">{children}</th>,
+                    tbody: ({ children }) => <tbody>{children}</tbody>,
+                    tr: ({ children }) => <tr style={{ borderTop: '1px solid rgba(255,255,255,0.05)' }}>{children}</tr>,
+                    td: ({ children }) => <td className="px-4 py-2.5 text-slate-300 text-sm">{children}</td>,
+                  }}
+                >
+                  {chapter.summary}
+                </ReactMarkdown>
+              </div>
             </section>
           )}
 
