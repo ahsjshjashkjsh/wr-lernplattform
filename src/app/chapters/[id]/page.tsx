@@ -10,7 +10,12 @@ import { ChapterTabNav } from './ChapterTabNav'
 
 // ─── SummaryText ──────────────────────────────────────────────────────────────
 function SummaryText({ text, terms }: { text: string; terms: string[] }) {
-  const sentences = text.split(/(?<=[.!?])\s+/).map(s => s.trim()).filter(Boolean)
+  // Split on sentence-ending punctuation but NOT on abbreviations like A.o., z.B., CHF, inkl., etc.
+  const sentences = text
+    .replace(/\b(A\.o\.|z\.B\.|z\.T\.|u\.a\.|inkl\.|bzw\.|etc\.|CHF|Fr\.|Abs\.|Art\.|vgl\.)\s/g, m => m.replace(' ', '\x00'))
+    .split(/(?<=[.!?])\s+/)
+    .map(s => s.replace(/\x00/g, ' ').trim())
+    .filter(Boolean)
 
   function highlightTerms(sentence: string): React.ReactNode[] {
     if (terms.length === 0) return [sentence]
