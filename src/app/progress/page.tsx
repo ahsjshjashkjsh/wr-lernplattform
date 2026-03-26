@@ -133,7 +133,7 @@ export default async function ProgressPage() {
             <div className="flex items-center gap-2 mt-4 pt-4 text-sm" style={{ borderTop: '1px solid var(--divider)' }}>
               <Trophy size={14} className="text-amber-400" />
               <span style={{ color: 'var(--text-muted)' }}>Durchschnittlicher Quizscore:</span>
-              <span className="font-bold text-amber-400">{formatScore(avgScore)}</span>
+              <span className="font-bold text-amber-400">{formatScore(avgScore!)}</span>
             </div>
           )}
         </div>
