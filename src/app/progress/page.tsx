@@ -60,6 +60,23 @@ function GradientBar({ value }: { value: number }) {
 }
 
 export default async function ProgressPage() {
+  return (
+    <div className="max-w-3xl mx-auto fade-in">
+      <div className="glass rounded-2xl p-10 flex flex-col items-center text-center gap-4" style={{ border: '1px solid rgba(245,158,11,0.2)' }}>
+        <div className="w-14 h-14 rounded-2xl flex items-center justify-center text-2xl" style={{ background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.2)' }}>
+          🚧
+        </div>
+        <div>
+          <h1 className="text-xl font-bold mb-2" style={{ color: '#e4e4ed' }}>Lernfortschritt – In Bearbeitung</h1>
+          <p className="text-sm leading-relaxed" style={{ color: 'var(--text-muted)' }}>
+            Diese Seite ist noch nicht fertig und wird bald verfügbar sein.
+          </p>
+        </div>
+      </div>
+    </div>
+  )
+
+  // eslint-disable-next-line no-unreachable
   const { topics, totalChapters, completed, inProgress, notStarted, progressPct, avgScore } =
     await getProgressData()
 
