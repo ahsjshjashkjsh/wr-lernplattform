@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { ArrowLeft, ArrowRight, Shuffle, Zap, CheckCircle2, XCircle, Trophy, Layers } from 'lucide-react'
+import { ArrowLeft, ArrowRight, Shuffle, Zap, CheckCircle2, XCircle, Trophy, Layers, List, ChevronDown, ChevronRight } from 'lucide-react'
 
 type Eintrag  = { fall: string; satz: string; erklaerung?: string }
 type Kategorie = { label: string; color: string; icon: string; eintraege: Eintrag[] }
@@ -695,8 +695,120 @@ function QuizGenerator({ onBack }: { onBack: () => void }) {
   )
 }
 
+// ─── LISTE VIEW ───────────────────────────────────────────────────────────────
+function ListeView({ onBack }: { onBack: () => void }) {
+  const [open, setOpen] = useState<Record<string, boolean>>(() =>
+    Object.fromEntries(KATEGORIEN.map(k => [k.label, true]))
+  )
+  const [showErklaerung, setShowErklaerung] = useState<Record<string, boolean>>({})
+
+  const toggleKat = (label: string) =>
+    setOpen(prev => ({ ...prev, [label]: !prev[label] }))
+
+  const toggleErklaerung = (key: string) =>
+    setShowErklaerung(prev => ({ ...prev, [key]: !prev[key] }))
+
+  const allOpen = Object.values(open).every(Boolean)
+  const toggleAll = () => setOpen(Object.fromEntries(KATEGORIEN.map(k => [k.label, !allOpen])))
+
+  return (
+    <div className="space-y-6 fade-in">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <button onClick={onBack}
+            className="flex items-center gap-1.5 text-sm font-semibold transition-opacity hover:opacity-70"
+            style={{ color: '#4a5a78' }}>
+            <ArrowLeft size={14}/> Zurück
+          </button>
+          <span style={{ color: '#2a3a56' }}>·</span>
+          <h2 className="text-lg font-bold" style={{ color: '#e4e4ed' }}>Alle Buchungssätze</h2>
+        </div>
+        <button onClick={toggleAll}
+          className="text-xs font-semibold px-3 py-1.5 rounded-lg transition-opacity hover:opacity-70"
+          style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', color: '#4a5a78' }}>
+          {allOpen ? 'Alle zuklappen' : 'Alle aufklappen'}
+        </button>
+      </div>
+
+      {/* Category sections */}
+      <div className="space-y-3">
+        {KATEGORIEN.map(kat => {
+          const c = C[kat.color] ?? C.blue
+          const isOpen = open[kat.label]
+          return (
+            <div key={kat.label}
+              className="rounded-2xl overflow-hidden"
+              style={{ border: `1px solid ${isOpen ? c.border : CARD_BORDER}`, background: CARD_SURFACE }}>
+
+              {/* Section header */}
+              <button
+                onClick={() => toggleKat(kat.label)}
+                className="w-full flex items-center justify-between px-5 py-4 transition-all"
+                style={{ borderLeft: `3px solid ${c.accent}`, background: isOpen ? c.soft : 'transparent' }}>
+                <div className="flex items-center gap-3">
+                  <span className="text-lg">{kat.icon}</span>
+                  <span className="font-bold text-sm" style={{ color: '#e4e4ed' }}>{kat.label}</span>
+                  <span className="text-xs px-2 py-0.5 rounded-full font-semibold"
+                    style={{ color: c.text, background: `${c.soft}`, border: `1px solid ${c.border}` }}>
+                    {kat.eintraege.length}
+                  </span>
+                </div>
+                {isOpen
+                  ? <ChevronDown size={14} style={{ color: c.text }}/>
+                  : <ChevronRight size={14} style={{ color: '#4a5a78' }}/>}
+              </button>
+
+              {/* Entries table */}
+              {isOpen && (
+                <div className="divide-y" style={{ borderTop: `1px solid ${c.border}22`, '--divider': `${CARD_BORDER}` } as React.CSSProperties}>
+                  {kat.eintraege.map((e, i) => {
+                    const key = `${kat.label}-${i}`
+                    const expanded = showErklaerung[key]
+                    return (
+                      <div key={i}>
+                        <div
+                          className="flex items-start gap-4 px-5 py-3 transition-all cursor-pointer"
+                          style={{ borderTop: i === 0 ? 'none' : `1px solid ${CARD_BORDER}` }}
+                          onClick={() => e.erklaerung && toggleErklaerung(key)}
+                        >
+                          {/* Row number */}
+                          <span className="text-[10px] font-mono mt-0.5 shrink-0 w-5 text-right" style={{ color: '#2a3a56' }}>{i + 1}</span>
+
+                          {/* Buchungsfall */}
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium leading-snug" style={{ color: '#c8d0e0' }}>{e.fall}</p>
+                            {expanded && e.erklaerung && (
+                              <p className="text-xs mt-1.5 leading-relaxed" style={{ color: '#4a5a78' }}>{e.erklaerung}</p>
+                            )}
+                          </div>
+
+                          {/* Arrow + Buchungssatz */}
+                          <div className="flex items-center gap-2 shrink-0">
+                            <span className="text-xs font-bold" style={{ color: c.accent }}>→</span>
+                            <span className="text-sm font-mono font-semibold" style={{ color: c.text }}>{e.satz}</span>
+                            {e.erklaerung && (
+                              <span className="text-[10px] ml-1" style={{ color: expanded ? c.accent : '#2a3a56' }}>
+                                {expanded ? '▲' : '▼'}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+              )}
+            </div>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
+
 // ─── HOME ─────────────────────────────────────────────────────────────────────
-type View = { type: 'home' } | { type: 'study'; kat: Kategorie } | { type: 'quiz' }
+type View = { type: 'home' } | { type: 'study'; kat: Kategorie } | { type: 'quiz' } | { type: 'liste' }
 
 export default function BuchungssaetzePage() {
   const [view, setView] = useState<View>({ type: 'home' })
@@ -704,6 +816,7 @@ export default function BuchungssaetzePage() {
 
   if (view.type === 'study') return <StudyMode kat={view.kat} onBack={() => setView({ type: 'home' })}/>
   if (view.type === 'quiz')  return <QuizGenerator onBack={() => setView({ type: 'home' })}/>
+  if (view.type === 'liste') return <ListeView onBack={() => setView({ type: 'home' })}/>
 
   return (
     <div className="space-y-8 fade-in">
@@ -723,11 +836,18 @@ export default function BuchungssaetzePage() {
               {KATEGORIEN.length} Kategorien · {total} Karten
             </p>
           </div>
-          <button onClick={() => setView({ type: 'quiz' })}
-            className="flex items-center gap-2.5 px-5 py-3 rounded-xl text-sm font-bold transition-all hover:opacity-90 active:scale-[0.98] shrink-0 self-start sm:self-auto"
-            style={{ background: '#f59e0b', color: '#09090e' }}>
-            <Zap size={15}/> Quiz starten
-          </button>
+          <div className="flex items-center gap-2 self-start sm:self-auto">
+            <button onClick={() => setView({ type: 'liste' })}
+              className="flex items-center gap-2.5 px-5 py-3 rounded-xl text-sm font-bold transition-all hover:opacity-90 active:scale-[0.98]"
+              style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: '#c8d0e0' }}>
+              <List size={15}/> Liste
+            </button>
+            <button onClick={() => setView({ type: 'quiz' })}
+              className="flex items-center gap-2.5 px-5 py-3 rounded-xl text-sm font-bold transition-all hover:opacity-90 active:scale-[0.98]"
+              style={{ background: '#f59e0b', color: '#09090e' }}>
+              <Zap size={15}/> Quiz starten
+            </button>
+          </div>
         </div>
       </div>
 
