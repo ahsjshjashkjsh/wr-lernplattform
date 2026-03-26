@@ -718,15 +718,15 @@ function ListeView({ onBack }: { onBack: () => void }) {
         <div className="flex items-center gap-3">
           <button onClick={onBack}
             className="flex items-center gap-1.5 text-sm font-semibold transition-opacity hover:opacity-70"
-            style={{ color: '#4a5a78' }}>
+            style={{ color: '#7a8ba8' }}>
             <ArrowLeft size={14}/> Zurück
           </button>
-          <span style={{ color: '#2a3a56' }}>·</span>
+          <span style={{ color: '#4a5a78' }}>·</span>
           <h2 className="text-lg font-bold" style={{ color: '#e4e4ed' }}>Alle Buchungssätze</h2>
         </div>
         <button onClick={toggleAll}
           className="text-xs font-semibold px-3 py-1.5 rounded-lg transition-opacity hover:opacity-70"
-          style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', color: '#4a5a78' }}>
+          style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', color: '#8a9bb8' }}>
           {allOpen ? 'Alle zuklappen' : 'Alle aufklappen'}
         </button>
       </div>
@@ -756,7 +756,7 @@ function ListeView({ onBack }: { onBack: () => void }) {
                 </div>
                 {isOpen
                   ? <ChevronDown size={14} style={{ color: c.text }}/>
-                  : <ChevronRight size={14} style={{ color: '#4a5a78' }}/>}
+                  : <ChevronRight size={14} style={{ color: '#6b7a99' }}/>}
               </button>
 
               {/* Entries table */}
@@ -773,13 +773,13 @@ function ListeView({ onBack }: { onBack: () => void }) {
                           onClick={() => e.erklaerung && toggleErklaerung(key)}
                         >
                           {/* Row number */}
-                          <span className="text-[10px] font-mono mt-0.5 shrink-0 w-5 text-right" style={{ color: '#2a3a56' }}>{i + 1}</span>
+                          <span className="text-[10px] font-mono mt-0.5 shrink-0 w-5 text-right" style={{ color: '#5a6a88' }}>{i + 1}</span>
 
                           {/* Buchungsfall */}
                           <div className="flex-1 min-w-0">
                             <p className="text-sm font-medium leading-snug" style={{ color: '#c8d0e0' }}>{e.fall}</p>
                             {expanded && e.erklaerung && (
-                              <p className="text-xs mt-1.5 leading-relaxed" style={{ color: '#4a5a78' }}>{e.erklaerung}</p>
+                              <p className="text-xs mt-1.5 leading-relaxed" style={{ color: '#8a9bb8' }}>{e.erklaerung}</p>
                             )}
                           </div>
 
@@ -788,7 +788,7 @@ function ListeView({ onBack }: { onBack: () => void }) {
                             <span className="text-xs font-bold" style={{ color: c.accent }}>→</span>
                             <span className="text-sm font-mono font-semibold" style={{ color: c.text }}>{e.satz}</span>
                             {e.erklaerung && (
-                              <span className="text-[10px] ml-1" style={{ color: expanded ? c.accent : '#2a3a56' }}>
+                              <span className="text-[10px] ml-1" style={{ color: expanded ? c.accent : '#5a6a88' }}>
                                 {expanded ? '▲' : '▼'}
                               </span>
                             )}
