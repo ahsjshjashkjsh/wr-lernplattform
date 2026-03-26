@@ -4,7 +4,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { TopicIcon } from '@/components/TopicIcon'
 import { formatScore } from '@/lib/utils'
-import { CheckCircle2, Clock, Circle, ArrowRight, ChevronDown, ChevronRight } from 'lucide-react'
+import { CheckCircle2, Clock, Circle, ArrowRight, ChevronDown, ChevronRight, Construction } from 'lucide-react'
 
 type ChapterRow = {
   id: string
@@ -19,6 +19,7 @@ export type TopicRow = {
   title: string
   slug: string
   icon: string
+  category: string
   chaptersCompleted: number
   chaptersTotal: number
   topicPct: number
@@ -54,6 +55,25 @@ export function TopicList({ topics }: { topics: TopicRow[] }) {
     <div className="space-y-4">
       {topics.map(topic => {
         const isOpen = open[topic.id] ?? false
+
+        const isFrw = topic.category === 'frw'
+
+        if (isFrw) return (
+          <div key={topic.id} className="rounded-2xl overflow-hidden opacity-60" style={{ border: '1px solid rgba(239,68,68,0.2)', background: 'rgba(127,29,29,0.1)' }}>
+            <div className="flex items-center justify-between gap-3 px-5 py-4">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-lg flex items-center justify-center shrink-0" style={{ background: 'rgba(239,68,68,0.1)' }}>
+                  <TopicIcon name={topic.icon} size={17} className="text-red-400" />
+                </div>
+                <div>
+                  <div className="font-semibold text-sm" style={{ color: 'var(--text-primary)' }}>{topic.title}</div>
+                  <p className="text-[11px] mt-0.5 text-red-400/70">In Bearbeitung – noch nicht verfügbar</p>
+                </div>
+              </div>
+              <Construction size={14} className="text-red-400/60 shrink-0" />
+            </div>
+          </div>
+        )
 
         return (
           <div key={topic.id} className="glass rounded-2xl overflow-hidden">
