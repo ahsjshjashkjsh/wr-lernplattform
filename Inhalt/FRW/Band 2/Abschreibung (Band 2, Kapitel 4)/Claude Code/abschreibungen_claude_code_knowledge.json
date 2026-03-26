@@ -1,0 +1,555 @@
+{
+  "title": "Abschreibungen",
+  "language": "de",
+  "domain": "Schweizer Rechnungswesen",
+  "source_scope": "Zusammenfassung auf Basis der fotografierten Buchseiten 91-101 des Kapitels 'Abschreibungen'",
+  "audience": "Claude Code / Lerntool / Quizgenerator / Lernapp",
+  "learning_objectives": [
+    "Abschreibungen definieren und wirtschaftlich begründen",
+    "Anschaffungskosten korrekt bestimmen",
+    "lineare und degressive Abschreibungen berechnen",
+    "Buchwert, Anschaffungswert und Totalabschreibungen unterscheiden",
+    "direkte und indirekte Verbuchung anwenden",
+    "Gewinn oder Verlust beim Verkauf von Anlagen korrekt buchen"
+  ],
+  "terminology": {
+    "Abschreibung": "Planmässige Erfassung der Wertverminderung einer Anlage als Aufwand.",
+    "Anschaffungswert": "Betrag, der als Ausgangswert der Anlage aktiviert und später abgeschrieben wird.",
+    "Anschaffungskosten": "Bereinigter Kaufpreis zuzüglich direkt zurechenbarer Nebenkosten.",
+    "Buchwert": "Aktueller Bilanzwert einer Anlage nach Abzug der bisherigen Abschreibungen.",
+    "Restwert": "Im Kapitel synonym zum Buchwert bei degressiver Berechnung verwendet.",
+    "Wertberichtigungskonto": "Korrekturkonto zur indirekten Abschreibung; steht als Minusposten bei den Aktiven, folgt aber den Regeln eines Passivkontos.",
+    "Direkte Abschreibung": "Abschreibung direkt auf das Anlagekonto.",
+    "Indirekte Abschreibung": "Abschreibung auf ein separates Wertberichtigungskonto.",
+    "A.o. Aufwand": "Ausserordentlicher Aufwand, z. B. Verlust beim Anlagenverkauf.",
+    "A.o. Ertrag": "Ausserordentlicher Ertrag, z. B. Gewinn beim Anlagenverkauf.",
+    "Verb. L+L": "Verbindlichkeiten aus Lieferungen und Leistungen.",
+    "Ford. L+L": "Forderungen aus Lieferungen und Leistungen."
+  },
+  "core_principles": [
+    "Anlagen verlieren durch Nutzung, Alterung und technischen Fortschritt an Wert.",
+    "Dieser Wertverlust muss periodengerecht als Aufwand erfasst werden.",
+    "Abschreibungen sind erfolgswirksam, aber nicht liquiditätswirksam.",
+    "Abschreibungen dienen der Bilanzkorrektur, der richtigen Erfolgsermittlung und der Selbstfinanzierung."
+  ],
+  "theory_blocks": [
+    {
+      "id": "zweck",
+      "title": "Zweck von Abschreibungen",
+      "points": [
+        "Anpassung der Bilanzwerte von Sachanlagen an den tatsächlichen Wertverlauf.",
+        "Verteilung des Aufwands auf die Nutzungsdauer für einen richtigen Erfolgsausweis.",
+        "Förderung der Selbstfinanzierung durch Zurückbehalten liquider Mittel für Ersatzinvestitionen."
+      ],
+      "important_note": "Abschreibungen stellen Aufwand dar und führen zu kleinerem Gewinn, sind aber keine Ausgaben und müssen nicht bezahlt werden."
+    },
+    {
+      "id": "anschaffungskosten",
+      "title": "Berechnung der Anschaffungskosten",
+      "formula_words": "Kaufpreis brutto minus Rabatt/Skonto minus vorsteuerfähige MWST plus Transport/Installation = Anschaffungswert",
+      "includes": [
+        "Kaufpreis der Anlage",
+        "Transportkosten",
+        "Installationskosten",
+        "weitere direkt zurechenbare Beschaffungskosten"
+      ],
+      "excludes_or_deductions": [
+        "Rabatt",
+        "Skonto",
+        "vorsteuerfähige Mehrwertsteuer"
+      ],
+      "activation_rule": {
+        "typical_threshold_small_companies_chf": 1000,
+        "conditions": [
+          "Der Gegenstand ist längerfristig nutzbar.",
+          "Die Anschaffungskosten erreichen mindestens CHF 1000."
+        ]
+      }
+    },
+    {
+      "id": "linear",
+      "title": "Lineare Abschreibung",
+      "definition": "Jedes Jahr wird derselbe Betrag vom Anschaffungswert abgeschrieben.",
+      "formulas": {
+        "annual_amount": "Anschaffungskosten / Nutzungsdauer",
+        "rate": "100 % / Nutzungsdauer"
+      },
+      "properties": [
+        "konstanter jährlicher Aufwand",
+        "gleichmässiger Rückgang des Buchwerts",
+        "Buchwert erreicht am Ende der Nutzungsdauer 0 (oder in der Praxis 1 als Pro-Memoria-Posten)"
+      ],
+      "advantages": [
+        "einfach zu berechnen",
+        "einfach zu planen",
+        "am Ende der Nutzungsdauer klarer Zielwert"
+      ]
+    },
+    {
+      "id": "degressive",
+      "title": "Degressive Abschreibung",
+      "definition": "Jedes Jahr wird ein Prozentsatz vom aktuellen Buchwert abgeschrieben.",
+      "properties": [
+        "hohe Abschreibungen am Anfang",
+        "sinkende Beträge in späteren Jahren",
+        "Buchwert sinkt zuerst stark, dann immer flacher"
+      ],
+      "important_note": "Konsequent angewandt erreicht die degressive Methode den Wert 0 nicht exakt; im letzten Nutzungsjahr wird der Rest abgeschrieben.",
+      "advantages": [
+        "entspricht oft besser der tatsächlichen Wertverminderung",
+        "vorsichtiger, weil am Anfang höhere Beträge erfasst werden",
+        "schafft späteren Spielraum"
+      ]
+    },
+    {
+      "id": "verbuchung",
+      "title": "Verbuchung der Abschreibungen",
+      "direct_method": {
+        "booking_logic": "Abschreibungen / Anlagekonto",
+        "effect": [
+          "Das Anlagekonto wird direkt reduziert.",
+          "Der Saldo des Anlagekontos entspricht dem Buchwert.",
+          "Der ursprüngliche Anschaffungswert ist später nicht mehr direkt sichtbar."
+        ]
+      },
+      "indirect_method": {
+        "booking_logic": "Abschreibungen / WB Anlagekonto",
+        "effect": [
+          "Das Anlagekonto bleibt zum Anschaffungswert bestehen.",
+          "Das WB-Konto sammelt die Totalabschreibungen.",
+          "In der Bilanz wird der Buchwert als Anschaffungswert minus WB ausgewiesen."
+        ],
+        "special_note": "Das WB-Konto ist ein Minus-Aktivkonto, folgt aber den Buchungsregeln eines Passivkontos."
+      }
+    },
+    {
+      "id": "verkauf",
+      "title": "Buchungen beim Verkauf von Anlagen",
+      "steps": [
+        "Verkaufserlös buchen.",
+        "Bei indirekter Abschreibung allfällige Wertberichtigung auflösen.",
+        "Gewinn oder Verlust zur Bereinigung des Anlagekontos buchen."
+      ],
+      "decision_rules": [
+        "Verkaufserlös > Buchwert => Gewinn => Anlagekonto / A.o. Ertrag",
+        "Buchwert > Verkaufserlös => Verlust => A.o. Aufwand / Anlagekonto"
+      ]
+    }
+  ],
+  "formulas": [
+    {
+      "name": "Anschaffungswert",
+      "expression": "Kaufpreis brutto - Rabatt - Skonto - vorsteuerfähige MWST + Transport + Installation"
+    },
+    {
+      "name": "Lineare Abschreibung pro Jahr",
+      "expression": "Anschaffungskosten / Nutzungsdauer"
+    },
+    {
+      "name": "Linearer Abschreibungssatz",
+      "expression": "100 % / Nutzungsdauer"
+    },
+    {
+      "name": "Buchwert",
+      "expression": "Anschaffungswert - Totalabschreibungen"
+    },
+    {
+      "name": "Verkaufsgewinn",
+      "expression": "Verkaufserlös - Buchwert"
+    },
+    {
+      "name": "Verkaufsverlust",
+      "expression": "Buchwert - Verkaufserlös"
+    }
+  ],
+  "worked_examples": [
+    {
+      "id": "taxi_intro",
+      "title": "Einführungsbeispiel Taxi",
+      "data": {
+        "purchase_vehicle_chf": 44000,
+        "useful_life_years": 4,
+        "annual_depreciation_chf": 11000,
+        "provisional_profit_chf": 24200,
+        "corrected_profit_chf": 13200,
+        "vehicle_value_after_year_1_chf": 33000
+      },
+      "insight": "Die Abschreibung reduziert sowohl den Bilanzwert des Fahrzeugs als auch den ausgewiesenen Gewinn."
+    },
+    {
+      "id": "acquisition_office_furniture",
+      "title": "Anschaffungskosten einer Büroeinrichtung",
+      "data": {
+        "supplier_invoice_chf": 25800,
+        "discount_percent": 10,
+        "discount_chf": 2580,
+        "transport_chf": 780,
+        "acquisition_cost_chf": 24000
+      },
+      "journal_entries": [
+        "Mobiliar / Verb. L+L 25'800",
+        "Mobiliar / Kasse 780",
+        "Verb. L+L / Mobiliar 2'580",
+        "Verb. L+L / Bank 23'220"
+      ]
+    },
+    {
+      "id": "linear_8_years",
+      "title": "Lineare Abschreibung einer Büroeinrichtung",
+      "data": {
+        "acquisition_cost_chf": 24000,
+        "useful_life_years": 8,
+        "annual_amount_chf": 3000,
+        "rate_percent": 12.5
+      },
+      "schedule": [
+        {
+          "year": 1,
+          "depreciation": 3000,
+          "book_value_end": 21000
+        },
+        {
+          "year": 2,
+          "depreciation": 3000,
+          "book_value_end": 18000
+        },
+        {
+          "year": 3,
+          "depreciation": 3000,
+          "book_value_end": 15000
+        },
+        {
+          "year": 4,
+          "depreciation": 3000,
+          "book_value_end": 12000
+        },
+        {
+          "year": 5,
+          "depreciation": 3000,
+          "book_value_end": 9000
+        },
+        {
+          "year": 6,
+          "depreciation": 3000,
+          "book_value_end": 6000
+        },
+        {
+          "year": 7,
+          "depreciation": 3000,
+          "book_value_end": 3000
+        },
+        {
+          "year": 8,
+          "depreciation": 3000,
+          "book_value_end": 0
+        }
+      ]
+    },
+    {
+      "id": "degressive_25_percent",
+      "title": "Degressive Abschreibung 25 % vom Buchwert",
+      "data": {
+        "acquisition_cost_chf": 24000,
+        "rate_percent": 25
+      },
+      "schedule": [
+        {
+          "year": 1,
+          "base": 24000,
+          "depreciation": 6000,
+          "book_value_end": 18000
+        },
+        {
+          "year": 2,
+          "base": 18000,
+          "depreciation": 4500,
+          "book_value_end": 13500
+        },
+        {
+          "year": 3,
+          "base": 13500,
+          "depreciation": 3375,
+          "book_value_end": 10125
+        },
+        {
+          "year": 4,
+          "base": 10125,
+          "depreciation": 2531,
+          "book_value_end": 7594
+        },
+        {
+          "year": 5,
+          "base": 7594,
+          "depreciation": 1899,
+          "book_value_end": 5695
+        },
+        {
+          "year": 6,
+          "base": 5695,
+          "depreciation": 1424,
+          "book_value_end": 4271
+        },
+        {
+          "year": 7,
+          "base": 4271,
+          "depreciation": 1068,
+          "book_value_end": 3203
+        },
+        {
+          "year": 8,
+          "base": 3203,
+          "depreciation": 801,
+          "book_value_end": 2402
+        }
+      ],
+      "important_note": "Im letzten tatsächlichen Nutzungsjahr muss der verbleibende Rest vollständig abgeschrieben werden."
+    },
+    {
+      "id": "sale_direct_loss",
+      "title": "Verkauf bei direkter Abschreibung mit Verlust",
+      "data": {
+        "acquisition_cost_chf": 24000,
+        "method": "linear direkt",
+        "annual_depreciation_chf": 3000,
+        "years_used": 3,
+        "book_value_chf": 15000,
+        "sale_price_chf": 8800,
+        "loss_chf": 6200
+      },
+      "journal_entries": [
+        "Kasse / Mobiliar 8'800",
+        "A.o. Aufwand / Mobiliar 6'200"
+      ]
+    },
+    {
+      "id": "sale_indirect_gain",
+      "title": "Verkauf bei indirekter Abschreibung mit Gewinn",
+      "data": {
+        "acquisition_cost_chf": 24000,
+        "method": "linear indirekt",
+        "annual_depreciation_chf": 3000,
+        "years_used": 5,
+        "total_depreciation_chf": 15000,
+        "book_value_chf": 9000,
+        "sale_price_chf": 10500,
+        "gain_chf": 1500
+      },
+      "journal_entries": [
+        "Kasse / Mobiliar 10'500",
+        "WB Mobiliar / Mobiliar 15'000",
+        "Mobiliar / A.o. Ertrag 1'500"
+      ]
+    }
+  ],
+  "booking_templates": {
+    "direct_depreciation": [
+      "Abschreibungen / Mobiliar",
+      "Abschreibungen / Fahrzeuge",
+      "Abschreibungen / Maschinen"
+    ],
+    "indirect_depreciation": [
+      "Abschreibungen / WB Mobiliar",
+      "Abschreibungen / WB Fahrzeuge",
+      "Abschreibungen / WB Maschinen"
+    ],
+    "sale_step_1_proceeds": [
+      "Kasse / Mobiliar",
+      "Ford. L+L / Mobiliar"
+    ],
+    "sale_step_2_reverse_wb_if_indirect": [
+      "WB Mobiliar / Mobiliar",
+      "WB Fahrzeuge / Fahrzeuge"
+    ],
+    "sale_gain": [
+      "Mobiliar / A.o. Ertrag",
+      "Immobilien / A.o. Ertrag"
+    ],
+    "sale_loss": [
+      "A.o. Aufwand / Mobiliar",
+      "A.o. Aufwand / Immobilien"
+    ]
+  },
+  "comparison": {
+    "linear_vs_degressive": [
+      {
+        "criterion": "Rechenbasis",
+        "linear": "Anschaffungswert",
+        "degressive": "Buchwert / Restwert"
+      },
+      {
+        "criterion": "Jährlicher Betrag",
+        "linear": "gleichbleibend",
+        "degressive": "abnehmend"
+      },
+      {
+        "criterion": "Belastung der ersten Jahre",
+        "linear": "moderater",
+        "degressive": "höher"
+      },
+      {
+        "criterion": "Buchwertverlauf",
+        "linear": "gleichmässig",
+        "degressive": "zuerst stark, später flach"
+      },
+      {
+        "criterion": "Planbarkeit",
+        "linear": "sehr einfach",
+        "degressive": "etwas komplexer"
+      }
+    ],
+    "direct_vs_indirect": [
+      {
+        "criterion": "Buchung",
+        "direct": "Abschreibungen / Anlagekonto",
+        "indirect": "Abschreibungen / WB Anlagekonto"
+      },
+      {
+        "criterion": "Anschaffungswert sichtbar",
+        "direct": "nein",
+        "indirect": "ja"
+      },
+      {
+        "criterion": "Buchwert direkt sichtbar",
+        "direct": "ja",
+        "indirect": "nur als Differenz"
+      },
+      {
+        "criterion": "Informationsgehalt",
+        "direct": "geringer",
+        "indirect": "höher"
+      }
+    ]
+  },
+  "tax_notes": {
+    "max_rates_examples": [
+      {
+        "asset": "Mobiliar",
+        "degressive_max_percent": 25,
+        "linear_max_percent": 12.5
+      },
+      {
+        "asset": "Fahrzeuge",
+        "degressive_max_percent": 40,
+        "linear_max_percent": 20
+      }
+    ],
+    "result_effect": "Hohe Abschreibungen senken den ausgewiesenen Gewinn und können steuerliche Spielräume beeinflussen."
+  },
+  "common_mistakes": [
+    "Beim Anschaffungswert Rabatte oder Skonti vergessen.",
+    "Transport und Installation nicht aktivieren.",
+    "Bei degressiver Abschreibung fälschlich vom Anschaffungswert statt vom Buchwert rechnen.",
+    "Direkte und indirekte Verbuchung verwechseln.",
+    "Beim Verkauf Gewinn/Verlust mit dem Anschaffungswert statt mit dem Buchwert vergleichen.",
+    "Bei indirekter Methode die Auflösung der Wertberichtigung vergessen.",
+    "Abschreibungen als Ausgabe statt als nicht liquiditätswirksamen Aufwand verstehen."
+  ],
+  "quick_rules": [
+    "Abschreibungen mindern Gewinn und Vermögen.",
+    "Abschreibungen sind Aufwand, aber keine Ausgabe.",
+    "Linear = gleicher Betrag pro Jahr.",
+    "Degressiv = gleicher Prozentsatz vom Buchwert.",
+    "Direkt = Anlagekonto sinkt.",
+    "Indirekt = WB-Konto steigt.",
+    "Verkaufserlös über Buchwert = Gewinn.",
+    "Buchwert über Verkaufserlös = Verlust."
+  ],
+  "flashcards": [
+    {
+      "front": "Was ist der Hauptzweck einer Abschreibung?",
+      "back": "Die planmässige Erfassung der Wertverminderung einer Anlage als Aufwand und die Anpassung des Bilanzwerts an den tatsächlichen Wertverlauf."
+    },
+    {
+      "front": "Warum sind Abschreibungen nicht liquiditätswirksam?",
+      "back": "Weil der Geldabfluss bereits beim Kauf der Anlage stattgefunden hat; die spätere Abschreibung verursacht keine neue Auszahlung."
+    },
+    {
+      "front": "Wie lautet die Formel für lineare Abschreibung pro Jahr?",
+      "back": "Anschaffungskosten / Nutzungsdauer."
+    },
+    {
+      "front": "Wie lautet die Formel für den linearen Abschreibungssatz?",
+      "back": "100 % / Nutzungsdauer."
+    },
+    {
+      "front": "Wovon wird bei der degressiven Abschreibung gerechnet?",
+      "back": "Vom aktuellen Buchwert bzw. Restwert."
+    },
+    {
+      "front": "Wie lautet der Buchungssatz bei direkter Abschreibung eines Mobiliarpostens?",
+      "back": "Abschreibungen / Mobiliar."
+    },
+    {
+      "front": "Wie lautet der Buchungssatz bei indirekter Abschreibung eines Mobiliarpostens?",
+      "back": "Abschreibungen / WB Mobiliar."
+    },
+    {
+      "front": "Was gilt beim Verkauf indirekt abgeschriebener Anlagen zusätzlich?",
+      "back": "Die Wertberichtigung muss aufgelöst werden, z. B. WB Mobiliar / Mobiliar."
+    },
+    {
+      "front": "Wann entsteht beim Verkauf ein Gewinn?",
+      "back": "Wenn der Verkaufserlös grösser ist als der Buchwert."
+    },
+    {
+      "front": "Wann entsteht beim Verkauf ein Verlust?",
+      "back": "Wenn der Buchwert grösser ist als der Verkaufserlös."
+    }
+  ],
+  "question_bank": [
+    {
+      "type": "open",
+      "question": "Erkläre den Unterschied zwischen Aufwand und Ausgabe am Beispiel der Abschreibung.",
+      "expected_points": [
+        "Abschreibung ist Aufwand, weil sie den Gewinn mindert.",
+        "Sie ist keine Ausgabe, weil kein neuer Geldabfluss stattfindet.",
+        "Der Geldabfluss geschah beim Kauf der Anlage."
+      ]
+    },
+    {
+      "type": "calculation",
+      "question": "Eine Anlage kostet brutto CHF 18'500. Es gibt 5 % Rabatt und CHF 400 Transport. Die MWST ist vorsteuerabzugsfähig und soll ignoriert werden. Wie hoch ist der Anschaffungswert?",
+      "answer": "18'500 - 925 + 400 = CHF 17'975"
+    },
+    {
+      "type": "calculation",
+      "question": "Eine Maschine mit Anschaffungswert CHF 30'000 wird linear über 6 Jahre abgeschrieben. Wie hoch sind jährlicher Betrag und Abschreibungssatz?",
+      "answer": "CHF 5'000 pro Jahr und 16.67 %"
+    },
+    {
+      "type": "calculation",
+      "question": "Ein Fahrzeug mit Buchwert CHF 12'000 wird für CHF 14'500 verkauft. Entsteht Gewinn oder Verlust und wie gross ist er?",
+      "answer": "Gewinn von CHF 2'500"
+    },
+    {
+      "type": "calculation",
+      "question": "Ein Mobiliar mit Anschaffungswert CHF 20'000 wird indirekt abgeschrieben. Total WB beträgt CHF 8'000. Verkaufserlös CHF 9'000. Wie hoch ist der Buchwert und was entsteht beim Verkauf?",
+      "answer": "Buchwert CHF 12'000; Verlust CHF 3'000"
+    }
+  ],
+  "implementation_hints_for_learning_tool": {
+    "recommended_modules": [
+      "theory viewer",
+      "formula trainer",
+      "worked-example stepper",
+      "journal-entry trainer",
+      "flashcards",
+      "quiz mode",
+      "mistake diagnosis"
+    ],
+    "useful_tags": [
+      "definition",
+      "formula",
+      "booking",
+      "comparison",
+      "example",
+      "exam-tip",
+      "common-mistake"
+    ],
+    "adaptive_learning_ideas": [
+      "Wenn der Lernende lineare und degressive Abschreibung verwechselt, automatisch Vergleichsaufgaben einblenden.",
+      "Wenn Fehler bei Verkauf von Anlagen auftreten, zuerst Buchwert-Berechnung trainieren, danach Buchungssätze.",
+      "Bei Unsicherheit über direkte/indirekte Verbuchung T-Konten visualisieren lassen."
+    ]
+  }
+}
