@@ -32,19 +32,33 @@ const CATEGORY_GRADIENT: Record<string, string> = {
   bwl:   'from-blue-500/30 to-blue-600/10',
   vwl:   'from-emerald-500/30 to-emerald-600/10',
   recht: 'from-violet-500/30 to-violet-600/10',
+  frw:   'from-emerald-500/30 to-emerald-600/10',
 }
 
 const CATEGORY_ICON_BG: Record<string, string> = {
   bwl:   'rgba(59,130,246,0.15)',
   vwl:   'rgba(16,185,129,0.15)',
   recht: 'rgba(139,92,246,0.15)',
+  frw:   'rgba(16,185,129,0.15)',
 }
 
 const CATEGORY_ICON_COLOR: Record<string, string> = {
   bwl:   'text-blue-400',
   vwl:   'text-emerald-400',
   recht: 'text-violet-400',
+  frw:   'text-emerald-400',
 }
+
+const READY_FRW_SLUGS = new Set([
+  'frw-fremde-waehrungen',
+  'frw-verluste-forderungen',
+  'frw-abschreibungen',
+  'frw-zeitliche-abgrenzungen',
+  'frw-loehne-gehaelter',
+  'frw-rechtsformen',
+  'frw-bewertungsvorschriften',
+  'frw-kennzahlenanalyse',
+])
 
 const FRW_TOPICS = [
   { title: 'Bilanz, Erfolgsrechnung & Jahresabschluss', description: 'Buchungssatz, Hauptbuch, Bilanz, Erfolgsrechnung und Jahresabschluss.', ref: 'Band 1, Kap. 1–8', examType: 'both' },
@@ -298,18 +312,21 @@ export default function TopicsPage() {
               </div>
 
               {/* Banner */}
-              <div className="flex flex-col gap-1 px-4 py-3 rounded-xl mb-4 text-sm" style={{ background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.25)' }}>
-                <div className="flex items-center gap-2" style={{ color: '#fca5a5' }}>
-                  <AlertTriangle size={15} className="shrink-0 text-red-400" />
-                  <span><strong>Themen vorübergehend nicht verfügbar</strong></span>
+              <div className="flex flex-col gap-1 px-4 py-3 rounded-xl mb-4 text-sm" style={{ background: 'rgba(16,185,129,0.06)', border: '1px solid rgba(16,185,129,0.2)' }}>
+                <div className="flex items-center gap-2" style={{ color: '#6ee7b7' }}>
+                  <Calculator size={15} className="shrink-0 text-emerald-400" />
+                  <span><strong>Band 2 jetzt verfügbar — Band 1 & 3 folgen</strong></span>
                 </div>
                 <p className="text-xs text-slate-400 mt-0.5 leading-relaxed pl-[23px]">
-                  Die FRW-Inhalte werden aktuell komplett neu aufgebaut — direkt aus dem <strong className="text-slate-300">hep-Lehrmittel Band 1, 2 und 3</strong>. Ziel ist ein vollständiges, geprüftes Lernwerkzeug mit präzisen Zusammenfassungen, Schlüsselbegriffen und Übungsaufgaben — exakt nach Buchinhalt, ohne Fehler. Die Themen sind bald wieder verfügbar.
+                  Die FRW-Zusammenfassungen wurden neu direkt aus dem <strong className="text-slate-300">hep-Lehrmittel Band 2</strong> erarbeitet. Die markierten Themen sind jetzt vollständig nutzbar. Band 1 und Band 3 werden laufend nachgezogen.
                 </p>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {filteredFrwDb.map(t => <FrwMaintenanceCard key={t.id} topic={t} />)}
+                {filteredFrwDb.map(t => READY_FRW_SLUGS.has(t.slug)
+                  ? <TopicCard key={t.id} topic={t} />
+                  : <FrwMaintenanceCard key={t.id} topic={t} />
+                )}
                 {filteredFrwPlaceholder.map(t => <FrwPlaceholderCard key={t.title} title={t.title} description={t.description} ref={t.ref} examType={t.examType} />)}
               </div>
             </div>
