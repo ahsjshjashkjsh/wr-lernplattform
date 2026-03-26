@@ -7,17 +7,24 @@ interface Props {
   activeTab: string
   hasBookingEntries: boolean
   hasQuiz: boolean
+  isFrw?: boolean
 }
 
-export function ChapterTabNav({ chapterId, activeTab, hasBookingEntries, hasQuiz }: Props) {
+export function ChapterTabNav({ chapterId, activeTab, hasBookingEntries, hasQuiz, isFrw }: Props) {
   const router = useRouter()
 
-  const tabs = [
-    { id: 'verstehen', label: 'Verstehen', icon: Lightbulb },
-    ...(hasBookingEntries ? [{ id: 'buchungssaetze', label: 'Buchungssätze', icon: BookMarked }] : []),
-    ...(hasBookingEntries ? [{ id: 'ueben', label: 'Üben', icon: GraduationCap }] : []),
-    ...(hasQuiz ? [{ id: 'quiz', label: 'Quiz', icon: BookOpen }] : []),
-  ]
+  const tabs = isFrw
+    ? [
+        { id: 'lernen',  label: 'Lernen',  icon: Lightbulb },
+        ...(hasBookingEntries ? [{ id: 'ueben', label: 'Üben', icon: GraduationCap }] : []),
+        ...(hasQuiz ? [{ id: 'quiz', label: 'Quiz', icon: BookOpen }] : []),
+      ]
+    : [
+        { id: 'verstehen',    label: 'Verstehen',    icon: Lightbulb },
+        ...(hasBookingEntries ? [{ id: 'buchungssaetze', label: 'Buchungssätze', icon: BookMarked }] : []),
+        ...(hasBookingEntries ? [{ id: 'ueben',          label: 'Üben',          icon: GraduationCap }] : []),
+        ...(hasQuiz ? [{ id: 'quiz', label: 'Quiz', icon: BookOpen }] : []),
+      ]
 
   return (
     <div className="flex items-center gap-1 p-1 rounded-xl" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)' }}>
