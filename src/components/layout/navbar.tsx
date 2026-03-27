@@ -2,14 +2,12 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { BookOpen, LayoutDashboard, TrendingUp, Bot, CheckCircle, Sun, Moon, LogIn, LogOut, User, Shield, MessageSquarePlus, Menu, X, Calculator } from 'lucide-react'
+import { LayoutDashboard, TrendingUp, Bot, CheckCircle, Sun, Moon, LogIn, LogOut, User, Shield, MessageSquarePlus, Menu, X } from 'lucide-react'
 import { useTheme } from '@/components/ThemeProvider'
 import { useAuth } from '@/components/AuthProvider'
 
 const nav = [
   { href: '/',          label: 'Dashboard',  icon: LayoutDashboard },
-  { href: '/topics',    label: 'WR',         icon: BookOpen },
-  { href: '/frw',       label: 'FRW',        icon: Calculator },
   { href: '/progress',  label: 'Fortschritt', icon: CheckCircle },
   { href: '/assistant', label: 'Assistent',  icon: Bot },
   { href: '/feedback',  label: 'Feedback',   icon: MessageSquarePlus },
