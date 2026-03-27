@@ -26,6 +26,29 @@ export default function ImpressumPage() {
         </section>
 
         <section className="space-y-2">
+          <h2 className="text-base font-semibold text-slate-200">Quellen & Urheberrecht</h2>
+          <p>
+            Die Lerninhalte dieser Plattform basieren auf offiziellen Unterrichtsmaterialien
+            und wurden für die digitale Aufbereitung zusammengefasst. Die Quellen im Überblick:
+          </p>
+          <ul className="space-y-2 mt-3">
+            <li className="flex gap-2">
+              <span className="text-blue-400 font-semibold shrink-0">WR</span>
+              <span>
+                Wirtschaft &amp; Recht — basiert auf den Handouts und Unterrichtsmaterialien
+                der <strong className="text-slate-300">Kantonsschule Hottingen, Zürich</strong>,
+                erstellt von <strong className="text-slate-300">P. Wörner</strong>.
+              </span>
+            </li>
+          </ul>
+          <p className="mt-3">
+            Die Urheberrechte an den Originalunterlagen liegen bei den jeweiligen Autoren
+            und der Kantonsschule Hottingen. Diese Plattform verwendet die Inhalte
+            ausschliesslich zu privaten, nicht-kommerziellen Lernzwecken.
+          </p>
+        </section>
+
+        <section className="space-y-2">
           <h2 className="text-base font-semibold text-slate-200">Haftungsausschluss</h2>
           <p>
             Die Inhalte dieser Plattform wurden mit grosser Sorgfalt erstellt, jedoch
