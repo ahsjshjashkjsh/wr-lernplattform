@@ -16,6 +16,7 @@ const FILTER_TABS = [
   { key: 'bwl',         label: 'BWL' },
   { key: 'vwl',         label: 'VWL' },
   { key: 'recht',       label: 'Recht' },
+  { key: 'frw',         label: 'FRW' },
 ] as const
 
 type FilterKey = (typeof FILTER_TABS)[number]['key']
@@ -30,18 +31,21 @@ const CATEGORY_GRADIENT: Record<string, string> = {
   bwl:   'from-blue-500/30 to-blue-600/10',
   vwl:   'from-emerald-500/30 to-emerald-600/10',
   recht: 'from-violet-500/30 to-violet-600/10',
+  frw:   'from-teal-500/30 to-teal-600/10',
 }
 
 const CATEGORY_ICON_BG: Record<string, string> = {
   bwl:   'rgba(59,130,246,0.15)',
   vwl:   'rgba(16,185,129,0.15)',
   recht: 'rgba(139,92,246,0.15)',
+  frw:   'rgba(20,184,166,0.15)',
 }
 
 const CATEGORY_ICON_COLOR: Record<string, string> = {
   bwl:   'text-blue-400',
   vwl:   'text-emerald-400',
   recht: 'text-violet-400',
+  frw:   'text-teal-400',
 }
 
 function TopicCard({ topic }: { topic: TopicWithCount }) {
@@ -93,13 +97,13 @@ export default function TopicsPage() {
   }, [])
 
   const filtered = topics
-    .filter(t => t.category !== 'frw')
     .filter(t => {
       if (filter === 'querschnitt') return t.examType === 'querschnitt' || t.examType === 'both'
       if (filter === 'abschluss')   return t.examType === 'abschluss'   || t.examType === 'both'
       if (filter === 'bwl')   return t.category === 'bwl'
       if (filter === 'vwl')   return t.category === 'vwl'
       if (filter === 'recht') return t.category === 'recht'
+      if (filter === 'frw')   return t.category === 'frw'
       return true
     })
     .filter(t => {
