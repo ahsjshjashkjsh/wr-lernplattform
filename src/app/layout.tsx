@@ -7,6 +7,7 @@ import { FloatingChat } from '@/components/FloatingChat'
 import { ThemeProvider } from '@/components/ThemeProvider'
 import { AuthProvider } from '@/components/AuthProvider'
 import { AdminMessagePopup } from '@/components/AdminMessagePopup'
+import { MaintenanceGate } from '@/components/MaintenanceGate'
 
 export const metadata: Metadata = {
   title: 'HMS-Plattform – Abschlussprüfung',
@@ -29,7 +30,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <div className="relative z-10">
               <Navbar />
               <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10">
-                {children}
+                <MaintenanceGate>{children}</MaintenanceGate>
               </main>
               <Footer />
             </div>
