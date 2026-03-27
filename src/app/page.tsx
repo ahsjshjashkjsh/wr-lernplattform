@@ -139,16 +139,20 @@ export default async function DashboardPage() {
         </div>
       </div>
 
-      {/* HEP update notice */}
-      <div className="rounded-2xl px-5 py-4 flex items-start gap-4" style={{ background: 'rgba(99,102,241,0.06)', border: '1px solid rgba(99,102,241,0.2)' }}>
-        <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 text-base" style={{ background: 'rgba(99,102,241,0.12)', border: '1px solid rgba(99,102,241,0.2)' }}>
-          📚
+      {/* Beta banner */}
+      <div className="rounded-2xl px-5 py-4 flex items-center justify-between gap-4 flex-wrap" style={{ background: 'rgba(245,158,11,0.06)', border: '1px solid rgba(245,158,11,0.2)' }}>
+        <div className="flex items-center gap-3">
+          <div className="w-2 h-2 rounded-full animate-pulse shrink-0" style={{ background: '#f59e0b', boxShadow: '0 0 6px rgba(245,158,11,0.6)' }} />
+          <div>
+            <p className="text-sm font-semibold" style={{ color: '#fcd34d' }}>Plattform in Entwicklung</p>
+            <p className="text-xs mt-0.5 leading-relaxed" style={{ color: 'var(--text-muted)' }}>
+              Diese Webseite ist noch nicht finalisiert — Inhalte und Funktionen werden laufend ergänzt.
+            </p>
+          </div>
         </div>
-        <div>
-          <p className="text-sm font-semibold mb-0.5" style={{ color: '#a5b4fc' }}>Themen werden gerade überarbeitet</p>
-          <p className="text-xs leading-relaxed" style={{ color: 'var(--text-muted)' }}>
-            Die Inhalte aller Themen werden aktuell direkt mit dem <span style={{ color: '#c4b5fd' }}>hep-Lehrmittel</span> abgeglichen — Ziel ist eine präzise, vollständige Zusammenfassung exakt nach Buchinhalt. Einige Kapitel sind deshalb vorübergehend eingeschränkt.
-          </p>
+        <div className="text-right shrink-0">
+          <p className="text-[10px] font-semibold uppercase tracking-widest" style={{ color: 'rgba(245,158,11,0.5)' }}>Geplanter Launch</p>
+          <p className="text-sm font-bold" style={{ color: '#fcd34d' }}>29. März · 22:00 Uhr</p>
         </div>
       </div>
 
