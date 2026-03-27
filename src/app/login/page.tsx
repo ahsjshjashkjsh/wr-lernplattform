@@ -2,7 +2,7 @@
 import { Suspense, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
-import { LogIn, TrendingUp, Eye, EyeOff } from 'lucide-react'
+import { LogIn, TrendingUp, Eye, EyeOff, Clock } from 'lucide-react'
 
 function LoginForm() {
   const searchParams = useSearchParams()
@@ -11,6 +11,7 @@ function LoginForm() {
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+  const [pending, setPending] = useState(false)
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -28,7 +29,11 @@ function LoginForm() {
           window.location.href = '/banned'
           return
         }
-setError(data.error ?? 'Anmeldung fehlgeschlagen.')
+        if (data.error === 'PENDING') {
+          setPending(true)
+          return
+        }
+        setError(data.error ?? 'Anmeldung fehlgeschlagen.')
         return
       }
       const next = searchParams.get('next') ?? '/'
@@ -45,6 +50,19 @@ setError(data.error ?? 'Anmeldung fehlgeschlagen.')
     border: '1px solid rgba(255,255,255,0.1)',
     color: 'var(--text-primary)',
   }
+
+  if (pending) return (
+    <div className="glass rounded-2xl p-7 border text-center" style={{ borderColor: 'rgba(99,102,241,0.2)' }}>
+      <div className="w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-4"
+        style={{ background: 'rgba(99,102,241,0.1)', border: '1px solid rgba(99,102,241,0.25)' }}>
+        <Clock size={26} className="text-indigo-400" />
+      </div>
+      <h2 className="text-lg font-bold text-slate-100 mb-2">Zugang wird geprüft</h2>
+      <p className="text-sm leading-relaxed" style={{ color: 'var(--text-muted)' }}>
+        Dein Konto wurde noch nicht freigeschaltet. Der Administrator prüft deine Anfrage und gibt deinen Zugang so bald wie möglich frei.
+      </p>
+    </div>
+  )
 
   return (
     <div className="glass rounded-2xl p-6 border" style={{ borderColor: 'rgba(255,255,255,0.08)' }}>

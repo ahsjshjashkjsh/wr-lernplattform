@@ -1,6 +1,6 @@
 'use client'
 import { useEffect, useState, useCallback } from 'react'
-import { Shield, Trash2, Crown, Users, BarChart2, Ban, UserPlus, Pencil, X, Check, Eye, EyeOff, RefreshCw, MessageSquare, CheckCircle2, XCircle, Clock, Bug, Lightbulb, FileText, HelpCircle, Wifi, WifiOff, Globe, Activity, Send, Bell } from 'lucide-react'
+import { Shield, Trash2, Crown, Users, BarChart2, Ban, UserPlus, Pencil, X, Check, Eye, EyeOff, RefreshCw, MessageSquare, CheckCircle2, XCircle, Clock, Bug, Lightbulb, FileText, HelpCircle, Wifi, WifiOff, Globe, Activity, Send, Bell, UserCheck, UserX } from 'lucide-react'
 
 interface AdminUser {
   id: string
@@ -8,6 +8,7 @@ interface AdminUser {
   email: string
   isAdmin: boolean
   isBanned: boolean
+  isApproved: boolean
   createdAt: string
   lastOnline: string | null
   lastIp: string | null
@@ -41,7 +42,7 @@ const CATEGORY_ICONS: Record<string, typeof Bug> = { bug: Bug, feature: Lightbul
 const CATEGORY_LABELS: Record<string, string> = { bug: 'Fehler', feature: 'Vorschlag', content: 'Inhalt', general: 'Allgemein' }
 const CATEGORY_COLORS: Record<string, string> = { bug: '#f87171', feature: '#fbbf24', content: '#60a5fa', general: '#a78bfa' }
 
-type Tab = 'users' | 'create' | 'feedback' | 'messages' | 'log'
+type Tab = 'pending' | 'users' | 'create' | 'feedback' | 'messages' | 'log'
 
 // Online = lastOnline within last 3 minutes
 function isOnline(lastOnline: string | null) {
@@ -65,7 +66,7 @@ export default function AdminPage() {
   const [users, setUsers] = useState<AdminUser[]>([])
   const [bannedIps, setBannedIps] = useState<string[]>([])
   const [loading, setLoading] = useState(true)
-  const [tab, setTab] = useState<Tab>('users')
+  const [tab, setTab] = useState<Tab>('pending')
   const [actionLoading, setActionLoading] = useState<string | null>(null)
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null)
   const [editUser, setEditUser] = useState<AdminUser | null>(null)
@@ -436,7 +437,7 @@ export default function AdminPage() {
 
       {/* Tabs */}
       <div className="flex gap-2 mb-4 flex-wrap">
-        {([['users', Users, 'Benutzer'], ['create', UserPlus, 'Neuer Account'], ['feedback', MessageSquare, `Feedback${pendingFeedback > 0 ? ` (${pendingFeedback})` : ''}`], ['messages', Bell, 'Nachrichten'], ['log', Activity, `Live-Log${activityLogs.length > 0 ? ` (${activityLogs.length})` : ''}`]] as const).map(([t, Icon, label]) => (
+        {([['pending', Clock, `Anfragen${users.filter(u => !u.isApproved).length > 0 ? ` (${users.filter(u => !u.isApproved).length})` : ''}`], ['users', Users, 'Benutzer'], ['create', UserPlus, 'Neuer Account'], ['feedback', MessageSquare, `Feedback${pendingFeedback > 0 ? ` (${pendingFeedback})` : ''}`], ['messages', Bell, 'Nachrichten'], ['log', Activity, `Live-Log${activityLogs.length > 0 ? ` (${activityLogs.length})` : ''}`]] as const).map(([t, Icon, label]) => (
           <button
             key={t}
             onClick={() => setTab(t)}
@@ -452,6 +453,49 @@ export default function AdminPage() {
           </button>
         ))}
       </div>
+
+      {/* === TAB: PENDING === */}
+      {tab === 'pending' && (
+        <div className="glass rounded-2xl border overflow-hidden" style={{ borderColor: 'rgba(255,255,255,0.08)' }}>
+          <div className="px-5 py-3 border-b flex items-center gap-3" style={{ borderColor: 'rgba(255,255,255,0.06)' }}>
+            <Clock size={14} className="text-indigo-400" />
+            <span className="text-sm font-semibold text-slate-300">Ausstehende Registrierungen</span>
+          </div>
+          {users.filter(u => !u.isApproved).length === 0 ? (
+            <div className="px-5 py-10 text-center text-slate-500 text-sm">Keine ausstehenden Anfragen.</div>
+          ) : (
+            <div className="divide-y" style={{ borderColor: 'rgba(255,255,255,0.05)' }}>
+              {users.filter(u => !u.isApproved).map(u => (
+                <div key={u.id} className="flex items-center justify-between gap-4 px-5 py-4">
+                  <div>
+                    <p className="text-sm font-semibold text-slate-200">{u.name}</p>
+                    <p className="text-xs text-slate-500">{u.email}</p>
+                    <p className="text-[10px] text-slate-600 mt-0.5">Registriert {timeAgo(u.createdAt)}</p>
+                  </div>
+                  <div className="flex items-center gap-2 shrink-0">
+                    <button
+                      onClick={() => patch(u.id, { isApproved: true }, u.id + '-approve')}
+                      disabled={actionLoading === u.id + '-approve'}
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all"
+                      style={{ background: 'rgba(16,185,129,0.12)', border: '1px solid rgba(16,185,129,0.3)', color: '#34d399' }}
+                    >
+                      <UserCheck size={13} /> Genehmigen
+                    </button>
+                    <button
+                      onClick={() => deleteUser(u.id)}
+                      disabled={actionLoading === u.id + '-del'}
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all"
+                      style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.25)', color: '#f87171' }}
+                    >
+                      <UserX size={13} /> Ablehnen
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
 
       {/* === TAB: USERS === */}
       {tab === 'users' && (

@@ -21,6 +21,7 @@ export async function GET() {
         email: true,
         isAdmin: true,
         isBanned: true,
+        isApproved: true,
         createdAt: true,
         lastOnline: true,
         lastIp: true,
@@ -60,7 +61,7 @@ export async function POST(request: Request) {
 
   const passwordHash = await bcrypt.hash(password, 12)
   const user = await prisma.user.create({
-    data: { name, email, passwordHash, isAdmin: body.isAdmin ?? false },
+    data: { name, email, passwordHash, isAdmin: body.isAdmin ?? false, isApproved: true },
     select: { id: true, name: true, email: true, isAdmin: true, isBanned: true, createdAt: true },
   })
 
@@ -93,6 +94,7 @@ export async function PATCH(request: Request) {
   const data: Record<string, unknown> = {}
   if (body.isAdmin !== undefined) data.isAdmin = body.isAdmin
   if (body.isBanned !== undefined) data.isBanned = body.isBanned
+  if ((body as any).isApproved !== undefined) data.isApproved = (body as any).isApproved
   if (body.name?.trim()) data.name = body.name.trim()
   if (body.email?.trim()) data.email = body.email.trim().toLowerCase()
   if (body.password && body.password.length >= 6) {

@@ -36,6 +36,10 @@ export async function POST(request: Request) {
       return Response.json({ error: 'BANNED' }, { status: 403 })
     }
 
+    if (!user.isApproved) {
+      return Response.json({ error: 'PENDING' }, { status: 403 })
+    }
+
     // Update last login info
     await prisma.user.update({
       where: { id: user.id },

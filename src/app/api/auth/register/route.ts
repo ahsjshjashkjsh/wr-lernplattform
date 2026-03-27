@@ -1,5 +1,8 @@
 import { prisma } from '@/lib/prisma'
 import bcrypt from 'bcryptjs'
+import { Resend } from 'resend'
+
+const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null
 
 function isValidEmail(email: string) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
@@ -52,8 +55,27 @@ export async function POST(request: Request) {
 
     const passwordHash = await bcrypt.hash(password, 12)
     await prisma.user.create({
-      data: { name, email, passwordHash, lastIp: ip },
+      data: { name, email, passwordHash, lastIp: ip, isApproved: false },
     })
+
+    if (resend) {
+      await resend.emails.send({
+        from: 'HMS Lernplattform <onboarding@resend.dev>',
+        to: '3hr907@gmail.com',
+        subject: `Neue Registrierung: ${name}`,
+        html: `
+          <div style="font-family:sans-serif;max-width:520px;margin:0 auto;padding:24px">
+            <h2 style="margin:0 0 4px">Neue Registrierung eingegangen</h2>
+            <p style="color:#6b7280;margin:0 0 24px;font-size:14px">${new Date().toLocaleString('de-CH')}</p>
+            <table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:24px">
+              <tr><td style="padding:8px 12px;background:#f3f4f6;border-radius:6px 6px 0 0;font-weight:600;width:100px">Name</td><td style="padding:8px 12px;background:#f9fafb">${name}</td></tr>
+              <tr><td style="padding:8px 12px;background:#f3f4f6;border-radius:0 0 6px 6px;font-weight:600">E-Mail</td><td style="padding:8px 12px;background:#f9fafb">${email}</td></tr>
+            </table>
+            <p style="font-size:14px;color:#374151">Gehe ins Admin-Dashboard und genehmige oder lehne die Registrierung ab.</p>
+          </div>
+        `,
+      }).catch(() => {})
+    }
 
     return Response.json({ ok: true })
   } catch (error) {
