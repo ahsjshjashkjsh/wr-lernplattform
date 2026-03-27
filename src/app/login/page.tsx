@@ -3,6 +3,7 @@ import { Suspense, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { LogIn, TrendingUp, Eye, EyeOff, Clock } from 'lucide-react'
+import { ContactAdminForm } from '@/components/ContactAdminForm'
 
 function LoginForm() {
   const searchParams = useSearchParams()
@@ -148,6 +149,7 @@ function LoginForm() {
           Jetzt registrieren
         </Link>
       </p>
+      <ContactAdminForm />
     </div>
   )
 }

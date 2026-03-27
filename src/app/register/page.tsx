@@ -3,6 +3,7 @@ import { useState } from 'react'
 
 import Link from 'next/link'
 import { UserPlus, TrendingUp, Eye, EyeOff, CheckCircle2, Clock } from 'lucide-react'
+import { ContactAdminForm } from '@/components/ContactAdminForm'
 
 export default function RegisterPage() {
   const [name, setName] = useState('')
@@ -260,6 +261,7 @@ export default function RegisterPage() {
               Anmelden
             </Link>
           </p>
+          <ContactAdminForm />
         </div>
       </div>
     </div>
