@@ -1,5 +1,4 @@
 import { prisma } from '@/lib/prisma'
-import { setSession } from '@/lib/auth'
 import bcrypt from 'bcryptjs'
 
 function isValidEmail(email: string) {
@@ -52,12 +51,11 @@ export async function POST(request: Request) {
     }
 
     const passwordHash = await bcrypt.hash(password, 12)
-    const user = await prisma.user.create({
+    await prisma.user.create({
       data: { name, email, passwordHash, lastIp: ip },
     })
 
-    await setSession({ userId: user.id, name: user.name, email: user.email, isAdmin: user.isAdmin })
-    return Response.json({ user: { id: user.id, name: user.name, email: user.email, isAdmin: user.isAdmin } })
+    return Response.json({ ok: true })
   } catch (error) {
     console.error('POST /api/auth/register error:', error)
     return Response.json({ error: 'Registrierung fehlgeschlagen. Bitte nochmals versuchen.' }, { status: 500 })
