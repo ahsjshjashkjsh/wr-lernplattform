@@ -2,7 +2,7 @@
 import { useState } from 'react'
 
 import Link from 'next/link'
-import { UserPlus, TrendingUp, Eye, EyeOff, CheckCircle2 } from 'lucide-react'
+import { UserPlus, TrendingUp, Eye, EyeOff, CheckCircle2, Clock } from 'lucide-react'
 
 export default function RegisterPage() {
   const [name, setName] = useState('')
@@ -13,6 +13,7 @@ export default function RegisterPage() {
   const [showConfirm, setShowConfirm] = useState(false)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+  const [submitted, setSubmitted] = useState(false)
 
   const passwordsMatch = confirmPassword.length > 0 && password === confirmPassword
   const passwordStrong = password.length >= 6
@@ -38,7 +39,7 @@ export default function RegisterPage() {
         setError(data.error ?? 'Registrierung fehlgeschlagen.')
         return
       }
-      window.location.href = '/'
+      setSubmitted(true)
     } catch {
       setError('Verbindungsfehler. Bitte nochmals versuchen.')
     } finally {
@@ -52,6 +53,43 @@ export default function RegisterPage() {
     border: '1px solid rgba(255,255,255,0.1)',
     color: 'var(--text-primary)',
   }
+
+  if (submitted) return (
+    <div className="min-h-[90vh] flex items-center justify-center px-4 py-8">
+      <div className="w-full max-w-sm">
+        <div className="flex flex-col items-center mb-8">
+          <div
+            className="w-14 h-14 rounded-2xl flex items-center justify-center mb-4"
+            style={{ background: 'linear-gradient(135deg, #3b82f6, #6366f1)', boxShadow: '0 0 30px rgba(99,102,241,0.4)' }}
+          >
+            <TrendingUp size={28} className="text-white" />
+          </div>
+          <h1 className="text-2xl font-bold gradient-text">HMS-Plattform</h1>
+          <p className="text-slate-500 text-sm mt-1">HMS · Abschlussprüfung 2026</p>
+        </div>
+
+        <div className="glass rounded-2xl p-7 border text-center" style={{ borderColor: 'rgba(99,102,241,0.2)' }}>
+          <div className="w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-4"
+            style={{ background: 'rgba(99,102,241,0.1)', border: '1px solid rgba(99,102,241,0.25)' }}>
+            <Clock size={26} className="text-indigo-400" />
+          </div>
+          <h2 className="text-lg font-bold text-slate-100 mb-2">Registrierung eingegangen</h2>
+          <p className="text-sm leading-relaxed mb-5" style={{ color: 'var(--text-muted)' }}>
+            Dein Konto wird gerade vom Administrator geprüft. Du erhältst Zugang, sobald deine Anfrage bestätigt wurde — das dauert in der Regel nur kurze Zeit.
+          </p>
+          <div className="rounded-xl px-4 py-3 text-xs leading-relaxed mb-5"
+            style={{ background: 'rgba(99,102,241,0.07)', border: '1px solid rgba(99,102,241,0.15)', color: '#a5b4fc' }}>
+            Du kannst diese Seite schliessen und dich später mit deinen Zugangsdaten anmelden.
+          </div>
+          <Link href="/login"
+            className="block w-full py-2.5 rounded-xl text-sm font-semibold text-white transition-all"
+            style={{ background: 'linear-gradient(135deg, #3b82f6, #6366f1)', boxShadow: '0 4px 20px -4px rgba(99,102,241,0.4)' }}>
+            Zur Anmeldung
+          </Link>
+        </div>
+      </div>
+    </div>
+  )
 
   return (
     <div className="min-h-[90vh] flex items-center justify-center px-4 py-8">
