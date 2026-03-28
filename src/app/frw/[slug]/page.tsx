@@ -75,6 +75,7 @@ export default async function FrwChapterPage({ params, searchParams }: Props) {
   if (!chapter) notFound()
 
   const currentIndex = allTopics.findIndex(t => t.slug === slug)
+  if (currentIndex === -1) notFound()
   const prevTopic = currentIndex > 0 ? allTopics[currentIndex - 1] : null
   const nextTopic = currentIndex < allTopics.length - 1 ? allTopics[currentIndex + 1] : null
 
