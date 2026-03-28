@@ -2,7 +2,7 @@ import { prisma } from '@/lib/prisma'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import ReactMarkdown from 'react-markdown'
-import { ChevronLeft, BookOpen, Hash, FileText, Dumbbell, Lightbulb, AlertCircle, ArrowRight, GraduationCap } from 'lucide-react'
+import { ChevronLeft, ChevronRight, BookOpen, Hash, FileText, Dumbbell, Lightbulb, AlertCircle, ArrowRight, GraduationCap } from 'lucide-react'
 import { BookingTrainer } from '@/components/frw/BookingTrainer'
 import { TheoryTrainer } from '@/components/frw/TheoryTrainer'
 
@@ -14,21 +14,29 @@ type Props = {
 }
 
 async function getChapter(slug: string) {
-  return prisma.topic.findUnique({
-    where: { slug, category: 'frw' },
-    include: {
-      chapters: {
-        orderBy: { order: 'asc' },
-        include: {
-          bookingEntries: { orderBy: { order: 'asc' } },
-          keyTerms:       { orderBy: { order: 'asc' } },
-          corePoints:     { orderBy: { order: 'asc' } },
-          formulas:       { orderBy: { order: 'asc' } },
-          learningGoals:  { orderBy: { order: 'asc' } },
+  const [topic, allTopics] = await Promise.all([
+    prisma.topic.findUnique({
+      where: { slug, category: 'frw' },
+      include: {
+        chapters: {
+          orderBy: { order: 'asc' },
+          include: {
+            bookingEntries: { orderBy: { order: 'asc' } },
+            keyTerms:       { orderBy: { order: 'asc' } },
+            corePoints:     { orderBy: { order: 'asc' } },
+            formulas:       { orderBy: { order: 'asc' } },
+            learningGoals:  { orderBy: { order: 'asc' } },
+          },
         },
       },
-    },
-  })
+    }),
+    prisma.topic.findMany({
+      where: { category: 'frw' },
+      orderBy: { order: 'asc' },
+      select: { slug: true, title: true, order: true },
+    }),
+  ])
+  return { topic, allTopics }
 }
 
 function TAccount({ soll, haben, betrag }: { soll: string; haben: string; betrag?: string }) {
@@ -60,11 +68,15 @@ export default async function FrwChapterPage({ params, searchParams }: Props) {
   const { tab: rawTab } = await searchParams
   const tab = rawTab ?? 'theorie'
 
-  const topic = await getChapter(slug)
+  const { topic, allTopics } = await getChapter(slug)
   if (!topic) notFound()
 
   const chapter = topic.chapters[0]
   if (!chapter) notFound()
+
+  const currentIndex = allTopics.findIndex(t => t.slug === slug)
+  const prevTopic = currentIndex > 0 ? allTopics[currentIndex - 1] : null
+  const nextTopic = currentIndex < allTopics.length - 1 ? allTopics[currentIndex + 1] : null
 
   const tabs = [
     { id: 'theorie',     label: 'Theorie',         icon: BookOpen      },
@@ -387,6 +399,45 @@ export default async function FrwChapterPage({ params, searchParams }: Props) {
           ))}
         </div>
       )}
+
+      {/* Prev / Next Navigation */}
+      <div className="flex items-center justify-between gap-4 pt-2">
+        {prevTopic ? (
+          <Link
+            href={`/frw/${prevTopic.slug}`}
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm transition-all hover:-translate-x-0.5 group"
+            style={{ background: 'var(--card-bg)', border: '1px solid var(--border-color)', color: 'var(--text-muted)' }}
+          >
+            <ChevronLeft size={15} className="group-hover:text-blue-400 transition-colors" />
+            <div className="text-left">
+              <div className="text-[10px] uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>Vorheriges</div>
+              <div className="text-xs font-medium" style={{ color: 'var(--text-primary)' }}>
+                Kap. {prevTopic.order} · {prevTopic.title}
+              </div>
+            </div>
+          </Link>
+        ) : (
+          <div />
+        )}
+
+        {nextTopic ? (
+          <Link
+            href={`/frw/${nextTopic.slug}`}
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm transition-all hover:translate-x-0.5 group"
+            style={{ background: 'var(--card-bg)', border: '1px solid var(--border-color)', color: 'var(--text-muted)' }}
+          >
+            <div className="text-right">
+              <div className="text-[10px] uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>Nächstes</div>
+              <div className="text-xs font-medium" style={{ color: 'var(--text-primary)' }}>
+                Kap. {nextTopic.order} · {nextTopic.title}
+              </div>
+            </div>
+            <ChevronRight size={15} className="group-hover:text-blue-400 transition-colors" />
+          </Link>
+        ) : (
+          <div />
+        )}
+      </div>
 
     </div>
   )
