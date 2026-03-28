@@ -78,7 +78,7 @@ export default async function FrwPage() {
               <Link
                 key={topic.id}
                 href={`/frw/${topic.slug}`}
-                className="group relative rounded-2xl p-5 transition-all duration-200 hover:-translate-y-0.5 hover:border-white/20"
+                className="group relative rounded-2xl p-5 hover:-translate-y-0.5 hover:border-white/20"
                 style={{
                   background: 'var(--card-bg)',
                   border: `1px solid var(--border-color)`,
