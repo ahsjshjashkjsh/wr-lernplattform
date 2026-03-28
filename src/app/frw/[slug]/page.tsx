@@ -5,6 +5,7 @@ import ReactMarkdown from 'react-markdown'
 import { ChevronLeft, ChevronRight, BookOpen, Hash, FileText, Dumbbell, Lightbulb, AlertCircle, ArrowRight, GraduationCap } from 'lucide-react'
 import { BookingTrainer } from '@/components/frw/BookingTrainer'
 import { TheoryTrainer } from '@/components/frw/TheoryTrainer'
+import { VisitTracker } from '@/components/frw/VisitTracker'
 
 export const dynamic = 'force-dynamic'
 
@@ -89,6 +90,8 @@ export default async function FrwChapterPage({ params, searchParams }: Props) {
 
   return (
     <div className="space-y-6 max-w-4xl mx-auto">
+
+      <VisitTracker chapterId={chapter.id} />
 
       {/* Back */}
       <Link

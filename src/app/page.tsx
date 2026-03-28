@@ -9,30 +9,52 @@ import {
 
 export const dynamic = 'force-dynamic'
 
+function formatRelativeTime(date: Date): string {
+  const diffMs = Date.now() - date.getTime()
+  const diffMin = Math.floor(diffMs / 60_000)
+  if (diffMin < 2) return 'gerade eben'
+  if (diffMin < 60) return `vor ${diffMin} Minuten`
+  const diffH = Math.floor(diffMin / 60)
+  if (diffH < 24) return `vor ${diffH} Stunde${diffH === 1 ? '' : 'n'}`
+  const diffD = Math.floor(diffH / 24)
+  return `vor ${diffD} Tag${diffD === 1 ? '' : 'en'}`
+}
+
 async function getDashboardData() {
   const user = await getCurrentUser()
 
-  const frwTopics = await prisma.topic.findMany({
-    where: { category: 'frw' },
-    orderBy: { order: 'asc' },
-    include: {
-      chapters: {
-        take: 1,
-        include: {
-          _count: { select: { bookingEntries: true, keyTerms: true } },
+  const [frwTopics, lastProgress] = await Promise.all([
+    prisma.topic.findMany({
+      where: { category: 'frw' },
+      orderBy: { order: 'asc' },
+      include: {
+        chapters: {
+          take: 1,
+          include: {
+            _count: { select: { bookingEntries: true, keyTerms: true } },
+          },
         },
       },
-    },
-  })
+    }),
+    user ? prisma.chapterProgress.findFirst({
+      where: { userId: user.id },
+      orderBy: { lastVisited: 'desc' },
+      include: {
+        chapter: {
+          include: { topic: { select: { slug: true, title: true, order: true } } },
+        },
+      },
+    }) : null,
+  ])
 
   const totalBuchungen = frwTopics.reduce((s, t) => s + (t.chapters[0]?._count.bookingEntries ?? 0), 0)
   const totalBegriffe  = frwTopics.reduce((s, t) => s + (t.chapters[0]?._count.keyTerms ?? 0), 0)
 
-  return { user, frwTopics, totalBuchungen, totalBegriffe }
+  return { user, frwTopics, totalBuchungen, totalBegriffe, lastProgress }
 }
 
 export default async function DashboardPage() {
-  const { user, frwTopics, totalBuchungen, totalBegriffe } = await getDashboardData()
+  const { user, frwTopics, totalBuchungen, totalBegriffe, lastProgress } = await getDashboardData()
   const firstName = user?.name?.split(' ')[0] ?? null
 
   return (
@@ -196,6 +218,40 @@ export default async function DashboardPage() {
 
         </div>
       </div>
+
+      {/* ZULETZT BESUCHT */}
+      {lastProgress && (
+        <div>
+          <h2 className="text-xs font-bold uppercase tracking-widest mb-3" style={{ color: 'var(--text-muted)' }}>
+            Weitermachen
+          </h2>
+          <Link
+            href={`/frw/${lastProgress.chapter.topic.slug}`}
+            className="flex items-center justify-between gap-4 rounded-2xl p-4 transition-all hover:-translate-y-0.5"
+            style={{ background: 'var(--card-bg)', border: '1px solid rgba(99,102,241,0.2)' }}
+          >
+            <div className="flex items-center gap-3 min-w-0">
+              <div
+                className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
+                style={{ background: 'rgba(99,102,241,0.1)', border: '1px solid rgba(99,102,241,0.2)' }}
+              >
+                <BookOpen size={15} className="text-indigo-400" />
+              </div>
+              <div className="min-w-0">
+                <p className="text-xs font-semibold truncate" style={{ color: 'var(--text-primary)' }}>
+                  Kap. {lastProgress.chapter.topic.order} · {lastProgress.chapter.topic.title}
+                </p>
+                <p className="text-[11px] mt-0.5" style={{ color: 'var(--text-muted)' }}>
+                  {formatRelativeTime(lastProgress.lastVisited)}
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center gap-1.5 text-xs font-medium text-indigo-400 shrink-0">
+              Weitermachen <ChevronRight size={13} />
+            </div>
+          </Link>
+        </div>
+      )}
 
       {/* QUICK ACCESS */}
       <div>
