@@ -1,6 +1,6 @@
 'use client'
-import { useState, useCallback } from 'react'
-import { CheckCircle, XCircle, RotateCcw, ChevronRight, Trophy, Lightbulb, Eye } from 'lucide-react'
+import { useState, useCallback, useMemo } from 'react'
+import { CheckCircle, XCircle, RotateCcw, ChevronRight, Lightbulb } from 'lucide-react'
 
 export type BookingEntry = {
   id: string
@@ -16,8 +16,10 @@ type QuestionType = 'soll' | 'haben' | 'both'
 type Question = {
   entry: BookingEntry
   type: QuestionType
-  // randomly sometimes hide the betragHint for extra difficulty
   showBetrag: boolean
+  // Shuffled wrong options for the dropdown
+  sollOptions: string[]
+  habenOptions: string[]
 }
 
 function shuffle<T>(arr: T[]): T[] {
@@ -37,21 +39,42 @@ function isCorrect(input: string, expected: string) {
   return normalize(input) === normalize(expected)
 }
 
+/** Pick N unique random wrong answers from the pool, excluding `correct` */
+function pickWrongOptions(pool: string[], correct: string, n: number): string[] {
+  const others = [...new Set(pool.filter(x => normalize(x) !== normalize(correct)))]
+  return shuffle(others).slice(0, n)
+}
+
 function buildQuestions(entries: BookingEntry[]): Question[] {
+  // All unique Konto names across all entries
+  const allSoll = entries.map(e => e.sollKonto)
+  const allHaben = entries.map(e => e.habenKonto)
+  const allKonten = [...new Set([...allSoll, ...allHaben])]
+
   const types: QuestionType[] = ['soll', 'haben', 'both']
   const questions: Question[] = []
 
   for (const entry of entries) {
-    // Each entry generates 2–3 different question types (all 3 if ≤10 entries, else 2 random)
     const selectedTypes = entries.length <= 12
       ? types
       : shuffle(types).slice(0, 2)
 
     for (const type of selectedTypes) {
+      // Build dropdown options: correct answer + 3–4 wrong ones, shuffled
+      const wrongCount = Math.min(4, allKonten.length - 1)
+
+      const sollWrong = pickWrongOptions(allKonten, entry.sollKonto, wrongCount)
+      const habenWrong = pickWrongOptions(allKonten, entry.habenKonto, wrongCount)
+
+      const sollOptions = shuffle([entry.sollKonto, ...sollWrong])
+      const habenOptions = shuffle([entry.habenKonto, ...habenWrong])
+
       questions.push({
         entry,
         type,
-        showBetrag: Math.random() > 0.4, // 60% chance betrag is shown
+        showBetrag: Math.random() > 0.4,
+        sollOptions,
+        habenOptions,
       })
     }
   }
@@ -75,6 +98,20 @@ function QuestionLabel({ type }: { type: QuestionType }) {
       Beide Konten gesucht
     </span>
   )
+}
+
+const SELECT_STYLE: React.CSSProperties = {
+  background: 'rgba(255,255,255,0.06)',
+  border: '1px solid var(--border-color)',
+  color: 'var(--text-primary)',
+  borderRadius: '8px',
+  padding: '6px 10px',
+  fontSize: '12px',
+  fontFamily: 'monospace',
+  width: '100%',
+  outline: 'none',
+  cursor: 'pointer',
+  appearance: 'auto',
 }
 
 type Props = {
@@ -131,13 +168,6 @@ export function BookingTrainer({ entries, chapterTitle }: Props) {
     setDone(false)
   }, [entries])
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
-      if (!checked) handleCheck()
-      else handleNext()
-    }
-  }
-
   if (entries.length === 0) {
     return (
       <div className="text-center py-12">
@@ -165,9 +195,7 @@ export function BookingTrainer({ entries, chapterTitle }: Props) {
             {score} von {questions.length} richtig — {pct}%
           </p>
         </div>
-
         <div className="flex flex-col items-center gap-2">
-          {/* Score bar */}
           <div className="w-48 h-2 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.08)' }}>
             <div
               className="h-full rounded-full transition-all"
@@ -178,7 +206,6 @@ export function BookingTrainer({ entries, chapterTitle }: Props) {
             />
           </div>
         </div>
-
         <button
           onClick={handleRestart}
           className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-medium text-white transition-all"
@@ -193,6 +220,12 @@ export function BookingTrainer({ entries, chapterTitle }: Props) {
 
   const sollCorrect = isCorrect(inputSoll, q.entry.sollKonto)
   const habenCorrect = isCorrect(inputHaben, q.entry.habenKonto)
+  const overallCorrect = q.type === 'soll' ? sollCorrect : q.type === 'haben' ? habenCorrect : sollCorrect && habenCorrect
+
+  const canCheck =
+    q.type === 'soll' ? !!inputSoll :
+    q.type === 'haben' ? !!inputHaben :
+    !!inputSoll && !!inputHaben
 
   return (
     <div className="space-y-6">
@@ -204,7 +237,7 @@ export function BookingTrainer({ entries, chapterTitle }: Props) {
       <div className="h-1.5 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.08)' }}>
         <div
           className="h-full rounded-full bg-blue-500 transition-all duration-300"
-          style={{ width: `${((index) / questions.length) * 100}%` }}
+          style={{ width: `${(index / questions.length) * 100}%` }}
         />
       </div>
 
@@ -213,21 +246,19 @@ export function BookingTrainer({ entries, chapterTitle }: Props) {
         className="rounded-2xl p-5 space-y-4"
         style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border-color)' }}
       >
-        <div className="flex items-start justify-between gap-3">
-          <div className="space-y-2 flex-1">
-            <QuestionLabel type={q.type} />
-            <p className="text-sm font-semibold leading-relaxed" style={{ color: 'var(--text-primary)' }}>
-              {q.entry.situation}
-            </p>
-            {q.showBetrag && q.entry.betragHint && (
-              <span className="inline-block text-xs px-2 py-0.5 rounded-full font-mono text-emerald-400" style={{ background: 'rgba(34,197,94,0.1)' }}>
-                {q.entry.betragHint}
-              </span>
-            )}
-          </div>
+        <div className="space-y-2">
+          <QuestionLabel type={q.type} />
+          <p className="text-sm font-semibold leading-relaxed" style={{ color: 'var(--text-primary)' }}>
+            {q.entry.situation}
+          </p>
+          {q.showBetrag && q.entry.betragHint && (
+            <span className="inline-block text-xs px-2 py-0.5 rounded-full font-mono text-emerald-400" style={{ background: 'rgba(34,197,94,0.1)' }}>
+              {q.entry.betragHint}
+            </span>
+          )}
         </div>
 
-        {/* T-Konto visual with inputs */}
+        {/* T-Konto with dropdowns */}
         <div className="rounded-xl overflow-hidden text-xs font-mono" style={{ border: '1px solid var(--border-color)' }}>
           <div className="grid grid-cols-2">
             <div className="px-3 py-2 font-semibold text-blue-400" style={{ background: 'rgba(59,130,246,0.08)', borderRight: '2px solid var(--border-color)' }}>
@@ -241,89 +272,82 @@ export function BookingTrainer({ entries, chapterTitle }: Props) {
             {/* Soll side */}
             <div className="px-3 py-3" style={{ borderRight: '2px solid var(--border-color)', background: 'rgba(59,130,246,0.04)' }}>
               {q.type === 'haben' ? (
-                // Show soll, hide haben
                 <span className="text-blue-300">{q.entry.sollKonto}</span>
               ) : checked ? (
                 <div className="space-y-1">
-                  <div className={`font-semibold ${sollCorrect ? 'text-emerald-400' : 'text-red-400'}`}>
+                  <span className={`font-semibold ${sollCorrect ? 'text-emerald-400' : 'text-red-400'}`}>
                     {inputSoll || '—'}
-                  </div>
+                  </span>
                   {!sollCorrect && (
                     <div className="text-emerald-400 text-[10px]">✓ {q.entry.sollKonto}</div>
                   )}
                 </div>
               ) : (
-                <input
-                  type="text"
+                <select
                   value={inputSoll}
                   onChange={e => setInputSoll(e.target.value)}
-                  onKeyDown={handleKeyDown}
-                  placeholder="Soll-Konto..."
-                  autoFocus
-                  className="w-full bg-transparent outline-none text-blue-300 placeholder:text-blue-900 text-xs"
-                />
+                  style={SELECT_STYLE}
+                >
+                  <option value="">— Soll wählen —</option>
+                  {q.sollOptions.map(opt => (
+                    <option key={opt} value={opt}>{opt}</option>
+                  ))}
+                </select>
               )}
             </div>
             {/* Haben side */}
             <div className="px-3 py-3" style={{ background: 'rgba(34,197,94,0.04)' }}>
               {q.type === 'soll' ? (
-                // Show haben, hide soll
                 <span className="text-emerald-300">{q.entry.habenKonto}</span>
               ) : checked ? (
                 <div className="space-y-1">
-                  <div className={`font-semibold ${habenCorrect ? 'text-emerald-400' : 'text-red-400'}`}>
+                  <span className={`font-semibold ${habenCorrect ? 'text-emerald-400' : 'text-red-400'}`}>
                     {inputHaben || '—'}
-                  </div>
+                  </span>
                   {!habenCorrect && (
                     <div className="text-emerald-400 text-[10px]">✓ {q.entry.habenKonto}</div>
                   )}
                 </div>
               ) : (
-                <input
-                  type="text"
+                <select
                   value={inputHaben}
                   onChange={e => setInputHaben(e.target.value)}
-                  onKeyDown={handleKeyDown}
-                  placeholder="Haben-Konto..."
-                  className="w-full bg-transparent outline-none text-emerald-300 placeholder:text-emerald-900 text-xs"
-                />
+                  style={SELECT_STYLE}
+                >
+                  <option value="">— Haben wählen —</option>
+                  {q.habenOptions.map(opt => (
+                    <option key={opt} value={opt}>{opt}</option>
+                  ))}
+                </select>
               )}
             </div>
           </div>
         </div>
 
-        {/* Feedback after check */}
+        {/* Feedback */}
         {checked && (
-          <div className={`flex items-start gap-2 p-3 rounded-xl text-sm ${
-            (q.type === 'soll' ? sollCorrect : q.type === 'haben' ? habenCorrect : sollCorrect && habenCorrect)
-              ? 'text-emerald-300'
-              : 'text-red-300'
-          }`} style={{
-            background: (q.type === 'soll' ? sollCorrect : q.type === 'haben' ? habenCorrect : sollCorrect && habenCorrect)
-              ? 'rgba(34,197,94,0.08)'
-              : 'rgba(239,68,68,0.08)',
-            border: (q.type === 'soll' ? sollCorrect : q.type === 'haben' ? habenCorrect : sollCorrect && habenCorrect)
-              ? '1px solid rgba(34,197,94,0.2)'
-              : '1px solid rgba(239,68,68,0.2)',
-          }}>
-            {(q.type === 'soll' ? sollCorrect : q.type === 'haben' ? habenCorrect : sollCorrect && habenCorrect)
+          <div
+            className={`flex items-start gap-2 p-3 rounded-xl text-sm`}
+            style={{
+              background: overallCorrect ? 'rgba(34,197,94,0.08)' : 'rgba(239,68,68,0.08)',
+              border: overallCorrect ? '1px solid rgba(34,197,94,0.2)' : '1px solid rgba(239,68,68,0.2)',
+              color: overallCorrect ? '#86efac' : '#fca5a5',
+            }}
+          >
+            {overallCorrect
               ? <CheckCircle size={14} className="mt-0.5 shrink-0" />
               : <XCircle size={14} className="mt-0.5 shrink-0" />
             }
             <span>
-              {(q.type === 'soll' ? sollCorrect : q.type === 'haben' ? habenCorrect : sollCorrect && habenCorrect)
-                ? 'Richtig!'
-                : 'Nicht ganz — die richtige Antwort ist oben angezeigt.'
-              }
+              {overallCorrect ? 'Richtig!' : 'Nicht ganz — die richtige Antwort ist oben angezeigt.'}
             </span>
           </div>
         )}
 
-        {/* Erklaerung hint */}
         {checked && q.entry.erklaerung && (
-          <div className="text-xs pl-1 leading-relaxed" style={{ color: 'var(--text-muted)' }}>
+          <p className="text-xs leading-relaxed pl-1" style={{ color: 'var(--text-muted)' }}>
             {q.entry.erklaerung}
-          </div>
+          </p>
         )}
       </div>
 
@@ -341,11 +365,7 @@ export function BookingTrainer({ entries, chapterTitle }: Props) {
             </button>
             <button
               onClick={handleCheck}
-              disabled={
-                q.type === 'soll' ? !inputSoll.trim() :
-                q.type === 'haben' ? !inputHaben.trim() :
-                !inputSoll.trim() || !inputHaben.trim()
-              }
+              disabled={!canCheck}
               className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-medium text-white transition-all disabled:opacity-40"
               style={{ background: 'linear-gradient(135deg, #3b82f6, #6366f1)' }}
             >
