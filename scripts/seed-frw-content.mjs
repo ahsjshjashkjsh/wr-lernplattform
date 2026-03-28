@@ -53,9 +53,29 @@ async function insertBookings(chapterId, bookings) {
   }
 }
 
+// Sections that are meta/AI-only and should not be shown to students
+const META_SECTIONS = ['kurzüberblick', 'hauptthemen', 'unterthemen']
+
+function cleanSummary(md) {
+  const lines = md.split('\n')
+  const result = []
+  let skip = false
+
+  for (const line of lines) {
+    const h2Match = line.match(/^## \d+\.\s+(.+)/)
+    if (h2Match) {
+      const title = h2Match[1].toLowerCase().trim()
+      skip = META_SECTIONS.some(s => title.includes(s))
+    }
+    if (!skip) result.push(line)
+  }
+  return result.join('\n').replace(/\n{3,}/g, '\n\n').trim()
+}
+
 async function setSummary(chapterId, mdPath) {
   try {
-    const md = readFileSync(mdPath, 'utf8')
+    const raw = readFileSync(mdPath, 'utf8')
+    const md  = cleanSummary(raw)
     await client.query(`UPDATE "Chapter" SET summary = $1 WHERE id = $2`, [md, chapterId])
   } catch (e) {
     console.warn(`  ⚠ MD-Datei nicht gefunden: ${mdPath}`)
