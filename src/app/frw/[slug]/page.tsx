@@ -5,6 +5,7 @@ import ReactMarkdown from 'react-markdown'
 import { ChevronLeft, ChevronRight, BookOpen, Hash, FileText, Dumbbell, Lightbulb, AlertCircle, ArrowRight, GraduationCap } from 'lucide-react'
 import { BookingTrainer } from '@/components/frw/BookingTrainer'
 import { TheoryTrainer } from '@/components/frw/TheoryTrainer'
+import { FlashcardMode } from '@/components/frw/FlashcardMode'
 import { VisitTracker } from '@/components/frw/VisitTracker'
 
 export const dynamic = 'force-dynamic'
@@ -286,6 +287,7 @@ export default async function FrwChapterPage({ params, searchParams }: Props) {
           <div>
             {chapter.keyTerms.length > 0 ? (
               <div className="space-y-3">
+                <FlashcardMode keyTerms={chapter.keyTerms} />
                 {chapter.keyTerms.map(term => (
                   <div
                     key={term.id}
