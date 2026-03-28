@@ -1,4 +1,5 @@
 import { prisma } from '@/lib/prisma'
+import { getCurrentUser } from '@/lib/auth'
 import Link from 'next/link'
 import { BookOpen, ChevronRight, FileText, Hash, Calculator, Dumbbell } from 'lucide-react'
 
@@ -15,22 +16,35 @@ const KAPITEL_COLORS: Record<number, { bg: string; border: string; text: string;
   11: { bg: 'rgba(236,72,153,0.08)',  border: 'rgba(236,72,153,0.2)',  text: '#f472b6', dot: '#ec4899' },
 }
 
-async function getFrwChapters() {
-  return prisma.topic.findMany({
-    where: { category: 'frw' },
-    orderBy: { order: 'asc' },
-    include: {
-      chapters: {
-        include: {
-          _count: { select: { bookingEntries: true, keyTerms: true } },
+async function getFrwData() {
+  const user = await getCurrentUser()
+
+  const [topics, progressList] = await Promise.all([
+    prisma.topic.findMany({
+      where: { category: 'frw' },
+      orderBy: { order: 'asc' },
+      include: {
+        chapters: {
+          include: {
+            _count: { select: { bookingEntries: true, keyTerms: true } },
+          },
         },
       },
-    },
-  })
+    }),
+    user
+      ? prisma.chapterProgress.findMany({
+          where: { userId: user.id },
+          select: { chapterId: true, status: true },
+        })
+      : [],
+  ])
+
+  const progressMap = new Map(progressList.map(p => [p.chapterId, p.status]))
+  return { topics, progressMap }
 }
 
 export default async function FrwPage() {
-  const topics = await getFrwChapters()
+  const { topics, progressMap } = await getFrwData()
 
   return (
     <div className="space-y-8">
@@ -129,6 +143,15 @@ export default async function FrwPage() {
                     )}
                     {ch._count.bookingEntries === 0 && ch._count.keyTerms === 0 && (
                       <span className="text-xs" style={{ color: 'var(--text-muted)' }}>In Vorbereitung</span>
+                    )}
+                    {progressMap.get(ch.id) && (
+                      <span
+                        className="ml-auto flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full"
+                        style={{ background: 'rgba(34,197,94,0.12)', border: '1px solid rgba(34,197,94,0.25)', color: '#4ade80' }}
+                      >
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 inline-block" />
+                        Besucht
+                      </span>
                     )}
                   </div>
                 )}
