@@ -1,6 +1,6 @@
 import { prisma } from '@/lib/prisma'
 import Link from 'next/link'
-import { BookOpen, ChevronRight, FileText, Hash, Calculator } from 'lucide-react'
+import { BookOpen, ChevronRight, FileText, Hash, Calculator, Dumbbell } from 'lucide-react'
 
 export const dynamic = 'force-dynamic'
 
@@ -48,6 +48,14 @@ export default async function FrwPage() {
             {topics.length} Kapitel · Alle Inhalte direkt aus dem Lehrmittel
           </p>
         </div>
+        <Link
+          href="/frw/trainer"
+          className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all shrink-0"
+          style={{ background: 'rgba(99,102,241,0.1)', border: '1px solid rgba(99,102,241,0.2)', color: '#a5b4fc' }}
+        >
+          <Dumbbell size={14} />
+          Buchungstrainer
+        </Link>
       </div>
 
       {/* Chapter Grid */}

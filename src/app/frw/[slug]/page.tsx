@@ -2,7 +2,8 @@ import { prisma } from '@/lib/prisma'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import ReactMarkdown from 'react-markdown'
-import { ChevronLeft, BookOpen, Hash, FileText, Dumbbell, Lightbulb, AlertCircle } from 'lucide-react'
+import { ChevronLeft, BookOpen, Hash, FileText, Dumbbell, Lightbulb, AlertCircle, ArrowRight } from 'lucide-react'
+import { BookingTrainer } from '@/components/frw/BookingTrainer'
 
 export const dynamic = 'force-dynamic'
 
@@ -289,17 +290,43 @@ export default async function FrwChapterPage({ params, searchParams }: Props) {
 
         {/* ÜBEN */}
         {tab === 'ueben' && (
-          <div className="text-center py-12 space-y-3">
-            <div
-              className="w-14 h-14 rounded-2xl mx-auto flex items-center justify-center"
-              style={{ background: 'rgba(99,102,241,0.1)', border: '1px solid rgba(99,102,241,0.2)' }}
-            >
-              <Dumbbell size={24} className="text-indigo-400" />
-            </div>
-            <p className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>Trainer kommt bald</p>
-            <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
-              Der interaktive Buchungstrainer wird in Phase 5 implementiert.
-            </p>
+          <div className="space-y-6">
+            {chapter.bookingEntries.length > 0 ? (
+              <>
+                <BookingTrainer entries={chapter.bookingEntries} chapterTitle={topic.title} />
+                <div
+                  className="flex items-center justify-between p-4 rounded-xl"
+                  style={{ background: 'rgba(99,102,241,0.06)', border: '1px solid rgba(99,102,241,0.15)' }}
+                >
+                  <div>
+                    <p className="text-sm font-medium text-indigo-300">Alle Kapitel zusammen üben</p>
+                    <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>
+                      Kapitel selbst auswählen und kombinieren
+                    </p>
+                  </div>
+                  <Link
+                    href="/frw/trainer"
+                    className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium text-indigo-300 transition-all hover:bg-indigo-500/10"
+                  >
+                    Zum Gesamttrainer
+                    <ArrowRight size={13} />
+                  </Link>
+                </div>
+              </>
+            ) : (
+              <div className="text-center py-12 space-y-3">
+                <div
+                  className="w-14 h-14 rounded-2xl mx-auto flex items-center justify-center"
+                  style={{ background: 'rgba(99,102,241,0.1)', border: '1px solid rgba(99,102,241,0.2)' }}
+                >
+                  <Dumbbell size={24} className="text-indigo-400" />
+                </div>
+                <p className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>Keine Buchungssätze</p>
+                <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
+                  Für dieses Kapitel sind noch keine Übungsaufgaben vorhanden.
+                </p>
+              </div>
+            )}
           </div>
         )}
 
