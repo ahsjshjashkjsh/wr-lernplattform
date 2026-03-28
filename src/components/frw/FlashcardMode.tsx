@@ -30,6 +30,7 @@ export function FlashcardMode({ keyTerms }: { keyTerms: KeyTerm[] }) {
   }
 
   const current = keyTerms[index]
+  if (!current) return null
 
   return (
     <div className="space-y-4">
