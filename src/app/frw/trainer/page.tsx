@@ -5,7 +5,7 @@ import { TrainerSetup } from './TrainerSetup'
 
 export const dynamic = 'force-dynamic'
 
-async function getTopicsWithBookings() {
+async function getTopicsWithContent() {
   const topics = await prisma.topic.findMany({
     where: { category: 'frw' },
     orderBy: { order: 'asc' },
@@ -19,14 +19,15 @@ async function getTopicsWithBookings() {
         select: {
           bookingEntries: {
             orderBy: { order: 'asc' },
-            select: {
-              id: true,
-              situation: true,
-              sollKonto: true,
-              habenKonto: true,
-              betragHint: true,
-              erklaerung: true,
-            },
+            select: { id: true, situation: true, sollKonto: true, habenKonto: true, betragHint: true, erklaerung: true },
+          },
+          keyTerms: {
+            orderBy: { order: 'asc' },
+            select: { id: true, term: true, definition: true },
+          },
+          corePoints: {
+            orderBy: { order: 'asc' },
+            select: { id: true, text: true },
           },
         },
       },
@@ -37,13 +38,17 @@ async function getTopicsWithBookings() {
     slug: t.slug,
     title: t.title,
     order: t.order,
-    entries: t.chapters[0]?.bookingEntries ?? [],
+    entries:     t.chapters[0]?.bookingEntries ?? [],
+    keyTerms:    t.chapters[0]?.keyTerms ?? [],
+    corePoints:  t.chapters[0]?.corePoints ?? [],
   }))
 }
 
 export default async function TrainerPage() {
-  const topics = await getTopicsWithBookings()
-  const topicsWithEntries = topics.filter(t => t.entries.length > 0)
+  const topics = await getTopicsWithContent()
+  const usableTopics = topics.filter(t =>
+    t.entries.length > 0 || t.keyTerms.length > 0 || t.corePoints.length > 0
+  )
 
   return (
     <div className="space-y-6 max-w-2xl mx-auto">
@@ -59,17 +64,17 @@ export default async function TrainerPage() {
       <div>
         <div className="flex items-center gap-2 mb-1">
           <Dumbbell size={16} className="text-indigo-400" />
-          <span className="text-xs font-medium text-indigo-400 uppercase tracking-widest">Buchungstrainer</span>
+          <span className="text-xs font-medium text-indigo-400 uppercase tracking-widest">Trainer</span>
         </div>
         <h1 className="text-xl font-bold" style={{ color: 'var(--text-primary)' }}>
           Alle Kapitel trainieren
         </h1>
         <p className="text-sm mt-1" style={{ color: 'var(--text-muted)' }}>
-          Wähle die Kapitel aus, die du üben möchtest. Jede Runde ist anders zusammengestellt.
+          Buchungssätze oder Theorie üben — Kapitel frei wählbar. Jede Runde anders.
         </p>
       </div>
 
-      <TrainerSetup topics={topicsWithEntries} />
+      <TrainerSetup topics={usableTopics} />
     </div>
   )
 }

@@ -2,8 +2,9 @@ import { prisma } from '@/lib/prisma'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import ReactMarkdown from 'react-markdown'
-import { ChevronLeft, BookOpen, Hash, FileText, Dumbbell, Lightbulb, AlertCircle, ArrowRight } from 'lucide-react'
+import { ChevronLeft, BookOpen, Hash, FileText, Dumbbell, Lightbulb, AlertCircle, ArrowRight, GraduationCap } from 'lucide-react'
 import { BookingTrainer } from '@/components/frw/BookingTrainer'
+import { TheoryTrainer } from '@/components/frw/TheoryTrainer'
 
 export const dynamic = 'force-dynamic'
 
@@ -66,10 +67,11 @@ export default async function FrwChapterPage({ params, searchParams }: Props) {
   if (!chapter) notFound()
 
   const tabs = [
-    { id: 'theorie',     label: 'Theorie',        icon: BookOpen  },
-    { id: 'buchungen',   label: 'Buchungssätze',   icon: Hash      },
-    { id: 'begriffe',    label: 'Begriffe',         icon: FileText  },
-    { id: 'ueben',       label: 'Üben',             icon: Dumbbell  },
+    { id: 'theorie',     label: 'Theorie',         icon: BookOpen      },
+    { id: 'buchungen',   label: 'Buchungssätze',   icon: Hash          },
+    { id: 'begriffe',    label: 'Begriffe',         icon: FileText      },
+    { id: 'ueben',       label: 'Buchungen üben',  icon: Dumbbell      },
+    { id: 'theorie-quiz',label: 'Theorie üben',    icon: GraduationCap },
   ]
 
   return (
@@ -325,6 +327,40 @@ export default async function FrwChapterPage({ params, searchParams }: Props) {
                 <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
                   Für dieses Kapitel sind noch keine Übungsaufgaben vorhanden.
                 </p>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* THEORIE ÜBEN */}
+        {tab === 'theorie-quiz' && (
+          <div className="space-y-6">
+            {(chapter.keyTerms.length > 0 || chapter.corePoints.length > 0) ? (
+              <>
+                <TheoryTrainer keyTerms={chapter.keyTerms} corePoints={chapter.corePoints} />
+                <div
+                  className="flex items-center justify-between p-4 rounded-xl"
+                  style={{ background: 'rgba(234,179,8,0.06)', border: '1px solid rgba(234,179,8,0.15)' }}
+                >
+                  <div>
+                    <p className="text-sm font-medium text-amber-300">Buchungssätze üben</p>
+                    <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>
+                      Buchungstrainer für dieses Kapitel
+                    </p>
+                  </div>
+                  <Link
+                    href={`/frw/${slug}?tab=ueben`}
+                    className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium text-amber-300 transition-all hover:bg-amber-500/10"
+                  >
+                    Zu Buchungen
+                    <ArrowRight size={13} />
+                  </Link>
+                </div>
+              </>
+            ) : (
+              <div className="text-center py-12 space-y-3">
+                <GraduationCap size={28} className="mx-auto opacity-20" style={{ color: 'var(--text-muted)' }} />
+                <p className="text-sm" style={{ color: 'var(--text-muted)' }}>Noch keine Theorieinhalte für dieses Kapitel.</p>
               </div>
             )}
           </div>
