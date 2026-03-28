@@ -126,7 +126,8 @@ export default async function FrwChapterPage({ params, searchParams }: Props) {
 
       {/* Tab Content */}
       <div
-        className="rounded-2xl p-6"
+        key={tab}
+        className="rounded-2xl p-6 fade-in"
         style={{ background: 'var(--card-bg)', border: '1px solid var(--border-color)' }}
       >
 

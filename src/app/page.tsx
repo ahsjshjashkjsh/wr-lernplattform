@@ -205,7 +205,7 @@ export default async function DashboardPage() {
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <Link
             href="/frw/trainer"
-            className="rounded-2xl p-5 flex items-center gap-4 transition-all hover:-translate-y-0.5"
+            className="rounded-2xl p-5 flex items-center gap-4 transition-all hover:-translate-y-0.5 hover:scale-[1.01]"
             style={{ background: 'linear-gradient(135deg, rgba(99,102,241,0.1) 0%, rgba(139,92,246,0.06) 100%)', border: '1px solid rgba(99,102,241,0.2)' }}
           >
             <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style={{ background: 'rgba(99,102,241,0.15)' }}>
@@ -219,7 +219,7 @@ export default async function DashboardPage() {
 
           <Link
             href="/progress"
-            className="rounded-2xl p-5 flex items-center gap-4 transition-all hover:-translate-y-0.5"
+            className="rounded-2xl p-5 flex items-center gap-4 transition-all hover:-translate-y-0.5 hover:scale-[1.01]"
             style={{ background: 'linear-gradient(135deg, rgba(16,185,129,0.08) 0%, rgba(5,150,105,0.05) 100%)', border: '1px solid rgba(16,185,129,0.18)' }}
           >
             <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style={{ background: 'rgba(16,185,129,0.12)' }}>
@@ -233,7 +233,7 @@ export default async function DashboardPage() {
 
           <Link
             href="/assistant"
-            className="rounded-2xl p-5 flex items-center gap-4 transition-all hover:-translate-y-0.5"
+            className="rounded-2xl p-5 flex items-center gap-4 transition-all hover:-translate-y-0.5 hover:scale-[1.01]"
             style={{ background: 'linear-gradient(135deg, rgba(59,130,246,0.08) 0%, rgba(99,102,241,0.05) 100%)', border: '1px solid rgba(59,130,246,0.18)' }}
           >
             <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style={{ background: 'rgba(59,130,246,0.12)' }}>
