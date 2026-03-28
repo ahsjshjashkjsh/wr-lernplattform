@@ -1,442 +1,229 @@
 import { prisma } from '@/lib/prisma'
 import { getCurrentUser } from '@/lib/auth'
 import Link from 'next/link'
-import { TopicIcon } from '@/components/TopicIcon'
-import { EXAM_LABELS, CATEGORY_LABELS } from '@/lib/utils'
-import type { Topic } from '@/types'
 import {
-  ArrowRight, BookOpen, CheckCircle2, Flame, Sparkles,
-  Calculator, TrendingUp, Target, Trophy, ChevronRight,
+  ArrowRight, BookOpen, Dumbbell, Sparkles,
+  Calculator, Hash, FileText, ChevronRight,
 } from 'lucide-react'
 
 export const dynamic = 'force-dynamic'
 
 async function getDashboardData() {
   const user = await getCurrentUser()
-  const userId = user?.id
 
-  const [topics, totalChapters, progressRecords] = await Promise.all([
-    prisma.topic.findMany({
-      orderBy: { order: 'asc' },
-      include: { chapters: { select: { id: true } } },
-    }),
-    prisma.chapter.count(),
-    prisma.chapterProgress.findMany({ where: userId ? { userId } : { userId: null } }),
-  ])
+  const topics = await prisma.topic.findMany({
+    where: { category: 'frw' },
+    orderBy: { order: 'asc' },
+    include: {
+      chapters: {
+        take: 1,
+        include: {
+          _count: {
+            select: { bookingEntries: true, keyTerms: true, corePoints: true },
+          },
+        },
+      },
+    },
+  })
 
-  const completed  = progressRecords.filter(p => p.status === 'completed').length
-  const inProgress = progressRecords.filter(p => p.status === 'in_progress').length
-  const scores     = progressRecords.filter(p => p.bestScore != null).map(p => p.bestScore as number)
-  const avgScore   = scores.length > 0 ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length) : 0
-  const progressPct = totalChapters > 0 ? Math.round((completed / totalChapters) * 100) : 0
+  const totalBuchungen = topics.reduce((s, t) => s + (t.chapters[0]?._count.bookingEntries ?? 0), 0)
+  const totalBegriffe  = topics.reduce((s, t) => s + (t.chapters[0]?._count.keyTerms ?? 0), 0)
 
-  // Per-section progress
-  const wrTopics  = topics.filter(t => t.category !== 'frw')
-  const frwTopics = topics.filter(t => t.category === 'frw')
-  const wrIds  = new Set(wrTopics.flatMap(t => t.chapters.map(c => c.id)))
-  const frwIds = new Set(frwTopics.flatMap(t => t.chapters.map(c => c.id)))
-  const wrDone  = progressRecords.filter(p => p.status === 'completed' && wrIds.has(p.chapterId)).length
-  const frwDone = progressRecords.filter(p => p.status === 'completed' && frwIds.has(p.chapterId)).length
-  const wrPct   = wrIds.size  > 0 ? Math.round((wrDone  / wrIds.size)  * 100) : 0
-  const frwPct  = frwIds.size > 0 ? Math.round((frwDone / frwIds.size) * 100) : 0
-
-  return {
-    user, topics, totalChapters,
-    completed, inProgress, avgScore, progressPct,
-    wrPct, frwPct, wrTotal: wrIds.size, frwTotal: frwIds.size, wrDone, frwDone,
-  }
+  return { user, topics, totalBuchungen, totalBegriffe }
 }
 
-const CATEGORY_ORDER = ['bwl', 'vwl', 'recht']
-
-const CATEGORY_STYLE: Record<string, { dot: string; bar: string; badge: string; border: string }> = {
-  bwl:   { dot: 'bg-blue-400',    bar: '#3b82f6', badge: 'text-blue-300 bg-blue-500/10 border-blue-500/20',    border: 'rgba(59,130,246,0.15)' },
-  vwl:   { dot: 'bg-emerald-400', bar: '#10b981', badge: 'text-emerald-300 bg-emerald-500/10 border-emerald-500/20', border: 'rgba(16,185,129,0.15)' },
-  recht: { dot: 'bg-violet-400',  bar: '#8b5cf6', badge: 'text-violet-300 bg-violet-500/10 border-violet-500/20', border: 'rgba(139,92,246,0.15)' },
-}
-
-const EXAM_DARK: Record<string, string> = {
-  querschnitt: 'text-emerald-300 bg-emerald-500/10 border-emerald-500/20',
-  abschluss:   'text-amber-300 bg-amber-500/10 border-amber-500/20',
-  both:        'text-indigo-300 bg-indigo-500/10 border-indigo-500/20',
-}
-
-function TopicCard({ topic }: { topic: Topic & { chapters: { id: string }[] } }) {
-  const examLabel = EXAM_LABELS[topic.examType as keyof typeof EXAM_LABELS] ?? topic.examType
-  const examClass = EXAM_DARK[topic.examType] ?? EXAM_DARK.both
-  const chapterCount = topic.chapters?.length ?? 0
-
-  return (
-    <Link
-      href={`/topics/${topic.slug}`}
-      className="glass glass-hover group flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-150"
-    >
-      <div
-        className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
-        style={{ background: 'var(--icon-bg)' }}
-      >
-        <TopicIcon name={topic.icon} size={15} className="text-slate-300" />
-      </div>
-      <div className="flex-1 min-w-0">
-        <div className="font-medium text-sm truncate" style={{ color: 'var(--text-primary)' }}>
-          {topic.title}
-        </div>
-        <div className="text-[11px] mt-0.5 truncate" style={{ color: 'var(--text-muted)' }}>
-          {chapterCount} Kapitel
-        </div>
-      </div>
-      <div className="flex items-center gap-2 shrink-0">
-        <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full border ${examClass}`}>
-          {examLabel}
-        </span>
-        <ChevronRight size={13} className="text-slate-600 group-hover:text-blue-400 transition-colors" />
-      </div>
-    </Link>
-  )
-}
-
-function SectionBar({ label, pct, done, total, gradient, dotColor }: {
-  label: string; pct: number; done: number; total: number
-  gradient: string; dotColor: string
-}) {
-  return (
-    <div className="space-y-1.5">
-      <div className="flex items-center justify-between gap-2">
-        <div className="flex items-center gap-2">
-          <div className={`w-1.5 h-1.5 rounded-full shrink-0 ${dotColor}`} />
-          <span className="text-xs font-medium" style={{ color: 'var(--text-secondary)' }}>{label}</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <span className="text-[11px] tabular-nums" style={{ color: 'var(--text-muted)' }}>{done}/{total}</span>
-          <span className="text-xs font-bold tabular-nums w-8 text-right" style={{ color: 'var(--text-primary)' }}>{pct}%</span>
-        </div>
-      </div>
-      <div className="h-1.5 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.06)' }}>
-        <div
-          className="h-full rounded-full transition-all duration-700"
-          style={{
-            width: `${Math.min(100, Math.max(0, pct))}%`,
-            background: gradient,
-            boxShadow: pct > 0 ? `0 0 6px ${gradient.includes('3b82f6') ? 'rgba(99,102,241,0.4)' : 'rgba(16,185,129,0.4)'}` : 'none',
-          }}
-        />
-      </div>
-    </div>
-  )
+const KAPITEL_COLORS: Record<number, { bg: string; border: string; text: string; dot: string }> = {
+  2:  { bg: 'rgba(14,165,233,0.08)',  border: 'rgba(14,165,233,0.2)',  text: '#38bdf8', dot: '#0ea5e9' },
+  3:  { bg: 'rgba(239,68,68,0.08)',   border: 'rgba(239,68,68,0.2)',   text: '#f87171', dot: '#ef4444' },
+  4:  { bg: 'rgba(249,115,22,0.08)',  border: 'rgba(249,115,22,0.2)',  text: '#fb923c', dot: '#f97316' },
+  5:  { bg: 'rgba(234,179,8,0.08)',   border: 'rgba(234,179,8,0.2)',   text: '#facc15', dot: '#eab308' },
+  6:  { bg: 'rgba(34,197,94,0.08)',   border: 'rgba(34,197,94,0.2)',   text: '#4ade80', dot: '#22c55e' },
+  7:  { bg: 'rgba(20,184,166,0.08)',  border: 'rgba(20,184,166,0.2)',  text: '#2dd4bf', dot: '#14b8a6' },
+  8:  { bg: 'rgba(59,130,246,0.08)',  border: 'rgba(59,130,246,0.2)',  text: '#60a5fa', dot: '#3b82f6' },
+  9:  { bg: 'rgba(139,92,246,0.08)',  border: 'rgba(139,92,246,0.2)',  text: '#a78bfa', dot: '#8b5cf6' },
+  11: { bg: 'rgba(236,72,153,0.08)',  border: 'rgba(236,72,153,0.2)',  text: '#f472b6', dot: '#ec4899' },
 }
 
 export default async function DashboardPage() {
-  const {
-    user, topics, totalChapters,
-    completed, inProgress, avgScore, progressPct,
-    wrPct, frwPct, wrTotal, frwTotal, wrDone, frwDone,
-  } = await getDashboardData()
-
+  const { user, topics, totalBuchungen, totalBegriffe } = await getDashboardData()
   const firstName = user?.name?.split(' ')[0] ?? null
-
-  const byCategory = CATEGORY_ORDER.map(cat => ({
-    cat,
-    label: CATEGORY_LABELS[cat] ?? cat,
-    style: CATEGORY_STYLE[cat],
-    topics: topics.filter(t => t.category === cat),
-  })).filter(g => g.topics.length > 0)
-
-  const wrTopics  = topics.filter(t => t.category !== 'frw')
-  const frwTopics = topics.filter(t => t.category === 'frw')
 
   return (
     <div className="space-y-6 fade-in">
 
-      {/* ── HERO ─────────────────────────────────────── */}
+      {/* HERO */}
       <div
         className="relative rounded-2xl overflow-hidden"
         style={{
-          background: 'linear-gradient(135deg, rgba(59,130,246,0.1) 0%, rgba(99,102,241,0.07) 50%, rgba(139,92,246,0.05) 100%)',
-          border: '1px solid rgba(99,102,241,0.18)',
+          background: 'linear-gradient(135deg, rgba(16,185,129,0.1) 0%, rgba(59,130,246,0.07) 50%, rgba(99,102,241,0.05) 100%)',
+          border: '1px solid rgba(16,185,129,0.2)',
         }}
       >
-        {/* Glow orbs */}
-        <div className="absolute top-0 right-0 w-72 h-72 rounded-full pointer-events-none opacity-30"
-          style={{ background: 'radial-gradient(circle, rgba(99,102,241,0.35) 0%, transparent 70%)', transform: 'translate(35%, -35%)' }} />
-        <div className="absolute bottom-0 left-0 w-56 h-56 rounded-full pointer-events-none opacity-15"
-          style={{ background: 'radial-gradient(circle, rgba(59,130,246,0.5) 0%, transparent 70%)', transform: 'translate(-30%, 30%)' }} />
+        <div
+          className="absolute top-0 right-0 w-72 h-72 rounded-full pointer-events-none opacity-25"
+          style={{ background: 'radial-gradient(circle, rgba(16,185,129,0.4) 0%, transparent 70%)', transform: 'translate(35%, -35%)' }}
+        />
 
         <div className="relative z-10 p-7 sm:p-9">
-          {/* Top row: badge + launch */}
-          <div className="flex items-center justify-between gap-3 flex-wrap mb-5">
-            <div className="flex items-center gap-1.5 text-[11px] font-semibold text-indigo-300 bg-indigo-500/10 border border-indigo-500/20 px-3 py-1 rounded-full">
-              <Sparkles size={10} />
-              HMS · Abschlussprüfung 2026
-            </div>
-            <div className="flex items-center gap-2 text-[11px] font-medium px-3 py-1 rounded-full"
-              style={{ background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.2)', color: '#fbbf24' }}>
-              <div className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: '#f59e0b' }} />
-              In Entwicklung · Launch 29. März 22:00
-            </div>
+          <div className="flex items-center gap-1.5 text-[11px] font-semibold text-emerald-300 bg-emerald-500/10 border border-emerald-500/20 px-3 py-1 rounded-full w-fit mb-5">
+            <Calculator size={10} />
+            HMS · Finanz- &amp; Rechnungswesen · Band 2
           </div>
 
-          {/* Title */}
-          <h1 className="text-3xl sm:text-4xl font-extrabold leading-tight mb-2 gradient-text">
-            {firstName ? `Hallo, ${firstName}.` : 'HMS-Plattform'}
+          <h1 className="text-3xl sm:text-4xl font-extrabold leading-tight mb-2" style={{ color: 'var(--text-primary)' }}>
+            {firstName ? `Hallo, ${firstName}.` : 'HMS-Lernplattform'}
           </h1>
           <p className="text-sm max-w-lg leading-relaxed mb-7" style={{ color: 'var(--text-secondary)' }}>
-            Deine Lernplattform zur Prüfungsvorbereitung — Kapitel, Quizzes, Buchungssätze und KI-Assistent.
+            Alle 9 FRW-Kapitel aus Band 2 — Theorie, Buchungssätze, Begriffe und interaktiver Trainer für die Abschlussprüfung.
           </p>
 
-          {/* CTAs */}
           <div className="flex flex-wrap gap-3">
             <Link
-              href="/topics"
+              href="/frw"
               className="flex items-center gap-2 text-sm font-semibold text-white px-5 py-2.5 rounded-xl transition-all"
-              style={{ background: 'linear-gradient(135deg, #3b82f6, #6366f1)', boxShadow: '0 4px 20px -4px rgba(99,102,241,0.55)' }}
+              style={{ background: 'linear-gradient(135deg, #10b981, #059669)', boxShadow: '0 4px 20px -4px rgba(16,185,129,0.5)' }}
             >
-              <BookOpen size={14} /> Alle Themen
+              <BookOpen size={14} /> Kapitel öffnen
             </Link>
             <Link
-              href="/progress"
+              href="/frw/trainer"
               className="flex items-center gap-2 text-sm font-medium px-5 py-2.5 rounded-xl transition-all"
               style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: 'var(--text-primary)' }}
             >
-              <TrendingUp size={14} className="text-blue-400" /> Mein Fortschritt
+              <Dumbbell size={14} className="text-indigo-400" /> Buchungstrainer
             </Link>
           </div>
         </div>
       </div>
 
-      {/* ── QUICK ACCESS ─────────────────────────────── */}
+      {/* STATS */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        {([
-          {
-            href: '/topics',
-            icon: BookOpen,
-            label: 'Alle Themen',
-            sub: `${topics.length} Themen`,
-            gradient: 'linear-gradient(135deg, #3b82f6, #6366f1)',
-            glow: 'rgba(99,102,241,0.3)',
-            iconBg: 'rgba(99,102,241,0.15)',
-            iconColor: 'text-indigo-300',
-          },
-          {
-            href: '/progress',
-            icon: TrendingUp,
-            label: 'Fortschritt',
-            sub: `${progressPct}% erledigt`,
-            gradient: 'linear-gradient(135deg, #10b981, #059669)',
-            glow: 'rgba(16,185,129,0.3)',
-            iconBg: 'rgba(16,185,129,0.12)',
-            iconColor: 'text-emerald-300',
-          },
-          {
-            href: '/buchungssaetze',
-            icon: Calculator,
-            label: 'Buchungssätze',
-            sub: 'FRW üben',
-            gradient: 'linear-gradient(135deg, #0ea5e9, #0891b2)',
-            glow: 'rgba(14,165,233,0.3)',
-            iconBg: 'rgba(14,165,233,0.12)',
-            iconColor: 'text-sky-300',
-          },
-          {
-            href: '/assistant',
-            icon: Sparkles,
-            label: 'KI-Assistent',
-            sub: 'Fragen stellen',
-            gradient: 'linear-gradient(135deg, #8b5cf6, #7c3aed)',
-            glow: 'rgba(139,92,246,0.3)',
-            iconBg: 'rgba(139,92,246,0.12)',
-            iconColor: 'text-violet-300',
-          },
-        ] as const).map(card => (
-          <Link
-            key={card.href}
-            href={card.href}
-            className="group relative rounded-2xl p-4 flex flex-col gap-3 transition-all duration-200 overflow-hidden"
-            style={{
-              background: 'var(--bg-surface)',
-              border: '1px solid var(--border-color)',
-            }}
-          >
-            {/* Hover glow */}
-            <div
-              className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none rounded-2xl"
-              style={{ background: `radial-gradient(ellipse at top left, ${card.glow} 0%, transparent 60%)` }}
-            />
-
-            <div
-              className="w-10 h-10 rounded-xl flex items-center justify-center relative z-10"
-              style={{ background: card.iconBg }}
+        {[
+          { href: '/frw',         icon: BookOpen,  label: 'Kapitel',       value: String(topics.length), sub: 'Band 2',         iconBg: 'rgba(16,185,129,0.12)', iconColor: 'text-emerald-400', glow: 'rgba(16,185,129,0.2)' },
+          { href: '/frw/trainer', icon: Hash,      label: 'Buchungssätze', value: String(totalBuchungen),sub: 'zum Üben',       iconBg: 'rgba(59,130,246,0.12)', iconColor: 'text-blue-400',    glow: 'rgba(59,130,246,0.2)' },
+          { href: '/frw',         icon: FileText,  label: 'Begriffe',      value: String(totalBegriffe), sub: 'Definitionen',   iconBg: 'rgba(139,92,246,0.12)', iconColor: 'text-violet-400',  glow: 'rgba(139,92,246,0.2)' },
+          { href: '/assistant',   icon: Sparkles,  label: 'KI-Assistent',  value: '24/7',                sub: 'Fragen stellen', iconBg: 'rgba(99,102,241,0.12)', iconColor: 'text-indigo-400',  glow: 'rgba(99,102,241,0.2)' },
+        ].map(card => {
+          const Icon = card.icon
+          return (
+            <Link
+              key={card.label}
+              href={card.href}
+              className="group relative rounded-2xl p-4 flex flex-col gap-3 transition-all duration-200 overflow-hidden"
+              style={{ background: 'var(--card-bg)', border: '1px solid var(--border-color)' }}
             >
-              <card.icon size={18} className={card.iconColor} />
-            </div>
-
-            <div className="relative z-10">
-              <div className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>{card.label}</div>
-              <div className="text-[11px] mt-0.5" style={{ color: 'var(--text-muted)' }}>{card.sub}</div>
-            </div>
-
-            <ArrowRight
-              size={13}
-              className="absolute bottom-4 right-4 text-slate-700 group-hover:text-slate-400 group-hover:translate-x-0.5 transition-all duration-150"
-            />
-          </Link>
-        ))}
-      </div>
-
-      {/* ── STATS + PROGRESS CARD ─────────────────────── */}
-      <div
-        className="rounded-2xl p-5 sm:p-6 space-y-5"
-        style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-color)' }}
-      >
-        {/* Title row */}
-        <div className="flex items-center justify-between gap-3">
-          <div>
-            <h2 className="text-sm font-bold" style={{ color: 'var(--text-primary)' }}>Lernfortschritt</h2>
-            <p className="text-[11px] mt-0.5" style={{ color: 'var(--text-muted)' }}>
-              {completed} von {totalChapters} Kapiteln abgeschlossen
-            </p>
-          </div>
-          <div className="text-2xl font-extrabold tabular-nums gradient-text-blue">{progressPct}%</div>
-        </div>
-
-        {/* Stat chips */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-          {([
-            { label: 'Kapitel', value: totalChapters, icon: BookOpen,      color: 'text-slate-400',   bg: 'rgba(100,116,139,0.08)' },
-            { label: 'Erledigt',  value: completed,    icon: CheckCircle2,  color: 'text-emerald-400', bg: 'rgba(16,185,129,0.07)'  },
-            { label: 'Aktiv',     value: inProgress,   icon: Flame,         color: 'text-amber-400',   bg: 'rgba(245,158,11,0.07)'  },
-            { label: 'Ø Score',   value: avgScore > 0 ? `${avgScore}%` : '–', icon: Trophy, color: 'text-violet-400', bg: 'rgba(139,92,246,0.07)' },
-          ] as const).map(s => (
-            <div
-              key={s.label}
-              className="rounded-xl px-3 py-2.5 flex items-center gap-2.5"
-              style={{ background: s.bg, border: '1px solid var(--border-color)' }}
-            >
-              <s.icon size={14} className={`${s.color} shrink-0`} />
-              <div>
-                <div className={`text-base font-bold tabular-nums ${s.color}`}>{s.value}</div>
-                <div className="text-[10px]" style={{ color: 'var(--text-muted)' }}>{s.label}</div>
+              <div
+                className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none rounded-2xl"
+                style={{ background: `radial-gradient(ellipse at top left, ${card.glow} 0%, transparent 60%)` }}
+              />
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center relative z-10" style={{ background: card.iconBg }}>
+                <Icon size={18} className={card.iconColor} />
               </div>
-            </div>
-          ))}
-        </div>
-
-        {/* WR / FRW bars */}
-        <div className="space-y-3 pt-1" style={{ borderTop: '1px solid var(--divider)' }}>
-          <SectionBar
-            label="Wirtschaft & Recht"
-            pct={wrPct} done={wrDone} total={wrTotal}
-            gradient="linear-gradient(90deg, #3b82f6, #6366f1)"
-            dotColor="bg-blue-400"
-          />
-          <SectionBar
-            label="Finanz- & Rechnungswesen"
-            pct={frwPct} done={frwDone} total={frwTotal}
-            gradient="linear-gradient(90deg, #10b981, #34d399)"
-            dotColor="bg-emerald-400"
-          />
-        </div>
-
-        <Link
-          href="/progress"
-          className="flex items-center gap-1.5 text-xs font-medium transition-colors"
-          style={{ color: 'var(--text-muted)' }}
-        >
-          Detaillierter Fortschritt <ArrowRight size={11} />
-        </Link>
+              <div className="relative z-10">
+                <div className="text-lg font-bold tabular-nums" style={{ color: 'var(--text-primary)' }}>{card.value}</div>
+                <div className="text-xs font-medium" style={{ color: 'var(--text-secondary)' }}>{card.label}</div>
+                <div className="text-[11px] mt-0.5" style={{ color: 'var(--text-muted)' }}>{card.sub}</div>
+              </div>
+              <ArrowRight size={13} className="absolute bottom-4 right-4 opacity-30 group-hover:opacity-70 group-hover:translate-x-0.5 transition-all" style={{ color: 'var(--text-muted)' }} />
+            </Link>
+          )
+        })}
       </div>
 
-      {/* ── TOPICS ───────────────────────────────────── */}
-      <div className="space-y-6">
-
-        {/* WR Topics */}
-        {byCategory.map(({ cat, label, style, topics: catTopics }) => (
-          <div key={cat}>
-            <div className="flex items-center gap-2.5 mb-3">
-              <div className={`w-1.5 h-1.5 rounded-full ${style.dot}`} />
-              <h3 className="text-[11px] font-bold uppercase tracking-widest" style={{ color: 'var(--text-secondary)' }}>
-                {label}
-              </h3>
-              <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full border ${style.badge}`}>
-                {catTopics.length}
-              </span>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-              {catTopics.map(topic => (
-                <TopicCard key={topic.id} topic={topic as any} />
-              ))}
-            </div>
+      {/* KAPITEL GRID */}
+      <div>
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <Calculator size={15} className="text-emerald-400" />
+            <h2 className="text-sm font-bold uppercase tracking-widest text-emerald-400">Kapitel</h2>
           </div>
-        ))}
+          <Link href="/frw" className="flex items-center gap-1 text-xs hover:text-blue-400 transition-colors" style={{ color: 'var(--text-muted)' }}>
+            Alle anzeigen <ChevronRight size={12} />
+          </Link>
+        </div>
 
-        {/* FRW Topics */}
-        {(frwTopics.length > 0 || true) && (
-          <div>
-            <div className="flex items-center gap-2.5 mb-3">
-              <div className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-              <h3 className="text-[11px] font-bold uppercase tracking-widest text-emerald-400">
-                Finanz- &amp; Rechnungswesen
-              </h3>
-              <span className="text-[10px] font-medium px-2 py-0.5 rounded-full border text-amber-300 bg-amber-500/10 border-amber-500/20">
-                Neu
-              </span>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-              {frwTopics.map(topic => (
-                <TopicCard key={topic.id} topic={topic as any} />
-              ))}
-              {/* Buchungssätze always shown */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+          {topics.map(topic => {
+            const ch = topic.chapters[0]
+            const colors = KAPITEL_COLORS[topic.order] ?? KAPITEL_COLORS[3]
+            const hasContent = (ch?._count.bookingEntries ?? 0) > 0
+
+            return (
               <Link
-                href="/buchungssaetze"
-                className="group flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-150"
-                style={{
-                  background: 'rgba(16,185,129,0.05)',
-                  border: '1px solid rgba(16,185,129,0.2)',
-                }}
+                key={topic.id}
+                href={`/frw/${topic.slug}`}
+                className="group rounded-2xl p-4 transition-all duration-200 hover:-translate-y-0.5"
+                style={{ background: 'var(--card-bg)', border: '1px solid var(--border-color)' }}
               >
-                <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" style={{ background: 'rgba(16,185,129,0.12)' }}>
-                  <Calculator size={15} className="text-emerald-400" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="font-medium text-sm text-emerald-200 truncate">Buchungssätze üben</div>
-                  <div className="text-[11px] mt-0.5 truncate" style={{ color: 'var(--text-muted)' }}>
-                    Karteikarten & Quiz · FRW
+                <div className="flex items-center justify-between mb-3">
+                  <div
+                    className="flex items-center gap-1.5 px-2 py-0.5 rounded-lg text-[11px] font-semibold"
+                    style={{ background: colors.bg, border: `1px solid ${colors.border}`, color: colors.text }}
+                  >
+                    <span className="w-1.5 h-1.5 rounded-full" style={{ background: colors.dot }} />
+                    Kap. {topic.order}
                   </div>
+                  <ChevronRight size={13} className="transition-transform duration-150 group-hover:translate-x-0.5" style={{ color: 'var(--text-muted)' }} />
                 </div>
-                <div className="flex items-center gap-2 shrink-0">
-                  <span className="text-[10px] font-medium px-2 py-0.5 rounded-full border text-emerald-300 bg-emerald-500/10 border-emerald-500/20">
-                    Verfügbar
-                  </span>
-                  <ChevronRight size={13} className="text-slate-600 group-hover:text-emerald-400 transition-colors" />
+
+                <h3 className="text-sm font-semibold leading-snug" style={{ color: 'var(--text-primary)' }}>
+                  {topic.title}
+                </h3>
+
+                <div className="flex items-center gap-3 mt-3 pt-3" style={{ borderTop: '1px solid var(--border-color)' }}>
+                  {hasContent ? (
+                    <>
+                      {ch!._count.bookingEntries > 0 && (
+                        <span className="flex items-center gap-1 text-[11px]" style={{ color: 'var(--text-muted)' }}>
+                          <Hash size={10} /> {ch!._count.bookingEntries} Buchungen
+                        </span>
+                      )}
+                      {ch!._count.keyTerms > 0 && (
+                        <span className="flex items-center gap-1 text-[11px]" style={{ color: 'var(--text-muted)' }}>
+                          <FileText size={10} /> {ch!._count.keyTerms} Begriffe
+                        </span>
+                      )}
+                    </>
+                  ) : (
+                    <span className="text-[11px]" style={{ color: 'var(--text-muted)' }}>In Vorbereitung</span>
+                  )}
                 </div>
               </Link>
-            </div>
-          </div>
-        )}
+            )
+          })}
+        </div>
       </div>
 
-      {/* ── BOTTOM CTA ───────────────────────────────── */}
-      <div
-        className="rounded-2xl p-6 flex items-center justify-between gap-4 flex-wrap"
-        style={{
-          background: 'linear-gradient(135deg, rgba(59,130,246,0.08) 0%, rgba(99,102,241,0.05) 100%)',
-          border: '1px solid rgba(99,102,241,0.15)',
-        }}
-      >
-        <div>
-          <div className="flex items-center gap-2 mb-1">
-            <Target size={16} className="text-blue-400" />
-            <span className="font-bold text-base" style={{ color: 'var(--text-primary)' }}>Bereit für ein Quiz?</span>
-          </div>
-          <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
-            Teste dein Wissen und bereite dich optimal auf die Prüfung vor.
-          </p>
-        </div>
+      {/* BOTTOM CTAs */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <Link
-          href="/topics"
-          className="flex items-center gap-2 text-sm font-semibold text-white px-5 py-2.5 rounded-xl whitespace-nowrap transition-all shrink-0"
-          style={{ background: 'linear-gradient(135deg, #3b82f6, #6366f1)', boxShadow: '0 4px 16px -4px rgba(99,102,241,0.5)' }}
+          href="/frw/trainer"
+          className="rounded-2xl p-6 flex items-center justify-between gap-4 transition-all hover:-translate-y-0.5"
+          style={{ background: 'linear-gradient(135deg, rgba(99,102,241,0.1) 0%, rgba(139,92,246,0.06) 100%)', border: '1px solid rgba(99,102,241,0.2)' }}
         >
-          Thema wählen <ArrowRight size={14} />
+          <div>
+            <div className="flex items-center gap-2 mb-1">
+              <Dumbbell size={15} className="text-indigo-400" />
+              <span className="font-bold text-sm text-indigo-300">Buchungstrainer</span>
+            </div>
+            <p className="text-xs" style={{ color: 'var(--text-muted)' }}>Alle Kapitel wählbar · jede Runde anders</p>
+          </div>
+          <ArrowRight size={16} className="text-indigo-400 shrink-0" />
+        </Link>
+
+        <Link
+          href="/assistant"
+          className="rounded-2xl p-6 flex items-center justify-between gap-4 transition-all hover:-translate-y-0.5"
+          style={{ background: 'linear-gradient(135deg, rgba(59,130,246,0.08) 0%, rgba(99,102,241,0.05) 100%)', border: '1px solid rgba(59,130,246,0.18)' }}
+        >
+          <div>
+            <div className="flex items-center gap-2 mb-1">
+              <Sparkles size={15} className="text-blue-400" />
+              <span className="font-bold text-sm text-blue-300">KI-Assistent</span>
+            </div>
+            <p className="text-xs" style={{ color: 'var(--text-muted)' }}>Fragen zu FRW · Erklärungen · Beispiele</p>
+          </div>
+          <ArrowRight size={16} className="text-blue-400 shrink-0" />
         </Link>
       </div>
 

@@ -1,290 +1,273 @@
 import { prisma } from '@/lib/prisma'
-import { getCurrentUser } from '@/lib/auth'
-import { formatScore } from '@/lib/utils'
-import { Trophy } from 'lucide-react'
-import ProgressTopics, { type TopicProg, type ChapterProg } from './ProgressTopics'
+import Link from 'next/link'
+import {
+  Calculator, Hash, FileText, Lightbulb, BookOpen,
+  ChevronRight, Dumbbell, ArrowRight, FunctionSquare,
+} from 'lucide-react'
 
 export const dynamic = 'force-dynamic'
 
 async function getProgressData() {
-  const user = await getCurrentUser()
-  const userId = user?.id ?? null
-
   const topics = await prisma.topic.findMany({
+    where: { category: 'frw' },
     orderBy: { order: 'asc' },
     include: {
       chapters: {
-        orderBy: { order: 'asc' },
+        take: 1,
         include: {
-          progress: {
-            where: userId ? { userId } : { userId: null },
+          _count: {
+            select: {
+              bookingEntries: true,
+              keyTerms: true,
+              corePoints: true,
+              formulas: true,
+            },
           },
         },
       },
     },
   })
 
-  const getProgress = <T extends { progress: { status?: string | null; bestScore?: number | null }[] }>(
-    c: T
-  ) => (Array.isArray(c.progress) ? c.progress[0] ?? null : null)
+  const totalBuchungen  = topics.reduce((s, t) => s + (t.chapters[0]?._count.bookingEntries ?? 0), 0)
+  const totalBegriffe   = topics.reduce((s, t) => s + (t.chapters[0]?._count.keyTerms ?? 0), 0)
+  const totalMerksaetze = topics.reduce((s, t) => s + (t.chapters[0]?._count.corePoints ?? 0), 0)
+  const totalFormeln    = topics.reduce((s, t) => s + (t.chapters[0]?._count.formulas ?? 0), 0)
+  const chaptersReady   = topics.filter(t => (t.chapters[0]?._count.bookingEntries ?? 0) > 0).length
 
-  const allChapters = topics.flatMap(t => t.chapters)
-  const totalChapters = allChapters.length
-  const completed  = allChapters.filter(c => getProgress(c)?.status === 'completed').length
-  const inProgress = allChapters.filter(c => getProgress(c)?.status === 'in_progress').length
-  const notStarted = totalChapters - completed - inProgress
-  const progressPct = totalChapters > 0 ? Math.round((completed / totalChapters) * 100) : 0
-
-  const scores = allChapters
-    .filter(c => getProgress(c)?.bestScore != null)
-    .map(c => getProgress(c)!.bestScore as number)
-  const avgScore = scores.length > 0
-    ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length)
-    : null
-
-  // Build typed TopicProg[] for WR and FRW
-  function buildTopicProgs(sectionTopics: typeof topics): TopicProg[] {
-    return sectionTopics.map(topic => {
-      const chaptersTotal = topic.chapters.length
-      const chaptersCompleted = topic.chapters.filter(
-        c => getProgress(c)?.status === 'completed'
-      ).length
-      const pct = chaptersTotal > 0 ? Math.round((chaptersCompleted / chaptersTotal) * 100) : 0
-
-      const chapters: ChapterProg[] = topic.chapters.map(c => {
-        const prog = getProgress(c)
-        const rawStatus = prog?.status ?? 'not_started'
-        const status: ChapterProg['status'] =
-          rawStatus === 'completed' || rawStatus === 'in_progress'
-            ? rawStatus
-            : 'not_started'
-        return {
-          id: c.id,
-          title: c.title,
-          subtitle: c.subtitle ?? null,
-          status,
-          bestScore: prog?.bestScore ?? null,
-        }
-      })
-
-      return {
-        id: topic.id,
-        title: topic.title,
-        slug: topic.slug,
-        icon: topic.icon,
-        chaptersCompleted,
-        chaptersTotal,
-        pct,
-        chapters,
-      }
-    })
-  }
-
-  const wrTopics  = topics.filter(t => t.category !== 'frw')
-  const frwTopics = topics.filter(t => t.category === 'frw')
-
-  const wrTopicProgs  = buildTopicProgs(wrTopics)
-  const frwTopicProgs = buildTopicProgs(frwTopics)
-
-  // Section-level stats
-  const wrChapters  = wrTopics.flatMap(t => t.chapters)
-  const frwChapters = frwTopics.flatMap(t => t.chapters)
-
-  const sectionStats = (chapters: typeof allChapters) => {
-    const total = chapters.length
-    const done  = chapters.filter(c => getProgress(c)?.status === 'completed').length
-    const pct   = total > 0 ? Math.round((done / total) * 100) : 0
-    return { total, done, pct }
-  }
-
-  const wrStats  = sectionStats(wrChapters)
-  const frwStats = sectionStats(frwChapters)
-
-  return {
-    totalChapters, completed, inProgress, notStarted, progressPct, avgScore,
-    wrTopicProgs, frwTopicProgs, wrStats, frwStats,
-  }
+  return { topics, totalBuchungen, totalBegriffe, totalMerksaetze, totalFormeln, chaptersReady }
 }
 
-function GradientBar({ value, gradient }: { value: number; gradient: string }) {
-  return (
-    <div
-      className="h-1.5 rounded-full overflow-hidden"
-      style={{ background: 'rgba(100,116,139,0.15)' }}
-    >
-      <div
-        className="h-full rounded-full transition-all duration-500"
-        style={{
-          width: `${Math.min(100, Math.max(0, value))}%`,
-          background: gradient,
-          boxShadow: value > 0 ? '0 0 8px rgba(99,102,241,0.4)' : 'none',
-        }}
-      />
-    </div>
-  )
+const KAPITEL_COLORS: Record<number, { bg: string; border: string; text: string; bar: string }> = {
+  2:  { bg: 'rgba(14,165,233,0.08)',  border: 'rgba(14,165,233,0.2)',  text: '#38bdf8', bar: '#0ea5e9' },
+  3:  { bg: 'rgba(239,68,68,0.08)',   border: 'rgba(239,68,68,0.2)',   text: '#f87171', bar: '#ef4444' },
+  4:  { bg: 'rgba(249,115,22,0.08)',  border: 'rgba(249,115,22,0.2)',  text: '#fb923c', bar: '#f97316' },
+  5:  { bg: 'rgba(234,179,8,0.08)',   border: 'rgba(234,179,8,0.2)',   text: '#facc15', bar: '#eab308' },
+  6:  { bg: 'rgba(34,197,94,0.08)',   border: 'rgba(34,197,94,0.2)',   text: '#4ade80', bar: '#22c55e' },
+  7:  { bg: 'rgba(20,184,166,0.08)',  border: 'rgba(20,184,166,0.2)',  text: '#2dd4bf', bar: '#14b8a6' },
+  8:  { bg: 'rgba(59,130,246,0.08)',  border: 'rgba(59,130,246,0.2)',  text: '#60a5fa', bar: '#3b82f6' },
+  9:  { bg: 'rgba(139,92,246,0.08)',  border: 'rgba(139,92,246,0.2)',  text: '#a78bfa', bar: '#8b5cf6' },
+  11: { bg: 'rgba(236,72,153,0.08)',  border: 'rgba(236,72,153,0.2)',  text: '#f472b6', bar: '#ec4899' },
 }
 
 export default async function ProgressPage() {
-  const {
-    totalChapters, completed, inProgress, notStarted, progressPct, avgScore,
-    wrTopicProgs, frwTopicProgs, wrStats, frwStats,
-  } = await getProgressData()
+  const { topics, totalBuchungen, totalBegriffe, totalMerksaetze, totalFormeln, chaptersReady } = await getProgressData()
 
-  const overallGradient =
-    progressPct >= 75 ? 'linear-gradient(90deg, #10b981, #34d399)' :
-    progressPct >= 40 ? 'linear-gradient(90deg, #3b82f6, #6366f1)' :
-                        'linear-gradient(90deg, #f59e0b, #fbbf24)'
+  const readyPct = topics.length > 0 ? Math.round((chaptersReady / topics.length) * 100) : 0
 
   return (
     <div className="max-w-3xl mx-auto space-y-8 fade-in">
 
-      {/* Page header */}
+      {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold gradient-text">Lernfortschritt</h1>
+        <div className="flex items-center gap-2 mb-1">
+          <Calculator size={16} className="text-emerald-400" />
+          <span className="text-xs font-medium text-emerald-400 uppercase tracking-widest">Band 2</span>
+        </div>
+        <h1 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>Lernübersicht</h1>
         <p className="text-sm mt-1" style={{ color: 'var(--text-muted)' }}>
-          Übersicht über alle Kapitel und deinen Fortschritt
+          Alle FRW-Kapitel auf einen Blick — Inhalte und Lernmaterial
         </p>
       </div>
 
-      {/* Overall stats card */}
-      <div className="glass rounded-2xl p-6 relative overflow-hidden">
+      {/* Stats overview */}
+      <div
+        className="rounded-2xl p-6 space-y-5 relative overflow-hidden"
+        style={{ background: 'var(--card-bg)', border: '1px solid var(--border-color)' }}
+      >
         <div
           className="absolute inset-0 pointer-events-none"
-          style={{ background: 'radial-gradient(ellipse at top left, rgba(99,102,241,0.08) 0%, transparent 60%)' }}
+          style={{ background: 'radial-gradient(ellipse at top left, rgba(16,185,129,0.06) 0%, transparent 60%)' }}
         />
-        <div className="relative z-10 space-y-5">
-
-          {/* Title + big percentage */}
-          <div className="flex items-start justify-between gap-4">
+        <div className="relative z-10">
+          <div className="flex items-start justify-between gap-4 mb-4">
             <div>
-              <h2 className="text-base font-semibold" style={{ color: 'var(--text-primary)' }}>
-                Gesamtfortschritt
-              </h2>
+              <h2 className="text-base font-semibold" style={{ color: 'var(--text-primary)' }}>Gesamtinhalt</h2>
               <p className="text-sm mt-0.5" style={{ color: 'var(--text-muted)' }}>
-                {completed} von {totalChapters} Kapiteln abgeschlossen
+                {chaptersReady} von {topics.length} Kapiteln mit vollem Inhalt
               </p>
             </div>
-            <div className="text-3xl font-extrabold gradient-text-blue tabular-nums">
-              {progressPct}%
-            </div>
+            <span className="text-3xl font-extrabold text-emerald-400 tabular-nums">{readyPct}%</span>
           </div>
 
-          {/* Overall progress bar */}
-          <GradientBar value={progressPct} gradient={overallGradient} />
+          {/* Progress bar */}
+          <div className="h-2 rounded-full overflow-hidden mb-5" style={{ background: 'rgba(255,255,255,0.06)' }}>
+            <div
+              className="h-full rounded-full transition-all duration-700"
+              style={{ width: `${readyPct}%`, background: 'linear-gradient(90deg, #10b981, #34d399)', boxShadow: '0 0 8px rgba(16,185,129,0.4)' }}
+            />
+          </div>
 
-          {/* 4 mini stat tiles */}
+          {/* Content stats */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            {([
-              { label: 'Total',         value: totalChapters, colorClass: 'text-slate-400',   bg: 'rgba(100,116,139,0.08)' },
-              { label: 'Abgeschlossen', value: completed,     colorClass: 'text-emerald-400', bg: 'rgba(16,185,129,0.08)' },
-              { label: 'In Bearbeitung',value: inProgress,    colorClass: 'text-blue-400',    bg: 'rgba(59,130,246,0.08)' },
-              { label: 'Offen',         value: notStarted,    colorClass: 'text-slate-500',   bg: 'rgba(100,116,139,0.05)' },
-            ] as const).map(s => (
-              <div
-                key={s.label}
-                className="rounded-xl p-3 text-center"
-                style={{ background: s.bg, border: '1px solid var(--border-color)' }}
-              >
-                <div className={`text-2xl font-bold tabular-nums ${s.colorClass}`}>{s.value}</div>
-                <div className="text-[11px] mt-0.5" style={{ color: 'var(--text-muted)' }}>{s.label}</div>
-              </div>
-            ))}
-          </div>
-
-          {/* Section breakdown: WR | FRW */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
-            {/* WR card */}
-            <div
-              className="rounded-xl p-4 space-y-2"
-              style={{ background: 'rgba(59,130,246,0.06)', border: '1px solid rgba(59,130,246,0.18)' }}
-            >
-              <div className="flex items-center justify-between gap-2">
-                <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 rounded-full bg-blue-400 shrink-0" />
-                  <span className="text-xs font-bold uppercase tracking-widest text-blue-300">
-                    Wirtschaft &amp; Recht
-                  </span>
+            {[
+              { icon: Hash,           label: 'Buchungssätze', value: totalBuchungen,  color: 'text-blue-400',    bg: 'rgba(59,130,246,0.08)' },
+              { icon: FileText,       label: 'Begriffe',      value: totalBegriffe,   color: 'text-violet-400',  bg: 'rgba(139,92,246,0.08)' },
+              { icon: Lightbulb,      label: 'Merksätze',     value: totalMerksaetze, color: 'text-amber-400',   bg: 'rgba(234,179,8,0.08)'  },
+              { icon: FunctionSquare, label: 'Formeln',       value: totalFormeln,    color: 'text-indigo-400',  bg: 'rgba(99,102,241,0.08)' },
+            ].map(s => {
+              const Icon = s.icon
+              return (
+                <div
+                  key={s.label}
+                  className="rounded-xl px-3 py-2.5 flex items-center gap-2.5"
+                  style={{ background: s.bg, border: '1px solid var(--border-color)' }}
+                >
+                  <Icon size={14} className={`${s.color} shrink-0`} />
+                  <div>
+                    <div className={`text-base font-bold tabular-nums ${s.color}`}>{s.value}</div>
+                    <div className="text-[10px]" style={{ color: 'var(--text-muted)' }}>{s.label}</div>
+                  </div>
                 </div>
-                <span className="text-sm font-bold text-blue-400 tabular-nums">{wrStats.pct}%</span>
-              </div>
-              <GradientBar value={wrStats.pct} gradient="linear-gradient(90deg, #3b82f6, #6366f1)" />
-              <p className="text-[11px]" style={{ color: 'var(--text-muted)' }}>
-                {wrStats.done}/{wrStats.total} Kapitel abgeschlossen
-              </p>
-            </div>
-
-            {/* FRW card */}
-            <div
-              className="rounded-xl p-4 space-y-2"
-              style={{ background: 'rgba(16,185,129,0.06)', border: '1px solid rgba(16,185,129,0.18)' }}
-            >
-              <div className="flex items-center justify-between gap-2">
-                <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 rounded-full bg-emerald-400 shrink-0" />
-                  <span className="text-xs font-bold uppercase tracking-widest text-emerald-300">
-                    Finanz- &amp; Rechnungswesen
-                  </span>
-                </div>
-                <span className="text-sm font-bold text-emerald-400 tabular-nums">{frwStats.pct}%</span>
-              </div>
-              <GradientBar value={frwStats.pct} gradient="linear-gradient(90deg, #10b981, #34d399)" />
-              <p className="text-[11px]" style={{ color: 'var(--text-muted)' }}>
-                {frwStats.done}/{frwStats.total} Kapitel abgeschlossen
-              </p>
-            </div>
+              )
+            })}
           </div>
-
-          {/* Avg score footer */}
-          {avgScore !== null && (
-            <div
-              className="flex items-center gap-2 pt-4 text-sm"
-              style={{ borderTop: '1px solid var(--divider)' }}
-            >
-              <Trophy size={14} className="text-amber-400" />
-              <span style={{ color: 'var(--text-muted)' }}>Durchschnittlicher Quizscore:</span>
-              <span className="font-bold text-amber-400">{formatScore(avgScore)}</span>
-            </div>
-          )}
         </div>
       </div>
 
-      {/* WR section */}
-      {wrTopicProgs.length > 0 && (
-        <div className="space-y-3">
-          <div className="flex items-center gap-3">
-            <div
-              className="w-1 h-5 rounded-full"
-              style={{ background: 'linear-gradient(180deg,#3b82f6,#6366f1)' }}
-            />
-            <h2
-              className="text-xs font-bold uppercase tracking-widest"
-              style={{ color: '#93c5fd' }}
-            >
-              Wirtschaft &amp; Recht
-            </h2>
-          </div>
-          <ProgressTopics topics={wrTopicProgs} accent="blue" />
+      {/* Kapitel list */}
+      <div className="space-y-3">
+        <div className="flex items-center gap-3">
+          <div className="w-1 h-5 rounded-full" style={{ background: 'linear-gradient(180deg,#10b981,#059669)' }} />
+          <h2 className="text-xs font-bold uppercase tracking-widest text-emerald-300">
+            Finanz- &amp; Rechnungswesen · Band 2
+          </h2>
         </div>
-      )}
 
-      {/* FRW section */}
-      {frwTopicProgs.length > 0 && (
-        <div className="space-y-3">
-          <div className="flex items-center gap-3">
+        {topics.map(topic => {
+          const ch = topic.chapters[0]
+          const colors = KAPITEL_COLORS[topic.order] ?? KAPITEL_COLORS[3]
+          const buchungen  = ch?._count.bookingEntries ?? 0
+          const begriffe   = ch?._count.keyTerms ?? 0
+          const merksaetze = ch?._count.corePoints ?? 0
+          const formeln    = ch?._count.formulas ?? 0
+          const hasContent = buchungen > 0 || begriffe > 0
+
+          // Content score: how "full" this chapter is (0–100)
+          const maxBuchungen = 10, maxBegriffe = 12, maxMerksaetze = 8, maxFormeln = 5
+          const contentScore = hasContent ? Math.min(100, Math.round(
+            ((buchungen / maxBuchungen) * 40 +
+             (begriffe / maxBegriffe) * 30 +
+             (merksaetze / maxMerksaetze) * 20 +
+             (formeln / maxFormeln) * 10)
+          )) : 0
+
+          return (
             <div
-              className="w-1 h-5 rounded-full"
-              style={{ background: 'linear-gradient(180deg,#10b981,#059669)' }}
-            />
-            <h2
-              className="text-xs font-bold uppercase tracking-widest"
-              style={{ color: '#34d399' }}
+              key={topic.id}
+              className="rounded-2xl p-5 space-y-4"
+              style={{ background: 'var(--card-bg)', border: '1px solid var(--border-color)' }}
             >
-              Finanz- &amp; Rechnungswesen
-            </h2>
+              {/* Chapter header */}
+              <div className="flex items-center justify-between gap-3">
+                <div className="flex items-center gap-3 flex-1 min-w-0">
+                  <div
+                    className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold shrink-0"
+                    style={{ background: colors.bg, border: `1px solid ${colors.border}`, color: colors.text }}
+                  >
+                    Kap. {topic.order}
+                  </div>
+                  <h3 className="text-sm font-semibold truncate" style={{ color: 'var(--text-primary)' }}>
+                    {topic.title}
+                  </h3>
+                </div>
+                {hasContent && (
+                  <span
+                    className="text-xs font-bold tabular-nums shrink-0"
+                    style={{ color: colors.text }}
+                  >
+                    {contentScore}%
+                  </span>
+                )}
+              </div>
+
+              {/* Content bar */}
+              {hasContent ? (
+                <>
+                  <div className="h-1.5 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.06)' }}>
+                    <div
+                      className="h-full rounded-full transition-all duration-500"
+                      style={{ width: `${contentScore}%`, background: colors.bar, boxShadow: `0 0 6px ${colors.bar}66` }}
+                    />
+                  </div>
+
+                  {/* Content chips */}
+                  <div className="flex flex-wrap gap-2">
+                    {buchungen > 0 && (
+                      <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs" style={{ background: 'rgba(59,130,246,0.08)', border: '1px solid rgba(59,130,246,0.15)', color: '#93c5fd' }}>
+                        <Hash size={11} /> {buchungen} Buchungssätze
+                      </div>
+                    )}
+                    {begriffe > 0 && (
+                      <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs" style={{ background: 'rgba(139,92,246,0.08)', border: '1px solid rgba(139,92,246,0.15)', color: '#c4b5fd' }}>
+                        <FileText size={11} /> {begriffe} Begriffe
+                      </div>
+                    )}
+                    {merksaetze > 0 && (
+                      <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs" style={{ background: 'rgba(234,179,8,0.08)', border: '1px solid rgba(234,179,8,0.15)', color: '#fde68a' }}>
+                        <Lightbulb size={11} /> {merksaetze} Merksätze
+                      </div>
+                    )}
+                    {formeln > 0 && (
+                      <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs" style={{ background: 'rgba(99,102,241,0.08)', border: '1px solid rgba(99,102,241,0.15)', color: '#a5b4fc' }}>
+                        <FunctionSquare size={11} /> {formeln} Formeln
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Actions */}
+                  <div className="flex items-center gap-2 pt-1" style={{ borderTop: '1px solid var(--border-color)' }}>
+                    <Link
+                      href={`/frw/${topic.slug}`}
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all hover:text-blue-400"
+                      style={{ background: 'rgba(255,255,255,0.04)', color: 'var(--text-muted)' }}
+                    >
+                      <BookOpen size={12} /> Theorie
+                    </Link>
+                    {buchungen > 0 && (
+                      <Link
+                        href={`/frw/${topic.slug}?tab=ueben`}
+                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all hover:text-indigo-400"
+                        style={{ background: 'rgba(99,102,241,0.06)', color: 'var(--text-muted)' }}
+                      >
+                        <Dumbbell size={12} /> Üben
+                      </Link>
+                    )}
+                    <Link
+                      href={`/frw/${topic.slug}?tab=begriffe`}
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all hover:text-violet-400"
+                      style={{ background: 'rgba(139,92,246,0.06)', color: 'var(--text-muted)' }}
+                    >
+                      <FileText size={12} /> Begriffe
+                    </Link>
+                  </div>
+                </>
+              ) : (
+                <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
+                  Inhalt in Vorbereitung
+                </p>
+              )}
+            </div>
+          )
+        })}
+      </div>
+
+      {/* Trainer CTA */}
+      <Link
+        href="/frw/trainer"
+        className="rounded-2xl p-6 flex items-center justify-between gap-4 transition-all hover:-translate-y-0.5"
+        style={{ background: 'linear-gradient(135deg, rgba(99,102,241,0.1) 0%, rgba(139,92,246,0.06) 100%)', border: '1px solid rgba(99,102,241,0.2)' }}
+      >
+        <div>
+          <div className="flex items-center gap-2 mb-1">
+            <Dumbbell size={15} className="text-indigo-400" />
+            <span className="font-bold text-sm text-indigo-300">Buchungstrainer starten</span>
           </div>
-          <ProgressTopics topics={frwTopicProgs} accent="emerald" />
+          <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
+            Kapitel auswählen und alle Buchungssätze interaktiv üben
+          </p>
         </div>
-      )}
+        <ArrowRight size={16} className="text-indigo-400 shrink-0" />
+      </Link>
 
     </div>
   )
