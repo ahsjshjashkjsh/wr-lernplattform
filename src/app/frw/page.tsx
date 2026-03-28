@@ -1,7 +1,7 @@
 import { prisma } from '@/lib/prisma'
 import { getCurrentUser } from '@/lib/auth'
 import Link from 'next/link'
-import { BookOpen, ChevronRight, FileText, Hash, Calculator, Dumbbell } from 'lucide-react'
+import { ChevronRight, FileText, Hash, Calculator, Dumbbell } from 'lucide-react'
 
 export const dynamic = 'force-dynamic'
 
@@ -43,8 +43,90 @@ async function getFrwData() {
   return { topics, progressMap }
 }
 
+function TopicGrid({
+  topics,
+  progressMap,
+}: {
+  topics: Awaited<ReturnType<typeof getFrwData>>['topics']
+  progressMap: Map<string, string>
+}) {
+  if (topics.length === 0) return null
+  return (
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      {topics.map(topic => {
+        const ch = topic.chapters[0]
+        const kapitelNr = topic.order
+        const colors = KAPITEL_COLORS[kapitelNr] ?? KAPITEL_COLORS[3]
+        return (
+          <Link
+            key={topic.id}
+            href={`/frw/${topic.slug}`}
+            className="group relative rounded-2xl p-5 hover:-translate-y-0.5 hover:border-white/20"
+            style={{
+              background: 'var(--card-bg)',
+              border: `1px solid var(--border-color)`,
+              transition: 'transform 200ms, border-color 200ms',
+            }}
+          >
+            <div className="flex items-center justify-between mb-4">
+              <div
+                className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold"
+                style={{ background: colors.bg, border: `1px solid ${colors.border}`, color: colors.text }}
+              >
+                <span className="w-1.5 h-1.5 rounded-full" style={{ background: colors.dot }} />
+                Kapitel {kapitelNr}
+              </div>
+              <ChevronRight
+                size={15}
+                className="transition-transform duration-200 group-hover:translate-x-0.5"
+                style={{ color: 'var(--text-muted)' }}
+              />
+            </div>
+            <h2 className="text-sm font-semibold mb-1.5 leading-snug" style={{ color: 'var(--text-primary)' }}>
+              {topic.title}
+            </h2>
+            <p className="text-xs leading-relaxed line-clamp-2 mb-4" style={{ color: 'var(--text-muted)' }}>
+              {topic.description}
+            </p>
+            {ch && (
+              <div className="flex items-center gap-3 pt-3" style={{ borderTop: '1px solid var(--border-color)' }}>
+                {ch._count.bookingEntries > 0 && (
+                  <div className="flex items-center gap-1 text-xs" style={{ color: 'var(--text-muted)' }}>
+                    <Hash size={11} />
+                    {ch._count.bookingEntries} Buchungen
+                  </div>
+                )}
+                {ch._count.keyTerms > 0 && (
+                  <div className="flex items-center gap-1 text-xs" style={{ color: 'var(--text-muted)' }}>
+                    <FileText size={11} />
+                    {ch._count.keyTerms} Begriffe
+                  </div>
+                )}
+                {ch._count.bookingEntries === 0 && ch._count.keyTerms === 0 && (
+                  <span className="text-xs" style={{ color: 'var(--text-muted)' }}>In Vorbereitung</span>
+                )}
+                {progressMap.get(ch.id) && (
+                  <span
+                    className="ml-auto flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full"
+                    style={{ background: 'rgba(34,197,94,0.12)', border: '1px solid rgba(34,197,94,0.25)', color: '#4ade80' }}
+                  >
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 inline-block" />
+                    Besucht
+                  </span>
+                )}
+              </div>
+            )}
+          </Link>
+        )
+      })}
+    </div>
+  )
+}
+
 export default async function FrwPage() {
   const { topics, progressMap } = await getFrwData()
+  const band2Topics = topics.filter(t => t.band !== '1')
+  const band1Topics  = topics.filter(t => t.band === '1')
 
   return (
     <div className="space-y-8">
@@ -72,92 +154,29 @@ export default async function FrwPage() {
         </Link>
       </div>
 
-      {/* Chapter Grid */}
-      {topics.length === 0 ? (
-        <div
-          className="rounded-2xl p-12 text-center"
-          style={{ background: 'var(--card-bg)', border: '1px solid var(--border-color)' }}
-        >
-          <BookOpen size={32} className="mx-auto mb-3 opacity-30" style={{ color: 'var(--text-muted)' }} />
-          <p className="text-sm" style={{ color: 'var(--text-muted)' }}>Inhalte werden geladen…</p>
+      {/* Band 2 Section */}
+      {band2Topics.length > 0 && (
+        <div className="space-y-3">
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-semibold uppercase tracking-widest" style={{ color: 'var(--text-muted)' }}>
+              Band 2 — Vertiefung
+            </span>
+            <div className="flex-1 h-px" style={{ background: 'var(--border-color)' }} />
+          </div>
+          <TopicGrid topics={band2Topics} progressMap={progressMap} />
         </div>
-      ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {topics.map(topic => {
-            const ch = topic.chapters[0]
-            const kapitelNr = topic.order
-            const colors = KAPITEL_COLORS[kapitelNr] ?? KAPITEL_COLORS[3]
+      )}
 
-            return (
-              <Link
-                key={topic.id}
-                href={`/frw/${topic.slug}`}
-                className="group relative rounded-2xl p-5 hover:-translate-y-0.5 hover:border-white/20"
-                style={{
-                  background: 'var(--card-bg)',
-                  border: `1px solid var(--border-color)`,
-                  transition: 'transform 200ms, border-color 200ms',
-                }}
-              >
-                {/* Kapitel badge */}
-                <div className="flex items-center justify-between mb-4">
-                  <div
-                    className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold"
-                    style={{ background: colors.bg, border: `1px solid ${colors.border}`, color: colors.text }}
-                  >
-                    <span
-                      className="w-1.5 h-1.5 rounded-full"
-                      style={{ background: colors.dot }}
-                    />
-                    Kapitel {kapitelNr}
-                  </div>
-                  <ChevronRight
-                    size={15}
-                    className="transition-transform duration-200 group-hover:translate-x-0.5"
-                    style={{ color: 'var(--text-muted)' }}
-                  />
-                </div>
-
-                {/* Title */}
-                <h2 className="text-sm font-semibold mb-1.5 leading-snug" style={{ color: 'var(--text-primary)' }}>
-                  {topic.title}
-                </h2>
-                <p className="text-xs leading-relaxed line-clamp-2 mb-4" style={{ color: 'var(--text-muted)' }}>
-                  {topic.description}
-                </p>
-
-                {/* Stats */}
-                {ch && (
-                  <div className="flex items-center gap-3 pt-3" style={{ borderTop: '1px solid var(--border-color)' }}>
-                    {ch._count.bookingEntries > 0 && (
-                      <div className="flex items-center gap-1 text-xs" style={{ color: 'var(--text-muted)' }}>
-                        <Hash size={11} />
-                        {ch._count.bookingEntries} Buchungen
-                      </div>
-                    )}
-                    {ch._count.keyTerms > 0 && (
-                      <div className="flex items-center gap-1 text-xs" style={{ color: 'var(--text-muted)' }}>
-                        <FileText size={11} />
-                        {ch._count.keyTerms} Begriffe
-                      </div>
-                    )}
-                    {ch._count.bookingEntries === 0 && ch._count.keyTerms === 0 && (
-                      <span className="text-xs" style={{ color: 'var(--text-muted)' }}>In Vorbereitung</span>
-                    )}
-                    {progressMap.get(ch.id) && (
-                      <span
-                        className="ml-auto flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full"
-                        style={{ background: 'rgba(34,197,94,0.12)', border: '1px solid rgba(34,197,94,0.25)', color: '#4ade80' }}
-                      >
-                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 inline-block" />
-                        Besucht
-                      </span>
-                    )}
-                  </div>
-                )}
-              </Link>
-            )
-          })}
+      {/* Band 1 Section */}
+      {band1Topics.length > 0 && (
+        <div className="space-y-3">
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-semibold uppercase tracking-widest" style={{ color: 'var(--text-muted)' }}>
+              Band 1 — Grundlagen
+            </span>
+            <div className="flex-1 h-px" style={{ background: 'var(--border-color)' }} />
+          </div>
+          <TopicGrid topics={band1Topics} progressMap={progressMap} />
         </div>
       )}
     </div>
