@@ -135,7 +135,7 @@ export default async function FrwPage() {
         <div>
           <div className="flex items-center gap-2 mb-1">
             <Calculator size={18} className="text-emerald-400" />
-            <span className="text-xs font-medium text-emerald-400 uppercase tracking-widest">Band 2</span>
+            <span className="text-xs font-medium text-emerald-400 uppercase tracking-widest">FRW</span>
           </div>
           <h1 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>
             Finanz- &amp; Rechnungswesen
