@@ -7,25 +7,25 @@ datasource db {
 }
 
 model User {
-  id           String            @id @default(cuid())
-  name         String
-  email        String            @unique
-  passwordHash String
-  isAdmin      Boolean           @default(false)
-  isBanned     Boolean           @default(false)
-  isApproved   Boolean           @default(false)
+  id                String            @id @default(cuid())
+  name              String
+  email             String            @unique
+  passwordHash      String
+  isAdmin           Boolean           @default(false)
+  isBanned          Boolean           @default(false)
+  isApproved        Boolean           @default(false)
   lastOnline        DateTime?
   lastIp            String?
-  emailVerified     Boolean   @default(true)
-  emailVerifyToken  String?   @unique
+  emailVerified     Boolean           @default(true)
+  emailVerifyToken  String?           @unique
   emailVerifyExpiry DateTime?
-  resetToken        String?   @unique
+  resetToken        String?           @unique
   resetTokenExpiry  DateTime?
-  createdAt    DateTime          @default(now())
-  progress     ChapterProgress[]
-  quizAttempts QuizAttempt[]
-  feedback     Feedback[]
-  activityLogs ActivityLog[]
+  createdAt         DateTime          @default(now())
+  progress          ChapterProgress[]
+  quizAttempts      QuizAttempt[]
+  feedback          Feedback[]
+  activityLogs      ActivityLog[]
 }
 
 model ActivityLog {
@@ -53,9 +53,9 @@ model Topic {
   description String
   icon        String    @default("BookOpen")
   color       String    @default("blue")
-  examType    String    // "querschnitt" | "abschluss" | "both"
-  category    String    // "bwl" | "vwl" | "recht" | "frw"
-  band        String?   // Nur FRW: "1" | "2" | "3"
+  examType    String // "querschnitt" | "abschluss" | "both"
+  category    String // "bwl" | "vwl" | "recht" | "frw"
+  band        String? // Nur FRW: "1" | "2" | "3"
   order       Int       @default(0)
   published   Boolean   @default(true)
   chapters    Chapter[]
@@ -64,25 +64,25 @@ model Topic {
 }
 
 model Chapter {
-  id            String            @id @default(cuid())
-  slug          String
-  title         String
-  subtitle      String?
-  topicId       String
-  topic         Topic             @relation(fields: [topicId], references: [id])
-  order         Int               @default(0)
-  contentStatus String            @default("complete")
-  summary       String?
-  keyTerms      KeyTerm[]
-  corePoints    CorePoint[]
-  examples      Example[]
-  learningGoals LearningGoal[]
-  quizQuestions QuizQuestion[]
-  progress      ChapterProgress[]
+  id             String            @id @default(cuid())
+  slug           String
+  title          String
+  subtitle       String?
+  topicId        String
+  topic          Topic             @relation(fields: [topicId], references: [id])
+  order          Int               @default(0)
+  contentStatus  String            @default("complete")
+  summary        String?
+  keyTerms       KeyTerm[]
+  corePoints     CorePoint[]
+  examples       Example[]
+  learningGoals  LearningGoal[]
+  quizQuestions  QuizQuestion[]
+  progress       ChapterProgress[]
   bookingEntries BookingEntry[]
-  formulas      Formula[]
-  createdAt     DateTime          @default(now())
-  updatedAt     DateTime          @updatedAt
+  formulas       Formula[]
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
 
   @@unique([topicId, slug])
 }
@@ -121,15 +121,15 @@ model Example {
 }
 
 model BookingEntry {
-  id          String  @id @default(cuid())
-  situation   String
-  sollKonto   String
-  habenKonto  String
-  betragHint  String?
-  erklaerung  String
-  chapterId   String
-  chapter     Chapter @relation(fields: [chapterId], references: [id], onDelete: Cascade)
-  order       Int     @default(0)
+  id         String  @id @default(cuid())
+  situation  String
+  sollKonto  String
+  habenKonto String
+  betragHint String?
+  erklaerung String
+  chapterId  String
+  chapter    Chapter @relation(fields: [chapterId], references: [id], onDelete: Cascade)
+  order      Int     @default(0)
 }
 
 model Formula {
@@ -217,7 +217,7 @@ model Feedback {
 model AdminMessage {
   id           String             @id @default(cuid())
   message      String
-  targetUserId String?            // null = an alle
+  targetUserId String? // null = an alle
   showSender   Boolean            @default(true)
   createdAt    DateTime           @default(now())
   expiresAt    DateTime
