@@ -4,7 +4,7 @@ import Link from 'next/link'
 import {
   ArrowRight, BookOpen, Dumbbell, Sparkles,
   Calculator, Hash, FileText, ChevronRight,
-  TrendingUp, Scale, Clock,
+  Scale, Clock, GraduationCap, Layers,
 } from 'lucide-react'
 
 export const dynamic = 'force-dynamic'
@@ -23,7 +23,7 @@ function formatRelativeTime(date: Date): string {
 async function getDashboardData() {
   const user = await getCurrentUser()
 
-  const [frwTopics, lastProgress] = await Promise.all([
+  const [frwTopics, wrTopics, lastProgress] = await Promise.all([
     prisma.topic.findMany({
       where: { category: 'frw' },
       orderBy: { order: 'asc' },
@@ -35,6 +35,10 @@ async function getDashboardData() {
           },
         },
       },
+    }),
+    prisma.topic.findMany({
+      where: { category: { in: ['bwl', 'vwl', 'recht'] }, published: true },
+      select: { category: true, id: true },
     }),
     user ? prisma.chapterProgress.findFirst({
       where: { userId: user.id },
@@ -50,12 +54,19 @@ async function getDashboardData() {
   const totalBuchungen = frwTopics.reduce((s, t) => s + (t.chapters[0]?._count.bookingEntries ?? 0), 0)
   const totalBegriffe  = frwTopics.reduce((s, t) => s + (t.chapters[0]?._count.keyTerms ?? 0), 0)
 
-  return { user, frwTopics, totalBuchungen, totalBegriffe, lastProgress }
+  const wrByCategory = {
+    bwl:   wrTopics.filter(t => t.category === 'bwl').length,
+    vwl:   wrTopics.filter(t => t.category === 'vwl').length,
+    recht: wrTopics.filter(t => t.category === 'recht').length,
+  }
+
+  return { user, frwTopics, totalBuchungen, totalBegriffe, wrByCategory, lastProgress }
 }
 
 export default async function DashboardPage() {
-  const { user, frwTopics, totalBuchungen, totalBegriffe, lastProgress } = await getDashboardData()
+  const { user, frwTopics, totalBuchungen, totalBegriffe, wrByCategory, lastProgress } = await getDashboardData()
   const firstName = user?.name?.split(' ')[0] ?? null
+  const wrTotal = wrByCategory.bwl + wrByCategory.vwl + wrByCategory.recht
 
   return (
     <div className="space-y-8 fade-in">
@@ -110,120 +121,118 @@ export default async function DashboardPage() {
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
 
-          {/* FRW — aktiv */}
+          {/* FRW */}
           <Link
             href="/frw"
-            className="group rounded-2xl p-5 transition-all duration-200 hover:-translate-y-0.5"
+            className="group rounded-2xl p-6 transition-all duration-200 hover:-translate-y-0.5 flex flex-col"
             style={{ background: 'var(--card-bg)', border: '1px solid rgba(16,185,129,0.25)' }}
           >
-            <div className="flex items-start justify-between mb-4">
+            <div className="flex items-start justify-between mb-5">
               <div
-                className="w-11 h-11 rounded-xl flex items-center justify-center"
+                className="w-12 h-12 rounded-xl flex items-center justify-center"
                 style={{ background: 'rgba(16,185,129,0.12)', border: '1px solid rgba(16,185,129,0.2)' }}
               >
-                <Calculator size={20} className="text-emerald-400" />
+                <Calculator size={22} className="text-emerald-400" />
               </div>
               <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full text-emerald-300 bg-emerald-500/10 border border-emerald-500/20">
                 Verfügbar
               </span>
             </div>
+
             <h3 className="text-base font-bold mb-1" style={{ color: 'var(--text-primary)' }}>
               Finanz- &amp; Rechnungswesen
             </h3>
             <p className="text-xs mb-4" style={{ color: 'var(--text-muted)' }}>
-              Band 2 · {frwTopics.length} Kapitel · Buchungssätze, Theorie &amp; Trainer
+              Buchungssätze, Theorie &amp; interaktiver Trainer
             </p>
-            <div className="flex items-center gap-3">
-              <span className="flex items-center gap-1 text-xs" style={{ color: 'var(--text-muted)' }}>
-                <Hash size={11} /> {totalBuchungen} Buchungen
+
+            {/* Band chips */}
+            <div className="flex gap-2 mb-5">
+              {['Band 1', 'Band 2', 'Band 3'].map(b => (
+                <span
+                  key={b}
+                  className="text-[10px] font-semibold px-2 py-0.5 rounded-md"
+                  style={{ background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.18)', color: '#6ee7b7' }}
+                >
+                  {b}
+                </span>
+              ))}
+            </div>
+
+            <div
+              className="flex items-center gap-4 pt-4 mt-auto"
+              style={{ borderTop: '1px solid rgba(16,185,129,0.12)' }}
+            >
+              <span className="flex items-center gap-1.5 text-xs" style={{ color: 'var(--text-muted)' }}>
+                <Hash size={11} className="text-emerald-400" /> {totalBuchungen} Buchungen
               </span>
-              <span className="flex items-center gap-1 text-xs" style={{ color: 'var(--text-muted)' }}>
-                <FileText size={11} /> {totalBegriffe} Begriffe
+              <span className="flex items-center gap-1.5 text-xs" style={{ color: 'var(--text-muted)' }}>
+                <FileText size={11} className="text-emerald-400" /> {totalBegriffe} Begriffe
               </span>
-              <ArrowRight size={13} className="ml-auto text-emerald-400 group-hover:translate-x-0.5 transition-transform" />
+              <ArrowRight size={14} className="ml-auto text-emerald-400 group-hover:translate-x-0.5 transition-transform" />
             </div>
           </Link>
 
-          {/* WR — aktiv */}
+          {/* WR */}
           <Link
             href="/wr"
-            className="group rounded-2xl p-5 transition-all duration-200 hover:-translate-y-0.5"
+            className="group rounded-2xl p-6 transition-all duration-200 hover:-translate-y-0.5 flex flex-col"
             style={{ background: 'var(--card-bg)', border: '1px solid rgba(59,130,246,0.25)' }}
           >
-            <div className="flex items-start justify-between mb-4">
+            <div className="flex items-start justify-between mb-5">
               <div
-                className="w-11 h-11 rounded-xl flex items-center justify-center"
+                className="w-12 h-12 rounded-xl flex items-center justify-center"
                 style={{ background: 'rgba(59,130,246,0.12)', border: '1px solid rgba(59,130,246,0.2)' }}
               >
-                <Scale size={20} className="text-blue-400" />
+                <Scale size={22} className="text-blue-400" />
               </div>
               <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full text-blue-300 bg-blue-500/10 border border-blue-500/20">
                 Verfügbar
               </span>
             </div>
+
             <h3 className="text-base font-bold mb-1" style={{ color: 'var(--text-primary)' }}>
               Wirtschaft &amp; Recht
             </h3>
             <p className="text-xs mb-4" style={{ color: 'var(--text-muted)' }}>
-              BWL · VWL · Recht · Theorie, Begriffe &amp; Quiz
+              Theorie, Begriffe, Visualisierungen &amp; Quiz
             </p>
-            <div className="flex items-center">
-              <ArrowRight size={13} className="ml-auto text-blue-400 group-hover:translate-x-0.5 transition-transform" />
+
+            {/* Category chips */}
+            <div className="flex gap-2 mb-5">
+              {[
+                { label: `BWL`,   count: wrByCategory.bwl,   color: '#60a5fa', bg: 'rgba(59,130,246,0.08)',   border: 'rgba(59,130,246,0.2)' },
+                { label: `VWL`,   count: wrByCategory.vwl,   color: '#4ade80', bg: 'rgba(34,197,94,0.08)',    border: 'rgba(34,197,94,0.2)' },
+                { label: `Recht`, count: wrByCategory.recht, color: '#fb923c', bg: 'rgba(249,115,22,0.08)',   border: 'rgba(249,115,22,0.2)' },
+              ].map(c => (
+                <span
+                  key={c.label}
+                  className="text-[10px] font-semibold px-2 py-0.5 rounded-md"
+                  style={{ background: c.bg, border: `1px solid ${c.border}`, color: c.color }}
+                >
+                  {c.count} {c.label}
+                </span>
+              ))}
+            </div>
+
+            <div
+              className="flex items-center gap-4 pt-4 mt-auto"
+              style={{ borderTop: '1px solid rgba(59,130,246,0.12)' }}
+            >
+              <span className="flex items-center gap-1.5 text-xs" style={{ color: 'var(--text-muted)' }}>
+                <Layers size={11} className="text-blue-400" /> {wrTotal} Themen
+              </span>
+              <span className="flex items-center gap-1.5 text-xs" style={{ color: 'var(--text-muted)' }}>
+                <GraduationCap size={11} className="text-blue-400" /> Quiz &amp; Trainer
+              </span>
+              <ArrowRight size={14} className="ml-auto text-blue-400 group-hover:translate-x-0.5 transition-transform" />
             </div>
           </Link>
-
-          {/* FRW Band 1 — coming soon */}
-          <div
-            className="rounded-2xl p-5 opacity-60"
-            style={{ background: 'var(--card-bg)', border: '1px solid var(--border-color)' }}
-          >
-            <div className="flex items-start justify-between mb-4">
-              <div
-                className="w-11 h-11 rounded-xl flex items-center justify-center"
-                style={{ background: 'rgba(139,92,246,0.08)', border: '1px solid rgba(139,92,246,0.15)' }}
-              >
-                <Calculator size={20} className="text-violet-400" />
-              </div>
-              <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full text-slate-400 bg-white/5 border border-white/10">
-                In Vorbereitung
-              </span>
-            </div>
-            <h3 className="text-base font-bold mb-1" style={{ color: 'var(--text-primary)' }}>
-              FRW Band 1
-            </h3>
-            <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
-              Grundlagen Rechnungswesen · Kommt bald
-            </p>
-          </div>
-
-          {/* FRW Band 3 — coming soon */}
-          <div
-            className="rounded-2xl p-5 opacity-60"
-            style={{ background: 'var(--card-bg)', border: '1px solid var(--border-color)' }}
-          >
-            <div className="flex items-start justify-between mb-4">
-              <div
-                className="w-11 h-11 rounded-xl flex items-center justify-center"
-                style={{ background: 'rgba(236,72,153,0.08)', border: '1px solid rgba(236,72,153,0.15)' }}
-              >
-                <TrendingUp size={20} className="text-pink-400" />
-              </div>
-              <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full text-slate-400 bg-white/5 border border-white/10">
-                In Vorbereitung
-              </span>
-            </div>
-            <h3 className="text-base font-bold mb-1" style={{ color: 'var(--text-primary)' }}>
-              FRW Band 3
-            </h3>
-            <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
-              Erweitertes Rechnungswesen · Kommt bald
-            </p>
-          </div>
 
         </div>
       </div>
 
-      {/* ZULETZT BESUCHT */}
+      {/* WEITERMACHEN */}
       {lastProgress && (
         <div>
           <h2 className="text-xs font-bold uppercase tracking-widest mb-3" style={{ color: 'var(--text-muted)' }}>
@@ -243,7 +252,7 @@ export default async function DashboardPage() {
               </div>
               <div className="min-w-0">
                 <p className="text-xs font-semibold truncate" style={{ color: 'var(--text-primary)' }}>
-                  Kap. {lastProgress.chapter.topic.order} · {lastProgress.chapter.topic.title}
+                  {lastProgress.chapter.topic.title}
                 </p>
                 <p className="text-[11px] mt-0.5" style={{ color: 'var(--text-muted)' }}>
                   {formatRelativeTime(lastProgress.lastVisited)}
@@ -257,7 +266,7 @@ export default async function DashboardPage() {
         </div>
       )}
 
-      {/* QUICK ACCESS */}
+      {/* SCHNELLZUGRIFF */}
       <div>
         <h2 className="text-xs font-bold uppercase tracking-widest mb-4" style={{ color: 'var(--text-muted)' }}>
           Schnellzugriff
@@ -287,7 +296,7 @@ export default async function DashboardPage() {
             </div>
             <div>
               <p className="text-sm font-semibold text-emerald-300">Lernübersicht</p>
-              <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>Fortschritt &amp; Inhalte</p>
+              <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>FRW &amp; WR Inhalte</p>
             </div>
           </Link>
 
