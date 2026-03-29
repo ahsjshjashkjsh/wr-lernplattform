@@ -1,13 +1,13 @@
 import { prisma } from '@/lib/prisma'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
-import ReactMarkdown from 'react-markdown'
 import { ChevronLeft, ChevronRight, BookOpen, Hash, FileText, Dumbbell, Lightbulb, AlertCircle, ArrowRight, GraduationCap } from 'lucide-react'
 import { BookingTrainer } from '@/components/frw/BookingTrainer'
 import { TheoryTrainer } from '@/components/frw/TheoryTrainer'
 import { FlashcardMode } from '@/components/frw/FlashcardMode'
 import { VisitTracker } from '@/components/frw/VisitTracker'
 import { QuizTrainer } from '@/components/QuizTrainer'
+import { SummaryText } from '@/components/SummaryText'
 
 export const dynamic = 'force-dynamic'
 
@@ -170,80 +170,7 @@ export default async function FrwChapterPage({ params, searchParams }: Props) {
               </div>
             )}
             {chapter.summary ? (
-              <div className="prose-frw">
-                <ReactMarkdown
-                  components={{
-                    h1: ({ children }) => (
-                      <h1 className="text-lg font-bold mt-8 mb-3 pb-2" style={{ color: 'var(--text-primary)', borderBottom: '1px solid var(--border-color)' }}>
-                        {children}
-                      </h1>
-                    ),
-                    h2: ({ children }) => (
-                      <h2 className="text-base font-bold mt-6 mb-2 text-blue-400">{children}</h2>
-                    ),
-                    h3: ({ children }) => (
-                      <h3 className="text-sm font-semibold mt-4 mb-1.5 text-emerald-400">{children}</h3>
-                    ),
-                    p: ({ children }) => (
-                      <p className="text-sm leading-relaxed mb-3" style={{ color: 'var(--text-secondary)' }}>
-                        {children}
-                      </p>
-                    ),
-                    ul: ({ children }) => (
-                      <ul className="space-y-1 mb-3 pl-4" style={{ listStyleType: 'disc', color: 'var(--text-secondary)' }}>
-                        {children}
-                      </ul>
-                    ),
-                    ol: ({ children }) => (
-                      <ol className="space-y-1 mb-3 pl-4" style={{ listStyleType: 'decimal', color: 'var(--text-secondary)' }}>
-                        {children}
-                      </ol>
-                    ),
-                    li: ({ children }) => (
-                      <li className="text-sm leading-relaxed">{children}</li>
-                    ),
-                    strong: ({ children }) => (
-                      <strong className="font-semibold" style={{ color: 'var(--text-primary)' }}>{children}</strong>
-                    ),
-                    blockquote: ({ children }) => (
-                      <blockquote
-                        className="pl-4 py-2 my-3 rounded-r-lg text-sm italic"
-                        style={{ borderLeft: '3px solid #3b82f6', background: 'rgba(59,130,246,0.06)', color: 'var(--text-muted)' }}
-                      >
-                        {children}
-                      </blockquote>
-                    ),
-                    table: ({ children }) => (
-                      <div className="overflow-x-auto my-4 rounded-xl" style={{ border: '1px solid var(--border-color)' }}>
-                        <table className="w-full text-xs">{children}</table>
-                      </div>
-                    ),
-                    th: ({ children }) => (
-                      <th className="px-3 py-2 text-left font-semibold" style={{ background: 'rgba(255,255,255,0.05)', color: 'var(--text-primary)', borderBottom: '1px solid var(--border-color)' }}>
-                        {children}
-                      </th>
-                    ),
-                    td: ({ children }) => (
-                      <td className="px-3 py-2 text-sm" style={{ color: 'var(--text-secondary)', borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
-                        {children}
-                      </td>
-                    ),
-                    code: ({ children }) => (
-                      <code
-                        className="px-1.5 py-0.5 rounded text-xs font-mono"
-                        style={{ background: 'rgba(99,102,241,0.12)', color: '#a5b4fc' }}
-                      >
-                        {children}
-                      </code>
-                    ),
-                    hr: () => (
-                      <hr className="my-6" style={{ borderColor: 'var(--border-color)' }} />
-                    ),
-                  }}
-                >
-                  {chapter.summary}
-                </ReactMarkdown>
-              </div>
+              <SummaryText text={chapter.summary} />
             ) : (
               <EmptyState icon={BookOpen} text="Theorie wird noch geladen." />
             )}
