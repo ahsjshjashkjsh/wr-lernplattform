@@ -136,8 +136,9 @@ export default async function FrwChapterPage({ params, searchParams }: Props) {
       </div>
 
       {/* Tab Nav */}
+      <div className="overflow-x-auto scrollbar-hide -mx-4 px-4 sm:mx-0 sm:px-0">
       <div
-        className="flex items-center gap-1 p-1 rounded-xl w-fit"
+        className="flex items-center gap-1 p-1 rounded-xl w-fit min-w-max"
         style={{ background: 'var(--card-bg)', border: '1px solid var(--border-color)' }}
       >
         {tabs.map(({ id, label, icon: Icon }) => (

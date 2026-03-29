@@ -134,7 +134,7 @@ function TopicGrid({
 const FILTER_TABS = [
   { id: 'alle', label: 'Alle' },
   { id: 'qsp',  label: 'QSP' },
-  { id: 'ap',   label: 'Nur AP' },
+  { id: 'ap',   label: 'AP' },
 ]
 
 export default async function FrwPage({ searchParams }: Props) {
@@ -189,11 +189,13 @@ export default async function FrwPage({ searchParams }: Props) {
       </div>
 
       {/* Filter Tabs */}
+      <div className="overflow-x-auto scrollbar-hide -mx-4 px-4 sm:mx-0 sm:px-0">
       <div
-        className="flex items-center gap-1 p-1 rounded-xl w-fit"
+        className="flex items-center gap-1 p-1 rounded-xl w-fit min-w-max"
         style={{ background: 'var(--card-bg)', border: '1px solid var(--border-color)' }}
       >
         {FILTER_TABS.map(tab => {
+
           const isActive = filter === tab.id
           const count = tab.id === 'qsp' ? qspCount : tab.id === 'ap' ? apCount : topics.length
           return (
@@ -222,6 +224,7 @@ export default async function FrwPage({ searchParams }: Props) {
           )
         })}
       </div>
+      </div>
 
       {/* Filter hint */}
       {filter === 'qsp' && (
@@ -229,7 +232,7 @@ export default async function FrwPage({ searchParams }: Props) {
           className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs"
           style={{ background: 'rgba(16,185,129,0.06)', border: '1px solid rgba(16,185,129,0.18)', color: '#6ee7b7' }}
         >
-          <span className="font-semibold">QSP</span> — Querschnittsprüfung · Diese Themen sind prüfungsrelevant für beide Prüfungen
+          <span className="font-semibold">QSP</span> — Diese Themen kommen an der Querschnittsprüfung vor (und auch an der Abschlussprüfung)
         </div>
       )}
       {filter === 'ap' && (
@@ -237,7 +240,7 @@ export default async function FrwPage({ searchParams }: Props) {
           className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs"
           style={{ background: 'rgba(99,102,241,0.06)', border: '1px solid rgba(99,102,241,0.18)', color: '#a5b4fc' }}
         >
-          <span className="font-semibold">Nur AP</span> — Abschlussprüfung · Diese Themen kommen zusätzlich in der Abschlussprüfung
+          <span className="font-semibold">AP</span> — Diese Themen kommen an der Abschlussprüfung vor, aber <strong>nicht</strong> an der QSP
         </div>
       )}
 

@@ -164,3 +164,7 @@ body::before {
 .frw-markdown li > ul,
 .frw-markdown li > ol { margin-top: 0.35rem; margin-bottom: 0; }
 .frw-markdown tr:nth-child(even) td { background: rgba(255,255,255,0.025); }
+
+/* ─── Utility ───────────────────────────────────────────── */
+.scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+.scrollbar-hide::-webkit-scrollbar { display: none; }
