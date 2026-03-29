@@ -1,4 +1,5 @@
 import { prisma } from '@/lib/prisma'
+import { getCurrentUser } from '@/lib/auth'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { ChevronLeft, ChevronRight, BookOpen, Hash, FileText, Dumbbell, Lightbulb, AlertCircle, ArrowRight, GraduationCap } from 'lucide-react'
@@ -8,6 +9,7 @@ import { FlashcardMode } from '@/components/frw/FlashcardMode'
 import { VisitTracker } from '@/components/frw/VisitTracker'
 import { QuizTrainer } from '@/components/QuizTrainer'
 import { MarkdownContent } from '@/components/MarkdownContent'
+import { ProgressBadge } from '@/components/ProgressBadge'
 
 export const dynamic = 'force-dynamic'
 
@@ -78,6 +80,12 @@ export default async function FrwChapterPage({ params, searchParams }: Props) {
   const chapter = topic.chapters[0]
   if (!chapter) notFound()
 
+  const user = await getCurrentUser()
+  const chapterProgress = user ? await prisma.chapterProgress.findUnique({
+    where: { chapterId_userId: { chapterId: chapter.id, userId: user.id } },
+    select: { status: true, bestScore: true },
+  }) : null
+
   const currentIndex = allTopics.findIndex(t => t.slug === slug)
   if (currentIndex === -1) notFound()
   const prevTopic = currentIndex > 0 ? allTopics[currentIndex - 1] : null
@@ -108,10 +116,16 @@ export default async function FrwChapterPage({ params, searchParams }: Props) {
 
       {/* Header */}
       <div>
-        <div className="flex items-center gap-2 mb-1">
+        <div className="flex items-center justify-between gap-3 mb-1">
           <span className="text-xs font-medium uppercase tracking-widest text-emerald-400">
             Kapitel {topic.order}{topic.band ? ` · Band ${topic.band}` : ''}
           </span>
+          {user && (
+            <ProgressBadge
+              status={chapterProgress?.status ?? null}
+              bestScore={chapterProgress?.bestScore ?? null}
+            />
+          )}
         </div>
         <h1 className="text-xl font-bold" style={{ color: 'var(--text-primary)' }}>
           {topic.title}
@@ -320,7 +334,7 @@ export default async function FrwChapterPage({ params, searchParams }: Props) {
           <div className="space-y-6">
             {(chapter.keyTerms.length > 0 || chapter.corePoints.length > 0) ? (
               <>
-                <TheoryTrainer keyTerms={chapter.keyTerms} corePoints={chapter.corePoints} />
+                <TheoryTrainer keyTerms={chapter.keyTerms} corePoints={chapter.corePoints} chapterId={chapter.id} />
                 <div
                   className="flex items-center justify-between p-4 rounded-xl"
                   style={{ background: 'rgba(234,179,8,0.06)', border: '1px solid rgba(234,179,8,0.15)' }}
@@ -351,7 +365,7 @@ export default async function FrwChapterPage({ params, searchParams }: Props) {
 
         {/* QUIZ */}
         {tab === 'quiz' && (
-          <QuizTrainer questions={chapter.quizQuestions} />
+          <QuizTrainer questions={chapter.quizQuestions} chapterId={chapter.id} />
         )}
 
       </div>

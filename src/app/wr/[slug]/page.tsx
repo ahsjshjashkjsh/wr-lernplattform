@@ -1,9 +1,11 @@
 import { prisma } from '@/lib/prisma'
+import { getCurrentUser } from '@/lib/auth'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { ChevronLeft, ChevronRight, BookOpen, FileText, GraduationCap, Lightbulb, BarChart2, Dumbbell } from 'lucide-react'
 import { QuizTrainer } from '@/components/QuizTrainer'
 import { TheoryTrainer } from '@/components/frw/TheoryTrainer'
+import { ProgressBadge } from '@/components/ProgressBadge'
 import { FlashcardMode } from '@/components/frw/FlashcardMode'
 import { VisitTracker } from '@/components/frw/VisitTracker'
 import { MarkdownContent } from '@/components/MarkdownContent'
@@ -82,8 +84,13 @@ export default async function WrTopicPage({ params, searchParams }: Props) {
   const nextTopic    = currentIndex < allTopics.length - 1 ? allTopics[currentIndex + 1] : null
 
   const catLabel = CATEGORY_LABEL[topic.category] ?? topic.category.toUpperCase()
-
   const hasVisual = slug in WR_VISUALS
+
+  const user = await getCurrentUser()
+  const chapterProgress = user ? await prisma.chapterProgress.findUnique({
+    where: { chapterId_userId: { chapterId: chapter.id, userId: user.id } },
+    select: { status: true, bestScore: true },
+  }) : null
 
   const tabs = [
     { id: 'theorie',       label: 'Theorie',        icon: BookOpen      },
@@ -109,10 +116,16 @@ export default async function WrTopicPage({ params, searchParams }: Props) {
 
       {/* Header */}
       <div>
-        <div className="flex items-center gap-2 mb-1">
+        <div className="flex items-center justify-between gap-3 mb-1">
           <span className="text-xs font-medium uppercase tracking-widest text-blue-400">
             {catLabel}
           </span>
+          {user && (
+            <ProgressBadge
+              status={chapterProgress?.status ?? null}
+              bestScore={chapterProgress?.bestScore ?? null}
+            />
+          )}
         </div>
         <h1 className="text-xl font-bold" style={{ color: 'var(--text-primary)' }}>
           {topic.title}
@@ -257,7 +270,7 @@ export default async function WrTopicPage({ params, searchParams }: Props) {
         {/* THEORIE ÜBEN */}
         {tab === 'theorie-ueben' && (
           (chapter.keyTerms.length > 0 || chapter.corePoints.length > 0) ? (
-            <TheoryTrainer keyTerms={chapter.keyTerms} corePoints={chapter.corePoints} />
+            <TheoryTrainer keyTerms={chapter.keyTerms} corePoints={chapter.corePoints} chapterId={chapter.id} />
           ) : (
             <div className="text-center py-12">
               <Dumbbell size={28} className="mx-auto mb-3 opacity-20" style={{ color: 'var(--text-muted)' }} />
@@ -268,7 +281,7 @@ export default async function WrTopicPage({ params, searchParams }: Props) {
 
         {/* QUIZ */}
         {tab === 'quiz' && (
-          <QuizTrainer questions={quizQuestions} />
+          <QuizTrainer questions={quizQuestions} chapterId={chapter.id} />
         )}
 
       </div>

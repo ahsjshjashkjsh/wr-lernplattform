@@ -1,5 +1,5 @@
 'use client'
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import { CheckCircle, XCircle, RotateCcw, ChevronRight, Lightbulb } from 'lucide-react'
 
 export type KeyTerm = {
@@ -87,9 +87,10 @@ function buildQuestions(keyTerms: KeyTerm[], corePoints: CorePoint[]): QuestionT
 type Props = {
   keyTerms: KeyTerm[]
   corePoints: CorePoint[]
+  chapterId?: string
 }
 
-export function TheoryTrainer({ keyTerms, corePoints }: Props) {
+export function TheoryTrainer({ keyTerms, corePoints, chapterId }: Props) {
   const [questions, setQuestions] = useState<QuestionType[]>(() =>
     buildQuestions(keyTerms, corePoints)
   )
@@ -97,6 +98,7 @@ export function TheoryTrainer({ keyTerms, corePoints }: Props) {
   const [selected, setSelected] = useState<string | null>(null)
   const [score, setScore] = useState(0)
   const [done, setDone] = useState(false)
+  const [saved, setSaved] = useState(false)
 
   const q = questions[index]
 
@@ -115,12 +117,25 @@ export function TheoryTrainer({ keyTerms, corePoints }: Props) {
     }
   }, [index, questions.length])
 
+  useEffect(() => {
+    if (done && chapterId && !saved) {
+      const pct = Math.round((score / questions.length) * 100)
+      setSaved(true)
+      fetch('/api/progress/complete', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ chapterId, scorePercent: pct }),
+      }).catch(() => {})
+    }
+  }, [done, chapterId, saved, score, questions.length])
+
   const handleRestart = useCallback(() => {
     setQuestions(buildQuestions(keyTerms, corePoints))
     setIndex(0)
     setSelected(null)
     setScore(0)
     setDone(false)
+    setSaved(false)
   }, [keyTerms, corePoints])
 
   if (keyTerms.length === 0 && corePoints.length === 0) {

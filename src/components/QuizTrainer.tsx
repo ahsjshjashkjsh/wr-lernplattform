@@ -1,5 +1,5 @@
 'use client'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { CheckCircle, XCircle, ChevronRight, RotateCcw, Trophy } from 'lucide-react'
 
 type Option = { id: string; text: string; isCorrect: boolean; order: number }
@@ -27,12 +27,13 @@ function shuffled(qs: QuizQuestion[]) {
   return shuffle(qs).map(q => ({ ...q, options: shuffle(q.options) }))
 }
 
-export function QuizTrainer({ questions }: { questions: QuizQuestion[] }) {
+export function QuizTrainer({ questions, chapterId }: { questions: QuizQuestion[]; chapterId?: string }) {
   const [pool, setPool]       = useState<QuizQuestion[]>(() => shuffled(questions))
   const [idx, setIdx]         = useState(0)
   const [selected, setSelected] = useState<string | null>(null)
   const [score, setScore]     = useState(0)
   const [done, setDone]       = useState(false)
+  const [saved, setSaved]     = useState(false)
 
   if (questions.length === 0) {
     return (
@@ -62,9 +63,21 @@ export function QuizTrainer({ questions }: { questions: QuizQuestion[] }) {
     }
   }
 
+  useEffect(() => {
+    if (done && chapterId && !saved) {
+      const pct = Math.round((score / pool.length) * 100)
+      setSaved(true)
+      fetch('/api/progress/complete', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ chapterId, scorePercent: pct }),
+      }).catch(() => {})
+    }
+  }, [done, chapterId, saved, score, pool.length])
+
   function reset() {
     setPool(shuffled(questions))
-    setIdx(0); setSelected(null); setScore(0); setDone(false)
+    setIdx(0); setSelected(null); setScore(0); setDone(false); setSaved(false)
   }
 
   if (done) {
