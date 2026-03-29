@@ -1,51 +1,75 @@
 'use client'
 
 import { Markdown } from 'react-markdown'
+import remarkGfm from 'remark-gfm'
 
 export function MarkdownContent({ text }: { text: string }) {
   return (
-    <div className="markdown-content space-y-4 text-sm leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
+    <div className="frw-markdown space-y-1 text-sm leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
       <Markdown
+        remarkPlugins={[remarkGfm]}
         components={{
           h1: ({ children }) => (
-            <h1 className="text-lg font-bold mt-6 mb-3" style={{ color: 'var(--text-primary)' }}>{children}</h1>
+            <h1
+              className="text-base font-bold mt-8 mb-3 pb-2"
+              style={{ color: 'var(--text-primary)', borderBottom: '1px solid var(--border-color)' }}
+            >
+              {children}
+            </h1>
           ),
           h2: ({ children }) => (
-            <h2 className="text-base font-semibold mt-5 mb-2 uppercase tracking-wide text-blue-400">{children}</h2>
+            <div className="flex items-center gap-2 mt-7 mb-3 pt-4" style={{ borderTop: '1px solid rgba(255,255,255,0.05)' }}>
+              <span className="text-[11px] font-bold uppercase tracking-widest" style={{ color: '#60a5fa' }}>
+                {children}
+              </span>
+              <div className="flex-1 h-px" style={{ background: 'rgba(96,165,250,0.12)' }} />
+            </div>
           ),
           h3: ({ children }) => (
-            <h3 className="text-sm font-semibold mt-4 mb-1.5" style={{ color: 'var(--text-primary)' }}>{children}</h3>
+            <h3
+              className="text-sm font-semibold mt-5 mb-2 pl-2"
+              style={{ color: 'var(--text-primary)', borderLeft: '2px solid rgba(96,165,250,0.4)' }}
+            >
+              {children}
+            </h3>
           ),
           h4: ({ children }) => (
-            <h4 className="text-sm font-semibold mt-3 mb-1" style={{ color: '#a78bfa' }}>{children}</h4>
+            <h4 className="text-xs font-semibold mt-4 mb-1.5 uppercase tracking-wide" style={{ color: '#a78bfa' }}>
+              {children}
+            </h4>
           ),
           p: ({ children }) => (
-            <p className="mb-3 leading-relaxed" style={{ color: 'var(--text-secondary)' }}>{children}</p>
+            <p className="mb-3 leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
+              {children}
+            </p>
           ),
           ul: ({ children }) => (
-            <ul className="space-y-1.5 mb-3 pl-1">{children}</ul>
+            <ul className="mb-3">{children}</ul>
           ),
           ol: ({ children }) => (
-            <ol className="space-y-1.5 mb-3 pl-4 list-decimal" style={{ color: 'var(--text-secondary)' }}>{children}</ol>
+            <ol className="mb-3">{children}</ol>
           ),
           li: ({ children }) => (
-            <li className="flex items-start gap-2.5">
-              <span className="mt-[7px] w-1.5 h-1.5 rounded-full shrink-0" style={{ background: 'rgba(96,165,250,0.5)' }} />
-              <span style={{ color: 'var(--text-secondary)' }}>{children}</span>
+            <li className="leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
+              {children}
             </li>
           ),
           strong: ({ children }) => (
-            <strong className="font-semibold" style={{ color: 'var(--text-primary)' }}>{children}</strong>
+            <strong className="font-semibold" style={{ color: 'var(--text-primary)' }}>
+              {children}
+            </strong>
           ),
           em: ({ children }) => (
-            <em className="italic" style={{ color: '#c4b5fd' }}>{children}</em>
+            <em className="italic" style={{ color: '#c4b5fd' }}>
+              {children}
+            </em>
           ),
           code: ({ children, className }) => {
             const isBlock = className?.includes('language-')
             if (isBlock) {
               return (
                 <code
-                  className="block p-3 rounded-xl text-xs font-mono overflow-x-auto mb-3"
+                  className="block p-3 rounded-xl text-xs font-mono overflow-x-auto mb-3 mt-1"
                   style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid var(--border-color)', color: '#86efac' }}
                 >
                   {children}
@@ -55,7 +79,7 @@ export function MarkdownContent({ text }: { text: string }) {
             return (
               <code
                 className="px-1.5 py-0.5 rounded text-xs font-mono"
-                style={{ background: 'rgba(96,165,250,0.12)', color: '#93c5fd' }}
+                style={{ background: 'rgba(96,165,250,0.1)', color: '#93c5fd' }}
               >
                 {children}
               </code>
@@ -63,21 +87,26 @@ export function MarkdownContent({ text }: { text: string }) {
           },
           blockquote: ({ children }) => (
             <blockquote
-              className="pl-4 py-2 my-3 rounded-r-xl"
+              className="pl-4 py-2 my-3 rounded-r-xl text-sm"
               style={{ borderLeft: '3px solid rgba(99,102,241,0.5)', background: 'rgba(99,102,241,0.06)', color: '#c4b5fd' }}
             >
               {children}
             </blockquote>
           ),
           table: ({ children }) => (
-            <div className="overflow-x-auto mb-4">
-              <table className="w-full text-xs" style={{ borderCollapse: 'collapse' }}>{children}</table>
+            <div className="overflow-x-auto mb-4 mt-2 rounded-xl" style={{ border: '1px solid var(--border-color)' }}>
+              <table className="w-full text-xs" style={{ borderCollapse: 'collapse' }}>
+                {children}
+              </table>
             </div>
+          ),
+          thead: ({ children }) => (
+            <thead style={{ background: 'rgba(96,165,250,0.07)' }}>{children}</thead>
           ),
           th: ({ children }) => (
             <th
               className="px-3 py-2 text-left font-semibold"
-              style={{ background: 'rgba(255,255,255,0.06)', color: 'var(--text-primary)', border: '1px solid var(--border-color)' }}
+              style={{ color: 'var(--text-primary)', borderBottom: '1px solid var(--border-color)' }}
             >
               {children}
             </th>
@@ -85,13 +114,13 @@ export function MarkdownContent({ text }: { text: string }) {
           td: ({ children }) => (
             <td
               className="px-3 py-2"
-              style={{ color: 'var(--text-secondary)', border: '1px solid var(--border-color)' }}
+              style={{ color: 'var(--text-secondary)', borderBottom: '1px solid rgba(255,255,255,0.04)' }}
             >
               {children}
             </td>
           ),
           hr: () => (
-            <hr className="my-4" style={{ borderColor: 'var(--border-color)' }} />
+            <hr className="my-6" style={{ borderColor: 'rgba(255,255,255,0.06)' }} />
           ),
         }}
       >

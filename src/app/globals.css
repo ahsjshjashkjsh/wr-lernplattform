@@ -154,3 +154,13 @@ body::before {
 /* ─── Prose ─────────────────────────────────────────────── */
 .dark-prose { color: #b8c4d8; line-height: 1.78; }
 .dark-prose strong { color: var(--text-primary); font-weight: 600; }
+
+/* ─── Markdown content (FRW/WR chapter summaries) ──────── */
+.frw-markdown ul { list-style-type: disc; padding-left: 1.25rem; margin-bottom: 0.75rem; }
+.frw-markdown ol { list-style-type: decimal; padding-left: 1.5rem; margin-bottom: 0.75rem; }
+.frw-markdown li { color: var(--text-secondary); margin-bottom: 0.3rem; line-height: 1.65; }
+.frw-markdown ul li::marker { color: rgba(96,165,250,0.55); }
+.frw-markdown ol li::marker { color: rgba(96,165,250,0.7); font-weight: 600; }
+.frw-markdown li > ul,
+.frw-markdown li > ol { margin-top: 0.35rem; margin-bottom: 0; }
+.frw-markdown tr:nth-child(even) td { background: rgba(255,255,255,0.025); }
