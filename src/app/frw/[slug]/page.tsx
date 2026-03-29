@@ -1,8 +1,8 @@
 import { prisma } from '@/lib/prisma'
-import { getCurrentUser } from '@/lib/auth'
+import { getCurrentUser, isPremiumActive } from '@/lib/auth'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
-import { ChevronLeft, ChevronRight, BookOpen, Hash, FileText, Dumbbell, Lightbulb, AlertCircle, ArrowRight, GraduationCap } from 'lucide-react'
+import { ChevronLeft, ChevronRight, BookOpen, Hash, FileText, Dumbbell, Lightbulb, AlertCircle, ArrowRight, GraduationCap, Lock } from 'lucide-react'
 import { BookingTrainer } from '@/components/frw/BookingTrainer'
 import { TheoryTrainer } from '@/components/frw/TheoryTrainer'
 import { FlashcardMode } from '@/components/frw/FlashcardMode'
@@ -78,10 +78,43 @@ export default async function FrwChapterPage({ params, searchParams }: Props) {
   const { topic, allTopics } = await getChapter(slug)
   if (!topic) notFound()
 
+  const QSP_DATE = new Date('2026-04-17T00:00:00')
+  const gatingActive = new Date() >= QSP_DATE
+  const user = await getCurrentUser()
+  const hasPremium = !gatingActive || (user ? isPremiumActive(user) : false)
+
+  if (topic.examType === 'abschluss' && !hasPremium) {
+    return (
+      <div className="max-w-xl mx-auto py-16 text-center space-y-5 fade-in">
+        <div className="w-14 h-14 rounded-2xl flex items-center justify-center mx-auto"
+          style={{ background: 'rgba(245,158,11,0.12)', border: '1px solid rgba(245,158,11,0.25)' }}>
+          <Lock size={24} className="text-amber-400" />
+        </div>
+        <div>
+          <h1 className="text-lg font-bold mb-2" style={{ color: 'var(--text-primary)' }}>
+            Premium-Inhalt
+          </h1>
+          <p className="text-sm" style={{ color: 'var(--text-muted)' }}>
+            Dieses Kapitel gehört zum Abschlussprüfungs-Stoff und ist nur mit Premium zugänglich.
+          </p>
+        </div>
+        <Link
+          href="/premium"
+          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold text-white"
+          style={{ background: 'linear-gradient(135deg, #f59e0b, #d97706)' }}
+        >
+          <Lock size={14} />
+          Premium freischalten
+        </Link>
+        <Link href="/frw" className="block text-xs" style={{ color: 'var(--text-muted)' }}>
+          ← Zurück zur Übersicht
+        </Link>
+      </div>
+    )
+  }
+
   const chapter = topic.chapters[0]
   if (!chapter) notFound()
-
-  const user = await getCurrentUser()
   const chapterProgress = user ? await prisma.chapterProgress.findUnique({
     where: { chapterId_userId: { chapterId: chapter.id, userId: user.id } },
     select: { status: true, bestScore: true },

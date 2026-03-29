@@ -1,9 +1,11 @@
 import { prisma } from '@/lib/prisma'
-import { getCurrentUser } from '@/lib/auth'
+import { getCurrentUser, isPremiumActive } from '@/lib/auth'
 import Link from 'next/link'
-import { ChevronRight, FileText, Hash, Calculator, Dumbbell } from 'lucide-react'
+import { ChevronRight, FileText, Hash, Calculator, Dumbbell, Lock } from 'lucide-react'
 
 export const dynamic = 'force-dynamic'
+
+const QSP_DATE = new Date('2026-04-17T00:00:00')
 
 type Props = {
   searchParams: Promise<{ filter?: string }>
@@ -44,15 +46,19 @@ async function getFrwData() {
   ])
 
   const progressMap = new Map(progressList.map(p => [p.chapterId, p.status]))
-  return { topics, progressMap }
+  const gatingActive = new Date() >= QSP_DATE
+  const hasPremium = !gatingActive || (user ? isPremiumActive(user) : false)
+  return { topics, progressMap, hasPremium }
 }
 
 function TopicGrid({
   topics,
   progressMap,
+  hasPremium,
 }: {
   topics: Awaited<ReturnType<typeof getFrwData>>['topics']
   progressMap: Map<string, string>
+  hasPremium: boolean
 }) {
   if (topics.length === 0) return (
     <div className="text-center py-12">
@@ -65,17 +71,26 @@ function TopicGrid({
         const ch = topic.chapters[0]
         const kapitelNr = topic.order
         const colors = KAPITEL_COLORS[kapitelNr] ?? KAPITEL_COLORS[3]
+        const isLocked = topic.examType === 'abschluss' && !hasPremium
         return (
           <Link
             key={topic.id}
-            href={`/frw/${topic.slug}`}
+            href={isLocked ? '/premium' : `/frw/${topic.slug}`}
             className="group relative rounded-2xl p-5 hover:-translate-y-0.5 hover:border-white/20"
             style={{
               background: 'var(--card-bg)',
               border: `1px solid var(--border-color)`,
               transition: 'transform 200ms, border-color 200ms',
+              opacity: isLocked ? 0.7 : 1,
             }}
           >
+            {isLocked && (
+              <div className="absolute top-3 right-3 flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold"
+                style={{ background: 'rgba(245,158,11,0.15)', border: '1px solid rgba(245,158,11,0.3)', color: '#fbbf24' }}>
+                <Lock size={9} />
+                Premium
+              </div>
+            )}
             <div className="flex items-center justify-between mb-4">
               <div
                 className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold"
@@ -113,7 +128,7 @@ function TopicGrid({
                 {ch._count.bookingEntries === 0 && ch._count.keyTerms === 0 && (
                   <span className="text-xs" style={{ color: 'var(--text-muted)' }}>In Vorbereitung</span>
                 )}
-                {progressMap.get(ch.id) && (
+                {!isLocked && progressMap.get(ch.id) && (
                   <span
                     className="ml-auto flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full"
                     style={{ background: 'rgba(34,197,94,0.12)', border: '1px solid rgba(34,197,94,0.25)', color: '#4ade80' }}
@@ -141,7 +156,7 @@ export default async function FrwPage({ searchParams }: Props) {
   const { filter: rawFilter } = await searchParams
   const filter = rawFilter ?? 'alle'
 
-  const { topics, progressMap } = await getFrwData()
+  const { topics, progressMap, hasPremium } = await getFrwData()
 
   // Apply filter
   const filteredTopics = topics.filter(t => {
@@ -253,7 +268,7 @@ export default async function FrwPage({ searchParams }: Props) {
             </span>
             <div className="flex-1 h-px" style={{ background: 'var(--border-color)' }} />
           </div>
-          <TopicGrid topics={band1Topics} progressMap={progressMap} />
+          <TopicGrid topics={band1Topics} progressMap={progressMap} hasPremium={hasPremium} />
         </div>
       )}
 
@@ -266,7 +281,7 @@ export default async function FrwPage({ searchParams }: Props) {
             </span>
             <div className="flex-1 h-px" style={{ background: 'var(--border-color)' }} />
           </div>
-          <TopicGrid topics={allBand2} progressMap={progressMap} />
+          <TopicGrid topics={allBand2} progressMap={progressMap} hasPremium={hasPremium} />
         </div>
       )}
 
@@ -279,7 +294,7 @@ export default async function FrwPage({ searchParams }: Props) {
             </span>
             <div className="flex-1 h-px" style={{ background: 'var(--border-color)' }} />
           </div>
-          <TopicGrid topics={band3Topics} progressMap={progressMap} />
+          <TopicGrid topics={band3Topics} progressMap={progressMap} hasPremium={hasPremium} />
         </div>
       )}
 
