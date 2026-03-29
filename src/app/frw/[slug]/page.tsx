@@ -7,7 +7,7 @@ import { TheoryTrainer } from '@/components/frw/TheoryTrainer'
 import { FlashcardMode } from '@/components/frw/FlashcardMode'
 import { VisitTracker } from '@/components/frw/VisitTracker'
 import { QuizTrainer } from '@/components/QuizTrainer'
-import { SummaryText } from '@/components/SummaryText'
+import { MarkdownContent } from '@/components/MarkdownContent'
 
 export const dynamic = 'force-dynamic'
 
@@ -170,7 +170,7 @@ export default async function FrwChapterPage({ params, searchParams }: Props) {
               </div>
             )}
             {chapter.summary ? (
-              <SummaryText text={chapter.summary} />
+              <MarkdownContent text={chapter.summary} />
             ) : (
               <EmptyState icon={BookOpen} text="Theorie wird noch geladen." />
             )}

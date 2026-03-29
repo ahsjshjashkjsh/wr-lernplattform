@@ -5,7 +5,7 @@ import { ChevronLeft, ChevronRight, BookOpen, FileText, GraduationCap, Lightbulb
 import { QuizTrainer } from '@/components/QuizTrainer'
 import { FlashcardMode } from '@/components/frw/FlashcardMode'
 import { VisitTracker } from '@/components/frw/VisitTracker'
-import { SummaryText } from '@/components/SummaryText'
+import { MarkdownContent } from '@/components/MarkdownContent'
 
 export const dynamic = 'force-dynamic'
 
@@ -173,7 +173,7 @@ export default async function WrTopicPage({ params, searchParams }: Props) {
 
             {/* Summary */}
             {chapter.summary ? (
-              <SummaryText text={chapter.summary} />
+              <MarkdownContent text={chapter.summary} />
             ) : (
               <div className="text-center py-12">
                 <BookOpen size={28} className="mx-auto mb-3 opacity-20" style={{ color: 'var(--text-muted)' }} />
