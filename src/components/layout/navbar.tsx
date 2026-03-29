@@ -2,7 +2,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { LayoutDashboard, TrendingUp, Bot, CheckCircle, Sun, Moon, LogIn, LogOut, User, Shield, MessageSquarePlus, Menu, X, Calculator, Scale } from 'lucide-react'
+import { LayoutDashboard, TrendingUp, Bot, CheckCircle, Sun, Moon, LogIn, LogOut, User, Shield, MessageSquarePlus, Menu, X, Calculator, Scale, Crown } from 'lucide-react'
 import { useTheme } from '@/components/ThemeProvider'
 import { useAuth } from '@/components/AuthProvider'
 
@@ -103,6 +103,25 @@ export function Navbar() {
                       <User size={12} className="text-blue-400" />
                       <span className="font-medium text-slate-300">{user.name}</span>
                     </div>
+                    {user.isPremium && user.premiumUntil && new Date(user.premiumUntil) > new Date() ? (
+                      <Link
+                        href="/premium"
+                        className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium border"
+                        style={{ background: 'rgba(245,158,11,0.1)', borderColor: 'rgba(245,158,11,0.25)', color: '#fbbf24' }}
+                      >
+                        <Crown size={12} />
+                        Premium
+                      </Link>
+                    ) : (
+                      <Link
+                        href="/premium"
+                        className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all border border-transparent hover:bg-amber-500/10 hover:border-amber-500/20 hover:text-amber-400"
+                        style={{ color: 'var(--text-muted)' }}
+                      >
+                        <Crown size={12} />
+                        Premium
+                      </Link>
+                    )}
                     <button
                       onClick={logout}
                       className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all border border-transparent hover:bg-red-500/10 hover:border-red-500/20 hover:text-red-400"
@@ -213,6 +232,27 @@ export function Navbar() {
                       <User size={16} className="text-blue-400" />
                       <span className="text-sm font-medium text-slate-300">{user.name}</span>
                     </div>
+                    {user.isPremium && user.premiumUntil && new Date(user.premiumUntil) > new Date() ? (
+                      <Link
+                        href="/premium"
+                        onClick={() => setMenuOpen(false)}
+                        className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium"
+                        style={{ background: 'rgba(245,158,11,0.1)', color: '#fbbf24' }}
+                      >
+                        <Crown size={16} />
+                        Premium aktiv
+                      </Link>
+                    ) : (
+                      <Link
+                        href="/premium"
+                        onClick={() => setMenuOpen(false)}
+                        className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium"
+                        style={{ color: 'var(--text-muted)' }}
+                      >
+                        <Crown size={16} />
+                        Premium holen
+                      </Link>
+                    )}
                     <button
                       onClick={() => { logout(); setMenuOpen(false) }}
                       className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all text-red-400"
