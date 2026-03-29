@@ -5,6 +5,10 @@ import { ChevronRight, FileText, Hash, Calculator, Dumbbell } from 'lucide-react
 
 export const dynamic = 'force-dynamic'
 
+type Props = {
+  searchParams: Promise<{ filter?: string }>
+}
+
 const KAPITEL_COLORS: Record<number, { bg: string; border: string; text: string; dot: string }> = {
   3:  { bg: 'rgba(239,68,68,0.08)',   border: 'rgba(239,68,68,0.2)',   text: '#f87171', dot: '#ef4444' },
   4:  { bg: 'rgba(249,115,22,0.08)',  border: 'rgba(249,115,22,0.2)',  text: '#fb923c', dot: '#f97316' },
@@ -50,7 +54,11 @@ function TopicGrid({
   topics: Awaited<ReturnType<typeof getFrwData>>['topics']
   progressMap: Map<string, string>
 }) {
-  if (topics.length === 0) return null
+  if (topics.length === 0) return (
+    <div className="text-center py-12">
+      <p className="text-sm" style={{ color: 'var(--text-muted)' }}>Keine Themen gefunden.</p>
+    </div>
+  )
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
       {topics.map(topic => {
@@ -123,14 +131,36 @@ function TopicGrid({
   )
 }
 
-export default async function FrwPage() {
+const FILTER_TABS = [
+  { id: 'alle', label: 'Alle' },
+  { id: 'qsp',  label: 'QSP' },
+  { id: 'ap',   label: 'Nur AP' },
+]
+
+export default async function FrwPage({ searchParams }: Props) {
+  const { filter: rawFilter } = await searchParams
+  const filter = rawFilter ?? 'alle'
+
   const { topics, progressMap } = await getFrwData()
-  const band1Topics = topics.filter(t => t.band === '1')
-  const band2Topics = topics.filter(t => t.band === '2')
-  const band3Topics = topics.filter(t => t.band === '3')
-  // Topics without a band value fall back to band2
-  const band2Fallback = topics.filter(t => !t.band || (t.band !== '1' && t.band !== '2' && t.band !== '3'))
-  const allBand2 = [...band2Topics, ...band2Fallback]
+
+  // Apply filter
+  const filteredTopics = topics.filter(t => {
+    if (filter === 'qsp') return t.examType === 'querschnitt'
+    if (filter === 'ap')  return t.examType === 'abschluss'
+    return true
+  })
+
+  // Split by band
+  const band1Topics = filteredTopics.filter(t => t.band === '1')
+  const band2Topics = filteredTopics.filter(t => t.band === '2')
+  const band3Topics = filteredTopics.filter(t => t.band === '3')
+  const bandFallback = filteredTopics.filter(t => !t.band || !['1','2','3'].includes(t.band ?? ''))
+
+  const allBand2 = [...band2Topics, ...bandFallback]
+
+  // Counts per exam type for badges
+  const qspCount  = topics.filter(t => t.examType === 'querschnitt').length
+  const apCount   = topics.filter(t => t.examType === 'abschluss').length
 
   return (
     <div className="space-y-8">
@@ -157,6 +187,59 @@ export default async function FrwPage() {
           Buchungstrainer
         </Link>
       </div>
+
+      {/* Filter Tabs */}
+      <div
+        className="flex items-center gap-1 p-1 rounded-xl w-fit"
+        style={{ background: 'var(--card-bg)', border: '1px solid var(--border-color)' }}
+      >
+        {FILTER_TABS.map(tab => {
+          const isActive = filter === tab.id
+          const count = tab.id === 'qsp' ? qspCount : tab.id === 'ap' ? apCount : topics.length
+          return (
+            <Link
+              key={tab.id}
+              href={`/frw?filter=${tab.id}`}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                isActive ? 'text-white shadow-sm' : 'hover:bg-white/5'
+              }`}
+              style={isActive
+                ? { background: tab.id === 'qsp' ? '#10b981' : tab.id === 'ap' ? '#6366f1' : 'rgba(99,102,241,0.7)' }
+                : { color: 'var(--text-muted)' }
+              }
+            >
+              {tab.label}
+              <span
+                className="text-[10px] px-1.5 py-0.5 rounded-full font-semibold"
+                style={{
+                  background: isActive ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.06)',
+                  color: isActive ? 'white' : 'var(--text-muted)',
+                }}
+              >
+                {count}
+              </span>
+            </Link>
+          )
+        })}
+      </div>
+
+      {/* Filter hint */}
+      {filter === 'qsp' && (
+        <div
+          className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs"
+          style={{ background: 'rgba(16,185,129,0.06)', border: '1px solid rgba(16,185,129,0.18)', color: '#6ee7b7' }}
+        >
+          <span className="font-semibold">QSP</span> — Querschnittsprüfung · Diese Themen sind prüfungsrelevant für beide Prüfungen
+        </div>
+      )}
+      {filter === 'ap' && (
+        <div
+          className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs"
+          style={{ background: 'rgba(99,102,241,0.06)', border: '1px solid rgba(99,102,241,0.18)', color: '#a5b4fc' }}
+        >
+          <span className="font-semibold">Nur AP</span> — Abschlussprüfung · Diese Themen kommen zusätzlich in der Abschlussprüfung
+        </div>
+      )}
 
       {/* Band 1 Section */}
       {band1Topics.length > 0 && (
@@ -194,6 +277,13 @@ export default async function FrwPage() {
             <div className="flex-1 h-px" style={{ background: 'var(--border-color)' }} />
           </div>
           <TopicGrid topics={band3Topics} progressMap={progressMap} />
+        </div>
+      )}
+
+      {/* No results */}
+      {band1Topics.length === 0 && allBand2.length === 0 && band3Topics.length === 0 && (
+        <div className="text-center py-16">
+          <p className="text-sm" style={{ color: 'var(--text-muted)' }}>Keine Themen für diesen Filter.</p>
         </div>
       )}
     </div>
