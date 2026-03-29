@@ -22,10 +22,13 @@ model User {
   resetToken        String?           @unique
   resetTokenExpiry  DateTime?
   createdAt         DateTime          @default(now())
+  isPremium         Boolean           @default(false)
+  premiumUntil      DateTime?
   progress          ChapterProgress[]
   quizAttempts      QuizAttempt[]
   feedback          Feedback[]
   activityLogs      ActivityLog[]
+  premiumRequests   PremiumRequest[]
 }
 
 model ActivityLog {
@@ -239,5 +242,14 @@ model AssistantMessage {
   role      String
   content   String
   chapterId String?
+  createdAt DateTime @default(now())
+}
+
+model PremiumRequest {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  code      String   @unique
+  status    String   @default("pending")
   createdAt DateTime @default(now())
 }
