@@ -21,7 +21,7 @@ async function getFrwData() {
 
   const [topics, progressList] = await Promise.all([
     prisma.topic.findMany({
-      where: { category: 'frw' },
+      where: { category: 'frw', published: true },
       orderBy: { order: 'asc' },
       include: {
         chapters: {

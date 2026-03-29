@@ -174,7 +174,7 @@ await addPoints(ch1, [
   'Geldschuld = Bringschuld; Speziesschuld = Holschuld; übrige Schulden = Schickschuld.',
   'Verjährung beseitigt nicht die Forderung, sondern nur die zwangsweise Durchsetzbarkeit.',
   'Realsicherheiten (Faustpfand, Eigentumsvorbehalt) sichern dingliche Werte; Personalsicherheiten (Bürgschaft, Zession) haften mit Vermögen einer weiteren Person.',
-)
+])
 
 await addQuiz(ch1, [
   {

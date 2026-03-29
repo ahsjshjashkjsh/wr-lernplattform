@@ -35,7 +35,7 @@ async function getChapter(slug: string) {
       },
     }),
     prisma.topic.findMany({
-      where: { category: 'frw' },
+      where: { category: 'frw', published: true },
       orderBy: { order: 'asc' },
       select: { slug: true, title: true, order: true },
     }),

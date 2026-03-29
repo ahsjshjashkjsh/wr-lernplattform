@@ -127,13 +127,13 @@ await addTerms(ch, [
 // --- Core Points (9) ---
 await addPoints(ch, [
   'VST-Satz: grundsätzlich 35 %. Spezialsatz 8 % bei Kapitalauszahlungen aus gemischten Lebensversicherungen.',
-  'Steuerbare Erträge: Bankzinsen über CHF 200, Obligationenzinsen, Dividenden, Lotteriegewinne über CHF 1'000'000.',
+  "Steuerbare Erträge: Bankzinsen über CHF 200, Obligationenzinsen, Dividenden, Lotteriegewinne über CHF 1'000'000.",
   'Abzugsprozess: Bank zieht 35 % vom Bruttoertrag ab und liefert sie an die Eidgenössische Steuerverwaltung. Dem Kunden werden 65 % gutgeschrieben.',
   'Rückforderungsvoraussetzung (doppelte Deklaration): Kapitalertrag muss als Einkommen und das zugrunde liegende Kapital als Vermögen in der Steuererklärung deklariert werden.',
   'Instrument der Rückforderung: Wertschriftenverzeichnis als Beilage zur Steuererklärung.',
   'Sicherungsfunktion: Die VST schafft einen Anreiz zur vollständigen Offenlegung — nicht deklarierte Erträge sind nicht rückerstattungsfähig.',
   'Folgen fehlender Deklaration: Steuerhinterziehung; bei Aufdeckung Nachsteuern und Strafsteuern.',
-  'Buchung Zinsgutschrift CHF 1'000 brutto: Bank 650 + Forderung Verrechnungssteuer 350 / Zinsertrag 1'000.',
+  "Buchung Zinsgutschrift CHF 1'000 brutto: Bank 650 + Forderung Verrechnungssteuer 350 / Zinsertrag 1'000.",
   '«Forderung Verrechnungssteuer» ist ein Aktivkonto (analog zu Debitoren). Steht in der Bilanz unter Forderungen und spiegelt den Rückerstattungsanspruch gegenüber der EStV.',
 ])
 
@@ -173,14 +173,14 @@ await addQuiz(ch, [
     diff: 'medium',
   },
   {
-    q: 'Wie viel erhält ein Bankkunde bei einem Zinsertrag von CHF 2'000 brutto gutgeschrieben?',
+    q: "Wie viel erhält ein Bankkunde bei einem Zinsertrag von CHF 2'000 brutto gutgeschrieben?",
     opts: [
-      ['CHF 1'300 (65 %)', true],
-      ['CHF 2'000 (100 %)', false],
-      ['CHF 1'500 (75 %)', false],
+      ["CHF 1'300 (65 %)", true],
+      ["CHF 2'000 (100 %)", false],
+      ["CHF 1'500 (75 %)", false],
       ['CHF 700 (35 %)', false],
     ],
-    exp: 'Die Bank zahlt 65 % aus: CHF 2'000 × 0.65 = CHF 1'300. Die restlichen CHF 700 (35 %) werden an die Eidgenössische Steuerverwaltung abgeliefert.',
+    exp: "Die Bank zahlt 65 % aus: CHF 2'000 × 0.65 = CHF 1'300. Die restlichen CHF 700 (35 %) werden an die Eidgenössische Steuerverwaltung abgeliefert.",
     diff: 'easy',
   },
   {
@@ -206,14 +206,14 @@ await addQuiz(ch, [
     diff: 'medium',
   },
   {
-    q: 'Wie lautet der Buchungssatz für eine Zinsgutschrift von CHF 1'000 brutto (VST 35 %)?',
+    q: "Wie lautet der Buchungssatz für eine Zinsgutschrift von CHF 1'000 brutto (VST 35 %)?",
     opts: [
-      ['Bank 650 + Forderung VST 350 / Zinsertrag 1'000', true],
-      ['Zinsertrag 1'000 / Bank 650 + VST-Aufwand 350', false],
-      ['Bank 1'000 / Zinsertrag 650 + Forderung VST 350', false],
+      ["Bank 650 + Forderung VST 350 / Zinsertrag 1'000", true],
+      ["Zinsertrag 1'000 / Bank 650 + VST-Aufwand 350", false],
+      ["Bank 1'000 / Zinsertrag 650 + Forderung VST 350", false],
       ['Bank 650 / Zinsertrag 650', false],
     ],
-    exp: 'Der Bruttoertrag (1'000) wird vollständig als Zinsertrag erfasst. Die Bank überweist 650 auf das Konto des Kunden. Die einbehaltenen 350 entstehen als Forderung (Aktivkonto) gegenüber der EStV.',
+    exp: "Der Bruttoertrag (1'000) wird vollständig als Zinsertrag erfasst. Die Bank überweist 650 auf das Konto des Kunden. Die einbehaltenen 350 entstehen als Forderung (Aktivkonto) gegenüber der EStV.",
     diff: 'hard',
   },
   {
@@ -222,7 +222,7 @@ await addQuiz(ch, [
       ['Keine Rückerstattung der VST; bei Aufdeckung Nachsteuern und Strafsteuern', true],
       ['Automatische Rückerstattung nach 5 Jahren', false],
       ['Die Bank erstattet die VST direkt zurück', false],
-      ['Keine Folgen, solange die Summe unter CHF 1'000 bleibt', false],
+      ["Keine Folgen, solange die Summe unter CHF 1'000 bleibt", false],
     ],
     exp: 'Nichtdeklaration gilt als Steuerhinterziehung. Die Rückerstattung wird verweigert. Bei Aufdeckung werden Nachsteuern für die nicht deklarierten Erträge sowie Strafsteuern erhoben.',
     diff: 'hard',

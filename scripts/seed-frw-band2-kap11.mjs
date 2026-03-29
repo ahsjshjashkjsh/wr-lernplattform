@@ -178,7 +178,7 @@ await addPoints(ch, [
   'Vorgehen bei jeder Kennzahl: 1. Berechnen — 2. Zielgrösse nennen — 3. Beurteilen (gut/nicht erreicht/kritisch).',
   'Für vertiefte Analyse immer bereinigte Bilanz verwenden: stille Reserven aufdecken, betriebsfremde Posten entfernen.',
   'Zeitvergleich (Trend) UND Branchenvergleich sind entscheidend — Kennzahlen isoliert sind wenig aussagekräftig.',
-)
+])
 
 // ─── Quiz (min 8 Berechnungsfragen) ──────────────────────────────────────────
 
