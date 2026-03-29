@@ -1,11 +1,22 @@
 import { prisma } from '@/lib/prisma'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
-import { ChevronLeft, ChevronRight, BookOpen, FileText, GraduationCap, Lightbulb } from 'lucide-react'
+import { ChevronLeft, ChevronRight, BookOpen, FileText, GraduationCap, Lightbulb, BarChart2 } from 'lucide-react'
 import { QuizTrainer } from '@/components/QuizTrainer'
 import { FlashcardMode } from '@/components/frw/FlashcardMode'
 import { VisitTracker } from '@/components/frw/VisitTracker'
 import { MarkdownContent } from '@/components/MarkdownContent'
+import { KonjunkturVisual } from '@/components/wr/KonjunkturVisual'
+import { MarketingVisual } from '@/components/wr/MarketingVisual'
+import { VertragslehreVisual } from '@/components/wr/VertragslehreVisual'
+import { GesellschaftsrechtVisual } from '@/components/wr/GesellschaftsrechtVisual'
+
+const WR_VISUALS: Record<string, React.ComponentType> = {
+  'wr-konjunktur':       KonjunkturVisual,
+  'wr-marketing':        MarketingVisual,
+  'wr-vertragslehre':    VertragslehreVisual,
+  'wr-gesellschaftsrecht': GesellschaftsrechtVisual,
+}
 
 export const dynamic = 'force-dynamic'
 
@@ -71,10 +82,13 @@ export default async function WrTopicPage({ params, searchParams }: Props) {
 
   const catLabel = CATEGORY_LABEL[topic.category] ?? topic.category.toUpperCase()
 
+  const hasVisual = slug in WR_VISUALS
+
   const tabs = [
-    { id: 'theorie',  label: 'Theorie',   icon: BookOpen      },
-    { id: 'begriffe', label: 'Begriffe',  icon: FileText      },
-    { id: 'quiz',     label: 'Quiz',      icon: GraduationCap },
+    { id: 'theorie',  label: 'Theorie',        icon: BookOpen      },
+    { id: 'begriffe', label: 'Begriffe',        icon: FileText      },
+    ...(hasVisual ? [{ id: 'visual', label: 'Visualisierung', icon: BarChart2 }] : []),
+    { id: 'quiz',     label: 'Quiz',            icon: GraduationCap },
   ]
 
   return (
@@ -231,6 +245,12 @@ export default async function WrTopicPage({ params, searchParams }: Props) {
             )}
           </div>
         )}
+
+        {/* VISUALISIERUNG */}
+        {tab === 'visual' && (() => {
+          const V = WR_VISUALS[slug]
+          return V ? <V /> : null
+        })()}
 
         {/* QUIZ */}
         {tab === 'quiz' && (

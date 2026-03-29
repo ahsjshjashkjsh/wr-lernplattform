@@ -174,6 +174,26 @@ export default async function FrwChapterPage({ params, searchParams }: Props) {
             ) : (
               <EmptyState icon={BookOpen} text="Theorie wird noch geladen." />
             )}
+            {chapter.bookingEntries.length > 0 && (
+              <div className="flex flex-wrap gap-3 pt-4 mt-2 border-t" style={{ borderColor: 'rgba(255,255,255,0.06)' }}>
+                <Link
+                  href={`/frw/${slug}?tab=buchungen`}
+                  className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-medium transition-all hover:brightness-125"
+                  style={{ background: 'rgba(59,130,246,0.08)', border: '1px solid rgba(59,130,246,0.2)', color: '#93c5fd' }}
+                >
+                  <Hash size={13} />
+                  Buchungssätze ansehen
+                </Link>
+                <Link
+                  href={`/frw/${slug}?tab=ueben`}
+                  className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-medium transition-all hover:brightness-125"
+                  style={{ background: 'rgba(99,102,241,0.08)', border: '1px solid rgba(99,102,241,0.2)', color: '#a5b4fc' }}
+                >
+                  <Dumbbell size={13} />
+                  Buchungen üben
+                </Link>
+              </div>
+            )}
           </div>
         )}
 
