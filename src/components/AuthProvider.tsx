@@ -7,6 +7,8 @@ export interface AuthUser {
   email: string
   isAdmin: boolean
   isBanned: boolean
+  isPremium: boolean
+  premiumUntil: string | null
 }
 
 interface AuthContextValue {

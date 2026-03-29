@@ -92,6 +92,20 @@ export async function getCurrentUser() {
   if (!session) return null
   return prisma.user.findUnique({
     where: { id: session.userId },
-    select: { id: true, name: true, email: true, isAdmin: true, isBanned: true, createdAt: true },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      isAdmin: true,
+      isBanned: true,
+      createdAt: true,
+      isPremium: true,
+      premiumUntil: true,
+    },
   })
+}
+
+export function isPremiumActive(user: { isPremium: boolean; premiumUntil: Date | null }): boolean {
+  if (!user.isPremium || !user.premiumUntil) return false
+  return user.premiumUntil > new Date()
 }
