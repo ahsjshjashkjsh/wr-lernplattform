@@ -157,6 +157,7 @@ export default async function FrwChapterPage({ params, searchParams }: Props) {
           </Link>
         ))}
       </div>
+      </div>
 
       {/* Tab Content */}
       <div
