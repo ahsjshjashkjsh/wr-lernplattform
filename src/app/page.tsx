@@ -41,7 +41,7 @@ async function getDashboardData() {
       orderBy: { lastVisited: 'desc' },
       include: {
         chapter: {
-          include: { topic: { select: { slug: true, title: true, order: true } } },
+          include: { topic: { select: { slug: true, title: true, order: true, category: true } } },
         },
       },
     }) : null,
@@ -230,7 +230,7 @@ export default async function DashboardPage() {
             Weitermachen
           </h2>
           <Link
-            href={`/frw/${lastProgress.chapter.topic.slug}`}
+            href={`/${lastProgress.chapter.topic.category === 'frw' ? 'frw' : 'wr'}/${lastProgress.chapter.topic.slug}`}
             className="flex items-center justify-between gap-4 rounded-2xl p-4 transition-all hover:-translate-y-0.5"
             style={{ background: 'var(--card-bg)', border: '1px solid rgba(99,102,241,0.2)' }}
           >
