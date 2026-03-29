@@ -10,6 +10,10 @@ export async function POST(_req: Request, { params }: { params: Promise<{ id: st
   const request = await prisma.premiumRequest.findUnique({ where: { id } })
   if (!request) return Response.json({ error: 'Anfrage nicht gefunden.' }, { status: 404 })
 
+  if (request.status !== 'pending') {
+    return Response.json({ error: 'Anfrage ist nicht mehr offen.' }, { status: 400 })
+  }
+
   await prisma.premiumRequest.update({
     where: { id },
     data: { status: 'rejected' },
