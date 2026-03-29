@@ -5,193 +5,255 @@ const client = new Client({ connectionString: process.env.DATABASE_URL })
 await client.connect()
 function id() { return randomUUID() }
 
-async function insertTopic(slug, title, description, examType, order) {
+async function upsertTopic(slug, title, description, examType, order) {
   const topicId = id()
-  await client.query(`INSERT INTO "Topic" (id,slug,title,description,icon,color,"examType",category,"order",published,"createdAt","updatedAt") VALUES ($1,$2,$3,$4,'Globe','blue',$5,'frw',$6,true,NOW(),NOW()) ON CONFLICT (slug) DO NOTHING`,
-    [topicId, slug, title, description, examType, order])
+  await client.query(
+    `INSERT INTO "Topic" (id,slug,title,description,icon,color,"examType",category,band,"order",published,"createdAt","updatedAt")
+     VALUES ($1,$2,$3,$4,'Globe','blue',$5,'frw','2',$6,true,NOW(),NOW())
+     ON CONFLICT (slug) DO UPDATE SET title=EXCLUDED.title, description=EXCLUDED.description, "updatedAt"=NOW()`,
+    [topicId, slug, title, description, examType, order]
+  )
   const r = await client.query(`SELECT id FROM "Topic" WHERE slug=$1`, [slug])
   return r.rows[0].id
 }
 
-async function insertChapter(topicId, slug, title, subtitle, order, summary) {
+async function upsertChapter(topicId, slug, title, subtitle, order, summary) {
   const chId = id()
-  await client.query(`INSERT INTO "Chapter" (id,slug,title,subtitle,"topicId","order","contentStatus",summary,"createdAt","updatedAt") VALUES ($1,$2,$3,$4,$5,$6,'complete',$7,NOW(),NOW()) ON CONFLICT ("topicId",slug) DO NOTHING`,
-    [chId, slug, title, subtitle, topicId, order, summary])
+  await client.query(
+    `INSERT INTO "Chapter" (id,slug,title,subtitle,"topicId","order","contentStatus",summary,"createdAt","updatedAt")
+     VALUES ($1,$2,$3,$4,$5,$6,'complete',$7,NOW(),NOW())
+     ON CONFLICT ("topicId",slug) DO UPDATE SET title=EXCLUDED.title, subtitle=EXCLUDED.subtitle, summary=EXCLUDED.summary, "contentStatus"='complete', "updatedAt"=NOW()`,
+    [chId, slug, title, subtitle, topicId, order, summary]
+  )
   const r = await client.query(`SELECT id FROM "Chapter" WHERE "topicId"=$1 AND slug=$2`, [topicId, slug])
   return r.rows[0].id
 }
 
-async function addGoals(chId, goals) {
+async function replaceGoals(chId, goals) {
+  await client.query(`DELETE FROM "LearningGoal" WHERE "chapterId"=$1`, [chId])
   for (let i = 0; i < goals.length; i++)
-    await client.query(`INSERT INTO "LearningGoal" (id,text,"chapterId","order") VALUES ($1,$2,$3,$4)`, [id(), goals[i], chId, i+1])
+    await client.query(
+      `INSERT INTO "LearningGoal" (id,text,"chapterId","order") VALUES ($1,$2,$3,$4)`,
+      [id(), goals[i], chId, i + 1]
+    )
 }
-async function addTerms(chId, terms) {
+
+async function replaceTerms(chId, terms) {
+  await client.query(`DELETE FROM "KeyTerm" WHERE "chapterId"=$1`, [chId])
   for (let i = 0; i < terms.length; i++)
-    await client.query(`INSERT INTO "KeyTerm" (id,term,definition,"chapterId","order") VALUES ($1,$2,$3,$4,$5)`, [id(), terms[i][0], terms[i][1], chId, i+1])
+    await client.query(
+      `INSERT INTO "KeyTerm" (id,term,definition,"chapterId","order") VALUES ($1,$2,$3,$4,$5)`,
+      [id(), terms[i][0], terms[i][1], chId, i + 1]
+    )
 }
-async function addPoints(chId, points) {
+
+async function replacePoints(chId, points) {
+  await client.query(`DELETE FROM "CorePoint" WHERE "chapterId"=$1`, [chId])
   for (let i = 0; i < points.length; i++)
-    await client.query(`INSERT INTO "CorePoint" (id,text,"chapterId","order") VALUES ($1,$2,$3,$4)`, [id(), points[i], chId, i+1])
+    await client.query(
+      `INSERT INTO "CorePoint" (id,text,"chapterId","order") VALUES ($1,$2,$3,$4)`,
+      [id(), points[i], chId, i + 1]
+    )
 }
-async function addExamples(chId, examples) {
-  for (let i = 0; i < examples.length; i++)
-    await client.query(`INSERT INTO "Example" (id,text,"chapterId","order") VALUES ($1,$2,$3,$4)`, [id(), examples[i], chId, i+1])
-}
-async function addQuiz(chId, questions) {
+
+async function replaceQuiz(chId, questions) {
+  // Delete options first (FK constraint), then questions
+  await client.query(
+    `DELETE FROM "QuizOption" WHERE "questionId" IN (SELECT id FROM "QuizQuestion" WHERE "chapterId"=$1)`,
+    [chId]
+  )
+  await client.query(`DELETE FROM "QuizQuestion" WHERE "chapterId"=$1`, [chId])
+
   for (let i = 0; i < questions.length; i++) {
     const qId = id()
     const q = questions[i]
-    await client.query(`INSERT INTO "QuizQuestion" (id,"chapterId","questionText","questionType",explanation,difficulty,"order") VALUES ($1,$2,$3,'multiple_choice',$4,$5,$6)`,
-      [qId, chId, q.q, q.exp, q.diff||'medium', i+1])
+    await client.query(
+      `INSERT INTO "QuizQuestion" (id,"chapterId","questionText","questionType",explanation,difficulty,"order")
+       VALUES ($1,$2,$3,'multiple_choice',$4,$5,$6)`,
+      [qId, chId, q.q, q.exp, q.diff || 'medium', i + 1]
+    )
     for (let j = 0; j < q.opts.length; j++)
-      await client.query(`INSERT INTO "QuizOption" (id,"questionId",text,"isCorrect","order") VALUES ($1,$2,$3,$4,$5)`,
-        [id(), qId, q.opts[j][0], q.opts[j][1], j+1])
+      await client.query(
+        `INSERT INTO "QuizOption" (id,"questionId",text,"isCorrect","order") VALUES ($1,$2,$3,$4,$5)`,
+        [id(), qId, q.opts[j][0], q.opts[j][1], j + 1]
+      )
   }
 }
 
 // ══════════════════════════════════════════════════
 // TOPIC: Fremde Währungen
 // ══════════════════════════════════════════════════
-const tId = await insertTopic(
+const tId = await upsertTopic(
   'frw-fremde-waehrungen',
   'Fremde Währungen',
-  'Kursgewinne und Kursverluste bei Import/Export, Neubewertung per 31.12. und Rückbuchung am 1.1.',
+  'Wechselkurse lesen, Kurse situationsgerecht wählen und Beträge zwischen CHF und Fremdwährungen korrekt umrechnen.',
   'abschluss',
   10
 )
 
 // ══════════════════════════════════════════════════
-// KAPITEL 2: Fremde Währung
+// KAPITEL 2: Fremde Währung — Wechselkursumrechnung
 // ══════════════════════════════════════════════════
-const ch2 = await insertChapter(tId,
+const ch2 = await upsertChapter(
+  tId,
   'fremde-waehrung',
   'Fremde Währung',
-  'Kursgewinne, Kursverluste und Neubewertung per Jahresende',
+  'Wechselkurse lesen, Kurse wählen und Währungen umrechnen',
   10,
-  `Wenn ein Schweizer Unternehmen Geschäfte mit dem Ausland macht, entstehen Fremdwährungspositionen. Da die Buchhaltung in CHF geführt wird, müssen alle Beträge umgerechnet werden.
+  `WECHSELKURSUMRECHNUNG — Die Schweiz ist eng mit dem Ausland verflochten. Wer Fremdwährungen kauft, verkauft oder überweist, muss den richtigen Kurs aus der Wechselkurstabelle auswählen und die Umrechnung methodisch korrekt durchführen.
 
-KURSE UND FAUSTREGEL:
-• Geldkurs (Ankaufskurs / Bid): Bank kauft Devisen vom Kunden — für den Kunden ungünstiger
-• Briefkurs (Verkaufskurs / Ask): Bank verkauft Devisen an Kunden — für den Kunden teurer
-• Tageskurs / Mittelkurs: Für laufende Buchungen verwendet
-• FAUSTREGEL: Ich kaufe Fremdwährung → zahle Briefkurs (teurer). Ich verkaufe → erhalte Geldkurs (weniger).
-• Die Bank verdient immer an der Kursspanne (Spread) zwischen Geld- und Briefkurs.
+SCHRITT 1 — TRANSAKTIONSART: Bargeld (Banknoten/Münzen) → Notenkurs. Bargeldlos (Überweisung, Karte, Check) → Devisenkurs.
 
-KURSGEWINNE UND -VERLUSTE entstehen, wenn zwischen Entstehung und Begleichung einer Forderung/Verbindlichkeit der Kurs sich verändert.
+SCHRITT 2 — BANKPERSPEKTIVE: Bank kauft Fremdwährung vom Kunden (Kunde gibt Fremdwährung ab, erhält CHF) → Ankaufskurs. Bank verkauft Fremdwährung an den Kunden (Kunde gibt CHF ab, erhält Fremdwährung) → Verkaufskurs.
 
-BUCHUNG IMPORT (Kreditoren in Fremdwährung):
-• Entstehung: Warenaufwand / Kreditoren (zum Tageskurs)
-• Zahlung bei gestiegenem Kurs (CHF schwächer, mehr CHF nötig): Kreditoren / Bank + Kursverlust
-• Zahlung bei gesunkenem Kurs (CHF stärker, weniger CHF nötig): Kreditoren + Kursgewinn / Bank
+SCHRITT 3 — NOTIERUNGSBASIS: Einige Währungen werden pro 1 Einheit notiert (EUR, USD, GBP, AUD, CAD, GBP usw.), andere pro 100 Einheiten (NOK, SEK, DKK, JPY, THB usw.). Diese Basis steht in der Tabelle und bestimmt die Formel.
 
-BUCHUNG EXPORT (Debitoren in Fremdwährung):
-• Entstehung: Debitoren / Warenertrag (zum Tageskurs)
-• Eingang bei gestiegenem Kurs (mehr CHF erhalten): Bank / Debitoren + Kursgewinn
-• Eingang bei gesunkenem Kurs (weniger CHF erhalten): Bank + Kursverlust / Debitoren
+SCHRITT 4 — UMRECHNUNGSFORMEL:
+• Fremdwährung → CHF: CHF = (Kurs × Fremdwährungsbetrag) ÷ (1 oder 100)
+• CHF → Fremdwährung: Fremdwährung = ((1 oder 100) × CHF-Betrag) ÷ Kurs
+• Kurs bestimmen: Kurs = (CHF-Betrag × (1 oder 100)) ÷ Fremdwährungsbetrag
 
-NEUBEWERTUNG PER 31.12. (Vorsichtsprinzip):
-Alle offenen Fremdwährungspositionen werden zum Stichtagskurs neu bewertet.
-• Forderung gesunken → Kursverlust / Debitoren (IMMER buchen — Vorsichtsprinzip verlangt es)
-• Verbindlichkeit gestiegen → Kursverlust / Kreditoren (IMMER buchen)
-• Kursgewinne: in CH oft nur bei definitiver Realisierung gebucht
-• Forderung gestiegen → Debitoren / Kursgewinn (nur wenn sicher realisiert)
-• Verbindlichkeit gesunken → Kreditoren / Kursgewinn
+RUNDUNGSREGELN: CHF auf den Fünfer runden. JPY auf einen Yen genau. Alle anderen Währungen auf 2 Dezimalstellen. Kurse auf 2–4 Dezimalstellen.
 
-RÜCKBUCHUNG AM 1.1. (des Folgejahres):
-Alle Neubewertungsbuchungen werden storniert (Gegenbuchung), damit die ursprünglichen Kurse wieder gelten.
-
-Konten: Kursgewinn (Ertrag, Haben) / Kursverlust (Aufwand, Soll)
-Beide Konten erscheinen in der Erfolgsrechnung — nicht in der Bilanz.`
+BANK-PERSPEKTIVE MERKEN: Ankauf und Verkauf sind immer aus Sicht der Bank definiert — nicht aus Sicht des Kunden. Die Bank verdient an der Spanne (Spread) zwischen Ankaufs- und Verkaufskurs.`
 )
 
-await addGoals(ch2, [
-  'Du kannst Fremdwährungsgeschäfte (Import und Export) korrekt buchen.',
-  'Du kennst den Unterschied zwischen Geldkurs und Briefkurs.',
-  'Du kannst Kursgewinne und Kursverluste erkennen und verbuchen.',
-  'Du kannst Fremdwährungspositionen per 31.12. neu bewerten.',
-  'Du verstehst das Vorsichtsprinzip bei Kursgewinnen und -verlusten.',
+await replaceGoals(ch2, [
+  'Du kannst eine Wechselkurstabelle lesen und erklären, was Noten- und Devisenkurs sowie Ankauf- und Verkaufskurs bedeuten.',
+  'Du kannst für eine konkrete Transaktion den richtigen Kurs aus der Tabelle auswählen (Bargeld/Buchgeld, Bank kauft/verkauft).',
+  'Du kannst Fremdwährungsbeträge in Schweizer Franken umrechnen — sowohl bei Währungen mit 1er- als auch mit 100er-Notierung.',
+  'Du kannst Schweizer-Franken-Beträge in Fremdwährungsbeträge umrechnen und das Ergebnis korrekt runden.',
+  'Du kannst aus einem bekannten CHF-Betrag und einem bekannten Fremdwährungsbetrag den angewendeten Wechselkurs zurückrechnen.',
+  'Du kennst die verbindlichen Rundungsregeln für CHF, JPY und alle übrigen Währungen.',
 ])
 
-await addTerms(ch2, [
-  ['Geldkurs (Ankaufskurs)', 'Kurs, zu dem die Bank Devisen vom Kunden kauft. Für den Kunden ungünstiger als der Briefkurs. Auch "Bid" genannt.'],
-  ['Briefkurs (Verkaufskurs)', 'Kurs, zu dem die Bank Devisen an den Kunden verkauft. Für den Kunden teurer. Auch "Ask" genannt.'],
-  ['Tageskurs', 'Aktueller Wechselkurs, der für die Umrechnung bei laufenden Buchungen verwendet wird.'],
-  ['Stichtagskurs', 'Wechselkurs am 31. Dezember — wird für die Neubewertung offener Fremdwährungspositionen verwendet.'],
-  ['Kursverlust', 'Aufwand, der entsteht wenn der CHF schwächer wird (bei Verbindlichkeiten) oder stärker (bei Forderungen). Konto: Kursverlust (Soll).'],
-  ['Kursgewinn', 'Ertrag, der entsteht wenn der CHF stärker wird (bei Verbindlichkeiten) oder schwächer (bei Forderungen). Konto: Kursgewinn (Haben).'],
-  ['Vorsichtsprinzip', 'Kursverluste werden sofort gebucht. Kursgewinne nur wenn sie sicher realisiert sind.'],
-  ['Devisen', 'Ausländische Währungen (z.B. EUR, USD, GBP) — müssen für die CHF-Buchhaltung umgerechnet werden.'],
+await replaceTerms(ch2, [
+  ['Wechselkurs', 'Preis einer ausländischen Währung, ausgedrückt in Schweizer Franken. Gibt an, wie viele CHF man für 1 oder 100 Einheiten der Fremdwährung zahlt oder erhält.'],
+  ['Notenkurs', 'Wechselkurs für Bargeldtransaktionen (Banknoten und Münzen). Wird angewendet, wenn physische Fremdwährung den Besitzer wechselt.'],
+  ['Devisenkurs', 'Wechselkurs für bargeldlose Zahlungsvorgänge wie Überweisungen, Kartenzahlungen, Checks oder Fremdwährungskonten.'],
+  ['Ankaufskurs (Geldkurs)', 'Kurs, zu dem die Bank Fremdwährung vom Kunden kauft. Der Kunde gibt Fremdwährung ab und erhält CHF. Für den Kunden ungünstiger als der Verkaufskurs.'],
+  ['Verkaufskurs (Briefkurs)', 'Kurs, zu dem die Bank Fremdwährung an den Kunden verkauft. Der Kunde gibt CHF ab und erhält Fremdwährung. Für den Kunden teurer als der Ankaufskurs.'],
+  ['Einheit der Kursnotierung', 'Anzahl ausländischer Währungseinheiten, auf die sich der Kurs bezieht — typischerweise 1 (z.B. EUR, USD) oder 100 (z.B. NOK, SEK, JPY). Bestimmt den Rechenfaktor in der Formel.'],
+  ['Spread', 'Differenz zwischen Ankaufs- und Verkaufskurs. Hierin liegt der Gewinn der Bank bei Devisengeschäften.'],
+  ['Dreisatz', 'Rechenmethode, mit der Währungsumrechnungen als proportionale Verhältnisse dargestellt und gelöst werden. Macht den Zusammenhang zwischen Kurs und Betrag transparent.'],
+  ['Rückrechnung des Wechselkurses', 'Bestimmung des angewendeten Kurses, wenn CHF-Betrag und Fremdwährungsbetrag einer Transaktion bekannt sind. Formel: Kurs = (CHF × (1 oder 100)) ÷ Fremdwährungsbetrag.'],
+  ['Devisen', 'Fremdwährung in bargeldloser Form. Im weiteren Sinne: jede ausländische Währung. Im engeren Sinne (Kurstabelle): nur bargeldlose Positionen — Gegenbegriff zu Noten.'],
 ])
 
-await addPoints(ch2, [
-  'Import (Kreditoren in Fremdwährung): Entstehung zum Tageskurs buchen. Bei Zahlung: Differenz = Kursgewinn oder Kursverlust.',
-  'Export (Debitoren in Fremdwährung): Entstehung zum Tageskurs buchen. Bei Eingang: Differenz = Kursgewinn oder Kursverlust.',
-  'Kursverlust (Aufwand) = CHF-Betrag bei Zahlung ist grösser als bei Buchung (bei Verbindlichkeiten) oder kleiner (bei Forderungen).',
-  'Kursgewinn (Ertrag) = CHF-Betrag bei Zahlung ist kleiner als bei Buchung (bei Verbindlichkeiten) oder grösser (bei Forderungen).',
-  'Neubewertung 31.12.: Alle offenen Fremdwährungspositionen zum Stichtagskurs bewerten.',
-  'Vorsichtsprinzip: Kursverluste IMMER buchen. Kursgewinne nur wenn sicher realisiert.',
-  'Rückbuchung am 1.1.: Alle Neubewertungsbuchungen werden storniert (Gegenbuchung).',
-  'Kursgewinn-Konto = Ertrag (Haben). Kursverlust-Konto = Aufwand (Soll).',
+await replacePoints(ch2, [
+  'Ankauf und Verkauf in der Wechselkurstabelle sind immer aus Sicht der Bank definiert — nicht aus Kundensicht.',
+  'Bargeld (Noten) und Buchgeld (Devisen) haben unterschiedliche Kurse. Die erste Entscheidung ist immer: Bargeld oder bargeldlos?',
+  'Einige Währungen werden pro 1 Einheit notiert (EUR, USD, GBP), andere pro 100 Einheiten (NOK, SEK, DKK, JPY). Wer die Basis ignoriert, rechnet systematisch falsch.',
+  'Fremdwährung → CHF: CHF = (Kurs × Fremdwährungsbetrag) ÷ (1 oder 100).',
+  'CHF → Fremdwährung: Fremdwährung = ((1 oder 100) × CHF-Betrag) ÷ Kurs.',
+  'Kurs unbekannt bestimmen: Kurs = (CHF-Betrag × (1 oder 100)) ÷ Fremdwährungsbetrag.',
+  'Rundungsregeln sind fachlicher Bestandteil der Lösung: CHF auf den Fünfer, JPY auf einen Yen, alle anderen Währungen auf 2 Dezimalstellen, Kurse auf 2–4 Dezimalstellen.',
+  'Der Spread zwischen Ankaufs- und Verkaufskurs ist der Gewinn der Bank — deshalb ist der Verkaufskurs (Bank verkauft) immer höher als der Ankaufskurs (Bank kauft).',
+  'Die Entscheidungsreihenfolge ist entscheidend: (1) Bargeld oder Buchgeld? → (2) Bank kauft oder verkauft? → (3) Kurs pro 1 oder 100? → (4) Welche Richtung wird umgerechnet?',
+  'Aus einer Bankabrechnung mit bekanntem CHF- und Fremdwährungsbetrag lässt sich der tatsächlich angewendete Kurs algebraisch zurückrechnen.',
 ])
 
-await addExamples(ch2, [
-  'IMPORT — Kursverlust: Kauf 10 000 EUR, Kurs 1.10 → Kreditoren CHF 11 000. Zahlung bei Kurs 1.15 → Bank CHF 11 500. Buchung: Kreditoren 11 000 + Kursverlust 500 / Bank 11 500.',
-  'IMPORT — Kursgewinn: Kauf 10 000 EUR, Kurs 1.10 → Kreditoren CHF 11 000. Zahlung bei Kurs 1.05 → Bank CHF 10 500. Buchung: Kreditoren 11 000 / Bank 10 500 + Kursgewinn 500.',
-  'EXPORT — Kursverlust: Verkauf 5 000 USD, Kurs 0.92 → Debitoren CHF 4 600. Eingang bei Kurs 0.88 → Bank CHF 4 400. Buchung: Bank 4 400 + Kursverlust 200 / Debitoren 4 600.',
-  'EXPORT — Kursgewinn: Verkauf 5 000 USD, Kurs 0.92 → Debitoren CHF 4 600. Eingang bei Kurs 0.96 → Bank CHF 4 800. Buchung: Bank 4 800 / Debitoren 4 600 + Kursgewinn 200.',
-  'NEUBEWERTUNG 31.12.: Offene Verbindlichkeit 8 000 EUR, Buchkurs 1.10 = CHF 8 800. Stichtagskurs 1.14 = CHF 9 120. Differenz = 320 Kursverlust. Buchung: Kursverlust 320 / Kreditoren 320.',
+await replaceQuiz(ch2, [
+  {
+    q: 'Eine Kundin kauft EUR 500 Bargeld bei der Bank. Welcher Kurs ist anzuwenden?',
+    opts: [
+      ['EUR-Noten-Verkaufskurs', true],
+      ['EUR-Noten-Ankaufskurs', false],
+      ['EUR-Devisen-Verkaufskurs', false],
+      ['EUR-Devisen-Ankaufskurs', false],
+    ],
+    exp: 'Die Bank verkauft Euro-Bargeld (Noten) an die Kundin. Deshalb gilt: Noten (Bargeld) + Verkauf (Bank verkauft) = EUR-Noten-Verkaufskurs.',
+    diff: 'easy',
+  },
+  {
+    q: 'Ein Schweizer Unternehmen überweist NOK 4 000 an einen norwegischen Lieferanten. Der NOK-Devisen-Verkaufskurs beträgt 11.216 für 100 NOK. Wie viel CHF werden belastet?',
+    opts: [
+      ['CHF 448.64', true],
+      ['CHF 44 864.00', false],
+      ['CHF 356.85', false],
+      ['CHF 4 486.40', false],
+    ],
+    exp: 'Bargeldlos (Devisen), Bank verkauft NOK → Devisen-Verkaufskurs. NOK wird pro 100 notiert. Formel: (11.216 × 4 000) ÷ 100 = CHF 448.64.',
+    diff: 'medium',
+  },
+  {
+    q: 'Was ist der Unterschied zwischen Notenkurs und Devisenkurs?',
+    opts: [
+      ['Notenkurs gilt für Bargeld, Devisenkurs für bargeldlose Zahlungen', true],
+      ['Notenkurs gilt für Überweisungen, Devisenkurs für Bargeld', false],
+      ['Notenkurs ist immer günstiger für den Kunden', false],
+      ['Es gibt keinen Unterschied, die Bezeichnungen sind austauschbar', false],
+    ],
+    exp: 'Noten = physische Banknoten und Münzen → Notenkurs. Bargeldlose Vorgänge wie Überweisungen, Kartenzahlungen → Devisenkurs. Die Zuordnung bestimmt das korrekte Tabellenfeld.',
+    diff: 'easy',
+  },
+  {
+    q: 'Eine Reisende tauscht EUR 125 Bargeld zurück in CHF. Der EUR-Noten-Ankaufskurs beträgt 1.083. Wie viele CHF erhält sie (auf den Fünfer gerundet)?',
+    opts: [
+      ['CHF 135.40', true],
+      ['CHF 115.45', false],
+      ['CHF 135.375', false],
+      ['CHF 125.00', false],
+    ],
+    exp: 'Die Bank kauft EUR-Bargeld (Ankauf, Noten). Formel: (1.083 × 125) ÷ 1 = CHF 135.375 → auf den Fünfer gerundet = CHF 135.40.',
+    diff: 'medium',
+  },
+  {
+    q: 'Warum ist der Verkaufskurs der Bank immer höher als der Ankaufskurs?',
+    opts: [
+      ['Die Differenz ist der Gewinn (Spread) der Bank', true],
+      ['Weil Bargeld teurer ist als Buchgeld', false],
+      ['Weil der Staat eine Wechselsteuer erhebt', false],
+      ['Weil der Kunde immer den schlechteren Kurs wählen muss', false],
+    ],
+    exp: 'Verkaufskurs > Ankaufskurs → Spread. Die Bank verdient an dieser Spanne: Sie kauft Fremdwährung billiger und verkauft sie teurer. Das ist die Haupteinnahmequelle im Devisengeschäft.',
+    diff: 'easy',
+  },
+  {
+    q: 'Eine Bank belastet für eine EUR-Überweisung von EUR 8 000 den Betrag von CHF 8 960. Welcher Kurs wurde angewendet?',
+    opts: [
+      ['CHF 1.12 pro EUR 1', true],
+      ['CHF 1.20 pro EUR 1', false],
+      ['CHF 0.893 pro EUR 1', false],
+      ['CHF 11.20 pro EUR 100', false],
+    ],
+    exp: 'Kursformel: (CHF 8 960 × 1) ÷ EUR 8 000 = 1.12. EUR wird pro 1 Einheit notiert, also Faktor 1. Ergebnis: CHF 1.12 pro EUR 1.',
+    diff: 'medium',
+  },
+  {
+    q: 'Ein Kunde möchte CHF 400 in norwegische Kronen (Bargeld) tauschen. Der NOK-Noten-Verkaufskurs beträgt 11.814 für 100 NOK. Wie viele NOK erhält er?',
+    opts: [
+      ['NOK 3 385.81', true],
+      ['NOK 338.58', false],
+      ['NOK 47 256.00', false],
+      ['NOK 33 858.10', false],
+    ],
+    exp: 'Bank verkauft NOK-Bargeld → Noten-Verkaufskurs. NOK pro 100 notiert. Formel: (100 × 400) ÷ 11.814 = NOK 3 385.81.',
+    diff: 'hard',
+  },
+  {
+    q: 'Welche Aussage zur Kursnotierung ist korrekt?',
+    opts: [
+      ['EUR wird pro 1 Einheit notiert, NOK wird pro 100 Einheiten notiert', true],
+      ['Alle Währungen werden pro 1 Einheit notiert', false],
+      ['NOK wird pro 1 Einheit notiert, EUR pro 100 Einheiten', false],
+      ['JPY und EUR werden beide pro 1 Einheit notiert', false],
+    ],
+    exp: 'EUR, USD, GBP etc. werden pro 1 Einheit notiert. NOK, SEK, DKK, JPY etc. werden pro 100 Einheiten notiert. Diese Unterscheidung bestimmt den Rechenfaktor (÷1 oder ÷100).',
+    diff: 'medium',
+  },
+  {
+    q: 'Welches ist die korrekte Entscheidungsreihenfolge bei der Kurswahl?',
+    opts: [
+      ['Bargeld oder Buchgeld? → Bank kauft oder verkauft? → Kurs pro 1 oder 100? → Umrechnungsrichtung?', true],
+      ['Welche Währung? → Wie viel Betrag? → Welcher Kurs ist am günstigsten?', false],
+      ['Umrechnungsrichtung → Notierungsbasis → Bankperspektive → Transaktionsart', false],
+      ['Nur die Höhe des Betrags entscheidet, welcher Kurs anzuwenden ist', false],
+    ],
+    exp: 'Das Entscheidungsmodell lautet: (1) Bargeld/Buchgeld → Noten- oder Devisenkurs. (2) Bank kauft/verkauft → Ankauf oder Verkauf. (3) Notierungsbasis 1 oder 100. (4) Formel anwenden.',
+    diff: 'medium',
+  },
 ])
 
-await addQuiz(ch2, [
-  {
-    q: 'Ein Unternehmen kauft Waren für 20 000 EUR auf Rechnung. Kurs bei Buchung: 1.12. Kurs bei Zahlung: 1.08. Was entsteht?',
-    opts: [['Kursgewinn von CHF 800', true], ['Kursverlust von CHF 800', false], ['Kursgewinn von CHF 400', false], ['Kein Kurseffekt', false]],
-    exp: 'Buchung: 20 000 × 1.12 = CHF 22 400. Zahlung: 20 000 × 1.08 = CHF 21 600. CHF-Aufwand gesunken → Kursgewinn CHF 800.',
-    diff: 'medium'
-  },
-  {
-    q: 'Wie lautet der Buchungssatz bei einem Kursverlust auf einer Verbindlichkeit (Kreditoren)?',
-    opts: [['Kursverlust / Kreditoren', true], ['Kreditoren / Kursverlust', false], ['Kursgewinn / Kreditoren', false], ['Kreditoren / Kursgewinn', false]],
-    exp: 'Kursverlust = Aufwand → Soll. Kreditoren steigen → Haben. Also: Kursverlust / Kreditoren.',
-    diff: 'easy'
-  },
-  {
-    q: 'Was gilt beim Vorsichtsprinzip für Kursgewinne per 31.12.?',
-    opts: [['Kursgewinne werden nur gebucht wenn sicher realisiert', true], ['Kursgewinne werden immer sofort gebucht', false], ['Kursgewinne werden nie gebucht', false], ['Kursgewinne werden erst im Folgejahr gebucht', false]],
-    exp: 'Das Vorsichtsprinzip schreibt vor: Verluste sofort, Gewinne nur wenn sicher. Kursgewinne auf noch offenen Positionen sind noch nicht realisiert.',
-    diff: 'medium'
-  },
-  {
-    q: 'Ein Exporteur hat eine offene Forderung in EUR. Der EUR-Kurs sinkt per 31.12. Was wird gebucht?',
-    opts: [['Kursverlust / Debitoren', true], ['Debitoren / Kursgewinn', false], ['Kursgewinn / Debitoren', false], ['Keine Buchung nötig', false]],
-    exp: 'Forderung in EUR ist weniger wert (Kurs gesunken) → Kursverlust. Buchung: Kursverlust / Debitoren.',
-    diff: 'medium'
-  },
-  {
-    q: 'Was ist der Briefkurs?',
-    opts: [['Der Kurs, zu dem die Bank Devisen an den Kunden verkauft', true], ['Der Kurs, zu dem die Bank Devisen vom Kunden kauft', false], ['Der Kurs am Jahresende', false], ['Der Durchschnittskurs über das Jahr', false]],
-    exp: 'Briefkurs = Verkaufskurs der Bank. Der Kunde kauft Devisen zu diesem (teureren) Kurs.',
-    diff: 'easy'
-  },
-  {
-    q: 'Was passiert am 1. Januar mit den Neubewertungsbuchungen vom 31.12.?',
-    opts: [['Sie werden storniert (Gegenbuchung)', true], ['Sie bleiben bestehen', false], ['Sie werden verdoppelt', false], ['Sie werden auf ein Rückstellungskonto übertragen', false]],
-    exp: 'Am 1.1. werden alle Neubewertungsbuchungen durch Gegenbuchungen rückgängig gemacht, damit die ursprünglichen Kurse wieder gelten.',
-    diff: 'medium'
-  },
-  {
-    q: 'Buchung beim Kauf von Waren für EUR 5 000 auf Rechnung, Kurs 1.10:',
-    opts: [['Warenaufwand 5 500 / Kreditoren 5 500', true], ['Kreditoren 5 000 / Warenaufwand 5 000', false], ['Warenaufwand 5 000 / Bank 5 500', false], ['Debitoren 5 500 / Warenertrag 5 500', false]],
-    exp: 'Import auf Rechnung: 5 000 EUR × 1.10 = CHF 5 500. Buchung: Warenaufwand (Aufwand) / Kreditoren (Schuld entsteht).',
-    diff: 'easy'
-  },
-  {
-    q: 'Kursgewinn ist buchhalterisch ein...',
-    opts: [['Ertrag (Habenseite)', true], ['Aufwand (Sollseite)', false], ['Aktivum', false], ['Passivum', false]],
-    exp: 'Kursgewinn = positiver Effekt durch günstige Kursentwicklung → Ertrag, erscheint auf der Habenseite.',
-    diff: 'easy'
-  },
-])
-
-console.log('✅ Kapitel 2: Fremde Währung erfolgreich erstellt.')
+console.log('✅ Kapitel 2: Fremde Währung (Wechselkursumrechnung) erfolgreich aktualisiert.')
 await client.end()
