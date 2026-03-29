@@ -13,7 +13,7 @@ export const dynamic = 'force-dynamic'
 async function getProgressData(userId: string | null) {
   const [frwTopics, wrTopics] = await Promise.all([
     prisma.topic.findMany({
-      where: { category: 'frw' },
+      where: { category: 'frw', published: true },
       orderBy: { order: 'asc' },
       include: {
         chapters: {
@@ -73,10 +73,10 @@ export default async function ProgressPage() {
   const { frwTopics, wrTopics } = await getProgressData(user?.id ?? null)
 
   // ── FRW stats ──
-  const totalBuchungen  = frwTopics.reduce((s, t) => s + (t.chapters[0]?._count.bookingEntries ?? 0), 0)
-  const totalBegriffe   = frwTopics.reduce((s, t) => s + (t.chapters[0]?._count.keyTerms ?? 0), 0)
-  const totalMerksaetze = frwTopics.reduce((s, t) => s + (t.chapters[0]?._count.corePoints ?? 0), 0)
-  const totalFormeln    = frwTopics.reduce((s, t) => s + (t.chapters[0]?._count.formulas ?? 0), 0)
+  const totalBuchungen  = frwTopics.reduce((s, t) => s + t.chapters.reduce((cs, ch) => cs + ch._count.bookingEntries, 0), 0)
+  const totalBegriffe   = frwTopics.reduce((s, t) => s + t.chapters.reduce((cs, ch) => cs + ch._count.keyTerms, 0), 0)
+  const totalMerksaetze = frwTopics.reduce((s, t) => s + t.chapters.reduce((cs, ch) => cs + ch._count.corePoints, 0), 0)
+  const totalFormeln    = frwTopics.reduce((s, t) => s + t.chapters.reduce((cs, ch) => cs + ch._count.formulas, 0), 0)
 
   // ── User progress stats ──
   const allFrwChapters  = frwTopics.flatMap(t => t.chapters)
@@ -185,13 +185,19 @@ export default async function ProgressPage() {
         {/* FRW topic list */}
         <div className="space-y-2.5">
           {frwTopics.map(topic => {
-            const ch = topic.chapters[0]
-            if (!ch) return null
-            const colors   = KAPITEL_COLORS[topic.order] ?? KAPITEL_COLORS[3]
-            const progress = (ch as any).progress?.[0] ?? null
-            const level    = progressLevel(progress?.status ?? null, progress?.bestScore ?? null)
-            const buchungen  = ch._count.bookingEntries
-            const begriffe   = ch._count.keyTerms
+            if (topic.chapters.length === 0) return null
+            const colors     = KAPITEL_COLORS[topic.order] ?? KAPITEL_COLORS[3]
+            // Best progress across all chapters
+            const allProgress = topic.chapters.map(ch => (ch as any).progress?.[0] ?? null)
+            const bestProgress = allProgress.reduce((best: any, p: any) => {
+              if (!best) return p
+              if (!p) return best
+              const lvl = (x: any) => x?.status === 'completed' ? 2 : x?.status === 'in_progress' ? 1 : 0
+              return lvl(p) > lvl(best) ? p : best
+            }, null)
+            const level    = progressLevel(bestProgress?.status ?? null, bestProgress?.bestScore ?? null)
+            const buchungen  = topic.chapters.reduce((s, ch) => s + ch._count.bookingEntries, 0)
+            const begriffe   = topic.chapters.reduce((s, ch) => s + ch._count.keyTerms, 0)
             const hasContent = buchungen > 0 || begriffe > 0
 
             return (
@@ -213,7 +219,7 @@ export default async function ProgressPage() {
                     </h3>
                   </div>
                   {user && (
-                    <ProgressBadge status={progress?.status ?? null} bestScore={progress?.bestScore ?? null} />
+                    <ProgressBadge status={bestProgress?.status ?? null} bestScore={bestProgress?.bestScore ?? null} />
                   )}
                 </div>
 

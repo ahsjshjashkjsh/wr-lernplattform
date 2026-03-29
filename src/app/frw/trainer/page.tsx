@@ -7,7 +7,7 @@ export const dynamic = 'force-dynamic'
 
 async function getTopicsWithContent() {
   const topics = await prisma.topic.findMany({
-    where: { category: 'frw' },
+    where: { category: 'frw', published: true },
     orderBy: { order: 'asc' },
     select: {
       id: true,
@@ -15,7 +15,7 @@ async function getTopicsWithContent() {
       title: true,
       order: true,
       chapters: {
-        take: 1,
+        orderBy: { order: 'asc' },
         select: {
           bookingEntries: {
             orderBy: { order: 'asc' },
@@ -35,12 +35,12 @@ async function getTopicsWithContent() {
   })
 
   return topics.map(t => ({
-    slug: t.slug,
-    title: t.title,
-    order: t.order,
-    entries:     t.chapters[0]?.bookingEntries ?? [],
-    keyTerms:    t.chapters[0]?.keyTerms ?? [],
-    corePoints:  t.chapters[0]?.corePoints ?? [],
+    slug:       t.slug,
+    title:      t.title,
+    order:      t.order,
+    entries:    t.chapters.flatMap(ch => ch.bookingEntries),
+    keyTerms:   t.chapters.flatMap(ch => ch.keyTerms),
+    corePoints: t.chapters.flatMap(ch => ch.corePoints),
   }))
 }
 
