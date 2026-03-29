@@ -1,0 +1,8 @@
+Use all rule files.
+
+Generate structured JSON for topic: [TOPIC]
+
+Rules:
+- no hallucination
+- no explanation
+- only JSON output

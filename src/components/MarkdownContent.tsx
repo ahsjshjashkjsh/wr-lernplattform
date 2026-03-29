@@ -1,6 +1,6 @@
 'use client'
 
-import { Markdown } from 'react-markdown'
+import Markdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 
 export function MarkdownContent({ text }: { text: string }) {
