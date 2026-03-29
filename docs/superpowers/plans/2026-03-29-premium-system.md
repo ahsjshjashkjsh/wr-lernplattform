@@ -2,9 +2,9 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Schüler können AP-Inhalte durch ein manuelles Twint-Abo freischalten — mit Code-basierter Anfrage, Admin-Freischalten im Panel, und automatischem Ablauf nach 30 Tagen.
+**Goal:** Schüler können AP-Inhalte durch ein manuelles Twint-Abo freischalten — mit Code-basierter Anfrage, Admin-Freischalten im Panel, und automatischem Ablauf nach 30 Tagen. Vor QSP (17. April 2026) ist alles gratis.
 
-**Architecture:** Prisma-Schema-Erweiterung für `isPremium`/`premiumUntil` auf User + neues `PremiumRequest`-Model. Server-seitiges Content-Gating nach `examType`. Admin schaltet manuell nach Twint-Eingang frei. Kein externer Zahlungsanbieter.
+**Architecture:** Prisma-Schema-Erweiterung für `isPremium`/`premiumUntil` auf User + neues `PremiumRequest`-Model. Server-seitiges Content-Gating nach `examType` — aktiv erst ab 17.04.2026 (QSP-Datum). Admin schaltet manuell nach Twint-Eingang frei. Kein externer Zahlungsanbieter.
 
 **Tech Stack:** Next.js 16, Prisma 7, PostgreSQL (Supabase), lucide-react, TypeScript
 
@@ -584,6 +584,9 @@ Die `getFrwData`-Funktion anpassen, damit sie den Premium-Status zurückgibt:
 ```typescript
 import { isPremiumActive } from '@/lib/auth'
 
+// QSP-Datum: ab diesem Tag gilt das Premium-Gate für AP-Inhalte
+const QSP_DATE = new Date('2026-04-17T00:00:00')
+
 async function getFrwData() {
   const user = await getCurrentUser()
 
@@ -608,7 +611,9 @@ async function getFrwData() {
   ])
 
   const progressMap = new Map(progressList.map(p => [p.chapterId, p.status]))
-  const hasPremium = user ? isPremiumActive(user) : false
+  // Vor QSP ist alles gratis — Premium-Gate erst ab 17.04.2026 aktiv
+  const gatingActive = new Date() >= QSP_DATE
+  const hasPremium = !gatingActive || (user ? isPremiumActive(user) : false)
   return { topics, progressMap, hasPremium }
 }
 ```
@@ -740,8 +745,10 @@ import { Lock } from 'lucide-react'
 Und in der Page-Komponente, nach dem `notFound()` Check:
 
 ```typescript
+const QSP_DATE = new Date('2026-04-17T00:00:00')
+const gatingActive = new Date() >= QSP_DATE
 const user = await getCurrentUser()
-const hasPremium = user ? isPremiumActive(user) : false
+const hasPremium = !gatingActive || (user ? isPremiumActive(user) : false)
 
 if (topic.examType === 'abschluss' && !hasPremium) {
   return (

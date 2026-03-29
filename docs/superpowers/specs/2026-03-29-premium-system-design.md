@@ -37,13 +37,20 @@ model PremiumRequest {
 
 ## 2. Content-Gating Logik
 
+**QSP-Datum: 17. April 2026** — vor diesem Datum ist alles kostenlos (Testphase). Ab diesem Datum gilt das Premium-Gate für AP-Inhalte.
+
+```typescript
+const QSP_DATE = new Date('2026-04-17T00:00:00')
+const isBeforeQSP = () => new Date() < QSP_DATE
+```
+
 Bestehende Topics haben bereits das Feld `examType`:
 
-| examType        | Zugang       |
-|-----------------|-------------|
-| `"querschnitt"` | Immer gratis |
-| `"both"`        | Immer gratis |
-| `"abschluss"`   | Nur Premium  |
+| examType        | Vor QSP (< 17.04.2026) | Nach QSP (≥ 17.04.2026) |
+|-----------------|------------------------|--------------------------|
+| `"querschnitt"` | Gratis                 | Gratis                   |
+| `"both"`        | Gratis                 | Gratis                   |
+| `"abschluss"`   | **Gratis (Testphase)** | Nur Premium              |
 
 **Hinweis:** WR enthält aktuell ausschliesslich QSP-Stoff (`querschnitt`/`both`), daher ist WR vollständig gratis. Das System ist bereit sobald AP-Stoff für WR nachgeladen wird.
 
