@@ -249,7 +249,10 @@ model PremiumRequest {
   id        String   @id @default(cuid())
   userId    String
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  code      String   @unique
-  status    String   @default("pending")
+  code      String   @unique // Einzigartiger Code z.B. "HMS-4X7K" — User schreibt ihn ins Twint-Mitteilungsfeld
+  status    String   @default("pending") // "pending" | "approved" | "rejected"
   createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId, status])
 }
