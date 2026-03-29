@@ -42,7 +42,15 @@ const CATEGORY_ICONS: Record<string, typeof Bug> = { bug: Bug, feature: Lightbul
 const CATEGORY_LABELS: Record<string, string> = { bug: 'Fehler', feature: 'Vorschlag', content: 'Inhalt', general: 'Allgemein' }
 const CATEGORY_COLORS: Record<string, string> = { bug: '#f87171', feature: '#fbbf24', content: '#60a5fa', general: '#a78bfa' }
 
-type Tab = 'pending' | 'users' | 'create' | 'feedback' | 'messages' | 'log'
+interface PremiumRequestItem {
+  id: string
+  code: string
+  status: string
+  createdAt: string
+  user: { id: string; name: string; email: string; isPremium: boolean; premiumUntil: string | null }
+}
+
+type Tab = 'pending' | 'users' | 'create' | 'feedback' | 'messages' | 'log' | 'premium'
 
 // Online = lastOnline within last 3 minutes
 function isOnline(lastOnline: string | null) {
@@ -91,6 +99,7 @@ export default function AdminPage() {
 
   const [lastRefresh, setLastRefresh] = useState<Date | null>(null)
   const [activityLogs, setActivityLogs] = useState<ActivityLog[]>([])
+  const [premiumRequests, setPremiumRequests] = useState<PremiumRequestItem[]>([])
 
   const loadUsers = useCallback(async (silent = false) => {
     if (!silent) setLoading(true)
@@ -114,6 +123,11 @@ export default function AdminPage() {
     if (res.ok) { const data = await res.json(); setActivityLogs(data.logs) }
   }
 
+  async function loadPremiumRequests() {
+    const res = await fetch('/api/admin/premium')
+    if (res.ok) { const data = await res.json(); setPremiumRequests(data.requests) }
+  }
+
   async function reviewFeedback(id: string, status: 'accepted' | 'rejected' | 'implemented') {
     setActionLoading('review-' + id)
     await fetch('/api/feedback', {
@@ -127,15 +141,31 @@ export default function AdminPage() {
     setAdminNote('')
   }
 
+  async function approvePremium(id: string) {
+    setActionLoading('premium-' + id)
+    await fetch(`/api/admin/premium/${id}/approve`, { method: 'POST' })
+    await loadPremiumRequests()
+    setActionLoading(null)
+  }
+
+  async function rejectPremium(id: string) {
+    setActionLoading('premium-' + id)
+    await fetch(`/api/admin/premium/${id}/reject`, { method: 'POST' })
+    await loadPremiumRequests()
+    setActionLoading(null)
+  }
+
   // Live-Polling: erster Load mit Spinner, danach alle 3s still
   useEffect(() => {
     loadUsers()
     loadFeedback()
     loadLogs()
+    loadPremiumRequests()
     const interval = setInterval(() => {
       loadUsers(true)
       loadFeedback()
       loadLogs()
+      loadPremiumRequests()
     }, 3_000)
     return () => clearInterval(interval)
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -452,6 +482,23 @@ export default function AdminPage() {
             {label}
           </button>
         ))}
+        <button
+          onClick={() => setTab('premium')}
+          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all border ${
+            tab === 'premium'
+              ? 'border-amber-500/20 bg-amber-500/10 text-amber-400'
+              : 'border-transparent hover:bg-amber-500/10 hover:text-amber-400'
+          }`}
+          style={tab === 'premium' ? {} : { color: 'var(--text-muted)' }}
+        >
+          <Crown size={13} />
+          Premium
+          {premiumRequests.filter(r => r.status === 'pending').length > 0 && (
+            <span className="ml-1 px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-500 text-white">
+              {premiumRequests.filter(r => r.status === 'pending').length}
+            </span>
+          )}
+        </button>
       </div>
 
       {/* === TAB: PENDING === */}
@@ -1000,6 +1047,69 @@ export default function AdminPage() {
               })}
             </div>
           )}
+        </div>
+      )}
+
+      {/* === TAB: PREMIUM === */}
+      {tab === 'premium' && (
+        <div className="space-y-3">
+          <h2 className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>
+            Premium-Anfragen
+          </h2>
+          {premiumRequests.length === 0 && (
+            <p className="text-xs py-4 text-center" style={{ color: 'var(--text-muted)' }}>
+              Keine Anfragen vorhanden.
+            </p>
+          )}
+          {premiumRequests.map(req => (
+            <div
+              key={req.id}
+              className="rounded-xl p-4 flex flex-col sm:flex-row sm:items-center gap-3"
+              style={{ background: 'var(--card-bg)', border: '1px solid var(--border-color)' }}
+            >
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="font-mono text-sm font-bold text-amber-400">{req.code}</span>
+                  <span className={`text-[10px] px-2 py-0.5 rounded-full font-semibold ${
+                    req.status === 'pending'  ? 'bg-yellow-500/15 text-yellow-400' :
+                    req.status === 'approved' ? 'bg-emerald-500/15 text-emerald-400' :
+                    'bg-red-500/15 text-red-400'
+                  }`}>
+                    {req.status === 'pending' ? 'Offen' : req.status === 'approved' ? 'Freigeschalten' : 'Abgelehnt'}
+                  </span>
+                </div>
+                <p className="text-xs truncate" style={{ color: 'var(--text-muted)' }}>
+                  {req.user.name} — {req.user.email}
+                </p>
+                <p className="text-[10px] mt-0.5" style={{ color: 'var(--text-muted)' }}>
+                  {new Date(req.createdAt).toLocaleDateString('de-CH')}
+                  {req.user.premiumUntil && ` · Premium bis ${new Date(req.user.premiumUntil).toLocaleDateString('de-CH')}`}
+                </p>
+              </div>
+              {req.status === 'pending' && (
+                <div className="flex gap-2 shrink-0">
+                  <button
+                    onClick={() => approvePremium(req.id)}
+                    disabled={actionLoading === 'premium-' + req.id}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all disabled:opacity-50"
+                    style={{ background: 'rgba(34,197,94,0.12)', border: '1px solid rgba(34,197,94,0.25)', color: '#4ade80' }}
+                  >
+                    <Check size={12} />
+                    Freischalten
+                  </button>
+                  <button
+                    onClick={() => rejectPremium(req.id)}
+                    disabled={actionLoading === 'premium-' + req.id}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all disabled:opacity-50"
+                    style={{ background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)', color: '#f87171' }}
+                  >
+                    <X size={12} />
+                    Ablehnen
+                  </button>
+                </div>
+              )}
+            </div>
+          ))}
         </div>
       )}
 
