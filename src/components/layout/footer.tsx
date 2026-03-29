@@ -20,6 +20,14 @@ export function Footer() {
           Datenschutz
         </Link>
         <span style={{ color: 'var(--text-muted)' }} className="text-xs">·</span>
+        <Link
+          href="/haftungsausschluss"
+          className="text-xs transition-colors hover:text-slate-300"
+          style={{ color: 'var(--text-muted)' }}
+        >
+          Haftungsausschluss
+        </Link>
+        <span style={{ color: 'var(--text-muted)' }} className="text-xs">·</span>
         <span className="text-xs" style={{ color: 'var(--text-muted)' }}>
           © 2026 HMS-Plattform
         </span>

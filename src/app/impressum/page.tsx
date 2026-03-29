@@ -40,10 +40,22 @@ export default function ImpressumPage() {
                 erstellt von <strong className="text-slate-300">P. Wörner</strong>.
               </span>
             </li>
+            <li className="flex gap-2">
+              <span className="text-blue-400 font-semibold shrink-0">FRW</span>
+              <span>
+                Finanz- und Rechnungswesen — basiert auf dem Lehrmittel{' '}
+                <strong className="text-slate-300">«Finanz- und Rechnungswesen 3»</strong>{' '}
+                des <strong className="text-slate-300">HEP Verlags</strong>.
+                Die Inhalte wurden für diese Plattform didaktisch aufbereitet,
+                vereinfacht und teilweise ergänzt. Es handelt sich nicht um eine
+                wörtliche Reproduktion, sondern um eine eigenständige Überarbeitung
+                zum Zweck der Prüfungsvorbereitung.
+              </span>
+            </li>
           </ul>
           <p className="mt-3">
-            Die Urheberrechte an den Originalunterlagen liegen bei den jeweiligen Autoren
-            und der Kantonsschule Hottingen. Diese Plattform verwendet die Inhalte
+            Die Urheberrechte an den Originalunterlagen liegen bei den jeweiligen Autoren,
+            Verlagen und der Kantonsschule Hottingen. Diese Plattform verwendet die Inhalte
             ausschliesslich zu privaten, nicht-kommerziellen Lernzwecken.
           </p>
         </section>
