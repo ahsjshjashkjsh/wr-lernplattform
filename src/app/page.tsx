@@ -144,29 +144,33 @@ export default async function DashboardPage() {
             </div>
           </Link>
 
-          {/* WR — coming soon */}
-          <div
-            className="rounded-2xl p-5 opacity-60"
-            style={{ background: 'var(--card-bg)', border: '1px solid var(--border-color)' }}
+          {/* WR — aktiv */}
+          <Link
+            href="/wr"
+            className="group rounded-2xl p-5 transition-all duration-200 hover:-translate-y-0.5"
+            style={{ background: 'var(--card-bg)', border: '1px solid rgba(59,130,246,0.25)' }}
           >
             <div className="flex items-start justify-between mb-4">
               <div
                 className="w-11 h-11 rounded-xl flex items-center justify-center"
-                style={{ background: 'rgba(59,130,246,0.08)', border: '1px solid rgba(59,130,246,0.15)' }}
+                style={{ background: 'rgba(59,130,246,0.12)', border: '1px solid rgba(59,130,246,0.2)' }}
               >
                 <Scale size={20} className="text-blue-400" />
               </div>
-              <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full text-slate-400 bg-white/5 border border-white/10">
-                In Vorbereitung
+              <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full text-blue-300 bg-blue-500/10 border border-blue-500/20">
+                Verfügbar
               </span>
             </div>
             <h3 className="text-base font-bold mb-1" style={{ color: 'var(--text-primary)' }}>
               Wirtschaft &amp; Recht
             </h3>
-            <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
-              VWL · BWL · Recht · Kommt bald
+            <p className="text-xs mb-4" style={{ color: 'var(--text-muted)' }}>
+              BWL · VWL · Recht · Theorie, Begriffe &amp; Quiz
             </p>
-          </div>
+            <div className="flex items-center">
+              <ArrowRight size={13} className="ml-auto text-blue-400 group-hover:translate-x-0.5 transition-transform" />
+            </div>
+          </Link>
 
           {/* FRW Band 1 — coming soon */}
           <div

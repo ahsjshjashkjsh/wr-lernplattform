@@ -125,8 +125,12 @@ function TopicGrid({
 
 export default async function FrwPage() {
   const { topics, progressMap } = await getFrwData()
-  const band2Topics = topics.filter(t => t.band !== '1')
-  const band1Topics  = topics.filter(t => t.band === '1')
+  const band1Topics = topics.filter(t => t.band === '1')
+  const band2Topics = topics.filter(t => t.band === '2')
+  const band3Topics = topics.filter(t => t.band === '3')
+  // Topics without a band value fall back to band2
+  const band2Fallback = topics.filter(t => !t.band || (t.band !== '1' && t.band !== '2' && t.band !== '3'))
+  const allBand2 = [...band2Topics, ...band2Fallback]
 
   return (
     <div className="space-y-8">
@@ -141,7 +145,7 @@ export default async function FrwPage() {
             Finanz- &amp; Rechnungswesen
           </h1>
           <p className="text-sm mt-1" style={{ color: 'var(--text-muted)' }}>
-            {topics.length} Kapitel · Alle Inhalte direkt aus dem Lehrmittel
+            {topics.length} Themen · Alle Inhalte direkt aus dem Lehrmittel
           </p>
         </div>
         <Link
@@ -154,19 +158,6 @@ export default async function FrwPage() {
         </Link>
       </div>
 
-      {/* Band 2 Section */}
-      {band2Topics.length > 0 && (
-        <div className="space-y-3">
-          <div className="flex items-center gap-2">
-            <span className="text-xs font-semibold uppercase tracking-widest" style={{ color: 'var(--text-muted)' }}>
-              Band 2 — Vertiefung
-            </span>
-            <div className="flex-1 h-px" style={{ background: 'var(--border-color)' }} />
-          </div>
-          <TopicGrid topics={band2Topics} progressMap={progressMap} />
-        </div>
-      )}
-
       {/* Band 1 Section */}
       {band1Topics.length > 0 && (
         <div className="space-y-3">
@@ -177,6 +168,32 @@ export default async function FrwPage() {
             <div className="flex-1 h-px" style={{ background: 'var(--border-color)' }} />
           </div>
           <TopicGrid topics={band1Topics} progressMap={progressMap} />
+        </div>
+      )}
+
+      {/* Band 2 Section */}
+      {allBand2.length > 0 && (
+        <div className="space-y-3">
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-semibold uppercase tracking-widest" style={{ color: 'var(--text-muted)' }}>
+              Band 2 — Vertiefung
+            </span>
+            <div className="flex-1 h-px" style={{ background: 'var(--border-color)' }} />
+          </div>
+          <TopicGrid topics={allBand2} progressMap={progressMap} />
+        </div>
+      )}
+
+      {/* Band 3 Section */}
+      {band3Topics.length > 0 && (
+        <div className="space-y-3">
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-semibold uppercase tracking-widest" style={{ color: 'var(--text-muted)' }}>
+              Band 3 — Abschlusskompetenz
+            </span>
+            <div className="flex-1 h-px" style={{ background: 'var(--border-color)' }} />
+          </div>
+          <TopicGrid topics={band3Topics} progressMap={progressMap} />
         </div>
       )}
     </div>

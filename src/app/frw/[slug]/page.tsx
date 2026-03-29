@@ -7,6 +7,7 @@ import { BookingTrainer } from '@/components/frw/BookingTrainer'
 import { TheoryTrainer } from '@/components/frw/TheoryTrainer'
 import { FlashcardMode } from '@/components/frw/FlashcardMode'
 import { VisitTracker } from '@/components/frw/VisitTracker'
+import { QuizTrainer } from '@/components/QuizTrainer'
 
 export const dynamic = 'force-dynamic'
 
@@ -28,6 +29,7 @@ async function getChapter(slug: string) {
             corePoints:     { orderBy: { order: 'asc' } },
             formulas:       { orderBy: { order: 'asc' } },
             learningGoals:  { orderBy: { order: 'asc' } },
+            quizQuestions:  { include: { options: { orderBy: { order: 'asc' } } }, orderBy: { order: 'asc' } },
           },
         },
       },
@@ -87,6 +89,7 @@ export default async function FrwChapterPage({ params, searchParams }: Props) {
     { id: 'begriffe',    label: 'Begriffe',         icon: FileText      },
     { id: 'ueben',       label: 'Buchungen üben',  icon: Dumbbell      },
     { id: 'theorie-quiz',label: 'Theorie üben',    icon: GraduationCap },
+    { id: 'quiz',        label: 'Quiz',             icon: GraduationCap },
   ]
 
   return (
@@ -108,7 +111,7 @@ export default async function FrwChapterPage({ params, searchParams }: Props) {
       <div>
         <div className="flex items-center gap-2 mb-1">
           <span className="text-xs font-medium uppercase tracking-widest text-emerald-400">
-            Kapitel {topic.order} · Band 2
+            Kapitel {topic.order}{topic.band ? ` · Band ${topic.band}` : ''}
           </span>
         </div>
         <h1 className="text-xl font-bold" style={{ color: 'var(--text-primary)' }}>
@@ -150,7 +153,22 @@ export default async function FrwChapterPage({ params, searchParams }: Props) {
 
         {/* THEORIE */}
         {tab === 'theorie' && (
-          <div>
+          <div className="space-y-6">
+            {chapter.learningGoals.length > 0 && (
+              <div className="space-y-2">
+                <h3 className="text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>
+                  Lernziele
+                </h3>
+                <ul className="space-y-1.5">
+                  {chapter.learningGoals.map(g => (
+                    <li key={g.id} className="flex items-start gap-2 text-sm" style={{ color: 'var(--text-secondary)' }}>
+                      <span className="mt-1.5 w-1.5 h-1.5 rounded-full shrink-0 bg-emerald-400" />
+                      {g.text}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
             {chapter.summary ? (
               <div className="prose-frw">
                 <ReactMarkdown
@@ -383,6 +401,11 @@ export default async function FrwChapterPage({ params, searchParams }: Props) {
               </div>
             )}
           </div>
+        )}
+
+        {/* QUIZ */}
+        {tab === 'quiz' && (
+          <QuizTrainer questions={chapter.quizQuestions} />
         )}
 
       </div>
