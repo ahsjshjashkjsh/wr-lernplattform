@@ -14,7 +14,21 @@ export type QuizQuestion = {
 const DIFF_LABEL: Record<string, string> = { easy: 'Einfach', medium: 'Mittel', hard: 'Schwer' }
 const DIFF_COLOR: Record<string, string> = { easy: '#4ade80', medium: '#fbbf24', hard: '#f87171' }
 
+function shuffle<T>(arr: T[]): T[] {
+  const a = [...arr]
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1))
+    ;[a[i], a[j]] = [a[j], a[i]]
+  }
+  return a
+}
+
+function shuffled(qs: QuizQuestion[]) {
+  return shuffle(qs).map(q => ({ ...q, options: shuffle(q.options) }))
+}
+
 export function QuizTrainer({ questions }: { questions: QuizQuestion[] }) {
+  const [pool, setPool]       = useState<QuizQuestion[]>(() => shuffled(questions))
   const [idx, setIdx]         = useState(0)
   const [selected, setSelected] = useState<string | null>(null)
   const [score, setScore]     = useState(0)
@@ -28,7 +42,7 @@ export function QuizTrainer({ questions }: { questions: QuizQuestion[] }) {
     )
   }
 
-  const q     = questions[idx]
+  const q     = pool[idx]
   const color = DIFF_COLOR[q.difficulty] ?? '#fbbf24'
   const answered = selected !== null
   const correct  = answered && (q.options.find(o => o.id === selected)?.isCorrect ?? false)
@@ -40,7 +54,7 @@ export function QuizTrainer({ questions }: { questions: QuizQuestion[] }) {
   }
 
   function next() {
-    if (idx < questions.length - 1) {
+    if (idx < pool.length - 1) {
       setIdx(i => i + 1)
       setSelected(null)
     } else {
@@ -49,11 +63,12 @@ export function QuizTrainer({ questions }: { questions: QuizQuestion[] }) {
   }
 
   function reset() {
+    setPool(shuffled(questions))
     setIdx(0); setSelected(null); setScore(0); setDone(false)
   }
 
   if (done) {
-    const pct = Math.round((score / questions.length) * 100)
+    const pct = Math.round((score / pool.length) * 100)
     const trophyColor = pct >= 80 ? '#4ade80' : pct >= 50 ? '#fbbf24' : '#f87171'
     return (
       <div className="text-center py-10 space-y-5">
@@ -62,7 +77,7 @@ export function QuizTrainer({ questions }: { questions: QuizQuestion[] }) {
           <p className="text-3xl font-bold" style={{ color: 'var(--text-primary)' }}>
             {score}/{questions.length}
           </p>
-          <p className="text-sm mt-1" style={{ color: 'var(--text-muted)' }}>{pct}% richtig</p>
+          <p className="text-sm mt-1" style={{ color: 'var(--text-muted)' }}>{score}/{pool.length} — {pct}% richtig</p>
           <p className="text-xs mt-2" style={{ color: 'var(--text-muted)' }}>
             {pct >= 80 ? 'Ausgezeichnet!' : pct >= 50 ? 'Gut gemacht — noch etwas Übung.' : 'Noch einmal üben.'}
           </p>
@@ -82,7 +97,7 @@ export function QuizTrainer({ questions }: { questions: QuizQuestion[] }) {
     <div className="space-y-4">
       {/* Progress bar */}
       <div className="flex items-center justify-between text-xs mb-1" style={{ color: 'var(--text-muted)' }}>
-        <span>Frage {idx + 1} / {questions.length}</span>
+        <span>Frage {idx + 1} / {pool.length}</span>
         <span
           className="px-2 py-0.5 rounded-full font-semibold"
           style={{ background: `${color}18`, border: `1px solid ${color}40`, color }}
@@ -93,7 +108,7 @@ export function QuizTrainer({ questions }: { questions: QuizQuestion[] }) {
       <div className="w-full h-1 rounded-full overflow-hidden" style={{ background: 'var(--border-color)' }}>
         <div
           className="h-1 rounded-full transition-all duration-300"
-          style={{ width: `${(idx / questions.length) * 100}%`, background: 'linear-gradient(90deg,#3b82f6,#6366f1)' }}
+          style={{ width: `${(idx / pool.length) * 100}%`, background: 'linear-gradient(90deg,#3b82f6,#6366f1)' }}
         />
       </div>
 
@@ -161,7 +176,7 @@ export function QuizTrainer({ questions }: { questions: QuizQuestion[] }) {
           className="flex items-center gap-2 justify-center w-full px-4 py-2.5 rounded-xl text-sm font-medium transition-all"
           style={{ background: 'rgba(99,102,241,0.1)', border: '1px solid rgba(99,102,241,0.2)', color: '#a5b4fc' }}
         >
-          {idx < questions.length - 1 ? 'Nächste Frage' : 'Ergebnis anzeigen'}
+          {idx < pool.length - 1 ? 'Nächste Frage' : 'Ergebnis anzeigen'}
           <ChevronRight size={15} />
         </button>
       )}

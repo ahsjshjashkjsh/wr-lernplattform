@@ -1,8 +1,9 @@
 import { prisma } from '@/lib/prisma'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
-import { ChevronLeft, ChevronRight, BookOpen, FileText, GraduationCap, Lightbulb, BarChart2 } from 'lucide-react'
+import { ChevronLeft, ChevronRight, BookOpen, FileText, GraduationCap, Lightbulb, BarChart2, Dumbbell } from 'lucide-react'
 import { QuizTrainer } from '@/components/QuizTrainer'
+import { TheoryTrainer } from '@/components/frw/TheoryTrainer'
 import { FlashcardMode } from '@/components/frw/FlashcardMode'
 import { VisitTracker } from '@/components/frw/VisitTracker'
 import { MarkdownContent } from '@/components/MarkdownContent'
@@ -85,10 +86,11 @@ export default async function WrTopicPage({ params, searchParams }: Props) {
   const hasVisual = slug in WR_VISUALS
 
   const tabs = [
-    { id: 'theorie',  label: 'Theorie',        icon: BookOpen      },
-    { id: 'begriffe', label: 'Begriffe',        icon: FileText      },
+    { id: 'theorie',       label: 'Theorie',        icon: BookOpen      },
+    { id: 'begriffe',      label: 'Begriffe',        icon: FileText      },
     ...(hasVisual ? [{ id: 'visual', label: 'Visualisierung', icon: BarChart2 }] : []),
-    { id: 'quiz',     label: 'Quiz',            icon: GraduationCap },
+    { id: 'theorie-ueben', label: 'Theorie üben',   icon: Dumbbell      },
+    { id: 'quiz',          label: 'Quiz',            icon: GraduationCap },
   ]
 
   return (
@@ -251,6 +253,18 @@ export default async function WrTopicPage({ params, searchParams }: Props) {
           const V = WR_VISUALS[slug]
           return V ? <V /> : null
         })()}
+
+        {/* THEORIE ÜBEN */}
+        {tab === 'theorie-ueben' && (
+          (chapter.keyTerms.length > 0 || chapter.corePoints.length > 0) ? (
+            <TheoryTrainer keyTerms={chapter.keyTerms} corePoints={chapter.corePoints} />
+          ) : (
+            <div className="text-center py-12">
+              <Dumbbell size={28} className="mx-auto mb-3 opacity-20" style={{ color: 'var(--text-muted)' }} />
+              <p className="text-sm" style={{ color: 'var(--text-muted)' }}>Noch keine Theorieinhalte für dieses Kapitel.</p>
+            </div>
+          )
+        )}
 
         {/* QUIZ */}
         {tab === 'quiz' && (

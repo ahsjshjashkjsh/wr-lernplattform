@@ -89,7 +89,6 @@ export default async function FrwChapterPage({ params, searchParams }: Props) {
     { id: 'begriffe',    label: 'Begriffe',         icon: FileText      },
     { id: 'ueben',       label: 'Buchungen üben',  icon: Dumbbell      },
     { id: 'theorie-quiz',label: 'Theorie üben',    icon: GraduationCap },
-    { id: 'quiz',        label: 'Quiz',             icon: GraduationCap },
   ]
 
   return (
