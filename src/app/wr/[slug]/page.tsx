@@ -2,13 +2,13 @@ import { prisma } from '@/lib/prisma'
 import { getCurrentUser } from '@/lib/auth'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
-import { ChevronLeft, ChevronRight, BookOpen, FileText, GraduationCap, Lightbulb, BarChart2, Dumbbell } from 'lucide-react'
+import { ChevronLeft, ChevronRight, BookOpen, FileText, GraduationCap, BarChart2, Dumbbell } from 'lucide-react'
 import { QuizTrainer } from '@/components/QuizTrainer'
 import { TheoryTrainer } from '@/components/frw/TheoryTrainer'
 import { ProgressBadge } from '@/components/ProgressBadge'
 import { FlashcardMode } from '@/components/frw/FlashcardMode'
 import { VisitTracker } from '@/components/frw/VisitTracker'
-import { MarkdownContent } from '@/components/MarkdownContent'
+import { TheorieTab } from '@/components/TheorieTab'
 import { KonjunkturVisual } from '@/components/wr/KonjunkturVisual'
 import { MarketingVisual } from '@/components/wr/MarketingVisual'
 import { VertragslehreVisual } from '@/components/wr/VertragslehreVisual'
@@ -184,53 +184,12 @@ export default async function WrTopicPage({ params, searchParams }: Props) {
 
         {/* THEORIE */}
         {tab === 'theorie' && (
-          <div className="space-y-6">
-            {/* Learning Goals */}
-            {chapter.learningGoals.length > 0 && (
-              <div className="space-y-2">
-                <h3 className="text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>
-                  Lernziele
-                </h3>
-                <ul className="space-y-1.5">
-                  {chapter.learningGoals.map(g => (
-                    <li key={g.id} className="flex items-start gap-2 text-sm" style={{ color: 'var(--text-secondary)' }}>
-                      <span className="mt-1.5 w-1.5 h-1.5 rounded-full shrink-0 bg-blue-400" />
-                      {g.text}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-
-            {/* Summary */}
-            {chapter.summary ? (
-              <MarkdownContent text={chapter.summary} />
-            ) : (
-              <div className="text-center py-12">
-                <BookOpen size={28} className="mx-auto mb-3 opacity-20" style={{ color: 'var(--text-muted)' }} />
-                <p className="text-sm" style={{ color: 'var(--text-muted)' }}>Theorie wird noch geladen.</p>
-              </div>
-            )}
-
-            {/* Core Points */}
-            {chapter.corePoints.length > 0 && (
-              <div className="space-y-2">
-                <h3 className="text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>
-                  Merksätze
-                </h3>
-                {chapter.corePoints.map(cp => (
-                  <div
-                    key={cp.id}
-                    className="flex items-start gap-3 p-3 rounded-xl text-sm"
-                    style={{ background: 'rgba(234,179,8,0.06)', border: '1px solid rgba(234,179,8,0.15)' }}
-                  >
-                    <Lightbulb size={14} className="text-amber-400 mt-0.5 shrink-0" />
-                    <span style={{ color: 'var(--text-secondary)' }}>{cp.text}</span>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
+          <TheorieTab
+            learningGoals={chapter.learningGoals}
+            summary={chapter.summary}
+            corePoints={chapter.corePoints}
+            accentColor="blue"
+          />
         )}
 
         {/* BEGRIFFE */}

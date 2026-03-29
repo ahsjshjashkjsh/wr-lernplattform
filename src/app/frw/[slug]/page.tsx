@@ -10,6 +10,7 @@ import { VisitTracker } from '@/components/frw/VisitTracker'
 import { QuizTrainer } from '@/components/QuizTrainer'
 import { MarkdownContent } from '@/components/MarkdownContent'
 import { ProgressBadge } from '@/components/ProgressBadge'
+import { TheorieTab } from '@/components/TheorieTab'
 
 export const dynamic = 'force-dynamic'
 
@@ -169,26 +170,11 @@ export default async function FrwChapterPage({ params, searchParams }: Props) {
         {/* THEORIE */}
         {tab === 'theorie' && (
           <div className="space-y-6">
-            {chapter.learningGoals.length > 0 && (
-              <div className="space-y-2">
-                <h3 className="text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>
-                  Lernziele
-                </h3>
-                <ul className="space-y-1.5">
-                  {chapter.learningGoals.map(g => (
-                    <li key={g.id} className="flex items-start gap-2 text-sm" style={{ color: 'var(--text-secondary)' }}>
-                      <span className="mt-1.5 w-1.5 h-1.5 rounded-full shrink-0 bg-emerald-400" />
-                      {g.text}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-            {chapter.summary ? (
-              <MarkdownContent text={chapter.summary} />
-            ) : (
-              <EmptyState icon={BookOpen} text="Theorie wird noch geladen." />
-            )}
+            <TheorieTab
+              learningGoals={chapter.learningGoals}
+              summary={chapter.summary}
+              accentColor="emerald"
+            />
             {chapter.bookingEntries.length > 0 && (
               <div className="flex flex-wrap gap-3 pt-4 mt-2 border-t" style={{ borderColor: 'rgba(255,255,255,0.06)' }}>
                 <Link
