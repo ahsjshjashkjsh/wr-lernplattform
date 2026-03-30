@@ -2,7 +2,7 @@ import { prisma } from '@/lib/prisma'
 import { getCurrentUser, isPremiumActive } from '@/lib/auth'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
-import { ChevronLeft, ChevronRight, BookOpen, Hash, FileText, Dumbbell, Lightbulb, AlertCircle, ArrowRight, GraduationCap, Lock } from 'lucide-react'
+import { ChevronLeft, ChevronRight, BookOpen, Hash, FileText, Dumbbell, Lightbulb, AlertCircle, ArrowRight, GraduationCap, Lock, Crown } from 'lucide-react'
 import { BookingTrainer } from '@/components/frw/BookingTrainer'
 import { TheoryTrainer } from '@/components/frw/TheoryTrainer'
 import { FlashcardMode } from '@/components/frw/FlashcardMode'
@@ -13,6 +13,33 @@ import { ProgressBadge } from '@/components/ProgressBadge'
 import { TheorieTab } from '@/components/TheorieTab'
 
 export const dynamic = 'force-dynamic'
+
+function FrwPremiumCta() {
+  return (
+    <div className="flex flex-col items-center justify-center py-10 space-y-4 text-center">
+      <div className="w-14 h-14 rounded-2xl flex items-center justify-center"
+        style={{ background: 'rgba(16,185,129,0.12)', border: '1px solid rgba(16,185,129,0.25)' }}>
+        <Lock size={24} className="text-emerald-400" />
+      </div>
+      <div>
+        <p className="text-sm font-semibold mb-1" style={{ color: 'var(--text-primary)' }}>
+          Premium-Inhalt
+        </p>
+        <p className="text-xs max-w-xs" style={{ color: 'var(--text-muted)' }}>
+          Schalte alle Inhalte frei — Zusammenfassung, Buchungssätze, Begriffe und Übungen.
+        </p>
+      </div>
+      <a
+        href="/premium"
+        className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold text-white"
+        style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}
+      >
+        <Crown size={14} />
+        Premium freischalten — CHF 5 / Monat
+      </a>
+    </div>
+  )
+}
 
 type Props = {
   params: Promise<{ slug: string }>
@@ -81,35 +108,6 @@ export default async function FrwChapterPage({ params, searchParams }: Props) {
   const user = await getCurrentUser()
   const hasPremium = user ? isPremiumActive(user) : false
 
-  if (topic.examType === 'abschluss' && !hasPremium) {
-    return (
-      <div className="max-w-xl mx-auto py-16 text-center space-y-5 fade-in">
-        <div className="w-14 h-14 rounded-2xl flex items-center justify-center mx-auto"
-          style={{ background: 'rgba(245,158,11,0.12)', border: '1px solid rgba(245,158,11,0.25)' }}>
-          <Lock size={24} className="text-amber-400" />
-        </div>
-        <div>
-          <h1 className="text-lg font-bold mb-2" style={{ color: 'var(--text-primary)' }}>
-            Premium-Inhalt
-          </h1>
-          <p className="text-sm" style={{ color: 'var(--text-muted)' }}>
-            Dieses Kapitel gehört zum Abschlussprüfungs-Stoff und ist nur mit Premium zugänglich.
-          </p>
-        </div>
-        <Link
-          href="/premium"
-          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold text-white"
-          style={{ background: 'linear-gradient(135deg, #f59e0b, #d97706)' }}
-        >
-          <Lock size={14} />
-          Premium freischalten
-        </Link>
-        <Link href="/frw" className="block text-xs" style={{ color: 'var(--text-muted)' }}>
-          ← Zurück zur Übersicht
-        </Link>
-      </div>
-    )
-  }
 
   const chapter = topic.chapters[0]
   if (!chapter) notFound()
@@ -200,191 +198,152 @@ export default async function FrwChapterPage({ params, searchParams }: Props) {
 
         {/* THEORIE */}
         {tab === 'theorie' && (
-          <div className="space-y-6">
-            <TheorieTab
-              learningGoals={chapter.learningGoals}
-              summary={chapter.summary}
-              accentColor="emerald"
-            />
-            {chapter.bookingEntries.length > 0 && (
-              <div className="flex flex-wrap gap-3 pt-4 mt-2 border-t" style={{ borderColor: 'rgba(255,255,255,0.06)' }}>
-                <Link
-                  href={`/frw/${slug}?tab=buchungen`}
-                  className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-medium transition-all hover:brightness-125"
-                  style={{ background: 'rgba(59,130,246,0.08)', border: '1px solid rgba(59,130,246,0.2)', color: '#93c5fd' }}
-                >
-                  <Hash size={13} />
-                  Buchungssätze ansehen
-                </Link>
-                <Link
-                  href={`/frw/${slug}?tab=ueben`}
-                  className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-medium transition-all hover:brightness-125"
-                  style={{ background: 'rgba(99,102,241,0.08)', border: '1px solid rgba(99,102,241,0.2)', color: '#a5b4fc' }}
-                >
-                  <Dumbbell size={13} />
-                  Buchungen üben
-                </Link>
-              </div>
-            )}
-          </div>
+          hasPremium ? (
+            <div className="space-y-6">
+              <TheorieTab learningGoals={chapter.learningGoals} summary={chapter.summary} accentColor="emerald" />
+              {chapter.bookingEntries.length > 0 && (
+                <div className="flex flex-wrap gap-3 pt-4 mt-2 border-t" style={{ borderColor: 'rgba(255,255,255,0.06)' }}>
+                  <Link href={`/frw/${slug}?tab=buchungen`} className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-medium transition-all hover:brightness-125" style={{ background: 'rgba(59,130,246,0.08)', border: '1px solid rgba(59,130,246,0.2)', color: '#93c5fd' }}>
+                    <Hash size={13} />Buchungssätze ansehen
+                  </Link>
+                  <Link href={`/frw/${slug}?tab=ueben`} className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-medium transition-all hover:brightness-125" style={{ background: 'rgba(99,102,241,0.08)', border: '1px solid rgba(99,102,241,0.2)', color: '#a5b4fc' }}>
+                    <Dumbbell size={13} />Buchungen üben
+                  </Link>
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {chapter.summary && (
+                <div className="relative">
+                  <div style={{ maxHeight: '140px', overflow: 'hidden' }}>
+                    <p className="text-sm leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
+                      {chapter.summary.slice(0, 220).replace(/#+\s/g, '')}…
+                    </p>
+                  </div>
+                  <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '60px', background: 'linear-gradient(to top, var(--card-bg), transparent)' }} />
+                </div>
+              )}
+              <FrwPremiumCta />
+            </div>
+          )
         )}
 
         {/* BUCHUNGSSÄTZE */}
         {tab === 'buchungen' && (
-          <div className="space-y-5">
-            {chapter.bookingEntries.length > 0 ? (
-              <>
-                {chapter.formulas.length > 0 && (
-                  <div className="space-y-2 mb-6">
-                    <h3 className="text-xs font-semibold uppercase tracking-wider mb-3" style={{ color: 'var(--text-muted)' }}>
-                      Formeln
-                    </h3>
-                    {chapter.formulas.map(f => (
-                      <div
-                        key={f.id}
-                        className="flex items-start gap-3 p-3 rounded-xl text-sm"
-                        style={{ background: 'rgba(99,102,241,0.08)', border: '1px solid rgba(99,102,241,0.15)' }}
-                      >
-                        <span className="font-semibold text-indigo-300 shrink-0">{f.name}:</span>
-                        <span className="font-mono text-indigo-200">{f.formel}</span>
-                      </div>
-                    ))}
-                  </div>
-                )}
-                <h3 className="text-xs font-semibold uppercase tracking-wider mb-3" style={{ color: 'var(--text-muted)' }}>
-                  Buchungssätze
-                </h3>
-                {chapter.bookingEntries.map(entry => (
-                  <div key={entry.id} className="space-y-2">
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs font-semibold" style={{ color: 'var(--text-primary)' }}>
-                        {entry.situation}
-                      </span>
-                      {entry.betragHint && (
-                        <span className="text-xs px-2 py-0.5 rounded-full font-mono text-emerald-400" style={{ background: 'rgba(34,197,94,0.1)' }}>
-                          {entry.betragHint}
-                        </span>
-                      )}
+          hasPremium ? (
+            <div className="space-y-5">
+              {chapter.bookingEntries.length > 0 ? (
+                <>
+                  {chapter.formulas.length > 0 && (
+                    <div className="space-y-2 mb-6">
+                      <h3 className="text-xs font-semibold uppercase tracking-wider mb-3" style={{ color: 'var(--text-muted)' }}>Formeln</h3>
+                      {chapter.formulas.map(f => (
+                        <div key={f.id} className="flex items-start gap-3 p-3 rounded-xl text-sm" style={{ background: 'rgba(99,102,241,0.08)', border: '1px solid rgba(99,102,241,0.15)' }}>
+                          <span className="font-semibold text-indigo-300 shrink-0">{f.name}:</span>
+                          <span className="font-mono text-indigo-200">{f.formel}</span>
+                        </div>
+                      ))}
                     </div>
-                    <TAccount soll={entry.sollKonto} haben={entry.habenKonto} />
-                    {entry.erklaerung && (
-                      <p className="text-xs pl-1" style={{ color: 'var(--text-muted)' }}>{entry.erklaerung}</p>
-                    )}
-                  </div>
-                ))}
-              </>
-            ) : (
-              <EmptyState icon={Hash} text="Buchungssätze werden noch geladen." />
-            )}
-          </div>
+                  )}
+                  <h3 className="text-xs font-semibold uppercase tracking-wider mb-3" style={{ color: 'var(--text-muted)' }}>Buchungssätze</h3>
+                  {chapter.bookingEntries.map(entry => (
+                    <div key={entry.id} className="space-y-2">
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-semibold" style={{ color: 'var(--text-primary)' }}>{entry.situation}</span>
+                        {entry.betragHint && <span className="text-xs px-2 py-0.5 rounded-full font-mono text-emerald-400" style={{ background: 'rgba(34,197,94,0.1)' }}>{entry.betragHint}</span>}
+                      </div>
+                      <TAccount soll={entry.sollKonto} haben={entry.habenKonto} />
+                      {entry.erklaerung && <p className="text-xs pl-1" style={{ color: 'var(--text-muted)' }}>{entry.erklaerung}</p>}
+                    </div>
+                  ))}
+                </>
+              ) : <EmptyState icon={Hash} text="Buchungssätze werden noch geladen." />}
+            </div>
+          ) : <FrwPremiumCta />
         )}
 
         {/* BEGRIFFE */}
         {tab === 'begriffe' && (
-          <div>
-            {chapter.keyTerms.length > 0 ? (
-              <div className="space-y-3">
-                <FlashcardMode keyTerms={chapter.keyTerms} />
-                {chapter.keyTerms.map(term => (
-                  <div
-                    key={term.id}
-                    className="p-4 rounded-xl"
-                    style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border-color)' }}
-                  >
-                    <div className="text-sm font-semibold mb-1" style={{ color: 'var(--text-primary)' }}>
-                      {term.term}
+          hasPremium ? (
+            <div>
+              {chapter.keyTerms.length > 0 ? (
+                <div className="space-y-3">
+                  <FlashcardMode keyTerms={chapter.keyTerms} />
+                  {chapter.keyTerms.map(term => (
+                    <div key={term.id} className="p-4 rounded-xl" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border-color)' }}>
+                      <div className="text-sm font-semibold mb-1" style={{ color: 'var(--text-primary)' }}>{term.term}</div>
+                      <div className="text-sm leading-relaxed" style={{ color: 'var(--text-muted)' }}>{term.definition}</div>
                     </div>
-                    <div className="text-sm leading-relaxed" style={{ color: 'var(--text-muted)' }}>
-                      {term.definition}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <EmptyState icon={FileText} text="Begriffe werden noch geladen." />
-            )}
-          </div>
+                  ))}
+                </div>
+              ) : <EmptyState icon={FileText} text="Begriffe werden noch geladen." />}
+            </div>
+          ) : <FrwPremiumCta />
         )}
 
         {/* ÜBEN */}
         {tab === 'ueben' && (
-          <div className="space-y-6">
-            {chapter.bookingEntries.length > 0 ? (
-              <>
-                <BookingTrainer entries={chapter.bookingEntries} chapterTitle={topic.title} />
-                <div
-                  className="flex items-center justify-between p-4 rounded-xl"
-                  style={{ background: 'rgba(99,102,241,0.06)', border: '1px solid rgba(99,102,241,0.15)' }}
-                >
-                  <div>
-                    <p className="text-sm font-medium text-indigo-300">Alle Kapitel zusammen üben</p>
-                    <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>
-                      Kapitel selbst auswählen und kombinieren
-                    </p>
+          hasPremium ? (
+            <div className="space-y-6">
+              {chapter.bookingEntries.length > 0 ? (
+                <>
+                  <BookingTrainer entries={chapter.bookingEntries} chapterTitle={topic.title} />
+                  <div className="flex items-center justify-between p-4 rounded-xl" style={{ background: 'rgba(99,102,241,0.06)', border: '1px solid rgba(99,102,241,0.15)' }}>
+                    <div>
+                      <p className="text-sm font-medium text-indigo-300">Alle Kapitel zusammen üben</p>
+                      <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>Kapitel selbst auswählen und kombinieren</p>
+                    </div>
+                    <Link href="/frw/trainer" className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium text-indigo-300 transition-all hover:bg-indigo-500/10">
+                      Zum Gesamttrainer<ArrowRight size={13} />
+                    </Link>
                   </div>
-                  <Link
-                    href="/frw/trainer"
-                    className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium text-indigo-300 transition-all hover:bg-indigo-500/10"
-                  >
-                    Zum Gesamttrainer
-                    <ArrowRight size={13} />
-                  </Link>
+                </>
+              ) : (
+                <div className="text-center py-12 space-y-3">
+                  <div className="w-14 h-14 rounded-2xl mx-auto flex items-center justify-center" style={{ background: 'rgba(99,102,241,0.1)', border: '1px solid rgba(99,102,241,0.2)' }}>
+                    <Dumbbell size={24} className="text-indigo-400" />
+                  </div>
+                  <p className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>Keine Buchungssätze</p>
+                  <p className="text-xs" style={{ color: 'var(--text-muted)' }}>Für dieses Kapitel sind noch keine Übungsaufgaben vorhanden.</p>
                 </div>
-              </>
-            ) : (
-              <div className="text-center py-12 space-y-3">
-                <div
-                  className="w-14 h-14 rounded-2xl mx-auto flex items-center justify-center"
-                  style={{ background: 'rgba(99,102,241,0.1)', border: '1px solid rgba(99,102,241,0.2)' }}
-                >
-                  <Dumbbell size={24} className="text-indigo-400" />
-                </div>
-                <p className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>Keine Buchungssätze</p>
-                <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
-                  Für dieses Kapitel sind noch keine Übungsaufgaben vorhanden.
-                </p>
-              </div>
-            )}
-          </div>
+              )}
+            </div>
+          ) : <FrwPremiumCta />
         )}
 
         {/* THEORIE ÜBEN */}
         {tab === 'theorie-quiz' && (
-          <div className="space-y-6">
-            {(chapter.keyTerms.length > 0 || chapter.corePoints.length > 0) ? (
-              <>
-                <TheoryTrainer keyTerms={chapter.keyTerms} corePoints={chapter.corePoints} chapterId={chapter.id} />
-                <div
-                  className="flex items-center justify-between p-4 rounded-xl"
-                  style={{ background: 'rgba(234,179,8,0.06)', border: '1px solid rgba(234,179,8,0.15)' }}
-                >
-                  <div>
-                    <p className="text-sm font-medium text-amber-300">Buchungssätze üben</p>
-                    <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>
-                      Buchungstrainer für dieses Kapitel
-                    </p>
+          hasPremium ? (
+            <div className="space-y-6">
+              {(chapter.keyTerms.length > 0 || chapter.corePoints.length > 0) ? (
+                <>
+                  <TheoryTrainer keyTerms={chapter.keyTerms} corePoints={chapter.corePoints} chapterId={chapter.id} />
+                  <div className="flex items-center justify-between p-4 rounded-xl" style={{ background: 'rgba(234,179,8,0.06)', border: '1px solid rgba(234,179,8,0.15)' }}>
+                    <div>
+                      <p className="text-sm font-medium text-amber-300">Buchungssätze üben</p>
+                      <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>Buchungstrainer für dieses Kapitel</p>
+                    </div>
+                    <Link href={`/frw/${slug}?tab=ueben`} className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium text-amber-300 transition-all hover:bg-amber-500/10">
+                      Zu Buchungen<ArrowRight size={13} />
+                    </Link>
                   </div>
-                  <Link
-                    href={`/frw/${slug}?tab=ueben`}
-                    className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium text-amber-300 transition-all hover:bg-amber-500/10"
-                  >
-                    Zu Buchungen
-                    <ArrowRight size={13} />
-                  </Link>
+                </>
+              ) : (
+                <div className="text-center py-12 space-y-3">
+                  <GraduationCap size={28} className="mx-auto opacity-20" style={{ color: 'var(--text-muted)' }} />
+                  <p className="text-sm" style={{ color: 'var(--text-muted)' }}>Noch keine Theorieinhalte für dieses Kapitel.</p>
                 </div>
-              </>
-            ) : (
-              <div className="text-center py-12 space-y-3">
-                <GraduationCap size={28} className="mx-auto opacity-20" style={{ color: 'var(--text-muted)' }} />
-                <p className="text-sm" style={{ color: 'var(--text-muted)' }}>Noch keine Theorieinhalte für dieses Kapitel.</p>
-              </div>
-            )}
-          </div>
+              )}
+            </div>
+          ) : <FrwPremiumCta />
         )}
 
         {/* QUIZ */}
         {tab === 'quiz' && (
-          <QuizTrainer questions={chapter.quizQuestions} chapterId={chapter.id} />
+          hasPremium
+            ? <QuizTrainer questions={chapter.quizQuestions} chapterId={chapter.id} />
+            : <FrwPremiumCta />
         )}
 
       </div>

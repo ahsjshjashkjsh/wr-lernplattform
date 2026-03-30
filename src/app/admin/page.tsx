@@ -1,6 +1,6 @@
 'use client'
 import { useEffect, useState, useCallback } from 'react'
-import { Shield, Trash2, Crown, Users, BarChart2, Ban, UserPlus, Pencil, X, Check, Eye, EyeOff, RefreshCw, MessageSquare, CheckCircle2, XCircle, Clock, Bug, Lightbulb, FileText, HelpCircle, Wifi, WifiOff, Globe, Activity, Send, Bell, UserCheck, UserX, Tag, Plus } from 'lucide-react'
+import { Shield, Trash2, Crown, Users, BarChart2, Ban, UserPlus, Pencil, X, Check, Eye, EyeOff, RefreshCw, MessageSquare, CheckCircle2, XCircle, Clock, Bug, Lightbulb, FileText, HelpCircle, Wifi, WifiOff, Globe, Activity, Send, Bell, UserCheck, UserX, Tag, Plus, Copy } from 'lucide-react'
 
 interface AdminUser {
   id: string
@@ -1178,12 +1178,12 @@ export default function AdminPage() {
                 key={promo.id}
                 className="rounded-xl px-4 py-3 flex items-center gap-3"
                 style={{
-                  background: promo.usedById ? 'rgba(255,255,255,0.02)' : 'rgba(52,211,153,0.04)',
-                  border: `1px solid ${promo.usedById ? 'var(--border-color)' : 'rgba(52,211,153,0.2)'}`,
+                  background: promo.usedBy ? 'rgba(255,255,255,0.02)' : 'rgba(52,211,153,0.04)',
+                  border: `1px solid ${promo.usedBy ? 'var(--border-color)' : 'rgba(52,211,153,0.2)'}`,
                 }}
               >
                 <div className="flex-1 min-w-0">
-                  <span className={`font-mono text-sm font-bold tracking-widest ${promo.usedById ? 'line-through opacity-40' : 'text-emerald-400'}`}>
+                  <span className={`font-mono text-sm font-bold tracking-widest ${promo.usedBy ? 'line-through opacity-40' : 'text-emerald-400'}`}>
                     {promo.code}
                   </span>
                   {promo.usedBy && (
@@ -1199,11 +1199,11 @@ export default function AdminPage() {
                 </div>
                 <div className="flex items-center gap-2 shrink-0">
                   <span className={`text-[10px] px-2 py-0.5 rounded-full font-semibold ${
-                    promo.usedById ? 'bg-slate-500/15 text-slate-400' : 'bg-emerald-500/15 text-emerald-400'
+                    promo.usedBy ? 'bg-slate-500/15 text-slate-400' : 'bg-emerald-500/15 text-emerald-400'
                   }`}>
-                    {promo.usedById ? 'Verwendet' : 'Verfügbar'}
+                    {promo.usedBy ? 'Verwendet' : 'Verfügbar'}
                   </span>
-                  {!promo.usedById && (
+                  {!promo.usedBy && (
                     <button
                       onClick={() => copyPromoCode(promo.code)}
                       className="flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-medium transition-all"

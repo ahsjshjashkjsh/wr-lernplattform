@@ -1,8 +1,8 @@
 import { prisma } from '@/lib/prisma'
-import { getCurrentUser } from '@/lib/auth'
+import { getCurrentUser, isPremiumActive } from '@/lib/auth'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
-import { ChevronLeft, ChevronRight, BookOpen, FileText, GraduationCap, BarChart2, Dumbbell } from 'lucide-react'
+import { ChevronLeft, ChevronRight, BookOpen, FileText, GraduationCap, BarChart2, Dumbbell, Crown, Lock } from 'lucide-react'
 import { QuizTrainer } from '@/components/QuizTrainer'
 import { TheoryTrainer } from '@/components/frw/TheoryTrainer'
 import { ProgressBadge } from '@/components/ProgressBadge'
@@ -26,6 +26,33 @@ export const dynamic = 'force-dynamic'
 type Props = {
   params: Promise<{ slug: string }>
   searchParams: Promise<{ tab?: string; ch?: string }>
+}
+
+function WrPremiumCta() {
+  return (
+    <div className="flex flex-col items-center justify-center py-10 space-y-4 text-center">
+      <div className="w-14 h-14 rounded-2xl flex items-center justify-center"
+        style={{ background: 'rgba(245,158,11,0.12)', border: '1px solid rgba(245,158,11,0.25)' }}>
+        <Lock size={24} className="text-amber-400" />
+      </div>
+      <div>
+        <p className="text-sm font-semibold mb-1" style={{ color: 'var(--text-primary)' }}>
+          Premium-Inhalt
+        </p>
+        <p className="text-xs max-w-xs" style={{ color: 'var(--text-muted)' }}>
+          Schalte alle Inhalte frei — Zusammenfassung, Begriffe, Übungen und Quiz.
+        </p>
+      </div>
+      <a
+        href="/premium"
+        className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold text-white"
+        style={{ background: 'linear-gradient(135deg, #f59e0b, #d97706)' }}
+      >
+        <Crown size={14} />
+        Premium freischalten — CHF 5 / Monat
+      </a>
+    </div>
+  )
 }
 
 const CATEGORY_LABEL: Record<string, string> = {
@@ -87,6 +114,8 @@ export default async function WrTopicPage({ params, searchParams }: Props) {
   const hasVisual = slug in WR_VISUALS
 
   const user = await getCurrentUser()
+  const hasPremium = user ? isPremiumActive(user) : false
+
   const chapterProgress = user ? await prisma.chapterProgress.findUnique({
     where: { chapterId_userId: { chapterId: chapter.id, userId: user.id } },
     select: { status: true, bestScore: true },
@@ -184,65 +213,79 @@ export default async function WrTopicPage({ params, searchParams }: Props) {
 
         {/* THEORIE */}
         {tab === 'theorie' && (
-          <TheorieTab
-            learningGoals={chapter.learningGoals}
-            summary={chapter.summary}
-            corePoints={chapter.corePoints}
-            accentColor="blue"
-          />
-        )}
-
-        {/* BEGRIFFE */}
-        {tab === 'begriffe' && (
-          <div>
-            {chapter.keyTerms.length > 0 ? (
-              <div className="space-y-3">
-                <FlashcardMode keyTerms={chapter.keyTerms} />
-                {chapter.keyTerms.map(term => (
-                  <div
-                    key={term.id}
-                    className="p-4 rounded-xl"
-                    style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border-color)' }}
-                  >
-                    <div className="text-sm font-semibold mb-1" style={{ color: 'var(--text-primary)' }}>
-                      {term.term}
-                    </div>
-                    <div className="text-sm leading-relaxed" style={{ color: 'var(--text-muted)' }}>
-                      {term.definition}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-12">
-                <FileText size={28} className="mx-auto mb-3 opacity-20" style={{ color: 'var(--text-muted)' }} />
-                <p className="text-sm" style={{ color: 'var(--text-muted)' }}>Noch keine Begriffe vorhanden.</p>
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* VISUALISIERUNG */}
-        {tab === 'visual' && (() => {
-          const V = WR_VISUALS[slug]
-          return V ? <V /> : null
-        })()}
-
-        {/* THEORIE ÜBEN */}
-        {tab === 'theorie-ueben' && (
-          (chapter.keyTerms.length > 0 || chapter.corePoints.length > 0) ? (
-            <TheoryTrainer keyTerms={chapter.keyTerms} corePoints={chapter.corePoints} chapterId={chapter.id} />
+          hasPremium ? (
+            <TheorieTab
+              learningGoals={chapter.learningGoals}
+              summary={chapter.summary}
+              corePoints={chapter.corePoints}
+              accentColor="blue"
+            />
           ) : (
-            <div className="text-center py-12">
-              <Dumbbell size={28} className="mx-auto mb-3 opacity-20" style={{ color: 'var(--text-muted)' }} />
-              <p className="text-sm" style={{ color: 'var(--text-muted)' }}>Noch keine Theorieinhalte für dieses Kapitel.</p>
+            <div className="space-y-4">
+              {/* Vorschau: erste ~200 Zeichen der Zusammenfassung */}
+              {chapter.summary && (
+                <div className="relative">
+                  <div style={{ maxHeight: '140px', overflow: 'hidden' }}>
+                    <p className="text-sm leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
+                      {chapter.summary.slice(0, 220).replace(/#+\s/g, '')}…
+                    </p>
+                  </div>
+                  <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '60px', background: 'linear-gradient(to top, var(--card-bg), transparent)' }} />
+                </div>
+              )}
+              <WrPremiumCta />
             </div>
           )
         )}
 
+        {/* BEGRIFFE */}
+        {tab === 'begriffe' && (
+          hasPremium ? (
+            <div>
+              {chapter.keyTerms.length > 0 ? (
+                <div className="space-y-3">
+                  <FlashcardMode keyTerms={chapter.keyTerms} />
+                  {chapter.keyTerms.map(term => (
+                    <div key={term.id} className="p-4 rounded-xl" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border-color)' }}>
+                      <div className="text-sm font-semibold mb-1" style={{ color: 'var(--text-primary)' }}>{term.term}</div>
+                      <div className="text-sm leading-relaxed" style={{ color: 'var(--text-muted)' }}>{term.definition}</div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-12">
+                  <FileText size={28} className="mx-auto mb-3 opacity-20" style={{ color: 'var(--text-muted)' }} />
+                  <p className="text-sm" style={{ color: 'var(--text-muted)' }}>Noch keine Begriffe vorhanden.</p>
+                </div>
+              )}
+            </div>
+          ) : <WrPremiumCta />
+        )}
+
+        {/* VISUALISIERUNG */}
+        {tab === 'visual' && (
+          hasPremium ? (() => { const V = WR_VISUALS[slug]; return V ? <V /> : null })() : <WrPremiumCta />
+        )}
+
+        {/* THEORIE ÜBEN */}
+        {tab === 'theorie-ueben' && (
+          hasPremium ? (
+            (chapter.keyTerms.length > 0 || chapter.corePoints.length > 0) ? (
+              <TheoryTrainer keyTerms={chapter.keyTerms} corePoints={chapter.corePoints} chapterId={chapter.id} />
+            ) : (
+              <div className="text-center py-12">
+                <Dumbbell size={28} className="mx-auto mb-3 opacity-20" style={{ color: 'var(--text-muted)' }} />
+                <p className="text-sm" style={{ color: 'var(--text-muted)' }}>Noch keine Theorieinhalte für dieses Kapitel.</p>
+              </div>
+            )
+          ) : <WrPremiumCta />
+        )}
+
         {/* QUIZ */}
         {tab === 'quiz' && (
-          <QuizTrainer questions={quizQuestions} chapterId={chapter.id} />
+          hasPremium
+            ? <QuizTrainer questions={quizQuestions} chapterId={chapter.id} />
+            : <WrPremiumCta />
         )}
 
       </div>
