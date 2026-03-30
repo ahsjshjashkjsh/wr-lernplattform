@@ -117,11 +117,15 @@ export default function AdminPage() {
   const [promoCopied, setPromoCopied] = useState<string | null>(null)
 
   const [accountingEntries, setAccountingEntries] = useState<AccountingEntry[]>([])
-  const [buchForm, setBuchForm] = useState({ typ: 'ertrag', beschreibung: '', betrag: '', datum: new Date().toISOString().slice(0, 16), kategorie: '' })
+  function localNow() {
+    const now = new Date()
+    return new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString().slice(0, 16)
+  }
+  const [buchForm, setBuchForm] = useState({ typ: 'ertrag', beschreibung: '', betrag: '', datum: localNow(), kategorie: '', waehrung: 'chf', kurs: '0.80' })
   const [buchSaving, setBuchSaving] = useState(false)
   const [buchDeleting, setBuchDeleting] = useState<string | null>(null)
   const [buchEditEntry, setBuchEditEntry] = useState<AccountingEntry | null>(null)
-  const [buchEditForm, setBuchEditForm] = useState({ typ: 'ertrag', beschreibung: '', betrag: '', datum: '', kategorie: '' })
+  const [buchEditForm, setBuchEditForm] = useState({ typ: 'ertrag', beschreibung: '', betrag: '', datum: '', kategorie: '', waehrung: 'chf', kurs: '0.80' })
   const [buchEditSaving, setBuchEditSaving] = useState(false)
 
   const loadUsers = useCallback(async (silent = false) => {
@@ -171,13 +175,20 @@ export default function AdminPage() {
   async function addBuchEntry() {
     if (!buchForm.beschreibung || !buchForm.betrag) return
     setBuchSaving(true)
+    const chfBetrag = buchForm.waehrung === 'usd'
+      ? (parseFloat(buchForm.betrag) * parseFloat(buchForm.kurs || '0.80')).toFixed(2)
+      : buchForm.betrag
     await fetch('/api/admin/buchhaltung', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(buchForm),
+      body: JSON.stringify({
+        ...buchForm,
+        betrag: chfBetrag,
+        datum: new Date(buchForm.datum).toISOString(),
+      }),
     })
     await loadBuchhaltung()
-    setBuchForm(f => ({ typ: f.typ, beschreibung: '', betrag: '', datum: new Date().toISOString().slice(0, 16), kategorie: '' }))
+    setBuchForm(f => ({ typ: f.typ, beschreibung: '', betrag: '', datum: localNow(), kategorie: '', waehrung: f.waehrung, kurs: f.kurs }))
     setBuchSaving(false)
   }
 
@@ -194,22 +205,34 @@ export default function AdminPage() {
 
   function openBuchEdit(entry: AccountingEntry) {
     setBuchEditEntry(entry)
+    const d = new Date(entry.datum)
+    const localDatum = new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 16)
     setBuchEditForm({
       typ: entry.typ,
       beschreibung: entry.beschreibung,
       betrag: entry.betrag.toString(),
-      datum: new Date(entry.datum).toISOString().slice(0, 16),
+      datum: localDatum,
       kategorie: entry.kategorie ?? '',
+      waehrung: 'chf',
+      kurs: '0.80',
     })
   }
 
   async function saveBuchEdit() {
     if (!buchEditEntry) return
     setBuchEditSaving(true)
+    const chfBetrag = buchEditForm.waehrung === 'usd'
+      ? (parseFloat(buchEditForm.betrag) * parseFloat(buchEditForm.kurs || '0.80')).toFixed(2)
+      : buchEditForm.betrag
     await fetch('/api/admin/buchhaltung', {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ id: buchEditEntry.id, ...buchEditForm }),
+      body: JSON.stringify({
+        id: buchEditEntry.id,
+        ...buchEditForm,
+        betrag: chfBetrag,
+        datum: new Date(buchEditForm.datum).toISOString(),
+      }),
     })
     await loadBuchhaltung()
     setBuchEditEntry(null)
@@ -1406,17 +1429,48 @@ export default function AdminPage() {
                   className={inputCls + ' flex-[3] min-w-[180px]'}
                   style={inputStyle}
                 />
-                <input
-                  type="number"
-                  min="0"
-                  step="0.05"
-                  value={buchForm.betrag}
-                  onChange={e => setBuchForm(f => ({ ...f, betrag: e.target.value }))}
-                  onKeyDown={e => { if (e.key === 'Enter' && buchForm.beschreibung && buchForm.betrag) addBuchEntry() }}
-                  placeholder="Betrag CHF"
-                  className={inputCls + ' flex-[1] min-w-[110px]'}
-                  style={inputStyle}
-                />
+                <div className="flex gap-1 flex-[1.5] min-w-[180px]">
+                  <input
+                    type="number"
+                    min="0"
+                    step="0.05"
+                    value={buchForm.betrag}
+                    onChange={e => setBuchForm(f => ({ ...f, betrag: e.target.value }))}
+                    onKeyDown={e => { if (e.key === 'Enter' && buchForm.beschreibung && buchForm.betrag) addBuchEntry() }}
+                    placeholder={buchForm.waehrung === 'usd' ? 'Betrag USD' : 'Betrag CHF'}
+                    className="px-3 py-2.5 rounded-xl text-sm outline-none flex-1 min-w-0"
+                    style={inputStyle}
+                  />
+                  <button
+                    onClick={() => setBuchForm(f => ({ ...f, waehrung: f.waehrung === 'chf' ? 'usd' : 'chf' }))}
+                    className="px-2.5 py-2 rounded-xl text-xs font-bold shrink-0 transition-all"
+                    style={{
+                      background: buchForm.waehrung === 'usd' ? 'rgba(234,179,8,0.15)' : 'rgba(255,255,255,0.05)',
+                      border: `1px solid ${buchForm.waehrung === 'usd' ? 'rgba(234,179,8,0.3)' : 'rgba(255,255,255,0.1)'}`,
+                      color: buchForm.waehrung === 'usd' ? '#fbbf24' : '#475569',
+                    }}
+                  >
+                    {buchForm.waehrung === 'usd' ? 'USD' : 'CHF'}
+                  </button>
+                  {buchForm.waehrung === 'usd' && (
+                    <input
+                      type="number"
+                      min="0"
+                      step="0.001"
+                      value={buchForm.kurs}
+                      onChange={e => setBuchForm(f => ({ ...f, kurs: e.target.value }))}
+                      placeholder="Kurs"
+                      title="USD → CHF Kurs"
+                      className="px-2 py-2.5 rounded-xl text-xs outline-none w-16 shrink-0"
+                      style={{ ...inputStyle, color: '#fbbf24' }}
+                    />
+                  )}
+                </div>
+                {buchForm.waehrung === 'usd' && buchForm.betrag && (
+                  <div className="text-xs px-2 py-1 rounded-lg self-center shrink-0" style={{ background: 'rgba(234,179,8,0.08)', color: '#fbbf24', border: '1px solid rgba(234,179,8,0.2)' }}>
+                    = {(parseFloat(buchForm.betrag || '0') * parseFloat(buchForm.kurs || '0.80')).toFixed(2)} CHF
+                  </div>
+                )}
                 <input
                   type="datetime-local"
                   value={buchForm.datum}
@@ -1541,11 +1595,33 @@ export default function AdminPage() {
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="text-xs text-slate-500 block mb-1">Betrag (CHF)</label>
-                  <input type="number" min="0" step="0.05" value={buchEditForm.betrag}
-                    onChange={e => setBuchEditForm(f => ({ ...f, betrag: e.target.value }))}
-                    className="w-full px-3 py-2.5 rounded-xl text-sm outline-none"
-                    style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: 'var(--text-primary)' }} />
+                  <label className="text-xs text-slate-500 block mb-1">Betrag</label>
+                  <div className="flex gap-1">
+                    <input type="number" min="0" step="0.05" value={buchEditForm.betrag}
+                      onChange={e => setBuchEditForm(f => ({ ...f, betrag: e.target.value }))}
+                      placeholder={buchEditForm.waehrung === 'usd' ? 'USD' : 'CHF'}
+                      className="flex-1 min-w-0 px-3 py-2.5 rounded-xl text-sm outline-none"
+                      style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: 'var(--text-primary)' }} />
+                    <button
+                      onClick={() => setBuchEditForm(f => ({ ...f, waehrung: f.waehrung === 'chf' ? 'usd' : 'chf' }))}
+                      className="px-2 py-2 rounded-xl text-xs font-bold shrink-0 transition-all"
+                      style={{
+                        background: buchEditForm.waehrung === 'usd' ? 'rgba(234,179,8,0.15)' : 'rgba(255,255,255,0.05)',
+                        border: `1px solid ${buchEditForm.waehrung === 'usd' ? 'rgba(234,179,8,0.3)' : 'rgba(255,255,255,0.1)'}`,
+                        color: buchEditForm.waehrung === 'usd' ? '#fbbf24' : '#475569',
+                      }}
+                    >{buchEditForm.waehrung === 'usd' ? 'USD' : 'CHF'}</button>
+                  </div>
+                  {buchEditForm.waehrung === 'usd' && (
+                    <div className="flex items-center gap-1 mt-1">
+                      <input type="number" min="0" step="0.001" value={buchEditForm.kurs}
+                        onChange={e => setBuchEditForm(f => ({ ...f, kurs: e.target.value }))}
+                        placeholder="Kurs"
+                        className="w-20 px-2 py-1.5 rounded-lg text-xs outline-none"
+                        style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: '#fbbf24' }} />
+                      <span className="text-xs text-yellow-400">= {(parseFloat(buchEditForm.betrag || '0') * parseFloat(buchEditForm.kurs || '0.80')).toFixed(2)} CHF</span>
+                    </div>
+                  )}
                 </div>
                 <div>
                   <label className="text-xs text-slate-500 block mb-1">Kategorie <span className="text-slate-600">(optional)</span></label>
