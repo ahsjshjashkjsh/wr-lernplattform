@@ -1,6 +1,6 @@
 'use client'
 import { useEffect, useState, useCallback } from 'react'
-import { Shield, Trash2, Crown, Users, BarChart2, Ban, UserPlus, Pencil, X, Check, Eye, EyeOff, RefreshCw, MessageSquare, CheckCircle2, XCircle, Clock, Bug, Lightbulb, FileText, HelpCircle, Wifi, WifiOff, Globe, Activity, Send, Bell, UserCheck, UserX, Tag, Plus, Copy } from 'lucide-react'
+import { Shield, Trash2, Crown, Users, BarChart2, Ban, UserPlus, Pencil, X, Check, Eye, EyeOff, RefreshCw, MessageSquare, CheckCircle2, XCircle, Clock, Bug, Lightbulb, FileText, HelpCircle, Wifi, WifiOff, Globe, Activity, Send, Bell, UserCheck, UserX, Tag, Plus, Copy, Lock } from 'lucide-react'
 
 interface AdminUser {
   id: string
