@@ -10,8 +10,8 @@ export default function DatenschutzPage() {
         <section className="space-y-2">
           <h2 className="text-base font-semibold text-slate-200">1. Verantwortliche Stelle</h2>
           <p>
-            Verantwortlich für den Betrieb dieser Plattform ist ein Schüler der HMS Handelsmittelschule Zürich,
-            Klasse H3b. Die Plattform dient ausschliesslich der Prüfungsvorbereitung und wird nicht kommerziell betrieben.
+            Verantwortlich für den Betrieb dieser Plattform ist eine Privatperson (HMS Handelsmittelschule Zürich).
+            Kontakt über das Feedback-Formular auf der Plattform.
           </p>
         </section>
 
@@ -48,9 +48,10 @@ export default function DatenschutzPage() {
         <section className="space-y-2">
           <h2 className="text-base font-semibold text-slate-200">5. KI-Assistent</h2>
           <p>
-            Der KI-Assistent verwendet die OpenAI API. Nachrichten, die du an den Assistenten sendest,
-            werden an OpenAI übermittelt. Es werden keine Nachrichten dauerhaft gespeichert.
-            Weitere Informationen: <span className="text-blue-400">openai.com/privacy</span>
+            Der KI-Assistent verwendet die Anthropic Claude API. Nachrichten, die du an den Assistenten
+            sendest, werden zur Verarbeitung an Anthropic übermittelt und danach nicht dauerhaft gespeichert.
+            Weitere Informationen:{' '}
+            <span className="text-blue-400">anthropic.com/privacy</span>
           </p>
         </section>
 

@@ -42,23 +42,38 @@ export default function ImpressumPage() {
         </section>
 
         <section className="space-y-2">
-          <h2 className="text-base font-semibold text-slate-200">Inhalte & geistiges Eigentum</h2>
+          <h2 className="text-base font-semibold text-slate-200">Inhalte & Quellen</h2>
           <p>
-            Alle auf dieser Plattform veröffentlichten Lerninhalte (Zusammenfassungen,
-            Quizfragen, Lernziele, Begriffsdefinitionen) wurden vom Betreiber eigenständig
-            erarbeitet, formuliert und didaktisch aufbereitet. Sie stellen keine wörtliche
-            Reproduktion fremder Werke dar.
+            Die Lerninhalte dieser Plattform wurden vom Betreiber eigenständig erarbeitet,
+            didaktisch aufbereitet und durch eigene Erklärungen, Beispiele und Quizfragen
+            ergänzt. Als inhaltliche Orientierung dienten dabei:
           </p>
-          <p>
-            Die Inhalte spiegeln das persönliche Verständnis und die Aufbereitung des
-            Betreibers auf Basis von allgemein zugänglichem Lehrplanwissen wider.
-            Etwaige inhaltliche Übereinstimmungen mit bestehenden Lehrwerken sind dem
-            gemeinsamen Lehrplanstoff geschuldet, nicht einer Übernahme geschützter Formulierungen.
-          </p>
-          <p>
-            Die auf dieser Plattform veröffentlichten Inhalte (Texte, Quizfragen, Strukturen)
-            sind urheberrechtlich geschützt. Eine Vervielfältigung, Weitergabe oder kommerzielle
-            Nutzung ohne ausdrückliche Genehmigung ist untersagt.
+          <ul className="space-y-2 mt-3">
+            <li className="flex gap-2">
+              <span className="text-blue-400 font-semibold shrink-0">WR</span>
+              <span>
+                Wirtschaft &amp; Recht — orientiert an Unterrichtsinhalten und allgemeinem
+                Lehrplanstoff der HMS Zürich. Die Texte wurden eigenständig formuliert
+                und sind keine wörtliche Reproduktion.
+              </span>
+            </li>
+            <li className="flex gap-2">
+              <span className="text-blue-400 font-semibold shrink-0">FRW</span>
+              <span>
+                Finanz- und Rechnungswesen — inhaltlich orientiert am Lehrplanstoff,
+                u.a. auf Basis des Lehrmittels{' '}
+                <strong className="text-slate-300">«Finanz- und Rechnungswesen»</strong>{' '}
+                des <strong className="text-slate-300">HEP Verlags</strong>.
+                Die Inhalte wurden vollständig eigenständig überarbeitet, vereinfacht
+                und neu formuliert. Es handelt sich um keine wörtliche Übernahme
+                urheberrechtlich geschützter Formulierungen.
+              </span>
+            </li>
+          </ul>
+          <p className="mt-3">
+            Die auf dieser Plattform publizierten Texte, Quizfragen und Strukturen
+            sind das geistige Eigentum des Betreibers und dürfen ohne Genehmigung
+            nicht vervielfältigt oder weitergegeben werden.
           </p>
         </section>
 
@@ -90,14 +105,9 @@ export default function ImpressumPage() {
         <section className="space-y-2">
           <h2 className="text-base font-semibold text-slate-200">Datenschutz</h2>
           <p>
-            Zur Nutzung der Plattform werden Name und E-Mail-Adresse gespeichert.
-            Diese Daten werden ausschliesslich für den Betrieb der Plattform verwendet
-            und nicht an Dritte weitergegeben. Die Daten werden auf Servern in der EU
-            (Supabase, Vercel) gespeichert.
-          </p>
-          <p>
-            Auf Anfrage (über das Feedback-Formular) können gespeicherte Daten eingesehen
-            oder gelöscht werden.
+            Die vollständige Datenschutzerklärung ist unter{' '}
+            <a href="/datenschutz" className="text-blue-400 hover:underline">/datenschutz</a>{' '}
+            abrufbar.
           </p>
         </section>
 
