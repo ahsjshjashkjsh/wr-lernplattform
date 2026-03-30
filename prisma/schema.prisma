@@ -266,3 +266,13 @@ model PromoCode {
   usedAt    DateTime?
   createdAt DateTime  @default(now())
 }
+
+model AccountingEntry {
+  id           String   @id @default(cuid())
+  typ          String   // "aufwand" | "ertrag"
+  beschreibung String
+  betrag       Float
+  datum        DateTime @default(now())
+  kategorie    String?
+  createdAt    DateTime @default(now())
+}

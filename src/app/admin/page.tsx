@@ -1,6 +1,6 @@
 'use client'
 import { useEffect, useState, useCallback } from 'react'
-import { Shield, Trash2, Crown, Users, BarChart2, Ban, UserPlus, Pencil, X, Check, Eye, EyeOff, RefreshCw, MessageSquare, CheckCircle2, XCircle, Clock, Bug, Lightbulb, FileText, HelpCircle, Wifi, WifiOff, Globe, Activity, Send, Bell, UserCheck, UserX, Tag, Plus, Copy, Lock } from 'lucide-react'
+import { Shield, Trash2, Crown, Users, BarChart2, Ban, UserPlus, Pencil, X, Check, Eye, EyeOff, RefreshCw, MessageSquare, CheckCircle2, XCircle, Clock, Bug, Lightbulb, FileText, HelpCircle, Wifi, WifiOff, Globe, Activity, Send, Bell, UserCheck, UserX, Tag, Plus, Copy, Lock, TrendingUp, TrendingDown, Calculator } from 'lucide-react'
 
 interface AdminUser {
   id: string
@@ -52,7 +52,17 @@ interface PremiumRequestItem {
   user: { id: string; name: string; email: string; isPremium: boolean; premiumUntil: string | null }
 }
 
-type Tab = 'pending' | 'users' | 'create' | 'feedback' | 'messages' | 'log' | 'premium' | 'codes'
+type Tab = 'pending' | 'users' | 'create' | 'feedback' | 'messages' | 'log' | 'premium' | 'codes' | 'buchhaltung'
+
+interface AccountingEntry {
+  id: string
+  typ: string
+  beschreibung: string
+  betrag: number
+  datum: string
+  kategorie: string | null
+  createdAt: string
+}
 
 // Online = lastOnline within last 3 minutes
 function isOnline(lastOnline: string | null) {
@@ -106,6 +116,11 @@ export default function AdminPage() {
   const [promoGenerating, setPromoGenerating] = useState(false)
   const [promoCopied, setPromoCopied] = useState<string | null>(null)
 
+  const [accountingEntries, setAccountingEntries] = useState<AccountingEntry[]>([])
+  const [buchForm, setBuchForm] = useState({ typ: 'ertrag', beschreibung: '', betrag: '', datum: new Date().toISOString().slice(0, 10), kategorie: '' })
+  const [buchSaving, setBuchSaving] = useState(false)
+  const [buchDeleting, setBuchDeleting] = useState<string | null>(null)
+
   const loadUsers = useCallback(async (silent = false) => {
     if (!silent) setLoading(true)
     const res = await fetch('/api/admin/users')
@@ -143,6 +158,35 @@ export default function AdminPage() {
     await fetch('/api/admin/promo-codes', { method: 'POST' })
     await loadPromoCodes()
     setPromoGenerating(false)
+  }
+
+  async function loadBuchhaltung() {
+    const res = await fetch('/api/admin/buchhaltung')
+    if (res.ok) { const data = await res.json(); setAccountingEntries(data.entries) }
+  }
+
+  async function addBuchEntry() {
+    if (!buchForm.beschreibung || !buchForm.betrag) return
+    setBuchSaving(true)
+    await fetch('/api/admin/buchhaltung', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(buchForm),
+    })
+    await loadBuchhaltung()
+    setBuchForm({ typ: 'ertrag', beschreibung: '', betrag: '', datum: new Date().toISOString().slice(0, 10), kategorie: '' })
+    setBuchSaving(false)
+  }
+
+  async function deleteBuchEntry(id: string) {
+    setBuchDeleting(id)
+    await fetch('/api/admin/buchhaltung', {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id }),
+    })
+    await loadBuchhaltung()
+    setBuchDeleting(null)
   }
 
   function copyPromoCode(code: string) {
@@ -534,6 +578,18 @@ export default function AdminPage() {
         >
           <Tag size={13} />
           Rabattcodes
+        </button>
+        <button
+          onClick={() => { setTab('buchhaltung'); loadBuchhaltung() }}
+          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all border ${
+            tab === 'buchhaltung'
+              ? 'border-violet-500/20 bg-violet-500/10 text-violet-400'
+              : 'border-transparent hover:bg-violet-500/10 hover:text-violet-400'
+          }`}
+          style={tab === 'buchhaltung' ? {} : { color: 'var(--text-muted)' }}
+        >
+          <Calculator size={13} />
+          Buchhaltung
         </button>
       </div>
 
@@ -1242,6 +1298,186 @@ export default function AdminPage() {
           </div>
         </div>
       )}
+
+      {/* === TAB: BUCHHALTUNG === */}
+      {tab === 'buchhaltung' && (() => {
+        const ertraege = accountingEntries.filter(e => e.typ === 'ertrag').reduce((s, e) => s + e.betrag, 0)
+        const aufwaende = accountingEntries.filter(e => e.typ === 'aufwand').reduce((s, e) => s + e.betrag, 0)
+        const ergebnis = ertraege - aufwaende
+        const fmt = (n: number) => n.toFixed(2).replace('.', '.').replace(/\B(?=(\d{3})+(?!\d))/g, "'") + ' CHF'
+        return (
+          <div className="space-y-5">
+            {/* Bilanz-Übersicht */}
+            <div className="grid grid-cols-3 gap-3">
+              <div className="rounded-2xl p-4" style={{ background: 'rgba(52,211,153,0.06)', border: '1px solid rgba(52,211,153,0.18)' }}>
+                <div className="flex items-center gap-2 mb-1">
+                  <TrendingUp size={13} className="text-emerald-400" />
+                  <span className="text-xs text-emerald-400 font-semibold">Erträge</span>
+                </div>
+                <p className="text-lg font-bold text-emerald-400">{fmt(ertraege)}</p>
+              </div>
+              <div className="rounded-2xl p-4" style={{ background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.18)' }}>
+                <div className="flex items-center gap-2 mb-1">
+                  <TrendingDown size={13} className="text-red-400" />
+                  <span className="text-xs text-red-400 font-semibold">Aufwände</span>
+                </div>
+                <p className="text-lg font-bold text-red-400">{fmt(aufwaende)}</p>
+              </div>
+              <div className="rounded-2xl p-4" style={{
+                background: ergebnis >= 0 ? 'rgba(59,130,246,0.06)' : 'rgba(239,68,68,0.06)',
+                border: `1px solid ${ergebnis >= 0 ? 'rgba(59,130,246,0.18)' : 'rgba(239,68,68,0.18)'}`,
+              }}>
+                <div className="flex items-center gap-2 mb-1">
+                  <Calculator size={13} style={{ color: ergebnis >= 0 ? '#60a5fa' : '#f87171' }} />
+                  <span className="text-xs font-semibold" style={{ color: ergebnis >= 0 ? '#60a5fa' : '#f87171' }}>
+                    {ergebnis >= 0 ? 'Gewinn' : 'Verlust'}
+                  </span>
+                </div>
+                <p className="text-lg font-bold" style={{ color: ergebnis >= 0 ? '#60a5fa' : '#f87171' }}>{fmt(Math.abs(ergebnis))}</p>
+              </div>
+            </div>
+
+            {/* Neuer Eintrag */}
+            <div className="rounded-2xl p-5 space-y-3" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)' }}>
+              <p className="text-sm font-semibold text-slate-300">Neuer Eintrag</p>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs text-slate-500 block mb-1">Typ</label>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => setBuchForm(f => ({ ...f, typ: 'ertrag' }))}
+                      className="flex-1 py-2 rounded-xl text-xs font-semibold transition-all"
+                      style={{
+                        background: buchForm.typ === 'ertrag' ? 'rgba(52,211,153,0.15)' : 'rgba(255,255,255,0.04)',
+                        border: `1px solid ${buchForm.typ === 'ertrag' ? 'rgba(52,211,153,0.3)' : 'rgba(255,255,255,0.08)'}`,
+                        color: buchForm.typ === 'ertrag' ? '#34d399' : '#64748b',
+                      }}
+                    >
+                      Ertrag
+                    </button>
+                    <button
+                      onClick={() => setBuchForm(f => ({ ...f, typ: 'aufwand' }))}
+                      className="flex-1 py-2 rounded-xl text-xs font-semibold transition-all"
+                      style={{
+                        background: buchForm.typ === 'aufwand' ? 'rgba(239,68,68,0.15)' : 'rgba(255,255,255,0.04)',
+                        border: `1px solid ${buchForm.typ === 'aufwand' ? 'rgba(239,68,68,0.3)' : 'rgba(255,255,255,0.08)'}`,
+                        color: buchForm.typ === 'aufwand' ? '#f87171' : '#64748b',
+                      }}
+                    >
+                      Aufwand
+                    </button>
+                  </div>
+                </div>
+                <div>
+                  <label className="text-xs text-slate-500 block mb-1">Datum</label>
+                  <input
+                    type="date"
+                    value={buchForm.datum}
+                    onChange={e => setBuchForm(f => ({ ...f, datum: e.target.value }))}
+                    className="w-full px-3 py-2 rounded-xl text-xs outline-none"
+                    style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: 'var(--text-primary)' }}
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="text-xs text-slate-500 block mb-1">Beschreibung</label>
+                <input
+                  type="text"
+                  value={buchForm.beschreibung}
+                  onChange={e => setBuchForm(f => ({ ...f, beschreibung: e.target.value }))}
+                  placeholder="z.B. Premium-Abo Einnahmen März"
+                  className="w-full px-3 py-2 rounded-xl text-sm outline-none"
+                  style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: 'var(--text-primary)' }}
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs text-slate-500 block mb-1">Betrag (CHF)</label>
+                  <input
+                    type="number"
+                    min="0"
+                    step="0.05"
+                    value={buchForm.betrag}
+                    onChange={e => setBuchForm(f => ({ ...f, betrag: e.target.value }))}
+                    placeholder="0.00"
+                    className="w-full px-3 py-2 rounded-xl text-sm outline-none"
+                    style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: 'var(--text-primary)' }}
+                  />
+                </div>
+                <div>
+                  <label className="text-xs text-slate-500 block mb-1">Kategorie <span className="text-slate-600">(optional)</span></label>
+                  <input
+                    type="text"
+                    value={buchForm.kategorie}
+                    onChange={e => setBuchForm(f => ({ ...f, kategorie: e.target.value }))}
+                    placeholder="z.B. Premium, Werbung"
+                    className="w-full px-3 py-2 rounded-xl text-sm outline-none"
+                    style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: 'var(--text-primary)' }}
+                  />
+                </div>
+              </div>
+              <button
+                onClick={addBuchEntry}
+                disabled={buchSaving || !buchForm.beschreibung || !buchForm.betrag}
+                className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold transition-all disabled:opacity-50"
+                style={{ background: 'rgba(139,92,246,0.15)', border: '1px solid rgba(139,92,246,0.3)', color: '#a78bfa' }}
+              >
+                <Plus size={14} />
+                {buchSaving ? 'Wird gespeichert...' : 'Eintrag hinzufügen'}
+              </button>
+            </div>
+
+            {/* Einträge-Liste */}
+            {accountingEntries.length === 0 ? (
+              <p className="text-xs py-6 text-center" style={{ color: 'var(--text-muted)' }}>Noch keine Einträge.</p>
+            ) : (
+              <div className="space-y-2">
+                {accountingEntries.map(entry => (
+                  <div
+                    key={entry.id}
+                    className="rounded-xl px-4 py-3 flex items-center gap-3"
+                    style={{
+                      background: entry.typ === 'ertrag' ? 'rgba(52,211,153,0.04)' : 'rgba(239,68,68,0.04)',
+                      border: `1px solid ${entry.typ === 'ertrag' ? 'rgba(52,211,153,0.15)' : 'rgba(239,68,68,0.15)'}`,
+                    }}
+                  >
+                    <div className="shrink-0">
+                      {entry.typ === 'ertrag'
+                        ? <TrendingUp size={14} className="text-emerald-400" />
+                        : <TrendingDown size={14} className="text-red-400" />}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="text-sm font-medium text-slate-200">{entry.beschreibung}</span>
+                        {entry.kategorie && (
+                          <span className="text-[10px] px-1.5 py-0.5 rounded-full" style={{ background: 'rgba(255,255,255,0.07)', color: '#94a3b8' }}>
+                            {entry.kategorie}
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-[11px] text-slate-500 mt-0.5">
+                        {new Date(entry.datum).toLocaleDateString('de-CH')}
+                      </p>
+                    </div>
+                    <div className="shrink-0 text-right">
+                      <p className="text-sm font-bold" style={{ color: entry.typ === 'ertrag' ? '#34d399' : '#f87171' }}>
+                        {entry.typ === 'ertrag' ? '+' : '−'} {entry.betrag.toFixed(2)} CHF
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => deleteBuchEntry(entry.id)}
+                      disabled={buchDeleting === entry.id}
+                      className="shrink-0 p-1.5 rounded-lg transition-all disabled:opacity-40 hover:bg-red-500/10 text-slate-600 hover:text-red-400"
+                    >
+                      <Trash2 size={13} />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )
+      })()}
 
       {/* === BAN MODAL === */}
       {banModal && (
