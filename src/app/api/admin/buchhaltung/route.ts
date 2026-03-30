@@ -37,6 +37,27 @@ export async function POST(req: Request) {
   return Response.json({ entry })
 }
 
+export async function PATCH(req: Request) {
+  const user = await getCurrentUser()
+  if (!user?.isAdmin) return Response.json({ error: 'Kein Zugriff.' }, { status: 403 })
+
+  const { id, typ, beschreibung, betrag, datum, kategorie } = await req.json()
+  if (!id) return Response.json({ error: 'Fehlende ID.' }, { status: 400 })
+
+  const entry = await prisma.accountingEntry.update({
+    where: { id },
+    data: {
+      typ,
+      beschreibung,
+      betrag: parseFloat(betrag),
+      datum: datum ? new Date(datum) : new Date(),
+      kategorie: kategorie || null,
+    },
+  })
+
+  return Response.json({ entry })
+}
+
 export async function DELETE(req: Request) {
   const user = await getCurrentUser()
   if (!user?.isAdmin) return Response.json({ error: 'Kein Zugriff.' }, { status: 403 })

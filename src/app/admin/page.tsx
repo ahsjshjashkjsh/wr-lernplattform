@@ -120,6 +120,9 @@ export default function AdminPage() {
   const [buchForm, setBuchForm] = useState({ typ: 'ertrag', beschreibung: '', betrag: '', datum: new Date().toISOString().slice(0, 16), kategorie: '' })
   const [buchSaving, setBuchSaving] = useState(false)
   const [buchDeleting, setBuchDeleting] = useState<string | null>(null)
+  const [buchEditEntry, setBuchEditEntry] = useState<AccountingEntry | null>(null)
+  const [buchEditForm, setBuchEditForm] = useState({ typ: 'ertrag', beschreibung: '', betrag: '', datum: '', kategorie: '' })
+  const [buchEditSaving, setBuchEditSaving] = useState(false)
 
   const loadUsers = useCallback(async (silent = false) => {
     if (!silent) setLoading(true)
@@ -174,7 +177,7 @@ export default function AdminPage() {
       body: JSON.stringify(buchForm),
     })
     await loadBuchhaltung()
-    setBuchForm({ typ: 'ertrag', beschreibung: '', betrag: '', datum: new Date().toISOString().slice(0, 16), kategorie: '' })
+    setBuchForm(f => ({ typ: f.typ, beschreibung: '', betrag: '', datum: new Date().toISOString().slice(0, 16), kategorie: '' }))
     setBuchSaving(false)
   }
 
@@ -187,6 +190,30 @@ export default function AdminPage() {
     })
     await loadBuchhaltung()
     setBuchDeleting(null)
+  }
+
+  function openBuchEdit(entry: AccountingEntry) {
+    setBuchEditEntry(entry)
+    setBuchEditForm({
+      typ: entry.typ,
+      beschreibung: entry.beschreibung,
+      betrag: entry.betrag.toString(),
+      datum: new Date(entry.datum).toISOString().slice(0, 16),
+      kategorie: entry.kategorie ?? '',
+    })
+  }
+
+  async function saveBuchEdit() {
+    if (!buchEditEntry) return
+    setBuchEditSaving(true)
+    await fetch('/api/admin/buchhaltung', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: buchEditEntry.id, ...buchEditForm }),
+    })
+    await loadBuchhaltung()
+    setBuchEditEntry(null)
+    setBuchEditSaving(false)
   }
 
   function copyPromoCode(code: string) {
@@ -1395,7 +1422,7 @@ export default function AdminPage() {
                   value={buchForm.datum}
                   onChange={e => setBuchForm(f => ({ ...f, datum: e.target.value }))}
                   className={inputCls + ' flex-[2] min-w-[170px]'}
-                  style={inputStyle}
+                  style={{ ...inputStyle, colorScheme: 'dark' }}
                 />
                 <input
                   type="text"
@@ -1451,6 +1478,12 @@ export default function AdminPage() {
                       {entry.typ === 'ertrag' ? '+' : '−'} {entry.betrag.toFixed(2)} CHF
                     </p>
                     <button
+                      onClick={() => openBuchEdit(entry)}
+                      className="shrink-0 p-1.5 rounded-lg transition-all text-slate-600 hover:text-violet-400 hover:bg-violet-500/10"
+                    >
+                      <Pencil size={13} />
+                    </button>
+                    <button
                       onClick={() => deleteBuchEntry(entry.id)}
                       disabled={buchDeleting === entry.id}
                       className="shrink-0 p-1.5 rounded-lg transition-all disabled:opacity-40 text-slate-700 hover:text-red-400 hover:bg-red-500/10"
@@ -1464,6 +1497,88 @@ export default function AdminPage() {
           </div>
         )
       })()}
+
+      {/* === BUCHHALTUNG EDIT MODAL === */}
+      {buchEditEntry && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(4px)' }}>
+          <div className="glass rounded-2xl border p-6 w-full max-w-md" style={{ borderColor: 'rgba(139,92,246,0.25)' }}>
+            <div className="flex items-center justify-between mb-5">
+              <h2 className="text-sm font-semibold text-violet-400 flex items-center gap-2"><Pencil size={14} /> Eintrag bearbeiten</h2>
+              <button onClick={() => setBuchEditEntry(null)} className="text-slate-500 hover:text-slate-300"><X size={16} /></button>
+            </div>
+            <div className="space-y-3">
+              {/* Typ-Toggle */}
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setBuchEditForm(f => ({ ...f, typ: 'ertrag' }))}
+                  className="flex-1 py-2 rounded-xl text-sm font-semibold transition-all flex items-center justify-center gap-1.5"
+                  style={{
+                    background: buchEditForm.typ === 'ertrag' ? 'rgba(52,211,153,0.15)' : 'rgba(255,255,255,0.04)',
+                    border: `1px solid ${buchEditForm.typ === 'ertrag' ? 'rgba(52,211,153,0.35)' : 'rgba(255,255,255,0.08)'}`,
+                    color: buchEditForm.typ === 'ertrag' ? '#34d399' : '#475569',
+                  }}
+                >
+                  <TrendingUp size={14} /> Ertrag
+                </button>
+                <button
+                  onClick={() => setBuchEditForm(f => ({ ...f, typ: 'aufwand' }))}
+                  className="flex-1 py-2 rounded-xl text-sm font-semibold transition-all flex items-center justify-center gap-1.5"
+                  style={{
+                    background: buchEditForm.typ === 'aufwand' ? 'rgba(239,68,68,0.15)' : 'rgba(255,255,255,0.04)',
+                    border: `1px solid ${buchEditForm.typ === 'aufwand' ? 'rgba(239,68,68,0.35)' : 'rgba(255,255,255,0.08)'}`,
+                    color: buchEditForm.typ === 'aufwand' ? '#f87171' : '#475569',
+                  }}
+                >
+                  <TrendingDown size={14} /> Aufwand
+                </button>
+              </div>
+              <div>
+                <label className="text-xs text-slate-500 block mb-1">Beschreibung</label>
+                <input type="text" value={buchEditForm.beschreibung}
+                  onChange={e => setBuchEditForm(f => ({ ...f, beschreibung: e.target.value }))}
+                  className="w-full px-3 py-2.5 rounded-xl text-sm outline-none"
+                  style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: 'var(--text-primary)' }} />
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs text-slate-500 block mb-1">Betrag (CHF)</label>
+                  <input type="number" min="0" step="0.05" value={buchEditForm.betrag}
+                    onChange={e => setBuchEditForm(f => ({ ...f, betrag: e.target.value }))}
+                    className="w-full px-3 py-2.5 rounded-xl text-sm outline-none"
+                    style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: 'var(--text-primary)' }} />
+                </div>
+                <div>
+                  <label className="text-xs text-slate-500 block mb-1">Kategorie <span className="text-slate-600">(optional)</span></label>
+                  <input type="text" value={buchEditForm.kategorie}
+                    onChange={e => setBuchEditForm(f => ({ ...f, kategorie: e.target.value }))}
+                    className="w-full px-3 py-2.5 rounded-xl text-sm outline-none"
+                    style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: 'var(--text-primary)' }} />
+                </div>
+              </div>
+              <div>
+                <label className="text-xs text-slate-500 block mb-1">Datum & Uhrzeit</label>
+                <input type="datetime-local" value={buchEditForm.datum}
+                  onChange={e => setBuchEditForm(f => ({ ...f, datum: e.target.value }))}
+                  className="w-full px-3 py-2.5 rounded-xl text-sm outline-none"
+                  style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: 'var(--text-primary)', colorScheme: 'dark' }} />
+              </div>
+              <div className="flex gap-2 pt-1">
+                <button onClick={saveBuchEdit} disabled={buchEditSaving || !buchEditForm.beschreibung || !buchEditForm.betrag}
+                  className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold disabled:opacity-50"
+                  style={{ background: 'rgba(139,92,246,0.18)', border: '1px solid rgba(139,92,246,0.35)', color: '#a78bfa' }}>
+                  <Check size={14} />
+                  {buchEditSaving ? 'Speichern...' : 'Speichern'}
+                </button>
+                <button onClick={() => setBuchEditEntry(null)}
+                  className="px-4 py-2.5 rounded-xl text-sm font-medium"
+                  style={{ background: 'rgba(255,255,255,0.05)', color: '#64748b' }}>
+                  Abbrechen
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* === BAN MODAL === */}
       {banModal && (
