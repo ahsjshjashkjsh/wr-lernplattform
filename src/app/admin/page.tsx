@@ -1353,6 +1353,7 @@ export default function AdminPage() {
       {tab === 'buchhaltung' && (() => {
         const ertraege = accountingEntries.filter(e => e.typ === 'ertrag').reduce((s, e) => s + e.betrag, 0)
         const aufwaende = accountingEntries.filter(e => e.typ === 'aufwand').reduce((s, e) => s + e.betrag, 0)
+        const einlagen = accountingEntries.filter(e => e.typ === 'einlage').reduce((s, e) => s + e.betrag, 0)
         const ergebnis = ertraege - aufwaende
         const fmt = (n: number) => n.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, "'") + ' CHF'
         const inputCls = "px-3 py-2.5 rounded-xl text-sm outline-none w-full"
@@ -1360,13 +1361,14 @@ export default function AdminPage() {
         return (
           <div className="space-y-4">
             {/* Bilanz-Karten */}
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-2 gap-3">
               <div className="rounded-2xl p-4" style={{ background: 'rgba(52,211,153,0.06)', border: '1px solid rgba(52,211,153,0.18)' }}>
                 <div className="flex items-center gap-1.5 mb-1.5">
                   <TrendingUp size={12} className="text-emerald-400" />
-                  <span className="text-[11px] text-emerald-400 font-semibold uppercase tracking-wide">Erträge</span>
+                  <span className="text-[11px] text-emerald-400 font-semibold uppercase tracking-wide">Erlöse</span>
                 </div>
                 <p className="text-xl font-bold text-emerald-400">{fmt(ertraege)}</p>
+                <p className="text-[10px] mt-1 text-emerald-700">Einnahmen aus Verkauf/Service</p>
               </div>
               <div className="rounded-2xl p-4" style={{ background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.18)' }}>
                 <div className="flex items-center gap-1.5 mb-1.5">
@@ -1374,6 +1376,15 @@ export default function AdminPage() {
                   <span className="text-[11px] text-red-400 font-semibold uppercase tracking-wide">Aufwände</span>
                 </div>
                 <p className="text-xl font-bold text-red-400">{fmt(aufwaende)}</p>
+                <p className="text-[10px] mt-1 text-red-800">Kosten (Claude API etc.)</p>
+              </div>
+              <div className="rounded-2xl p-4" style={{ background: 'rgba(139,92,246,0.06)', border: '1px solid rgba(139,92,246,0.18)' }}>
+                <div className="flex items-center gap-1.5 mb-1.5">
+                  <BarChart2 size={12} className="text-violet-400" />
+                  <span className="text-[11px] text-violet-400 font-semibold uppercase tracking-wide">Kapitaleinlagen</span>
+                </div>
+                <p className="text-xl font-bold text-violet-400">{fmt(einlagen)}</p>
+                <p className="text-[10px] mt-1 text-violet-800">Investiertes Eigenkapital</p>
               </div>
               <div className="rounded-2xl p-4" style={{
                 background: ergebnis >= 0 ? 'rgba(59,130,246,0.06)' : 'rgba(239,68,68,0.06)',
@@ -1386,6 +1397,7 @@ export default function AdminPage() {
                   </span>
                 </div>
                 <p className="text-xl font-bold" style={{ color: ergebnis >= 0 ? '#60a5fa' : '#f87171' }}>{fmt(Math.abs(ergebnis))}</p>
+                <p className="text-[10px] mt-1" style={{ color: ergebnis >= 0 ? 'rgba(96,165,250,0.5)' : 'rgba(248,113,113,0.5)' }}>Erlöse − Aufwände</p>
               </div>
             </div>
 
@@ -1393,30 +1405,24 @@ export default function AdminPage() {
             <div className="rounded-2xl p-4" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)' }}>
               {/* Typ-Toggle */}
               <div className="flex gap-2 mb-3">
-                <button
-                  onClick={() => setBuchForm(f => ({ ...f, typ: 'ertrag' }))}
-                  className="flex-1 py-2 rounded-xl text-sm font-semibold transition-all flex items-center justify-center gap-1.5"
-                  style={{
-                    background: buchForm.typ === 'ertrag' ? 'rgba(52,211,153,0.15)' : 'rgba(255,255,255,0.04)',
-                    border: `1px solid ${buchForm.typ === 'ertrag' ? 'rgba(52,211,153,0.35)' : 'rgba(255,255,255,0.08)'}`,
-                    color: buchForm.typ === 'ertrag' ? '#34d399' : '#475569',
-                  }}
-                >
-                  <TrendingUp size={14} />
-                  Ertrag
-                </button>
-                <button
-                  onClick={() => setBuchForm(f => ({ ...f, typ: 'aufwand' }))}
-                  className="flex-1 py-2 rounded-xl text-sm font-semibold transition-all flex items-center justify-center gap-1.5"
-                  style={{
-                    background: buchForm.typ === 'aufwand' ? 'rgba(239,68,68,0.15)' : 'rgba(255,255,255,0.04)',
-                    border: `1px solid ${buchForm.typ === 'aufwand' ? 'rgba(239,68,68,0.35)' : 'rgba(255,255,255,0.08)'}`,
-                    color: buchForm.typ === 'aufwand' ? '#f87171' : '#475569',
-                  }}
-                >
-                  <TrendingDown size={14} />
-                  Aufwand
-                </button>
+                {([
+                  ['ertrag',  'Erlös',    'rgba(52,211,153,0.15)', 'rgba(52,211,153,0.35)',  '#34d399',  TrendingUp],
+                  ['aufwand', 'Aufwand',  'rgba(239,68,68,0.15)',  'rgba(239,68,68,0.35)',   '#f87171',  TrendingDown],
+                  ['einlage', 'Einlage',  'rgba(139,92,246,0.15)', 'rgba(139,92,246,0.35)',  '#a78bfa',  BarChart2],
+                ] as const).map(([val, label, bg, border, color, Icon]) => (
+                  <button key={val}
+                    onClick={() => setBuchForm(f => ({ ...f, typ: val }))}
+                    className="flex-1 py-2 rounded-xl text-sm font-semibold transition-all flex items-center justify-center gap-1.5"
+                    style={{
+                      background: buchForm.typ === val ? bg : 'rgba(255,255,255,0.04)',
+                      border: `1px solid ${buchForm.typ === val ? border : 'rgba(255,255,255,0.08)'}`,
+                      color: buchForm.typ === val ? color : '#475569',
+                    }}
+                  >
+                    <Icon size={14} />
+                    {label}
+                  </button>
+                ))}
               </div>
               {/* Felder in einer Zeile */}
               <div className="flex gap-2 flex-wrap">
@@ -1509,13 +1515,13 @@ export default function AdminPage() {
                     className="flex items-center gap-3 px-4 py-3"
                     style={{
                       borderTop: i > 0 ? '1px solid rgba(255,255,255,0.05)' : undefined,
-                      background: entry.typ === 'ertrag' ? 'rgba(52,211,153,0.03)' : 'rgba(239,68,68,0.03)',
+                      background: entry.typ === 'ertrag' ? 'rgba(52,211,153,0.03)' : entry.typ === 'einlage' ? 'rgba(139,92,246,0.03)' : 'rgba(239,68,68,0.03)',
                     }}
                   >
                     <div className="shrink-0 w-5 flex justify-center">
-                      {entry.typ === 'ertrag'
-                        ? <TrendingUp size={13} className="text-emerald-500" />
-                        : <TrendingDown size={13} className="text-red-500" />}
+                      {entry.typ === 'ertrag' ? <TrendingUp size={13} className="text-emerald-500" />
+                       : entry.typ === 'einlage' ? <BarChart2 size={13} className="text-violet-500" />
+                       : <TrendingDown size={13} className="text-red-500" />}
                     </div>
                     <div className="flex-1 min-w-0">
                       <span className="text-sm text-slate-200">{entry.beschreibung}</span>
@@ -1528,8 +1534,8 @@ export default function AdminPage() {
                     <p className="text-[11px] shrink-0" style={{ color: 'var(--text-muted)' }}>
                       {new Date(entry.datum).toLocaleString('de-CH', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
                     </p>
-                    <p className="text-sm font-bold shrink-0 w-28 text-right" style={{ color: entry.typ === 'ertrag' ? '#34d399' : '#f87171' }}>
-                      {entry.typ === 'ertrag' ? '+' : '−'} {entry.betrag.toFixed(2)} CHF
+                    <p className="text-sm font-bold shrink-0 w-28 text-right" style={{ color: entry.typ === 'ertrag' ? '#34d399' : entry.typ === 'einlage' ? '#a78bfa' : '#f87171' }}>
+                      {entry.typ === 'aufwand' ? '−' : '+'} {entry.betrag.toFixed(2)} CHF
                     </p>
                     <button
                       onClick={() => openBuchEdit(entry)}
@@ -1563,28 +1569,23 @@ export default function AdminPage() {
             <div className="space-y-3">
               {/* Typ-Toggle */}
               <div className="flex gap-2">
-                <button
-                  onClick={() => setBuchEditForm(f => ({ ...f, typ: 'ertrag' }))}
-                  className="flex-1 py-2 rounded-xl text-sm font-semibold transition-all flex items-center justify-center gap-1.5"
-                  style={{
-                    background: buchEditForm.typ === 'ertrag' ? 'rgba(52,211,153,0.15)' : 'rgba(255,255,255,0.04)',
-                    border: `1px solid ${buchEditForm.typ === 'ertrag' ? 'rgba(52,211,153,0.35)' : 'rgba(255,255,255,0.08)'}`,
-                    color: buchEditForm.typ === 'ertrag' ? '#34d399' : '#475569',
-                  }}
-                >
-                  <TrendingUp size={14} /> Ertrag
-                </button>
-                <button
-                  onClick={() => setBuchEditForm(f => ({ ...f, typ: 'aufwand' }))}
-                  className="flex-1 py-2 rounded-xl text-sm font-semibold transition-all flex items-center justify-center gap-1.5"
-                  style={{
-                    background: buchEditForm.typ === 'aufwand' ? 'rgba(239,68,68,0.15)' : 'rgba(255,255,255,0.04)',
-                    border: `1px solid ${buchEditForm.typ === 'aufwand' ? 'rgba(239,68,68,0.35)' : 'rgba(255,255,255,0.08)'}`,
-                    color: buchEditForm.typ === 'aufwand' ? '#f87171' : '#475569',
-                  }}
-                >
-                  <TrendingDown size={14} /> Aufwand
-                </button>
+                {([
+                  ['ertrag',  'Erlös',   'rgba(52,211,153,0.15)', 'rgba(52,211,153,0.35)',  '#34d399', TrendingUp],
+                  ['aufwand', 'Aufwand', 'rgba(239,68,68,0.15)',  'rgba(239,68,68,0.35)',   '#f87171', TrendingDown],
+                  ['einlage', 'Einlage', 'rgba(139,92,246,0.15)', 'rgba(139,92,246,0.35)',  '#a78bfa', BarChart2],
+                ] as const).map(([val, label, bg, border, color, Icon]) => (
+                  <button key={val}
+                    onClick={() => setBuchEditForm(f => ({ ...f, typ: val }))}
+                    className="flex-1 py-2 rounded-xl text-sm font-semibold transition-all flex items-center justify-center gap-1.5"
+                    style={{
+                      background: buchEditForm.typ === val ? bg : 'rgba(255,255,255,0.04)',
+                      border: `1px solid ${buchEditForm.typ === val ? border : 'rgba(255,255,255,0.08)'}`,
+                      color: buchEditForm.typ === val ? color : '#475569',
+                    }}
+                  >
+                    <Icon size={14} /> {label}
+                  </button>
+                ))}
               </div>
               <div>
                 <label className="text-xs text-slate-500 block mb-1">Beschreibung</label>
