@@ -90,6 +90,133 @@ export function MarketingVisual() {
         </div>
       </div>
 
+      {/* BCG-Matrix */}
+      <div>
+        <h3 className="text-xs font-semibold uppercase tracking-wider mb-3" style={{ color: 'var(--text-muted)' }}>
+          BCG-Portfolio-Analyse
+        </h3>
+
+        {/* Matrix grid */}
+        <div className="rounded-xl overflow-hidden mb-3" style={{ border: '1px solid var(--border-color)' }}>
+          {/* Y-axis label + grid */}
+          <div className="flex">
+            {/* Y-axis */}
+            <div className="flex flex-col items-center justify-center w-6 shrink-0 py-2" style={{ background: 'rgba(255,255,255,0.01)' }}>
+              <span className="text-[9px] font-medium tracking-widest" style={{ color: 'var(--text-muted)', writingMode: 'vertical-rl', transform: 'rotate(180deg)' }}>
+                Marktwachstum ↑
+              </span>
+            </div>
+
+            {/* 2×2 grid */}
+            <div className="flex-1">
+              {/* Top row */}
+              <div className="grid grid-cols-2" style={{ borderBottom: '1px solid var(--border-color)' }}>
+                {/* Stars — hoch/hoch */}
+                <div className="p-4 relative" style={{ background: 'rgba(52,211,153,0.07)', borderRight: '1px solid var(--border-color)' }}>
+                  <div className="flex items-start justify-between mb-2">
+                    <div>
+                      <div className="text-base mb-0.5">⭐</div>
+                      <div className="text-xs font-bold" style={{ color: '#34d399' }}>Stars</div>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-[10px]" style={{ color: 'var(--text-muted)' }}>Marktanteil</div>
+                      <div className="text-[10px] font-semibold" style={{ color: '#34d399' }}>HOCH</div>
+                    </div>
+                  </div>
+                  <p className="text-[10px] leading-relaxed" style={{ color: 'var(--text-muted)' }}>
+                    Hoher Anteil, hohes Wachstum. Brauchen Investitionen, aber erzeugen Gewinne.
+                  </p>
+                  <div className="mt-2 flex gap-1 flex-wrap">
+                    {['Marktführer', 'Investieren'].map(t => (
+                      <span key={t} className="text-[9px] px-1.5 py-0.5 rounded-full" style={{ background: 'rgba(52,211,153,0.15)', color: '#34d399' }}>{t}</span>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Question Marks — tief/hoch */}
+                <div className="p-4 relative" style={{ background: 'rgba(251,191,36,0.07)' }}>
+                  <div className="flex items-start justify-between mb-2">
+                    <div>
+                      <div className="text-base mb-0.5">❓</div>
+                      <div className="text-xs font-bold" style={{ color: '#fbbf24' }}>Question Marks</div>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-[10px]" style={{ color: 'var(--text-muted)' }}>Marktanteil</div>
+                      <div className="text-[10px] font-semibold" style={{ color: '#fbbf24' }}>TIEF</div>
+                    </div>
+                  </div>
+                  <p className="text-[10px] leading-relaxed" style={{ color: 'var(--text-muted)' }}>
+                    Niedriger Anteil, hohes Wachstum. Ungewiss — entweder fördern oder abstoßen.
+                  </p>
+                  <div className="mt-2 flex gap-1 flex-wrap">
+                    {['Risiko', 'Entscheiden'].map(t => (
+                      <span key={t} className="text-[9px] px-1.5 py-0.5 rounded-full" style={{ background: 'rgba(251,191,36,0.15)', color: '#fbbf24' }}>{t}</span>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* Bottom row */}
+              <div className="grid grid-cols-2">
+                {/* Cash Cows — hoch/tief */}
+                <div className="p-4 relative" style={{ background: 'rgba(96,165,250,0.07)', borderRight: '1px solid var(--border-color)' }}>
+                  <div className="flex items-start justify-between mb-2">
+                    <div>
+                      <div className="text-base mb-0.5">🐄</div>
+                      <div className="text-xs font-bold" style={{ color: '#60a5fa' }}>Cash Cows</div>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-[10px]" style={{ color: 'var(--text-muted)' }}>Marktanteil</div>
+                      <div className="text-[10px] font-semibold" style={{ color: '#60a5fa' }}>HOCH</div>
+                    </div>
+                  </div>
+                  <p className="text-[10px] leading-relaxed" style={{ color: 'var(--text-muted)' }}>
+                    Hoher Anteil, geringes Wachstum. Stabile Geldquelle — finanziert andere Produkte.
+                  </p>
+                  <div className="mt-2 flex gap-1 flex-wrap">
+                    {['Gewinne', 'Melken'].map(t => (
+                      <span key={t} className="text-[9px] px-1.5 py-0.5 rounded-full" style={{ background: 'rgba(96,165,250,0.15)', color: '#60a5fa' }}>{t}</span>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Dogs — tief/tief */}
+                <div className="p-4 relative" style={{ background: 'rgba(248,113,113,0.07)' }}>
+                  <div className="flex items-start justify-between mb-2">
+                    <div>
+                      <div className="text-base mb-0.5">🐕</div>
+                      <div className="text-xs font-bold" style={{ color: '#f87171' }}>Dogs</div>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-[10px]" style={{ color: 'var(--text-muted)' }}>Marktanteil</div>
+                      <div className="text-[10px] font-semibold" style={{ color: '#f87171' }}>TIEF</div>
+                    </div>
+                  </div>
+                  <p className="text-[10px] leading-relaxed" style={{ color: 'var(--text-muted)' }}>
+                    Niedriger Anteil, geringes Wachstum. Wenig Zukunft — meist abstoßen.
+                  </p>
+                  <div className="mt-2 flex gap-1 flex-wrap">
+                    {['Verlustbringer', 'Desinvestieren'].map(t => (
+                      <span key={t} className="text-[9px] px-1.5 py-0.5 rounded-full" style={{ background: 'rgba(248,113,113,0.15)', color: '#f87171' }}>{t}</span>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* X-axis label */}
+          <div className="flex items-center justify-center py-2 text-[9px] font-medium tracking-widest" style={{ background: 'rgba(255,255,255,0.01)', color: 'var(--text-muted)', borderTop: '1px solid var(--border-color)' }}>
+            ← Relativer Marktanteil (hoch links, tief rechts)
+          </div>
+        </div>
+
+        {/* Strategie-Hinweis */}
+        <div className="p-3 rounded-xl text-xs" style={{ background: 'rgba(99,102,241,0.06)', border: '1px solid rgba(99,102,241,0.15)', color: 'var(--text-muted)' }}>
+          <span className="font-semibold text-indigo-300">Ziel der BCG-Analyse:</span> Das Portfolio ausgewogen halten — Cash Cows finanzieren Stars und vielversprechende Question Marks.
+        </div>
+      </div>
+
       {/* Marktforschung */}
       <div>
         <h3 className="text-xs font-semibold uppercase tracking-wider mb-3" style={{ color: 'var(--text-muted)' }}>
