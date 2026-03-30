@@ -8,19 +8,44 @@ const PUBLIC_PATHS = [
   '/api/auth/verify-email', '/api/auth/forgot-password', '/api/auth/reset-password',
 ]
 
-function decodeJwtPayload(token: string): Record<string, unknown> | null {
+const SECRET = process.env.JWT_SECRET ?? 'wr-lernplattform-secret-2026-hms'
+
+async function verifyToken(token: string): Promise<Record<string, unknown> | null> {
   try {
     const parts = token.split('.')
     if (parts.length !== 3) return null
-    const payload = parts[1].replace(/-/g, '+').replace(/_/g, '/')
-    const padLen = (4 - (payload.length % 4)) % 4
-    return JSON.parse(atob(payload + '='.repeat(padLen)))
+    const [header, body, sig] = parts
+
+    const key = await crypto.subtle.importKey(
+      'raw',
+      new TextEncoder().encode(SECRET),
+      { name: 'HMAC', hash: 'SHA-256' },
+      false,
+      ['verify'],
+    )
+
+    const sigBytes = Uint8Array.from(
+      atob(sig.replace(/-/g, '+').replace(/_/g, '/')),
+      c => c.charCodeAt(0),
+    )
+    const valid = await crypto.subtle.verify(
+      'HMAC',
+      key,
+      sigBytes,
+      new TextEncoder().encode(`${header}.${body}`),
+    )
+
+    if (!valid) return null
+
+    const padded = body.replace(/-/g, '+').replace(/_/g, '/')
+    const padLen = (4 - (padded.length % 4)) % 4
+    return JSON.parse(atob(padded + '='.repeat(padLen)))
   } catch {
     return null
   }
 }
 
-export function middleware(request: NextRequest) {
+export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
 
   // Allow public paths and static files
@@ -40,7 +65,15 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(loginUrl)
   }
 
-  const payload = decodeJwtPayload(session.value)
+  // Verify JWT signature — reject tampered or fake tokens
+  const payload = await verifyToken(session.value)
+  if (!payload) {
+    const loginUrl = new URL('/login', request.url)
+    loginUrl.searchParams.set('next', pathname)
+    const res = NextResponse.redirect(loginUrl)
+    res.cookies.delete('wr-session')
+    return res
+  }
 
   // Gebannte User sofort abmelden und zu /banned schicken
   if (payload?.isBanned && !pathname.startsWith('/banned') && !pathname.startsWith('/login')) {
