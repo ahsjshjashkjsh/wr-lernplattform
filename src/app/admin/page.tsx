@@ -9,6 +9,8 @@ interface AdminUser {
   isAdmin: boolean
   isBanned: boolean
   isApproved: boolean
+  isPremium: boolean
+  premiumUntil: string | null
   createdAt: string
   lastOnline: string | null
   lastIp: string | null
@@ -651,6 +653,11 @@ export default function AdminPage() {
                               <Ban size={9} /> Gesperrt
                             </span>
                           )}
+                          {user.isPremium && (
+                            <span className="flex items-center gap-1 text-xs px-1.5 py-0.5 rounded-md font-medium" style={{ background: 'rgba(16,185,129,0.15)', color: '#34d399' }}>
+                              <Crown size={9} /> Premium
+                            </span>
+                          )}
                           {online && (
                             <span className="flex items-center gap-1 text-xs font-semibold" style={{ color: '#22c55e' }}>
                               <Wifi size={9} /> Online
@@ -741,6 +748,18 @@ export default function AdminPage() {
                         >
                           <Crown size={13} />
                         </button>
+
+                        {user.isPremium && (
+                          <button
+                            onClick={() => patch(user.id, { isPremium: false } as any, user.id + '-premium')}
+                            disabled={actionLoading === user.id + '-premium'}
+                            title="Premium entfernen"
+                            className="w-8 h-8 rounded-lg flex items-center justify-center transition-all disabled:opacity-40"
+                            style={{ background: 'rgba(16,185,129,0.2)', color: '#34d399' }}
+                          >
+                            <Lock size={13} />
+                          </button>
+                        )}
 
                         {user.isBanned ? (
                           <button

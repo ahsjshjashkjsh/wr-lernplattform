@@ -25,6 +25,8 @@ export async function GET() {
         createdAt: true,
         lastOnline: true,
         lastIp: true,
+        isPremium: true,
+        premiumUntil: true,
         _count: { select: { quizAttempts: true, progress: true } },
         quizAttempts: { select: { completedAt: true, scorePercent: true }, orderBy: { completedAt: 'desc' }, take: 1 },
         progress: { select: { bestScore: true, status: true }, where: { status: 'completed' } },
@@ -94,6 +96,7 @@ export async function PATCH(request: Request) {
   const data: Record<string, unknown> = {}
   if (body.isAdmin !== undefined) data.isAdmin = body.isAdmin
   if (body.isBanned !== undefined) data.isBanned = body.isBanned
+  if ((body as any).isPremium === false) { data.isPremium = false; data.premiumUntil = null }
   if ((body as any).isApproved !== undefined) data.isApproved = (body as any).isApproved
   if (body.name?.trim()) data.name = body.name.trim()
   if (body.email?.trim()) data.email = body.email.trim().toLowerCase()
