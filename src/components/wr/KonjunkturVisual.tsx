@@ -87,11 +87,9 @@ function AdAsChart({ shift }: { shift: number }) {
   )
 }
 
-// ─── Main component ───────────────────────────────────────────────────────────
+// ─── Konjunkturzyklus chart with live marker ─────────────────────────────────
 
-export function KonjunkturVisual() {
-  const [adShift, setAdShift] = useState(0)
-
+function KonjunkturChart({ adShift }: { adShift: number }) {
   const startX = 60
   const width = 560
   const steps = 160
@@ -99,11 +97,22 @@ export function KonjunkturVisual() {
   const trendY1 = 115
   const amplitude = 48
 
+  // Map adShift (-100..+100) to position t on the wave
+  // adShift=0 → t=0 (crossing trend = Gleichgewicht/Potenzial)
+  // adShift=+100 → t=0.25 (peak = Hochkonjunktur)
+  // adShift=-100 → t=0.75 (trough = Rezession)
+  const rawT = adShift * 0.0025
+  const markerT = ((rawT % 1) + 1) % 1
+
+  const waveY = (t: number) => {
+    const trend = trendY0 + (trendY1 - trendY0) * t
+    return trend + amplitude * Math.cos(2 * Math.PI * t)
+  }
+
   const wavePath = Array.from({ length: steps + 1 }, (_, i) => {
     const t = i / steps
     const x = startX + t * width
-    const trend = trendY0 + (trendY1 - trendY0) * t
-    const y = trend + amplitude * Math.cos(2 * Math.PI * t)
+    const y = waveY(t)
     return `${i === 0 ? 'M' : 'L'}${x.toFixed(1)},${y.toFixed(1)}`
   }).join(' ')
 
@@ -112,11 +121,86 @@ export function KonjunkturVisual() {
   const cx = (t1: number, t2: number) => ((startX + t1 * width + startX + t2 * width) / 2).toFixed(1)
 
   const phases = [
-    { from: 0, to: 0.25, label: 'Aufschwung', color: '#60a5fa', bg: 'rgba(96,165,250,0.07)', border: 'rgba(96,165,250,0.18)' },
-    { from: 0.25, to: 0.5, label: 'Hoch-konjunktur', color: '#34d399', bg: 'rgba(52,211,153,0.07)', border: 'rgba(52,211,153,0.18)' },
-    { from: 0.5, to: 0.75, label: 'Abschwung', color: '#fbbf24', bg: 'rgba(251,191,36,0.07)', border: 'rgba(251,191,36,0.18)' },
-    { from: 0.75, to: 1.0, label: 'Rezession', color: '#f87171', bg: 'rgba(248,113,113,0.07)', border: 'rgba(248,113,113,0.18)' },
+    { from: 0, to: 0.25, label: 'Aufschwung', color: '#60a5fa', bg: 'rgba(96,165,250,0.07)', activeBg: 'rgba(96,165,250,0.18)', border: 'rgba(96,165,250,0.18)' },
+    { from: 0.25, to: 0.5, label: 'Hoch-konjunktur', color: '#34d399', bg: 'rgba(52,211,153,0.07)', activeBg: 'rgba(52,211,153,0.2)', border: 'rgba(52,211,153,0.18)' },
+    { from: 0.5, to: 0.75, label: 'Abschwung', color: '#fbbf24', bg: 'rgba(251,191,36,0.07)', activeBg: 'rgba(251,191,36,0.2)', border: 'rgba(251,191,36,0.18)' },
+    { from: 0.75, to: 1.0, label: 'Rezession', color: '#f87171', bg: 'rgba(248,113,113,0.07)', activeBg: 'rgba(248,113,113,0.2)', border: 'rgba(248,113,113,0.18)' },
   ]
+
+  const activePhase = phases.find(p => markerT >= p.from && markerT < p.to) ?? phases[0]
+  const markerX = startX + markerT * width
+  const markerY = waveY(markerT)
+
+  return (
+    <svg viewBox="0 0 680 265" className="w-full">
+      {/* Phase backgrounds — active phase is brighter */}
+      {phases.map((p, i) => (
+        <rect key={i} x={px(p.from)} y="22"
+          width={(parseFloat(px(p.to)) - parseFloat(px(p.from))).toFixed(1)}
+          height="200"
+          fill={p === activePhase ? p.activeBg : p.bg}
+          stroke={p === activePhase ? p.color : p.border}
+          strokeWidth={p === activePhase ? 1.5 : 0.5}
+          style={{ transition: 'fill 0.3s, stroke 0.3s' }}
+        />
+      ))}
+
+      {/* Trend line */}
+      <path d={trendPath} stroke="rgba(255,255,255,0.2)" strokeWidth="1.5" strokeDasharray="5,4" fill="none" />
+      <text x="630" y={trendY1 - 6} fontSize="8.5" fill="rgba(255,255,255,0.35)" fontFamily="system-ui">Potential-</text>
+      <text x="630" y={trendY1 + 5} fontSize="8.5" fill="rgba(255,255,255,0.35)" fontFamily="system-ui">wachstum</text>
+
+      {/* Wave */}
+      <path d={wavePath} stroke="#60a5fa" strokeWidth="2.5" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+
+      {/* Vertical marker line */}
+      <line x1={markerX} y1="22" x2={markerX} y2="222"
+        stroke={activePhase.color} strokeWidth="1.5" strokeDasharray="4,3" opacity="0.6" />
+
+      {/* Glowing dot — "Sie sind hier" */}
+      <circle cx={markerX} cy={markerY} r="10" fill={activePhase.color} opacity="0.15" />
+      <circle cx={markerX} cy={markerY} r="6" fill={activePhase.color} opacity="0.3" />
+      <circle cx={markerX} cy={markerY} r="4" fill={activePhase.color} />
+
+      {/* "Hier" label above dot */}
+      <text x={markerX} y={Math.max(markerY - 14, 32)} textAnchor="middle" fontSize="8.5"
+        fill={activePhase.color} fontFamily="system-ui" fontWeight="600">Hier</text>
+
+      {/* Phase labels */}
+      {phases.map((p, i) => {
+        const parts = p.label.split('-')
+        const midX = cx(p.from, p.to)
+        return parts.length === 1 ? (
+          <text key={i} x={midX} y="245" textAnchor="middle" fontSize="10"
+            fill={p === activePhase ? p.color : 'rgba(255,255,255,0.25)'}
+            fontFamily="system-ui" fontWeight={p === activePhase ? '700' : '400'}
+            style={{ transition: 'fill 0.3s' }}>
+            {p.label}
+          </text>
+        ) : (
+          <g key={i}>
+            <text x={midX} y="238" textAnchor="middle" fontSize="10"
+              fill={p === activePhase ? p.color : 'rgba(255,255,255,0.25)'}
+              fontFamily="system-ui" fontWeight={p === activePhase ? '700' : '400'}>{parts[0]}</text>
+            <text x={midX} y="251" textAnchor="middle" fontSize="10"
+              fill={p === activePhase ? p.color : 'rgba(255,255,255,0.25)'}
+              fontFamily="system-ui" fontWeight={p === activePhase ? '700' : '400'}>{parts[1]}</text>
+          </g>
+        )
+      })}
+
+      {/* Axis */}
+      <line x1={startX} y1="222" x2={startX + width} y2="222" stroke="rgba(255,255,255,0.07)" strokeWidth="1" />
+      <text x="16" y="122" textAnchor="middle" fontSize="9" fill="rgba(255,255,255,0.3)" fontFamily="system-ui" transform="rotate(-90, 16, 122)">BIP-Wachstum</text>
+      <text x="350" y="262" textAnchor="middle" fontSize="9" fill="rgba(255,255,255,0.3)" fontFamily="system-ui">Zeit →</text>
+    </svg>
+  )
+}
+
+// ─── Main component ───────────────────────────────────────────────────────────
+
+export function KonjunkturVisual() {
+  const [adShift, setAdShift] = useState(0)
 
   const phase = getPhase(adShift)
 
@@ -128,32 +212,7 @@ export function KonjunkturVisual() {
           Konjunkturzyklus
         </h3>
         <div className="rounded-xl overflow-hidden" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid var(--border-color)' }}>
-          <svg viewBox="0 0 680 265" className="w-full">
-            {phases.map((p, i) => (
-              <rect key={i} x={px(p.from)} y="22"
-                width={(parseFloat(px(p.to)) - parseFloat(px(p.from))).toFixed(1)}
-                height="200" fill={p.bg} stroke={p.border} strokeWidth="0.5" />
-            ))}
-            <path d={trendPath} stroke="rgba(255,255,255,0.2)" strokeWidth="1.5" strokeDasharray="5,4" fill="none" />
-            <text x="630" y={trendY1 - 6} fontSize="8.5" fill="rgba(255,255,255,0.35)" fontFamily="system-ui">Potential-</text>
-            <text x="630" y={trendY1 + 5} fontSize="8.5" fill="rgba(255,255,255,0.35)" fontFamily="system-ui">wachstum</text>
-            <path d={wavePath} stroke="#60a5fa" strokeWidth="2.5" fill="none" strokeLinecap="round" strokeLinejoin="round" />
-            {phases.map((p, i) => {
-              const parts = p.label.split('-')
-              const midX = cx(p.from, p.to)
-              return parts.length === 1 ? (
-                <text key={i} x={midX} y="245" textAnchor="middle" fontSize="10" fill={p.color} fontFamily="system-ui" fontWeight="500">{p.label}</text>
-              ) : (
-                <g key={i}>
-                  <text x={midX} y="238" textAnchor="middle" fontSize="10" fill={p.color} fontFamily="system-ui" fontWeight="500">{parts[0]}</text>
-                  <text x={midX} y="251" textAnchor="middle" fontSize="10" fill={p.color} fontFamily="system-ui" fontWeight="500">{parts[1]}</text>
-                </g>
-              )
-            })}
-            <line x1={startX} y1="222" x2={startX + width} y2="222" stroke="rgba(255,255,255,0.07)" strokeWidth="1" />
-            <text x="16" y="122" textAnchor="middle" fontSize="9" fill="rgba(255,255,255,0.3)" fontFamily="system-ui" transform="rotate(-90, 16, 122)">BIP-Wachstum</text>
-            <text x="350" y="262" textAnchor="middle" fontSize="9" fill="rgba(255,255,255,0.3)" fontFamily="system-ui">Zeit →</text>
-          </svg>
+          <KonjunkturChart adShift={adShift} />
         </div>
       </div>
 
