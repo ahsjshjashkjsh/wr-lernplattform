@@ -78,10 +78,8 @@ export default async function FrwChapterPage({ params, searchParams }: Props) {
   const { topic, allTopics } = await getChapter(slug)
   if (!topic) notFound()
 
-  const QSP_DATE = new Date('2026-04-17T00:00:00')
-  const gatingActive = new Date() >= QSP_DATE
   const user = await getCurrentUser()
-  const hasPremium = !gatingActive || (user ? isPremiumActive(user) : false)
+  const hasPremium = user ? isPremiumActive(user) : false
 
   if (topic.examType === 'abschluss' && !hasPremium) {
     return (

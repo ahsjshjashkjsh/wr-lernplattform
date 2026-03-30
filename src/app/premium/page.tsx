@@ -1,6 +1,6 @@
 'use client'
 import { useEffect, useState } from 'react'
-import { Crown, Smartphone, Copy, Check, Lock, BookOpen, Zap } from 'lucide-react'
+import { Crown, Smartphone, Copy, Check, Lock, BookOpen, Zap, Tag } from 'lucide-react'
 
 const TWINT_NUMBER = process.env.NEXT_PUBLIC_TWINT_NUMBER ?? '079 XXX XX XX'
 const PREMIUM_PRICE = process.env.NEXT_PUBLIC_PREMIUM_PRICE ?? '5'
@@ -18,6 +18,12 @@ export default function PremiumPage() {
   const [requesting, setRequesting] = useState(false)
   const [copied, setCopied] = useState(false)
   const [error, setError] = useState('')
+
+  // Rabattcode
+  const [promoCode, setPromoCode] = useState('')
+  const [promoLoading, setPromoLoading] = useState(false)
+  const [promoError, setPromoError] = useState('')
+  const [promoSuccess, setPromoSuccess] = useState(false)
 
   useEffect(() => {
     fetch('/api/premium/status')
@@ -47,6 +53,25 @@ export default function PremiumPage() {
       setState({ status: 'pending', premiumUntil: null, code: data.code })
     }
     setRequesting(false)
+  }
+
+  async function handlePromoRedeem() {
+    if (!promoCode.trim()) return
+    setPromoLoading(true)
+    setPromoError('')
+    const res = await fetch('/api/premium/redeem', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ code: promoCode.trim() }),
+    })
+    const data = await res.json()
+    if (!res.ok) {
+      setPromoError(data.error ?? 'Ungültiger Code.')
+    } else {
+      setPromoSuccess(true)
+      setState({ status: 'active', premiumUntil: data.premiumUntil, code: null })
+    }
+    setPromoLoading(false)
   }
 
   function copyCode(code: string) {
@@ -87,9 +112,55 @@ export default function PremiumPage() {
         </ul>
         <div className="pt-3 mt-1" style={{ borderTop: '1px solid var(--border-color)' }}>
           <span className="text-2xl font-bold text-amber-400">CHF {PREMIUM_PRICE}</span>
-          <span className="text-xs ml-1.5" style={{ color: 'var(--text-muted)' }}>/ 30 Tage</span>
+          <span className="text-xs ml-1.5" style={{ color: 'var(--text-muted)' }}>/ Monat</span>
         </div>
+        {/* Umtriebskosten-Hinweis */}
+        <p className="text-[11px] pt-1" style={{ color: 'var(--text-muted)' }}>
+          Die CHF {PREMIUM_PRICE} pro Monat dienen als Umtriebskosten und decken den Aufwand sowie die kontinuierliche Weiterentwicklung der Inhalte.
+        </p>
       </div>
+
+      {/* Rabattcode */}
+      {(state.status === 'none' || state.status === 'pending') && !promoSuccess && (
+        <div className="rounded-2xl p-5 space-y-3"
+          style={{ background: 'rgba(52,211,153,0.05)', border: '1px solid rgba(52,211,153,0.2)' }}>
+          <div className="flex items-center gap-2">
+            <Tag size={14} className="text-emerald-400" />
+            <h2 className="text-sm font-semibold text-emerald-400">Rabattcode einlösen</h2>
+          </div>
+          <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
+            Hast du einen Rabattcode? Gib ihn hier ein und erhalte 1 Monat kostenlos.
+          </p>
+          <div className="flex gap-2">
+            <input
+              type="text"
+              value={promoCode}
+              onChange={e => setPromoCode(e.target.value.toUpperCase())}
+              placeholder="z. B. GRATIS-ABC123"
+              className="flex-1 px-3 py-2 rounded-lg text-sm font-mono tracking-wider outline-none"
+              style={{
+                background: 'rgba(255,255,255,0.05)',
+                border: '1px solid rgba(52,211,153,0.3)',
+                color: 'var(--text-primary)',
+              }}
+              onKeyDown={e => e.key === 'Enter' && handlePromoRedeem()}
+            />
+            <button
+              onClick={handlePromoRedeem}
+              disabled={promoLoading || !promoCode.trim()}
+              className="px-4 py-2 rounded-lg text-sm font-semibold transition-all disabled:opacity-50"
+              style={{ background: 'rgba(52,211,153,0.15)', color: '#34d399', border: '1px solid rgba(52,211,153,0.3)' }}
+            >
+              {promoLoading ? '...' : 'Einlösen'}
+            </button>
+          </div>
+          {promoError && (
+            <p className="text-xs text-red-400 px-3 py-2 rounded-lg" style={{ background: 'rgba(239,68,68,0.08)' }}>
+              {promoError}
+            </p>
+          )}
+        </div>
+      )}
 
       {/* State-abhängiger Content */}
       {state.status === 'loading' && (
@@ -115,6 +186,9 @@ export default function PremiumPage() {
           style={{ background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.2)' }}>
           <Crown size={28} className="text-amber-400 mx-auto" />
           <p className="text-sm font-semibold text-amber-400">Premium aktiv</p>
+          {promoSuccess && (
+            <p className="text-xs text-emerald-400 font-medium">Rabattcode erfolgreich eingelöst!</p>
+          )}
           <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
             Gültig bis {new Date(state.premiumUntil).toLocaleDateString('de-CH', { day: '2-digit', month: '2-digit', year: 'numeric' })}
           </p>
@@ -182,7 +256,7 @@ export default function PremiumPage() {
             style={{ background: 'linear-gradient(135deg, #f59e0b, #d97706)' }}
           >
             <Crown size={15} />
-            {requesting ? 'Wird erstellt...' : 'Jetzt anfragen — CHF ' + PREMIUM_PRICE}
+            {requesting ? 'Wird erstellt...' : 'Jetzt anfragen — CHF ' + PREMIUM_PRICE + ' / Monat'}
           </button>
         </div>
       )}

@@ -29,6 +29,7 @@ model User {
   feedback          Feedback[]
   activityLogs      ActivityLog[]
   premiumRequests   PremiumRequest[]
+  promoCodes        PromoCode[]
 }
 
 model ActivityLog {
@@ -255,4 +256,13 @@ model PremiumRequest {
   updatedAt DateTime @updatedAt
 
   @@index([userId, status])
+}
+
+model PromoCode {
+  id        String    @id @default(cuid())
+  code      String    @unique
+  usedById  String?
+  usedBy    User?     @relation(fields: [usedById], references: [id], onDelete: SetNull)
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
 }

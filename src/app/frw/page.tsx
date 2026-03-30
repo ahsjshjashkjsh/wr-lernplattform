@@ -5,7 +5,6 @@ import { ChevronRight, FileText, Hash, Calculator, Dumbbell, Lock } from 'lucide
 
 export const dynamic = 'force-dynamic'
 
-const QSP_DATE = new Date('2026-04-17T00:00:00')
 
 type Props = {
   searchParams: Promise<{ filter?: string }>
@@ -46,8 +45,7 @@ async function getFrwData() {
   ])
 
   const progressMap = new Map(progressList.map(p => [p.chapterId, p.status]))
-  const gatingActive = new Date() >= QSP_DATE
-  const hasPremium = !gatingActive || (user ? isPremiumActive(user) : false)
+  const hasPremium = user ? isPremiumActive(user) : false
   return { topics, progressMap, hasPremium }
 }
 
@@ -203,36 +201,20 @@ export default async function FrwPage({ searchParams }: Props) {
         </Link>
       </div>
 
-      {/* QSP-Banner */}
-      {new Date() < QSP_DATE ? (
-        <div
-          className="flex items-start gap-3 rounded-2xl px-4 py-3.5"
-          style={{ background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.2)' }}
-        >
-          <span className="text-amber-400 text-base shrink-0">🎁</span>
-          <div className="text-xs leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
-            <span className="font-semibold text-amber-400">Testphase bis 17. April 2026 (QSP) — alles kostenlos.</span>
-            {' '}Ab dann sind AP-Inhalte nur mit Premium zugänglich (CHF 5 / 30 Tage).{' '}
-            <a href="/premium" className="text-amber-400 underline underline-offset-2 hover:text-amber-300 transition-colors">
-              Mehr erfahren →
-            </a>
-          </div>
+      {/* Premium-Banner */}
+      <div
+        className="flex items-start gap-3 rounded-2xl px-4 py-3.5"
+        style={{ background: 'rgba(99,102,241,0.08)', border: '1px solid rgba(99,102,241,0.2)' }}
+      >
+        <span className="text-indigo-400 text-base shrink-0">🔒</span>
+        <div className="text-xs leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
+          <span className="font-semibold text-indigo-400">AP-Inhalte sind Premium-pflichtig.</span>
+          {' '}Schalte alle Abschlussprüfungs-Kapitel für CHF 5 / Monat frei.{' '}
+          <a href="/premium" className="text-indigo-400 underline underline-offset-2 hover:text-indigo-300 transition-colors">
+            Premium holen →
+          </a>
         </div>
-      ) : (
-        <div
-          className="flex items-start gap-3 rounded-2xl px-4 py-3.5"
-          style={{ background: 'rgba(99,102,241,0.08)', border: '1px solid rgba(99,102,241,0.2)' }}
-        >
-          <span className="text-indigo-400 text-base shrink-0">🔒</span>
-          <div className="text-xs leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
-            <span className="font-semibold text-indigo-400">AP-Inhalte sind Premium-pflichtig.</span>
-            {' '}Schalte alle Abschlussprüfungs-Kapitel für CHF 5 / 30 Tage frei.{' '}
-            <a href="/premium" className="text-indigo-400 underline underline-offset-2 hover:text-indigo-300 transition-colors">
-              Premium holen →
-            </a>
-          </div>
-        </div>
-      )}
+      </div>
 
       {/* Filter Tabs */}
       <div className="overflow-x-auto scrollbar-hide -mx-4 px-4 sm:mx-0 sm:px-0">

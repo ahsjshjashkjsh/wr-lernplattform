@@ -1,6 +1,6 @@
 'use client'
 import { useEffect, useState, useCallback } from 'react'
-import { Shield, Trash2, Crown, Users, BarChart2, Ban, UserPlus, Pencil, X, Check, Eye, EyeOff, RefreshCw, MessageSquare, CheckCircle2, XCircle, Clock, Bug, Lightbulb, FileText, HelpCircle, Wifi, WifiOff, Globe, Activity, Send, Bell, UserCheck, UserX } from 'lucide-react'
+import { Shield, Trash2, Crown, Users, BarChart2, Ban, UserPlus, Pencil, X, Check, Eye, EyeOff, RefreshCw, MessageSquare, CheckCircle2, XCircle, Clock, Bug, Lightbulb, FileText, HelpCircle, Wifi, WifiOff, Globe, Activity, Send, Bell, UserCheck, UserX, Tag, Plus } from 'lucide-react'
 
 interface AdminUser {
   id: string
@@ -50,7 +50,7 @@ interface PremiumRequestItem {
   user: { id: string; name: string; email: string; isPremium: boolean; premiumUntil: string | null }
 }
 
-type Tab = 'pending' | 'users' | 'create' | 'feedback' | 'messages' | 'log' | 'premium'
+type Tab = 'pending' | 'users' | 'create' | 'feedback' | 'messages' | 'log' | 'premium' | 'codes'
 
 // Online = lastOnline within last 3 minutes
 function isOnline(lastOnline: string | null) {
@@ -100,6 +100,9 @@ export default function AdminPage() {
   const [lastRefresh, setLastRefresh] = useState<Date | null>(null)
   const [activityLogs, setActivityLogs] = useState<ActivityLog[]>([])
   const [premiumRequests, setPremiumRequests] = useState<PremiumRequestItem[]>([])
+  const [promoCodes, setPromoCodes] = useState<{ id: string; code: string; usedAt: string | null; usedBy: { name: string; email: string } | null; createdAt: string }[]>([])
+  const [promoGenerating, setPromoGenerating] = useState(false)
+  const [promoCopied, setPromoCopied] = useState<string | null>(null)
 
   const loadUsers = useCallback(async (silent = false) => {
     if (!silent) setLoading(true)
@@ -126,6 +129,24 @@ export default function AdminPage() {
   async function loadPremiumRequests() {
     const res = await fetch('/api/admin/premium')
     if (res.ok) { const data = await res.json(); setPremiumRequests(data.requests) }
+  }
+
+  async function loadPromoCodes() {
+    const res = await fetch('/api/admin/promo-codes')
+    if (res.ok) { const data = await res.json(); setPromoCodes(data.codes) }
+  }
+
+  async function generatePromoCode() {
+    setPromoGenerating(true)
+    await fetch('/api/admin/promo-codes', { method: 'POST' })
+    await loadPromoCodes()
+    setPromoGenerating(false)
+  }
+
+  function copyPromoCode(code: string) {
+    navigator.clipboard.writeText(code).catch(() => {})
+    setPromoCopied(code)
+    setTimeout(() => setPromoCopied(null), 2000)
   }
 
   async function reviewFeedback(id: string, status: 'accepted' | 'rejected' | 'implemented') {
@@ -161,6 +182,7 @@ export default function AdminPage() {
     loadFeedback()
     loadLogs()
     loadPremiumRequests()
+    loadPromoCodes()
     const interval = setInterval(() => {
       loadUsers(true)
       loadFeedback()
@@ -498,6 +520,18 @@ export default function AdminPage() {
               {premiumRequests.filter(r => r.status === 'pending').length}
             </span>
           )}
+        </button>
+        <button
+          onClick={() => { setTab('codes'); loadPromoCodes() }}
+          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all border ${
+            tab === 'codes'
+              ? 'border-emerald-500/20 bg-emerald-500/10 text-emerald-400'
+              : 'border-transparent hover:bg-emerald-500/10 hover:text-emerald-400'
+          }`}
+          style={tab === 'codes' ? {} : { color: 'var(--text-muted)' }}
+        >
+          <Tag size={13} />
+          Rabattcodes
         </button>
       </div>
 
@@ -1110,6 +1144,83 @@ export default function AdminPage() {
               )}
             </div>
           ))}
+        </div>
+      )}
+
+      {/* === TAB: RABATTCODES === */}
+      {tab === 'codes' && (
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <h2 className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>
+              Rabattcodes — 1 Monat gratis
+            </h2>
+            <button
+              onClick={generatePromoCode}
+              disabled={promoGenerating}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all disabled:opacity-50"
+              style={{ background: 'rgba(52,211,153,0.12)', border: '1px solid rgba(52,211,153,0.25)', color: '#34d399' }}
+            >
+              <Plus size={13} />
+              {promoGenerating ? 'Wird erstellt...' : 'Neuen Code generieren'}
+            </button>
+          </div>
+          <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
+            Jeder Code gewährt 1 Monat kostenlosen Premium-Zugang und ist nur einmal verwendbar.
+          </p>
+          {promoCodes.length === 0 && (
+            <p className="text-xs py-4 text-center" style={{ color: 'var(--text-muted)' }}>
+              Noch keine Codes generiert.
+            </p>
+          )}
+          <div className="space-y-2">
+            {promoCodes.map(promo => (
+              <div
+                key={promo.id}
+                className="rounded-xl px-4 py-3 flex items-center gap-3"
+                style={{
+                  background: promo.usedById ? 'rgba(255,255,255,0.02)' : 'rgba(52,211,153,0.04)',
+                  border: `1px solid ${promo.usedById ? 'var(--border-color)' : 'rgba(52,211,153,0.2)'}`,
+                }}
+              >
+                <div className="flex-1 min-w-0">
+                  <span className={`font-mono text-sm font-bold tracking-widest ${promo.usedById ? 'line-through opacity-40' : 'text-emerald-400'}`}>
+                    {promo.code}
+                  </span>
+                  {promo.usedBy && (
+                    <p className="text-[10px] mt-0.5" style={{ color: 'var(--text-muted)' }}>
+                      Verwendet von {promo.usedBy.name} ({promo.usedBy.email}) · {new Date(promo.usedAt!).toLocaleDateString('de-CH')}
+                    </p>
+                  )}
+                  {!promo.usedBy && (
+                    <p className="text-[10px] mt-0.5" style={{ color: 'var(--text-muted)' }}>
+                      Erstellt am {new Date(promo.createdAt).toLocaleDateString('de-CH')} · noch nicht verwendet
+                    </p>
+                  )}
+                </div>
+                <div className="flex items-center gap-2 shrink-0">
+                  <span className={`text-[10px] px-2 py-0.5 rounded-full font-semibold ${
+                    promo.usedById ? 'bg-slate-500/15 text-slate-400' : 'bg-emerald-500/15 text-emerald-400'
+                  }`}>
+                    {promo.usedById ? 'Verwendet' : 'Verfügbar'}
+                  </span>
+                  {!promo.usedById && (
+                    <button
+                      onClick={() => copyPromoCode(promo.code)}
+                      className="flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-medium transition-all"
+                      style={{
+                        background: promoCopied === promo.code ? 'rgba(34,197,94,0.15)' : 'rgba(255,255,255,0.05)',
+                        color: promoCopied === promo.code ? '#4ade80' : 'var(--text-muted)',
+                        border: '1px solid rgba(255,255,255,0.08)',
+                      }}
+                    >
+                      {promoCopied === promo.code ? <Check size={11} /> : <Copy size={11} />}
+                      {promoCopied === promo.code ? 'Kopiert' : 'Kopieren'}
+                    </button>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       )}
 
