@@ -117,7 +117,7 @@ export default function AdminPage() {
   const [promoCopied, setPromoCopied] = useState<string | null>(null)
 
   const [accountingEntries, setAccountingEntries] = useState<AccountingEntry[]>([])
-  const [buchForm, setBuchForm] = useState({ typ: 'ertrag', beschreibung: '', betrag: '', datum: new Date().toISOString().slice(0, 10), kategorie: '' })
+  const [buchForm, setBuchForm] = useState({ typ: 'ertrag', beschreibung: '', betrag: '', datum: new Date().toISOString().slice(0, 16), kategorie: '' })
   const [buchSaving, setBuchSaving] = useState(false)
   const [buchDeleting, setBuchDeleting] = useState<string | null>(null)
 
@@ -174,7 +174,7 @@ export default function AdminPage() {
       body: JSON.stringify(buchForm),
     })
     await loadBuchhaltung()
-    setBuchForm({ typ: 'ertrag', beschreibung: '', betrag: '', datum: new Date().toISOString().slice(0, 10), kategorie: '' })
+    setBuchForm({ typ: 'ertrag', beschreibung: '', betrag: '', datum: new Date().toISOString().slice(0, 16), kategorie: '' })
     setBuchSaving(false)
   }
 
@@ -1304,170 +1304,156 @@ export default function AdminPage() {
         const ertraege = accountingEntries.filter(e => e.typ === 'ertrag').reduce((s, e) => s + e.betrag, 0)
         const aufwaende = accountingEntries.filter(e => e.typ === 'aufwand').reduce((s, e) => s + e.betrag, 0)
         const ergebnis = ertraege - aufwaende
-        const fmt = (n: number) => n.toFixed(2).replace('.', '.').replace(/\B(?=(\d{3})+(?!\d))/g, "'") + ' CHF'
+        const fmt = (n: number) => n.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, "'") + ' CHF'
+        const inputCls = "px-3 py-2.5 rounded-xl text-sm outline-none w-full"
+        const inputStyle = { background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: 'var(--text-primary)' }
         return (
-          <div className="space-y-5">
-            {/* Bilanz-Übersicht */}
+          <div className="space-y-4">
+            {/* Bilanz-Karten */}
             <div className="grid grid-cols-3 gap-3">
               <div className="rounded-2xl p-4" style={{ background: 'rgba(52,211,153,0.06)', border: '1px solid rgba(52,211,153,0.18)' }}>
-                <div className="flex items-center gap-2 mb-1">
-                  <TrendingUp size={13} className="text-emerald-400" />
-                  <span className="text-xs text-emerald-400 font-semibold">Erträge</span>
+                <div className="flex items-center gap-1.5 mb-1.5">
+                  <TrendingUp size={12} className="text-emerald-400" />
+                  <span className="text-[11px] text-emerald-400 font-semibold uppercase tracking-wide">Erträge</span>
                 </div>
-                <p className="text-lg font-bold text-emerald-400">{fmt(ertraege)}</p>
+                <p className="text-xl font-bold text-emerald-400">{fmt(ertraege)}</p>
               </div>
               <div className="rounded-2xl p-4" style={{ background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.18)' }}>
-                <div className="flex items-center gap-2 mb-1">
-                  <TrendingDown size={13} className="text-red-400" />
-                  <span className="text-xs text-red-400 font-semibold">Aufwände</span>
+                <div className="flex items-center gap-1.5 mb-1.5">
+                  <TrendingDown size={12} className="text-red-400" />
+                  <span className="text-[11px] text-red-400 font-semibold uppercase tracking-wide">Aufwände</span>
                 </div>
-                <p className="text-lg font-bold text-red-400">{fmt(aufwaende)}</p>
+                <p className="text-xl font-bold text-red-400">{fmt(aufwaende)}</p>
               </div>
               <div className="rounded-2xl p-4" style={{
                 background: ergebnis >= 0 ? 'rgba(59,130,246,0.06)' : 'rgba(239,68,68,0.06)',
                 border: `1px solid ${ergebnis >= 0 ? 'rgba(59,130,246,0.18)' : 'rgba(239,68,68,0.18)'}`,
               }}>
-                <div className="flex items-center gap-2 mb-1">
-                  <Calculator size={13} style={{ color: ergebnis >= 0 ? '#60a5fa' : '#f87171' }} />
-                  <span className="text-xs font-semibold" style={{ color: ergebnis >= 0 ? '#60a5fa' : '#f87171' }}>
+                <div className="flex items-center gap-1.5 mb-1.5">
+                  <Calculator size={12} style={{ color: ergebnis >= 0 ? '#60a5fa' : '#f87171' }} />
+                  <span className="text-[11px] font-semibold uppercase tracking-wide" style={{ color: ergebnis >= 0 ? '#60a5fa' : '#f87171' }}>
                     {ergebnis >= 0 ? 'Gewinn' : 'Verlust'}
                   </span>
                 </div>
-                <p className="text-lg font-bold" style={{ color: ergebnis >= 0 ? '#60a5fa' : '#f87171' }}>{fmt(Math.abs(ergebnis))}</p>
+                <p className="text-xl font-bold" style={{ color: ergebnis >= 0 ? '#60a5fa' : '#f87171' }}>{fmt(Math.abs(ergebnis))}</p>
               </div>
             </div>
 
-            {/* Neuer Eintrag */}
-            <div className="rounded-2xl p-5 space-y-3" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)' }}>
-              <p className="text-sm font-semibold text-slate-300">Neuer Eintrag</p>
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="text-xs text-slate-500 block mb-1">Typ</label>
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => setBuchForm(f => ({ ...f, typ: 'ertrag' }))}
-                      className="flex-1 py-2 rounded-xl text-xs font-semibold transition-all"
-                      style={{
-                        background: buchForm.typ === 'ertrag' ? 'rgba(52,211,153,0.15)' : 'rgba(255,255,255,0.04)',
-                        border: `1px solid ${buchForm.typ === 'ertrag' ? 'rgba(52,211,153,0.3)' : 'rgba(255,255,255,0.08)'}`,
-                        color: buchForm.typ === 'ertrag' ? '#34d399' : '#64748b',
-                      }}
-                    >
-                      Ertrag
-                    </button>
-                    <button
-                      onClick={() => setBuchForm(f => ({ ...f, typ: 'aufwand' }))}
-                      className="flex-1 py-2 rounded-xl text-xs font-semibold transition-all"
-                      style={{
-                        background: buchForm.typ === 'aufwand' ? 'rgba(239,68,68,0.15)' : 'rgba(255,255,255,0.04)',
-                        border: `1px solid ${buchForm.typ === 'aufwand' ? 'rgba(239,68,68,0.3)' : 'rgba(255,255,255,0.08)'}`,
-                        color: buchForm.typ === 'aufwand' ? '#f87171' : '#64748b',
-                      }}
-                    >
-                      Aufwand
-                    </button>
-                  </div>
-                </div>
-                <div>
-                  <label className="text-xs text-slate-500 block mb-1">Datum</label>
-                  <input
-                    type="date"
-                    value={buchForm.datum}
-                    onChange={e => setBuchForm(f => ({ ...f, datum: e.target.value }))}
-                    className="w-full px-3 py-2 rounded-xl text-xs outline-none"
-                    style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: 'var(--text-primary)' }}
-                  />
-                </div>
+            {/* Neuer Eintrag — kompakte Zeile */}
+            <div className="rounded-2xl p-4" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)' }}>
+              {/* Typ-Toggle */}
+              <div className="flex gap-2 mb-3">
+                <button
+                  onClick={() => setBuchForm(f => ({ ...f, typ: 'ertrag' }))}
+                  className="flex-1 py-2 rounded-xl text-sm font-semibold transition-all flex items-center justify-center gap-1.5"
+                  style={{
+                    background: buchForm.typ === 'ertrag' ? 'rgba(52,211,153,0.15)' : 'rgba(255,255,255,0.04)',
+                    border: `1px solid ${buchForm.typ === 'ertrag' ? 'rgba(52,211,153,0.35)' : 'rgba(255,255,255,0.08)'}`,
+                    color: buchForm.typ === 'ertrag' ? '#34d399' : '#475569',
+                  }}
+                >
+                  <TrendingUp size={14} />
+                  Ertrag
+                </button>
+                <button
+                  onClick={() => setBuchForm(f => ({ ...f, typ: 'aufwand' }))}
+                  className="flex-1 py-2 rounded-xl text-sm font-semibold transition-all flex items-center justify-center gap-1.5"
+                  style={{
+                    background: buchForm.typ === 'aufwand' ? 'rgba(239,68,68,0.15)' : 'rgba(255,255,255,0.04)',
+                    border: `1px solid ${buchForm.typ === 'aufwand' ? 'rgba(239,68,68,0.35)' : 'rgba(255,255,255,0.08)'}`,
+                    color: buchForm.typ === 'aufwand' ? '#f87171' : '#475569',
+                  }}
+                >
+                  <TrendingDown size={14} />
+                  Aufwand
+                </button>
               </div>
-              <div>
-                <label className="text-xs text-slate-500 block mb-1">Beschreibung</label>
+              {/* Felder in einer Zeile */}
+              <div className="flex gap-2 flex-wrap">
                 <input
                   type="text"
                   value={buchForm.beschreibung}
                   onChange={e => setBuchForm(f => ({ ...f, beschreibung: e.target.value }))}
-                  placeholder="z.B. Premium-Abo Einnahmen März"
-                  className="w-full px-3 py-2 rounded-xl text-sm outline-none"
-                  style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: 'var(--text-primary)' }}
+                  onKeyDown={e => { if (e.key === 'Enter' && buchForm.beschreibung && buchForm.betrag) addBuchEntry() }}
+                  placeholder="Beschreibung..."
+                  className={inputCls + ' flex-[3] min-w-[180px]'}
+                  style={inputStyle}
                 />
+                <input
+                  type="number"
+                  min="0"
+                  step="0.05"
+                  value={buchForm.betrag}
+                  onChange={e => setBuchForm(f => ({ ...f, betrag: e.target.value }))}
+                  onKeyDown={e => { if (e.key === 'Enter' && buchForm.beschreibung && buchForm.betrag) addBuchEntry() }}
+                  placeholder="Betrag CHF"
+                  className={inputCls + ' flex-[1] min-w-[110px]'}
+                  style={inputStyle}
+                />
+                <input
+                  type="datetime-local"
+                  value={buchForm.datum}
+                  onChange={e => setBuchForm(f => ({ ...f, datum: e.target.value }))}
+                  className={inputCls + ' flex-[2] min-w-[170px]'}
+                  style={inputStyle}
+                />
+                <input
+                  type="text"
+                  value={buchForm.kategorie}
+                  onChange={e => setBuchForm(f => ({ ...f, kategorie: e.target.value }))}
+                  placeholder="Kategorie (optional)"
+                  className={inputCls + ' flex-[1.5] min-w-[140px]'}
+                  style={inputStyle}
+                />
+                <button
+                  onClick={addBuchEntry}
+                  disabled={buchSaving || !buchForm.beschreibung || !buchForm.betrag}
+                  className="px-5 py-2.5 rounded-xl text-sm font-semibold transition-all disabled:opacity-40 flex items-center gap-2 shrink-0"
+                  style={{ background: 'rgba(139,92,246,0.18)', border: '1px solid rgba(139,92,246,0.35)', color: '#a78bfa' }}
+                >
+                  <Plus size={15} />
+                  {buchSaving ? 'Speichern...' : 'Hinzufügen'}
+                </button>
               </div>
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="text-xs text-slate-500 block mb-1">Betrag (CHF)</label>
-                  <input
-                    type="number"
-                    min="0"
-                    step="0.05"
-                    value={buchForm.betrag}
-                    onChange={e => setBuchForm(f => ({ ...f, betrag: e.target.value }))}
-                    placeholder="0.00"
-                    className="w-full px-3 py-2 rounded-xl text-sm outline-none"
-                    style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: 'var(--text-primary)' }}
-                  />
-                </div>
-                <div>
-                  <label className="text-xs text-slate-500 block mb-1">Kategorie <span className="text-slate-600">(optional)</span></label>
-                  <input
-                    type="text"
-                    value={buchForm.kategorie}
-                    onChange={e => setBuchForm(f => ({ ...f, kategorie: e.target.value }))}
-                    placeholder="z.B. Premium, Werbung"
-                    className="w-full px-3 py-2 rounded-xl text-sm outline-none"
-                    style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: 'var(--text-primary)' }}
-                  />
-                </div>
-              </div>
-              <button
-                onClick={addBuchEntry}
-                disabled={buchSaving || !buchForm.beschreibung || !buchForm.betrag}
-                className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold transition-all disabled:opacity-50"
-                style={{ background: 'rgba(139,92,246,0.15)', border: '1px solid rgba(139,92,246,0.3)', color: '#a78bfa' }}
-              >
-                <Plus size={14} />
-                {buchSaving ? 'Wird gespeichert...' : 'Eintrag hinzufügen'}
-              </button>
             </div>
 
             {/* Einträge-Liste */}
             {accountingEntries.length === 0 ? (
               <p className="text-xs py-6 text-center" style={{ color: 'var(--text-muted)' }}>Noch keine Einträge.</p>
             ) : (
-              <div className="space-y-2">
-                {accountingEntries.map(entry => (
+              <div className="rounded-2xl overflow-hidden" style={{ border: '1px solid rgba(255,255,255,0.07)' }}>
+                {accountingEntries.map((entry, i) => (
                   <div
                     key={entry.id}
-                    className="rounded-xl px-4 py-3 flex items-center gap-3"
+                    className="flex items-center gap-3 px-4 py-3"
                     style={{
-                      background: entry.typ === 'ertrag' ? 'rgba(52,211,153,0.04)' : 'rgba(239,68,68,0.04)',
-                      border: `1px solid ${entry.typ === 'ertrag' ? 'rgba(52,211,153,0.15)' : 'rgba(239,68,68,0.15)'}`,
+                      borderTop: i > 0 ? '1px solid rgba(255,255,255,0.05)' : undefined,
+                      background: entry.typ === 'ertrag' ? 'rgba(52,211,153,0.03)' : 'rgba(239,68,68,0.03)',
                     }}
                   >
-                    <div className="shrink-0">
+                    <div className="shrink-0 w-5 flex justify-center">
                       {entry.typ === 'ertrag'
-                        ? <TrendingUp size={14} className="text-emerald-400" />
-                        : <TrendingDown size={14} className="text-red-400" />}
+                        ? <TrendingUp size={13} className="text-emerald-500" />
+                        : <TrendingDown size={13} className="text-red-500" />}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <span className="text-sm font-medium text-slate-200">{entry.beschreibung}</span>
-                        {entry.kategorie && (
-                          <span className="text-[10px] px-1.5 py-0.5 rounded-full" style={{ background: 'rgba(255,255,255,0.07)', color: '#94a3b8' }}>
-                            {entry.kategorie}
-                          </span>
-                        )}
-                      </div>
-                      <p className="text-[11px] text-slate-500 mt-0.5">
-                        {new Date(entry.datum).toLocaleDateString('de-CH')}
-                      </p>
+                      <span className="text-sm text-slate-200">{entry.beschreibung}</span>
+                      {entry.kategorie && (
+                        <span className="ml-2 text-[10px] px-1.5 py-0.5 rounded-full" style={{ background: 'rgba(255,255,255,0.06)', color: '#94a3b8' }}>
+                          {entry.kategorie}
+                        </span>
+                      )}
                     </div>
-                    <div className="shrink-0 text-right">
-                      <p className="text-sm font-bold" style={{ color: entry.typ === 'ertrag' ? '#34d399' : '#f87171' }}>
-                        {entry.typ === 'ertrag' ? '+' : '−'} {entry.betrag.toFixed(2)} CHF
-                      </p>
-                    </div>
+                    <p className="text-[11px] shrink-0" style={{ color: 'var(--text-muted)' }}>
+                      {new Date(entry.datum).toLocaleString('de-CH', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                    </p>
+                    <p className="text-sm font-bold shrink-0 w-28 text-right" style={{ color: entry.typ === 'ertrag' ? '#34d399' : '#f87171' }}>
+                      {entry.typ === 'ertrag' ? '+' : '−'} {entry.betrag.toFixed(2)} CHF
+                    </p>
                     <button
                       onClick={() => deleteBuchEntry(entry.id)}
                       disabled={buchDeleting === entry.id}
-                      className="shrink-0 p-1.5 rounded-lg transition-all disabled:opacity-40 hover:bg-red-500/10 text-slate-600 hover:text-red-400"
+                      className="shrink-0 p-1.5 rounded-lg transition-all disabled:opacity-40 text-slate-700 hover:text-red-400 hover:bg-red-500/10"
                     >
                       <Trash2 size={13} />
                     </button>
