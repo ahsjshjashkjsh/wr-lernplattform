@@ -7,13 +7,17 @@ export async function POST(_req: Request, { params }: { params: Promise<{ id: st
 
   const { id } = await params
 
-  const request = await prisma.premiumRequest.findUnique({ where: { id } })
+  const request = await prisma.premiumRequest.findUnique({
+    where: { id },
+    include: { user: { select: { name: true } } },
+  })
   if (!request) return Response.json({ error: 'Anfrage nicht gefunden.' }, { status: 404 })
   if (request.status !== 'pending') {
     return Response.json({ error: 'Anfrage ist nicht mehr offen.' }, { status: 400 })
   }
 
   const premiumUntil = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
+  const betrag = parseFloat(process.env.NEXT_PUBLIC_PREMIUM_PRICE ?? '5')
 
   await prisma.$transaction([
     prisma.premiumRequest.update({
@@ -23,6 +27,15 @@ export async function POST(_req: Request, { params }: { params: Promise<{ id: st
     prisma.user.update({
       where: { id: request.userId },
       data: { isPremium: true, premiumUntil },
+    }),
+    prisma.accountingEntry.create({
+      data: {
+        typ: 'ertrag',
+        beschreibung: `Premium — ${request.user.name}`,
+        betrag,
+        kategorie: 'Premium',
+        datum: new Date(),
+      },
     }),
   ])
 
