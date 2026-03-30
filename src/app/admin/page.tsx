@@ -1351,125 +1351,190 @@ export default function AdminPage() {
 
       {/* === TAB: BUCHHALTUNG === */}
       {tab === 'buchhaltung' && (() => {
-        const ertraege = accountingEntries.filter(e => e.typ === 'ertrag').reduce((s, e) => s + e.betrag, 0)
-        const aufwaende = accountingEntries.filter(e => e.typ === 'aufwand').reduce((s, e) => s + e.betrag, 0)
-        const einlagen = accountingEntries.filter(e => e.typ === 'einlage').reduce((s, e) => s + e.betrag, 0)
-        const ergebnis = ertraege - aufwaende
+        const ertraege   = accountingEntries.filter(e => e.typ === 'ertrag').reduce((s, e) => s + e.betrag, 0)
+        const aufwaende  = accountingEntries.filter(e => e.typ === 'aufwand').reduce((s, e) => s + e.betrag, 0)
+        const einlagen   = accountingEntries.filter(e => e.typ === 'einlage').reduce((s, e) => s + e.betrag, 0)
+        const ergebnis   = ertraege - aufwaende
+        const kassenbestand = einlagen + ertraege - aufwaende
+
+        const premiumPreis   = parseFloat(process.env.NEXT_PUBLIC_PREMIUM_PRICE ?? '5')
+        const aktivePremium  = users.filter(u => u.isPremium).length
+        const monatlicheErl  = aktivePremium * premiumPreis
+
+        // Ø monatliche Kosten aus echten Daten
+        const aufwandEntries = accountingEntries.filter(e => e.typ === 'aufwand')
+        const monthlyBurn = (() => {
+          if (aufwandEntries.length < 2) return aufwaende
+          const dates = aufwandEntries.map(e => new Date(e.datum).getTime())
+          const days  = Math.max(1, (Math.max(...dates) - Math.min(...dates)) / 86_400_000)
+          return (aufwaende / days) * 30
+        })()
+
+        const neededUsers      = Math.ceil(monthlyBurn / premiumPreis)
+        const breakevenPct     = Math.min(100, neededUsers > 0 ? (aktivePremium / neededUsers) * 100 : 0)
+        const monthlyDefizit   = Math.max(0, monthlyBurn - monatlicheErl)
+        const monthsLeft       = monthlyDefizit > 0 && kassenbestand > 0 ? kassenbestand / monthlyDefizit : null
+
         const fmt = (n: number) => n.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, "'") + ' CHF'
-        const inputCls = "px-3 py-2.5 rounded-xl text-sm outline-none w-full"
-        const inputStyle = { background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: 'var(--text-primary)' }
+        const iStyle = { background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: 'var(--text-primary)' }
+
         return (
           <div className="space-y-4">
-            {/* Bilanz-Karten */}
-            <div className="grid grid-cols-2 gap-3">
-              <div className="rounded-2xl p-4" style={{ background: 'rgba(52,211,153,0.06)', border: '1px solid rgba(52,211,153,0.18)' }}>
-                <div className="flex items-center gap-1.5 mb-1.5">
-                  <TrendingUp size={12} className="text-emerald-400" />
-                  <span className="text-[11px] text-emerald-400 font-semibold uppercase tracking-wide">Erlöse</span>
-                </div>
-                <p className="text-xl font-bold text-emerald-400">{fmt(ertraege)}</p>
-                <p className="text-[10px] mt-1 text-emerald-700">Einnahmen aus Verkauf/Service</p>
+
+            {/* ── HERO: Kassenbestand ── */}
+            <div className="rounded-2xl p-5 flex items-center justify-between gap-4" style={{
+              background: kassenbestand >= 0 ? 'rgba(16,185,129,0.07)' : 'rgba(239,68,68,0.07)',
+              border: `1px solid ${kassenbestand >= 0 ? 'rgba(16,185,129,0.22)' : 'rgba(239,68,68,0.22)'}`,
+            }}>
+              <div>
+                <p className="text-[11px] uppercase tracking-widest font-semibold mb-1" style={{ color: kassenbestand >= 0 ? 'rgba(52,211,153,0.6)' : 'rgba(248,113,113,0.6)' }}>
+                  Kassenbestand
+                </p>
+                <p className="text-3xl font-bold" style={{ color: kassenbestand >= 0 ? '#10b981' : '#f87171' }}>
+                  {kassenbestand < 0 ? '−' : ''}{fmt(Math.abs(kassenbestand))}
+                </p>
+                <p className="text-[11px] mt-1.5" style={{ color: 'rgba(100,116,139,0.8)' }}>
+                  {fmt(einlagen)} Einlagen &nbsp;+&nbsp; {fmt(ertraege)} Erlöse &nbsp;−&nbsp; {fmt(aufwaende)} Aufwände
+                </p>
               </div>
-              <div className="rounded-2xl p-4" style={{ background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.18)' }}>
-                <div className="flex items-center gap-1.5 mb-1.5">
-                  <TrendingDown size={12} className="text-red-400" />
-                  <span className="text-[11px] text-red-400 font-semibold uppercase tracking-wide">Aufwände</span>
-                </div>
-                <p className="text-xl font-bold text-red-400">{fmt(aufwaende)}</p>
-                <p className="text-[10px] mt-1 text-red-800">Kosten (Claude API etc.)</p>
-              </div>
-              <div className="rounded-2xl p-4" style={{ background: 'rgba(139,92,246,0.06)', border: '1px solid rgba(139,92,246,0.18)' }}>
-                <div className="flex items-center gap-1.5 mb-1.5">
-                  <BarChart2 size={12} className="text-violet-400" />
-                  <span className="text-[11px] text-violet-400 font-semibold uppercase tracking-wide">Kapitaleinlagen</span>
-                </div>
-                <p className="text-xl font-bold text-violet-400">{fmt(einlagen)}</p>
-                <p className="text-[10px] mt-1 text-violet-800">Investiertes Eigenkapital</p>
-              </div>
-              <div className="rounded-2xl p-4" style={{
-                background: ergebnis >= 0 ? 'rgba(59,130,246,0.06)' : 'rgba(239,68,68,0.06)',
-                border: `1px solid ${ergebnis >= 0 ? 'rgba(59,130,246,0.18)' : 'rgba(239,68,68,0.18)'}`,
-              }}>
-                <div className="flex items-center gap-1.5 mb-1.5">
-                  <Calculator size={12} style={{ color: ergebnis >= 0 ? '#60a5fa' : '#f87171' }} />
-                  <span className="text-[11px] font-semibold uppercase tracking-wide" style={{ color: ergebnis >= 0 ? '#60a5fa' : '#f87171' }}>
-                    {ergebnis >= 0 ? 'Gewinn' : 'Verlust'}
-                  </span>
-                </div>
-                <p className="text-xl font-bold" style={{ color: ergebnis >= 0 ? '#60a5fa' : '#f87171' }}>{fmt(Math.abs(ergebnis))}</p>
-                <p className="text-[10px] mt-1" style={{ color: ergebnis >= 0 ? 'rgba(96,165,250,0.5)' : 'rgba(248,113,113,0.5)' }}>Erlöse − Aufwände</p>
+              <div className="text-right shrink-0 space-y-2">
+                {monthsLeft !== null && monthsLeft > 0 && (
+                  <div className="rounded-xl px-3 py-2" style={{ background: 'rgba(251,191,36,0.08)', border: '1px solid rgba(251,191,36,0.2)' }}>
+                    <p className="text-[10px] text-yellow-600 uppercase tracking-wide">Kapital reicht noch</p>
+                    <p className="text-lg font-bold text-yellow-400">{monthsLeft.toFixed(1)} Monate</p>
+                  </div>
+                )}
+                {kassenbestand < 0 && (
+                  <div className="rounded-xl px-3 py-2" style={{ background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)' }}>
+                    <p className="text-[10px] text-red-500 uppercase tracking-wide">Nachfinanzierung nötig</p>
+                    <p className="text-lg font-bold text-red-400">{fmt(Math.abs(kassenbestand))}</p>
+                  </div>
+                )}
               </div>
             </div>
 
-            {/* Neuer Eintrag — kompakte Zeile */}
-            <div className="rounded-2xl p-4" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)' }}>
-              {/* Typ-Toggle */}
+            {/* ── KPI-Karten ── */}
+            <div className="grid grid-cols-4 gap-3">
+              {([
+                ['Erlöse',         ertraege,  '#34d399', 'rgba(52,211,153,0.08)',  'rgba(52,211,153,0.18)',  'Premium-Einnahmen'],
+                ['Aufwände',       aufwaende, '#f87171', 'rgba(239,68,68,0.08)',   'rgba(239,68,68,0.18)',   'Claude API & Tools'],
+                ['Kapitaleinlagen',einlagen,  '#a78bfa', 'rgba(139,92,246,0.08)', 'rgba(139,92,246,0.18)', 'Investiertes EK'],
+                [ergebnis >= 0 ? 'Gewinn' : 'Verlust', Math.abs(ergebnis),
+                  ergebnis >= 0 ? '#60a5fa' : '#f87171',
+                  ergebnis >= 0 ? 'rgba(59,130,246,0.08)' : 'rgba(239,68,68,0.08)',
+                  ergebnis >= 0 ? 'rgba(59,130,246,0.18)' : 'rgba(239,68,68,0.18)',
+                  'Erlöse − Aufwände'],
+              ] as const).map(([label, val, color, bg, border, sub]) => (
+                <div key={label} className="rounded-2xl p-4" style={{ background: bg, border: `1px solid ${border}` }}>
+                  <p className="text-[10px] uppercase tracking-wider font-semibold mb-2" style={{ color }}>{label}</p>
+                  <p className="text-lg font-bold" style={{ color }}>{fmt(val)}</p>
+                  <p className="text-[10px] mt-1.5" style={{ color: 'rgba(100,116,139,0.7)' }}>{sub}</p>
+                </div>
+              ))}
+            </div>
+
+            {/* ── Breakeven-Analyse ── */}
+            <div className="rounded-2xl p-5" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.07)' }}>
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-2">
+                  <BarChart2 size={14} className="text-violet-400" />
+                  <span className="text-sm font-semibold text-slate-300">Breakeven-Analyse</span>
+                </div>
+                <span className="text-xs px-2 py-1 rounded-lg" style={{ background: 'rgba(139,92,246,0.1)', color: '#a78bfa', border: '1px solid rgba(139,92,246,0.2)' }}>
+                  Ø {fmt(monthlyBurn)} / Monat
+                </span>
+              </div>
+
+              {/* Progress */}
+              <div className="mb-3">
+                <div className="flex justify-between items-center mb-1.5">
+                  <span className="text-xs text-slate-500">{aktivePremium} von {neededUsers} Premium-Usern</span>
+                  <span className="text-xs font-semibold" style={{ color: breakevenPct >= 100 ? '#34d399' : '#a78bfa' }}>
+                    {breakevenPct.toFixed(0)}%
+                  </span>
+                </div>
+                <div className="h-2 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.06)' }}>
+                  <div
+                    className="h-full rounded-full transition-all"
+                    style={{
+                      width: `${breakevenPct}%`,
+                      background: breakevenPct >= 100
+                        ? 'linear-gradient(90deg, #10b981, #34d399)'
+                        : 'linear-gradient(90deg, #7c3aed, #a78bfa)',
+                    }}
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-3 gap-3 mt-4">
+                <div className="rounded-xl p-3 text-center" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}>
+                  <p className="text-[10px] text-slate-600 uppercase tracking-wide mb-1">Akt. Monatserlös</p>
+                  <p className="text-base font-bold text-emerald-400">{fmt(monatlicheErl)}</p>
+                  <p className="text-[10px] text-slate-600 mt-0.5">{aktivePremium} × CHF {premiumPreis}</p>
+                </div>
+                <div className="rounded-xl p-3 text-center" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}>
+                  <p className="text-[10px] text-slate-600 uppercase tracking-wide mb-1">Monatl. Defizit</p>
+                  <p className="text-base font-bold" style={{ color: monthlyDefizit > 0 ? '#f87171' : '#34d399' }}>
+                    {fmt(monthlyDefizit)}
+                  </p>
+                  <p className="text-[10px] text-slate-600 mt-0.5">Kosten − Erlöse</p>
+                </div>
+                <div className="rounded-xl p-3 text-center" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}>
+                  <p className="text-[10px] text-slate-600 uppercase tracking-wide mb-1">Noch bis Break-even</p>
+                  <p className="text-base font-bold text-violet-400">
+                    {neededUsers - aktivePremium <= 0 ? '✓ erreicht' : `${neededUsers - aktivePremium} User`}
+                  </p>
+                  <p className="text-[10px] text-slate-600 mt-0.5">à CHF {premiumPreis}/Mt.</p>
+                </div>
+              </div>
+            </div>
+
+            {/* ── Neuer Eintrag ── */}
+            <div className="rounded-2xl p-4" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.07)' }}>
+              <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3">Neuer Eintrag</p>
               <div className="flex gap-2 mb-3">
                 {([
-                  ['ertrag',  'Erlös',    'rgba(52,211,153,0.15)', 'rgba(52,211,153,0.35)',  '#34d399',  TrendingUp],
-                  ['aufwand', 'Aufwand',  'rgba(239,68,68,0.15)',  'rgba(239,68,68,0.35)',   '#f87171',  TrendingDown],
-                  ['einlage', 'Einlage',  'rgba(139,92,246,0.15)', 'rgba(139,92,246,0.35)',  '#a78bfa',  BarChart2],
+                  ['ertrag',  'Erlös',   'rgba(52,211,153,0.15)', 'rgba(52,211,153,0.35)',  '#34d399',  TrendingUp],
+                  ['aufwand', 'Aufwand', 'rgba(239,68,68,0.15)',  'rgba(239,68,68,0.35)',   '#f87171',  TrendingDown],
+                  ['einlage', 'Einlage', 'rgba(139,92,246,0.15)', 'rgba(139,92,246,0.35)',  '#a78bfa',  BarChart2],
                 ] as const).map(([val, label, bg, border, color, Icon]) => (
                   <button key={val}
                     onClick={() => setBuchForm(f => ({ ...f, typ: val }))}
                     className="flex-1 py-2 rounded-xl text-sm font-semibold transition-all flex items-center justify-center gap-1.5"
                     style={{
-                      background: buchForm.typ === val ? bg : 'rgba(255,255,255,0.04)',
-                      border: `1px solid ${buchForm.typ === val ? border : 'rgba(255,255,255,0.08)'}`,
-                      color: buchForm.typ === val ? color : '#475569',
+                      background: buchForm.typ === val ? bg : 'rgba(255,255,255,0.03)',
+                      border: `1px solid ${buchForm.typ === val ? border : 'rgba(255,255,255,0.07)'}`,
+                      color: buchForm.typ === val ? color : '#334155',
                     }}
                   >
-                    <Icon size={14} />
-                    {label}
+                    <Icon size={14} />{label}
                   </button>
                 ))}
               </div>
-              {/* Felder in einer Zeile */}
               <div className="flex gap-2 flex-wrap">
-                <input
-                  type="text"
-                  value={buchForm.beschreibung}
+                <input type="text" value={buchForm.beschreibung}
                   onChange={e => setBuchForm(f => ({ ...f, beschreibung: e.target.value }))}
                   onKeyDown={e => { if (e.key === 'Enter' && buchForm.beschreibung && buchForm.betrag) addBuchEntry() }}
                   placeholder="Beschreibung..."
-                  className={inputCls + ' flex-[3] min-w-[180px]'}
-                  style={inputStyle}
-                />
+                  className="px-3 py-2.5 rounded-xl text-sm outline-none flex-[3] min-w-[180px]"
+                  style={iStyle} />
                 <div className="flex gap-1 flex-[1.5] min-w-[180px]">
-                  <input
-                    type="number"
-                    min="0"
-                    step="0.05"
-                    value={buchForm.betrag}
+                  <input type="number" min="0" step="0.05" value={buchForm.betrag}
                     onChange={e => setBuchForm(f => ({ ...f, betrag: e.target.value }))}
                     onKeyDown={e => { if (e.key === 'Enter' && buchForm.beschreibung && buchForm.betrag) addBuchEntry() }}
                     placeholder={buchForm.waehrung === 'usd' ? 'Betrag USD' : 'Betrag CHF'}
-                    className="px-3 py-2.5 rounded-xl text-sm outline-none flex-1 min-w-0"
-                    style={inputStyle}
-                  />
-                  <button
-                    onClick={() => setBuchForm(f => ({ ...f, waehrung: f.waehrung === 'chf' ? 'usd' : 'chf' }))}
+                    className="px-3 py-2.5 rounded-xl text-sm outline-none flex-1 min-w-0" style={iStyle} />
+                  <button onClick={() => setBuchForm(f => ({ ...f, waehrung: f.waehrung === 'chf' ? 'usd' : 'chf' }))}
                     className="px-2.5 py-2 rounded-xl text-xs font-bold shrink-0 transition-all"
-                    style={{
-                      background: buchForm.waehrung === 'usd' ? 'rgba(234,179,8,0.15)' : 'rgba(255,255,255,0.05)',
-                      border: `1px solid ${buchForm.waehrung === 'usd' ? 'rgba(234,179,8,0.3)' : 'rgba(255,255,255,0.1)'}`,
-                      color: buchForm.waehrung === 'usd' ? '#fbbf24' : '#475569',
-                    }}
-                  >
+                    style={{ background: buchForm.waehrung === 'usd' ? 'rgba(234,179,8,0.15)' : 'rgba(255,255,255,0.04)', border: `1px solid ${buchForm.waehrung === 'usd' ? 'rgba(234,179,8,0.3)' : 'rgba(255,255,255,0.08)'}`, color: buchForm.waehrung === 'usd' ? '#fbbf24' : '#475569' }}>
                     {buchForm.waehrung === 'usd' ? 'USD' : 'CHF'}
                   </button>
                   {buchForm.waehrung === 'usd' && (
-                    <input
-                      type="number"
-                      min="0"
-                      step="0.001"
-                      value={buchForm.kurs}
+                    <input type="number" min="0" step="0.001" value={buchForm.kurs}
                       onChange={e => setBuchForm(f => ({ ...f, kurs: e.target.value }))}
-                      placeholder="Kurs"
-                      title="USD → CHF Kurs"
+                      placeholder="Kurs" title="USD→CHF"
                       className="px-2 py-2.5 rounded-xl text-xs outline-none w-16 shrink-0"
-                      style={{ ...inputStyle, color: '#fbbf24' }}
-                    />
+                      style={{ ...iStyle, color: '#fbbf24' }} />
                   )}
                 </div>
                 {buchForm.waehrung === 'usd' && buchForm.betrag && (
@@ -1477,79 +1542,66 @@ export default function AdminPage() {
                     = {(parseFloat(buchForm.betrag || '0') * parseFloat(buchForm.kurs || '0.80')).toFixed(2)} CHF
                   </div>
                 )}
-                <input
-                  type="datetime-local"
-                  value={buchForm.datum}
+                <input type="datetime-local" value={buchForm.datum}
                   onChange={e => setBuchForm(f => ({ ...f, datum: e.target.value }))}
-                  className={inputCls + ' flex-[2] min-w-[170px]'}
-                  style={{ ...inputStyle, colorScheme: 'dark' }}
-                />
-                <input
-                  type="text"
-                  value={buchForm.kategorie}
+                  className="px-3 py-2.5 rounded-xl text-sm outline-none flex-[2] min-w-[170px]"
+                  style={{ ...iStyle, colorScheme: 'dark' }} />
+                <input type="text" value={buchForm.kategorie}
                   onChange={e => setBuchForm(f => ({ ...f, kategorie: e.target.value }))}
                   placeholder="Kategorie (optional)"
-                  className={inputCls + ' flex-[1.5] min-w-[140px]'}
-                  style={inputStyle}
-                />
-                <button
-                  onClick={addBuchEntry}
+                  className="px-3 py-2.5 rounded-xl text-sm outline-none flex-[1.5] min-w-[140px]"
+                  style={iStyle} />
+                <button onClick={addBuchEntry}
                   disabled={buchSaving || !buchForm.beschreibung || !buchForm.betrag}
                   className="px-5 py-2.5 rounded-xl text-sm font-semibold transition-all disabled:opacity-40 flex items-center gap-2 shrink-0"
-                  style={{ background: 'rgba(139,92,246,0.18)', border: '1px solid rgba(139,92,246,0.35)', color: '#a78bfa' }}
-                >
-                  <Plus size={15} />
-                  {buchSaving ? 'Speichern...' : 'Hinzufügen'}
+                  style={{ background: 'rgba(139,92,246,0.18)', border: '1px solid rgba(139,92,246,0.3)', color: '#a78bfa' }}>
+                  <Plus size={15} />{buchSaving ? 'Speichern...' : 'Hinzufügen'}
                 </button>
               </div>
             </div>
 
-            {/* Einträge-Liste */}
+            {/* ── Einträge-Tabelle ── */}
             {accountingEntries.length === 0 ? (
-              <p className="text-xs py-6 text-center" style={{ color: 'var(--text-muted)' }}>Noch keine Einträge.</p>
+              <p className="text-xs py-8 text-center text-slate-600">Noch keine Einträge.</p>
             ) : (
               <div className="rounded-2xl overflow-hidden" style={{ border: '1px solid rgba(255,255,255,0.07)' }}>
+                <div className="px-4 py-2.5 flex items-center justify-between" style={{ background: 'rgba(255,255,255,0.02)', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+                  <span className="text-[11px] font-semibold text-slate-600 uppercase tracking-wider">Buchungen</span>
+                  <span className="text-[11px] text-slate-700">{accountingEntries.length} Einträge</span>
+                </div>
                 {accountingEntries.map((entry, i) => (
-                  <div
-                    key={entry.id}
-                    className="flex items-center gap-3 px-4 py-3"
-                    style={{
-                      borderTop: i > 0 ? '1px solid rgba(255,255,255,0.05)' : undefined,
-                      background: entry.typ === 'ertrag' ? 'rgba(52,211,153,0.03)' : entry.typ === 'einlage' ? 'rgba(139,92,246,0.03)' : 'rgba(239,68,68,0.03)',
-                    }}
-                  >
-                    <div className="shrink-0 w-5 flex justify-center">
-                      {entry.typ === 'ertrag' ? <TrendingUp size={13} className="text-emerald-500" />
-                       : entry.typ === 'einlage' ? <BarChart2 size={13} className="text-violet-500" />
-                       : <TrendingDown size={13} className="text-red-500" />}
+                  <div key={entry.id} className="flex items-center gap-3 px-4 py-3 group"
+                    style={{ borderTop: i > 0 ? '1px solid rgba(255,255,255,0.04)' : undefined }}>
+                    <div className="shrink-0">
+                      {entry.typ === 'ertrag'  ? <TrendingUp  size={13} className="text-emerald-500" />
+                     : entry.typ === 'einlage' ? <BarChart2   size={13} className="text-violet-500"  />
+                     : <TrendingDown size={13} className="text-red-500" />}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <span className="text-sm text-slate-200">{entry.beschreibung}</span>
+                      <span className="text-sm text-slate-300">{entry.beschreibung}</span>
                       {entry.kategorie && (
-                        <span className="ml-2 text-[10px] px-1.5 py-0.5 rounded-full" style={{ background: 'rgba(255,255,255,0.06)', color: '#94a3b8' }}>
+                        <span className="ml-2 text-[10px] px-1.5 py-0.5 rounded-full" style={{ background: 'rgba(255,255,255,0.05)', color: '#64748b' }}>
                           {entry.kategorie}
                         </span>
                       )}
                     </div>
-                    <p className="text-[11px] shrink-0" style={{ color: 'var(--text-muted)' }}>
-                      {new Date(entry.datum).toLocaleString('de-CH', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                    <p className="text-[11px] shrink-0 tabular-nums" style={{ color: '#334155' }}>
+                      {new Date(entry.datum).toLocaleString('de-CH', { day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit' })}
                     </p>
-                    <p className="text-sm font-bold shrink-0 w-28 text-right" style={{ color: entry.typ === 'ertrag' ? '#34d399' : entry.typ === 'einlage' ? '#a78bfa' : '#f87171' }}>
-                      {entry.typ === 'aufwand' ? '−' : '+'} {entry.betrag.toFixed(2)} CHF
+                    <p className="text-sm font-bold shrink-0 w-28 text-right tabular-nums"
+                      style={{ color: entry.typ === 'ertrag' ? '#34d399' : entry.typ === 'einlage' ? '#a78bfa' : '#f87171' }}>
+                      {entry.typ === 'aufwand' ? '−' : '+'} {entry.betrag.toFixed(2)}
                     </p>
-                    <button
-                      onClick={() => openBuchEdit(entry)}
-                      className="shrink-0 p-1.5 rounded-lg transition-all text-slate-600 hover:text-violet-400 hover:bg-violet-500/10"
-                    >
-                      <Pencil size={13} />
-                    </button>
-                    <button
-                      onClick={() => deleteBuchEntry(entry.id)}
-                      disabled={buchDeleting === entry.id}
-                      className="shrink-0 p-1.5 rounded-lg transition-all disabled:opacity-40 text-slate-700 hover:text-red-400 hover:bg-red-500/10"
-                    >
-                      <Trash2 size={13} />
-                    </button>
+                    <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
+                      <button onClick={() => openBuchEdit(entry)}
+                        className="p-1.5 rounded-lg text-slate-600 hover:text-violet-400 hover:bg-violet-500/10 transition-all">
+                        <Pencil size={12} />
+                      </button>
+                      <button onClick={() => deleteBuchEntry(entry.id)} disabled={buchDeleting === entry.id}
+                        className="p-1.5 rounded-lg text-slate-700 hover:text-red-400 hover:bg-red-500/10 transition-all disabled:opacity-40">
+                        <Trash2 size={12} />
+                      </button>
+                    </div>
                   </div>
                 ))}
               </div>
