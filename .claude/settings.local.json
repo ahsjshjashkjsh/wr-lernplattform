@@ -68,7 +68,11 @@
       "Bash(node -e \"const p = require\\(''''@prisma/client''''\\); console.log\\(''''ok''''\\);\")",
       "Bash(cmd.exe /c \"node -e \"\"process.chdir\\(''C:\\\\\\\\Wr-Lernplattform''\\); const {PrismaClient} = require\\(''@prisma/client''\\); const p = new PrismaClient\\({datasources:{db:{url:''postgresql://postgres.xudeuxqxgiozvgojjcas:w778dj8AcyFs2Tef@aws-1-eu-west-1.pooler.supabase.com:5432/postgres''}}}\\); p.feedback.findMany\\({where:{status:''accepted''},orderBy:{createdAt:''desc''}}\\).then\\(r=>{console.log\\(JSON.stringify\\(r,null,2\\)\\);p.$disconnect\\(\\);}\\).catch\\(e=>{console.error\\(e.message\\);p.$disconnect\\(\\);}\\)\"\"\")",
       "Bash(node_modules/.bin/prisma db:*)",
-      "Bash(C:/Wr-Lernplattform/node_modules/.bin/prisma db:*)"
+      "Bash(C:/Wr-Lernplattform/node_modules/.bin/prisma db:*)",
+      "Bash(npx vercel:*)",
+      "Bash(set -a)",
+      "Bash(source .env.local)",
+      "Bash(set +a)"
     ]
   }
 }
