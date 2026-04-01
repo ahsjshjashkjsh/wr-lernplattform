@@ -279,7 +279,7 @@ export default async function ProgressPage() {
       {/* ─── WR SECTION ─── */}
       <div>
         <div className="flex items-center gap-3 mb-4">
-          <div className="w-1 h-5 rounded-full" style={{ background: 'linear-gradient(180deg,#3b82f6,#6366f1)' }} />
+          <div className="w-1 h-5 rounded-full" style={{ background: 'var(--accent)' }} />
           <h2 className="text-xs font-bold uppercase tracking-widest text-blue-300">
             Wirtschaft &amp; Recht
           </h2>
@@ -306,7 +306,7 @@ export default async function ProgressPage() {
                   <div className="h-full flex rounded-full overflow-hidden">
                     <div
                       className="h-full transition-all duration-700"
-                      style={{ width: `${(wrCompleted / Math.max(allWrChapters.length, 1)) * 100}%`, background: 'linear-gradient(90deg,#3b82f6,#6366f1)' }}
+                      style={{ width: `${(wrCompleted / Math.max(allWrChapters.length, 1)) * 100}%`, background: 'var(--accent)' }}
                     />
                     <div
                       className="h-full transition-all duration-700"

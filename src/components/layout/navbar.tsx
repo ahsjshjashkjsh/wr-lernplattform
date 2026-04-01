@@ -43,10 +43,7 @@ export function Navbar() {
             <Link href="/" className="flex items-center gap-3 group" onClick={() => setMenuOpen(false)}>
               <div
                 className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
-                style={{
-                  background: 'linear-gradient(135deg, #3b82f6, #6366f1)',
-                  boxShadow: '0 0 16px rgba(99,102,241,0.35)',
-                }}
+                style={{ background: 'var(--accent)' }}
               >
                 <TrendingUp size={16} className="text-white" />
               </div>
@@ -70,10 +67,10 @@ export function Navbar() {
                     href={href}
                     className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-150 border ${
                       active
-                        ? 'text-blue-400 bg-blue-500/10 border-blue-500/20'
+                        ? 'border-transparent'
                         : 'border-transparent hover:bg-white/[0.06]'
                     }`}
-                    style={active ? {} : { color: 'var(--text-muted)' }}
+                    style={active ? { color: 'var(--accent)', background: 'var(--accent-bg)', borderColor: 'var(--accent-border)' } : { color: 'var(--text-muted)' }}
                   >
                     <Icon size={13} />
                     {label}
@@ -197,10 +194,10 @@ export function Navbar() {
                   onClick={() => setMenuOpen(false)}
                   className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all border ${
                     active
-                      ? 'text-blue-400 bg-blue-500/10 border-blue-500/20'
+                      ? 'border-transparent'
                       : 'border-transparent'
                   }`}
-                  style={active ? {} : { color: 'var(--text-muted)', borderColor: 'transparent' }}
+                  style={active ? { color: 'var(--accent)', background: 'var(--accent-bg)' } : { color: 'var(--text-muted)' }}
                 >
                   <Icon size={16} />
                   {label}

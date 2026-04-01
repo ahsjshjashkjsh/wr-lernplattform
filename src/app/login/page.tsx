@@ -53,10 +53,10 @@ function LoginForm() {
   }
 
   if (pending) return (
-    <div className="glass rounded-2xl p-7 border text-center" style={{ borderColor: 'rgba(99,102,241,0.2)' }}>
+    <div className="rounded-2xl p-7 border text-center" style={{ background: 'var(--card-bg)', borderColor: 'var(--border-color)' }}>
       <div className="w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-4"
-        style={{ background: 'rgba(99,102,241,0.1)', border: '1px solid rgba(99,102,241,0.25)' }}>
-        <Clock size={26} className="text-indigo-400" />
+        style={{ background: 'var(--icon-bg)', border: '1px solid var(--border-color)' }}>
+        <Clock size={26} style={{ color: 'var(--accent)' }} />
       </div>
       <h2 className="text-lg font-bold text-slate-100 mb-2">Zugang wird geprüft</h2>
       <p className="text-sm leading-relaxed" style={{ color: 'var(--text-muted)' }}>
@@ -66,7 +66,7 @@ function LoginForm() {
   )
 
   return (
-    <div className="glass rounded-2xl p-6 border" style={{ borderColor: 'rgba(255,255,255,0.08)' }}>
+    <div className="rounded-2xl p-6 border" style={{ background: 'var(--card-bg)', borderColor: 'var(--border-color)' }}>
       <h2 className="text-lg font-semibold text-slate-200 mb-1">Willkommen zurück</h2>
       <p className="text-xs text-slate-500 mb-5">Melde dich an, um deinen Fortschritt fortzusetzen.</p>
 
@@ -130,8 +130,8 @@ function LoginForm() {
           disabled={loading}
           className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold text-white transition-all disabled:opacity-60"
           style={{
-            background: 'linear-gradient(135deg, #3b82f6, #6366f1)',
-            boxShadow: '0 4px 20px -4px rgba(99,102,241,0.5)',
+            background: 'var(--accent)',
+            boxShadow: '0 2px 12px rgba(79,114,245,0.35)',
           }}
         >
           {loading ? (
@@ -163,18 +163,15 @@ export default function LoginPage() {
         <div className="flex flex-col items-center mb-8">
           <div
             className="w-14 h-14 rounded-2xl flex items-center justify-center mb-4"
-            style={{
-              background: 'linear-gradient(135deg, #3b82f6, #6366f1)',
-              boxShadow: '0 0 30px rgba(99,102,241,0.4)',
-            }}
+            style={{ background: 'var(--accent)' }}
           >
             <TrendingUp size={28} className="text-white" />
           </div>
-          <h1 className="text-2xl font-bold gradient-text">HMS-Plattform</h1>
-          <p className="text-slate-500 text-sm mt-1">HMS · Abschlussprüfung 2026</p>
+          <h1 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>HMS-Plattform</h1>
+          <p className="text-sm mt-1" style={{ color: 'var(--text-muted)' }}>HMS · Abschlussprüfung 2026</p>
         </div>
 
-        <Suspense fallback={<div className="glass rounded-2xl p-6 border" style={{ borderColor: 'rgba(255,255,255,0.08)' }} />}>
+        <Suspense fallback={<div className="rounded-2xl p-6 border" style={{ background: 'var(--card-bg)', borderColor: 'var(--border-color)', minHeight: '280px' }} />}>
           <LoginForm />
         </Suspense>
       </div>

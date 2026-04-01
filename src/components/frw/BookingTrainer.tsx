@@ -209,7 +209,7 @@ export function BookingTrainer({ entries, chapterTitle }: Props) {
         <button
           onClick={handleRestart}
           className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-medium text-white transition-all"
-          style={{ background: 'linear-gradient(135deg, #3b82f6, #6366f1)' }}
+          style={{ background: 'var(--accent)' }}
         >
           <RotateCcw size={14} />
           Neue Runde (anders gemischt)
@@ -367,7 +367,7 @@ export function BookingTrainer({ entries, chapterTitle }: Props) {
               onClick={handleCheck}
               disabled={!canCheck}
               className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-medium text-white transition-all disabled:opacity-40"
-              style={{ background: 'linear-gradient(135deg, #3b82f6, #6366f1)' }}
+              style={{ background: 'var(--accent)' }}
             >
               Prüfen
               <ChevronRight size={14} />
@@ -379,7 +379,7 @@ export function BookingTrainer({ entries, chapterTitle }: Props) {
             <button
               onClick={handleNext}
               className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-medium text-white transition-all"
-              style={{ background: 'linear-gradient(135deg, #3b82f6, #6366f1)' }}
+              style={{ background: 'var(--accent)' }}
             >
               {index + 1 >= questions.length ? 'Auswertung' : 'Weiter'}
               <ChevronRight size={14} />

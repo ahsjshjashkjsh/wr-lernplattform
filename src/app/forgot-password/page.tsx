@@ -7,13 +7,13 @@ export default function ForgotPasswordPage() {
       <div className="w-full max-w-sm">
         <div className="flex flex-col items-center mb-8">
           <div className="w-14 h-14 rounded-2xl flex items-center justify-center mb-4"
-            style={{ background: 'linear-gradient(135deg, #3b82f6, #6366f1)', boxShadow: '0 0 30px rgba(99,102,241,0.4)' }}>
+            style={{ background: 'var(--accent)' }}>
             <TrendingUp size={28} className="text-white" />
           </div>
-          <h1 className="text-2xl font-bold gradient-text">HMS-Plattform</h1>
+          <h1 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>HMS-Plattform</h1>
         </div>
 
-        <div className="glass rounded-2xl p-8 border text-center space-y-4" style={{ borderColor: 'rgba(255,255,255,0.08)' }}>
+        <div className="rounded-2xl p-8 border text-center space-y-4" style={{ background: 'var(--card-bg)', borderColor: 'var(--border-color)' }}>
           <div className="w-12 h-12 rounded-2xl flex items-center justify-center mx-auto"
             style={{ background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.3)' }}>
             <Clock size={22} className="text-amber-400" />

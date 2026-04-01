@@ -193,8 +193,8 @@ export default async function FrwPage({ searchParams }: Props) {
         </div>
         <Link
           href="/frw/trainer"
-          className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all shrink-0"
-          style={{ background: 'rgba(99,102,241,0.1)', border: '1px solid rgba(99,102,241,0.2)', color: '#a5b4fc' }}
+          className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all shrink-0 hover:border-white/15"
+          style={{ background: 'var(--card-bg)', border: '1px solid var(--border-color)', color: 'var(--text-secondary)' }}
         >
           <Dumbbell size={14} />
           Buchungstrainer
@@ -204,13 +204,13 @@ export default async function FrwPage({ searchParams }: Props) {
       {/* Premium-Banner */}
       <div
         className="flex items-start gap-3 rounded-2xl px-4 py-3.5"
-        style={{ background: 'rgba(99,102,241,0.08)', border: '1px solid rgba(99,102,241,0.2)' }}
+        style={{ background: 'var(--card-bg)', border: '1px solid var(--accent-border)' }}
       >
-        <span className="text-indigo-400 text-base shrink-0">🔒</span>
+        <span className="shrink-0 text-base" style={{ color: 'var(--accent)' }}>🔒</span>
         <div className="text-xs leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
-          <span className="font-semibold text-indigo-400">AP-Inhalte sind Premium-pflichtig.</span>
+          <span className="font-semibold" style={{ color: 'var(--accent)' }}>AP-Inhalte sind Premium-pflichtig.</span>
           {' '}Schalte alle Abschlussprüfungs-Kapitel für CHF 5 / Monat frei.{' '}
-          <a href="/premium" className="text-indigo-400 underline underline-offset-2 hover:text-indigo-300 transition-colors">
+          <a href="/premium" className="underline underline-offset-2 transition-colors" style={{ color: 'var(--accent)' }}>
             Premium holen →
           </a>
         </div>
@@ -234,7 +234,7 @@ export default async function FrwPage({ searchParams }: Props) {
                 isActive ? 'text-white shadow-sm' : 'hover:bg-white/5'
               }`}
               style={isActive
-                ? { background: tab.id === 'qsp' ? '#10b981' : tab.id === 'ap' ? '#6366f1' : 'rgba(99,102,241,0.7)' }
+                ? { background: 'var(--accent)', color: 'white' }
                 : { color: 'var(--text-muted)' }
               }
             >
@@ -258,17 +258,17 @@ export default async function FrwPage({ searchParams }: Props) {
       {filter === 'qsp' && (
         <div
           className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs"
-          style={{ background: 'rgba(16,185,129,0.06)', border: '1px solid rgba(16,185,129,0.18)', color: '#6ee7b7' }}
+          style={{ background: 'var(--card-bg)', border: '1px solid var(--border-color)', color: 'var(--text-secondary)' }}
         >
-          <span className="font-semibold">QSP</span> — Nur diese Themen kommen an der Querschnittsprüfung vor
+          <span className="font-semibold" style={{ color: 'var(--text-primary)' }}>QSP</span> — Nur diese Themen kommen an der Querschnittsprüfung vor
         </div>
       )}
       {filter === 'ap' && (
         <div
           className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs"
-          style={{ background: 'rgba(99,102,241,0.06)', border: '1px solid rgba(99,102,241,0.18)', color: '#a5b4fc' }}
+          style={{ background: 'var(--card-bg)', border: '1px solid var(--border-color)', color: 'var(--text-secondary)' }}
         >
-          <span className="font-semibold">AP</span> — An der Abschlussprüfung kommen <strong>alle</strong> Themen vor — QSP-Themen und AP-Themen
+          <span className="font-semibold" style={{ color: 'var(--text-primary)' }}>AP</span> — An der Abschlussprüfung kommen <strong>alle</strong> Themen vor — QSP-Themen und AP-Themen
         </div>
       )}
 

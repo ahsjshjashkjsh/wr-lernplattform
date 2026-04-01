@@ -121,7 +121,7 @@ export function QuizTrainer({ questions, chapterId }: { questions: QuizQuestion[
       <div className="w-full h-1 rounded-full overflow-hidden" style={{ background: 'var(--border-color)' }}>
         <div
           className="h-1 rounded-full transition-all duration-300"
-          style={{ width: `${(idx / pool.length) * 100}%`, background: 'linear-gradient(90deg,#3b82f6,#6366f1)' }}
+          style={{ width: `${(idx / pool.length) * 100}%`, background: 'var(--accent)' }}
         />
       </div>
 

@@ -92,7 +92,7 @@ export function ContactAdminForm() {
                 type="submit"
                 disabled={loading}
                 className="w-full flex items-center justify-center gap-2 py-2 rounded-xl text-xs font-semibold text-white transition-all disabled:opacity-60"
-                style={{ background: 'linear-gradient(135deg,#3b82f6,#6366f1)' }}
+                style={{ background: 'var(--accent)' }}
               >
                 {loading
                   ? <span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin"/>

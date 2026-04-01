@@ -61,30 +61,30 @@ export default function RegisterPage() {
         <div className="flex flex-col items-center mb-8">
           <div
             className="w-14 h-14 rounded-2xl flex items-center justify-center mb-4"
-            style={{ background: 'linear-gradient(135deg, #3b82f6, #6366f1)', boxShadow: '0 0 30px rgba(99,102,241,0.4)' }}
+            style={{ background: 'var(--accent)' }}
           >
             <TrendingUp size={28} className="text-white" />
           </div>
-          <h1 className="text-2xl font-bold gradient-text">HMS-Plattform</h1>
+          <h1 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>HMS-Plattform</h1>
           <p className="text-slate-500 text-sm mt-1">HMS · Abschlussprüfung 2026</p>
         </div>
 
-        <div className="glass rounded-2xl p-7 border text-center" style={{ borderColor: 'rgba(99,102,241,0.2)' }}>
+        <div className="rounded-2xl p-7 border text-center" style={{ background: 'var(--card-bg)', borderColor: 'var(--border-color)' }}>
           <div className="w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-4"
-            style={{ background: 'rgba(99,102,241,0.1)', border: '1px solid rgba(99,102,241,0.25)' }}>
-            <Clock size={26} className="text-indigo-400" />
+            style={{ background: 'var(--icon-bg)', border: '1px solid var(--border-color)' }}>
+            <Clock size={26} style={{ color: 'var(--accent)' }} />
           </div>
           <h2 className="text-lg font-bold text-slate-100 mb-2">Registrierung eingegangen</h2>
           <p className="text-sm leading-relaxed mb-5" style={{ color: 'var(--text-muted)' }}>
             Dein Konto wird gerade vom Administrator geprüft. Du erhältst Zugang, sobald deine Anfrage bestätigt wurde — das dauert in der Regel nur kurze Zeit.
           </p>
           <div className="rounded-xl px-4 py-3 text-xs leading-relaxed mb-5"
-            style={{ background: 'rgba(99,102,241,0.07)', border: '1px solid rgba(99,102,241,0.15)', color: '#a5b4fc' }}>
+            style={{ background: 'var(--icon-bg)', border: '1px solid var(--border-color)', color: 'var(--text-secondary)' }}>
             Du kannst diese Seite schliessen und dich später mit deinen Zugangsdaten anmelden.
           </div>
           <Link href="/login"
-            className="block w-full py-2.5 rounded-xl text-sm font-semibold text-white transition-all"
-            style={{ background: 'linear-gradient(135deg, #3b82f6, #6366f1)', boxShadow: '0 4px 20px -4px rgba(99,102,241,0.4)' }}>
+            className="block w-full py-2.5 rounded-xl text-sm font-semibold text-white transition-all hover:opacity-90"
+            style={{ background: 'var(--accent)', boxShadow: '0 2px 12px rgba(79,114,245,0.35)' }}>
             Zur Anmeldung
           </Link>
         </div>
@@ -100,19 +100,16 @@ export default function RegisterPage() {
         <div className="flex flex-col items-center mb-8">
           <div
             className="w-14 h-14 rounded-2xl flex items-center justify-center mb-4"
-            style={{
-              background: 'linear-gradient(135deg, #3b82f6, #6366f1)',
-              boxShadow: '0 0 30px rgba(99,102,241,0.4)',
-            }}
+            style={{ background: 'var(--accent)' }}
           >
             <TrendingUp size={28} className="text-white" />
           </div>
-          <h1 className="text-2xl font-bold gradient-text">HMS-Plattform</h1>
+          <h1 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>HMS-Plattform</h1>
           <p className="text-slate-500 text-sm mt-1">HMS · Abschlussprüfung 2026</p>
         </div>
 
         {/* Card */}
-        <div className="glass rounded-2xl p-6 border" style={{ borderColor: 'rgba(255,255,255,0.08)' }}>
+        <div className="rounded-2xl p-6 border" style={{ background: 'var(--card-bg)', borderColor: 'var(--border-color)' }}>
           <h2 className="text-lg font-semibold text-slate-200 mb-1">Konto erstellen</h2>
           <p className="text-xs text-slate-500 mb-5">Dein Fortschritt wird gespeichert und ist jederzeit abrufbar.</p>
 
@@ -242,8 +239,8 @@ export default function RegisterPage() {
               disabled={loading}
               className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold text-white transition-all disabled:opacity-60 mt-2"
               style={{
-                background: 'linear-gradient(135deg, #3b82f6, #6366f1)',
-                boxShadow: '0 4px 20px -4px rgba(99,102,241,0.5)',
+                background: 'var(--accent)',
+                boxShadow: '0 2px 12px rgba(79,114,245,0.35)',
               }}
             >
               {loading ? (

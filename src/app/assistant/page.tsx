@@ -180,10 +180,9 @@ function MessageBubble({ message }: { message: Message }) {
           style={
             isUser
               ? {
-                  background: 'linear-gradient(135deg, #7c3aed, #5b5ef4)',
+                  background: 'var(--accent)',
                   color: '#fff',
                   borderRadius: '16px 16px 4px 16px',
-                  boxShadow: '0 4px 20px rgba(99,102,241,0.3)',
                 }
               : {
                   background: 'rgba(255,255,255,0.04)',

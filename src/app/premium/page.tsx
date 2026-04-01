@@ -85,8 +85,8 @@ export default function PremiumPage() {
       {/* Header */}
       <div className="flex items-center gap-3">
         <div className="w-10 h-10 rounded-xl flex items-center justify-center"
-          style={{ background: 'linear-gradient(135deg, #f59e0b, #d97706)' }}>
-          <Crown size={20} className="text-white" />
+          style={{ background: 'rgba(245,158,11,0.15)', border: '1px solid rgba(245,158,11,0.3)' }}>
+          <Crown size={20} style={{ color: '#fbbf24' }} />
         </div>
         <div>
           <h1 className="text-xl font-bold" style={{ color: 'var(--text-primary)' }}>Premium</h1>
@@ -175,7 +175,7 @@ export default function PremiumPage() {
           </p>
           <a href="/login"
             className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-white"
-            style={{ background: 'linear-gradient(135deg, #3b82f6, #6366f1)' }}>
+            style={{ background: 'var(--accent)' }}>
             Jetzt anmelden
           </a>
         </div>
@@ -253,7 +253,7 @@ export default function PremiumPage() {
             onClick={handleRequest}
             disabled={requesting}
             className="w-full flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-semibold text-white transition-all disabled:opacity-50"
-            style={{ background: 'linear-gradient(135deg, #f59e0b, #d97706)' }}
+            style={{ background: '#d97706' }}
           >
             <Crown size={15} />
             {requesting ? 'Wird erstellt...' : 'Jetzt anfragen — CHF ' + PREMIUM_PRICE + ' / Monat'}

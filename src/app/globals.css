@@ -6,13 +6,15 @@
   --bg-base:          #060a14;
   --bg-surface:       rgba(255, 255, 255, 0.045);
   --bg-surface-hover: rgba(255, 255, 255, 0.075);
+  --card-bg:          #0c1525;
+  --card-bg-hover:    #101d30;
   --border-color:     rgba(255, 255, 255, 0.08);
-  --border-hover:     rgba(255, 255, 255, 0.18);
-  --text-primary:     #f0f4ff;
+  --border-hover:     rgba(255, 255, 255, 0.16);
+  --text-primary:     #eef2ff;
   --text-secondary:   #8896b0;
   --text-muted:       #3d4d66;
-  --dot-color:        rgba(255, 255, 255, 0.018);
-  --nav-bg:           rgba(6, 10, 20, 0.85);
+  --dot-color:        rgba(255, 255, 255, 0.022);
+  --nav-bg:           rgba(6, 10, 20, 0.9);
   --nav-border:       rgba(255, 255, 255, 0.07);
   --input-bg:         rgba(255, 255, 255, 0.05);
   --input-border:     rgba(255, 255, 255, 0.09);
@@ -20,6 +22,9 @@
   --icon-bg:          rgba(255, 255, 255, 0.07);
   --skeleton-from:    rgba(255, 255, 255, 0.04);
   --skeleton-to:      rgba(255, 255, 255, 0.09);
+  --accent:           #4f72f5;
+  --accent-bg:        rgba(79, 114, 245, 0.1);
+  --accent-border:    rgba(79, 114, 245, 0.25);
 }
 
 /* ─── Light theme ─────────────────────────────────────── */
@@ -27,13 +32,15 @@
   --bg-base:          #f0f4fa;
   --bg-surface:       rgba(255, 255, 255, 0.95);
   --bg-surface-hover: rgba(255, 255, 255, 1);
+  --card-bg:          #ffffff;
+  --card-bg-hover:    #f8faff;
   --border-color:     rgba(15, 23, 42, 0.10);
-  --border-hover:     rgba(15, 23, 42, 0.20);
+  --border-hover:     rgba(15, 23, 42, 0.22);
   --text-primary:     #0d1526;
   --text-secondary:   #4a5a78;
   --text-muted:       #8896b0;
   --dot-color:        rgba(0, 0, 0, 0.035);
-  --nav-bg:           rgba(248, 251, 255, 0.9);
+  --nav-bg:           rgba(248, 251, 255, 0.92);
   --nav-border:       rgba(15, 23, 42, 0.08);
   --input-bg:         rgba(15, 23, 42, 0.04);
   --input-border:     rgba(15, 23, 42, 0.10);
@@ -41,6 +48,9 @@
   --icon-bg:          rgba(15, 23, 42, 0.06);
   --skeleton-from:    rgba(15, 23, 42, 0.04);
   --skeleton-to:      rgba(15, 23, 42, 0.08);
+  --accent:           #3d5fe0;
+  --accent-bg:        rgba(61, 95, 224, 0.08);
+  --accent-border:    rgba(61, 95, 224, 0.2);
 }
 
 /* ─── Base ─────────────────────────────────────────────── */
@@ -94,19 +104,7 @@ body::before {
 }
 
 /* ─── Text utilities ─────────────────────────────────────── */
-.gradient-text {
-  background: linear-gradient(135deg, var(--text-primary) 0%, var(--text-secondary) 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-.gradient-text-blue {
-  background: linear-gradient(135deg, #60a5fa 0%, #a78bfa 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
+.accent-text { color: var(--accent); }
 
 /* ─── Tailwind color overrides for light mode ─────────────── */
 [data-theme="light"] .text-white     { color: #0d1526; }
@@ -124,9 +122,8 @@ body::before {
   background: rgba(15, 23, 42, 0.06);
 }
 
-/* ─── Glows ─────────────────────────────────────────────── */
-.glow-blue    { box-shadow: 0 0 30px -5px rgba(59,130,246,0.4), 0 0 0 1px rgba(59,130,246,0.15); }
-.glow-blue-sm { box-shadow: 0 4px 20px -4px rgba(59,130,246,0.35); }
+/* ─── Card shadow ────────────────────────────────────────── */
+.card-shadow { box-shadow: 0 1px 3px rgba(0,0,0,0.3), 0 4px 16px rgba(0,0,0,0.15); }
 
 /* ─── Animations ─────────────────────────────────────────── */
 @keyframes fadeIn {

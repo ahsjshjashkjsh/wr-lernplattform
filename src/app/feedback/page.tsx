@@ -59,7 +59,7 @@ export default function FeedbackPage() {
             <button
               onClick={() => setSuccess(false)}
               className="px-4 py-2 rounded-xl text-sm font-medium text-white"
-              style={{ background: 'linear-gradient(135deg, #3b82f6, #6366f1)' }}
+              style={{ background: 'var(--accent)' }}
             >
               Weiteres Feedback senden
             </button>

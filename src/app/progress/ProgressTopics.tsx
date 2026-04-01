@@ -40,7 +40,7 @@ const ACCENT_STYLES: Record<Accent, {
   blue: {
     border: 'rgba(59,130,246,0.6)',
     dot: 'bg-blue-400',
-    barGradient: 'linear-gradient(90deg, #3b82f6, #6366f1)',
+    barGradient: 'var(--accent)',
     barGlow: 'rgba(99,102,241,0.35)',
     pctColor: 'text-blue-400',
     iconBg: 'rgba(59,130,246,0.1)',

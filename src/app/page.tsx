@@ -4,7 +4,7 @@ import Link from 'next/link'
 import {
   ArrowRight, BookOpen, Dumbbell, Sparkles,
   Calculator, Hash, FileText, ChevronRight,
-  Scale, Clock, GraduationCap, Layers,
+  Scale, Clock, GraduationCap, Layers, Bot,
 } from 'lucide-react'
 
 export const dynamic = 'force-dynamic'
@@ -72,45 +72,31 @@ export default async function DashboardPage() {
     <div className="space-y-8 fade-in">
 
       {/* HERO */}
-      <div
-        className="relative rounded-2xl overflow-hidden"
-        style={{
-          background: 'linear-gradient(135deg, rgba(59,130,246,0.1) 0%, rgba(99,102,241,0.07) 50%, rgba(139,92,246,0.05) 100%)',
-          border: '1px solid rgba(99,102,241,0.18)',
-        }}
-      >
-        <div className="absolute top-0 right-0 w-72 h-72 rounded-full pointer-events-none opacity-20"
-          style={{ background: 'radial-gradient(circle, rgba(99,102,241,0.4) 0%, transparent 70%)', transform: 'translate(35%, -35%)' }} />
-
-        <div className="relative z-10 p-7 sm:p-9">
-          <div className="flex items-center gap-1.5 text-[11px] font-semibold text-indigo-300 bg-indigo-500/10 border border-indigo-500/20 px-3 py-1 rounded-full w-fit mb-5">
-            <Sparkles size={10} />
-            HMS · H23b · Abschlussprüfung 2026
-          </div>
-
-          <h1 className="text-3xl sm:text-4xl font-extrabold leading-tight mb-2" style={{ color: 'var(--text-primary)' }}>
-            {firstName ? `Hallo, ${firstName}.` : 'HMS-Lernplattform'}
-          </h1>
-          <p className="text-sm max-w-lg leading-relaxed mb-7" style={{ color: 'var(--text-secondary)' }}>
-            Deine Plattform zur Prüfungsvorbereitung — FRW, Wirtschaft &amp; Recht und mehr. Theorie, Übungen und KI-Assistent.
-          </p>
-
-          <div className="flex flex-wrap gap-3">
-            <Link
-              href="/frw"
-              className="flex items-center gap-2 text-sm font-semibold text-white px-5 py-2.5 rounded-xl transition-all"
-              style={{ background: 'linear-gradient(135deg, #3b82f6, #6366f1)', boxShadow: '0 4px 20px -4px rgba(99,102,241,0.5)' }}
-            >
-              <BookOpen size={14} /> Lernen starten
-            </Link>
-            <Link
-              href="/assistant"
-              className="flex items-center gap-2 text-sm font-medium px-5 py-2.5 rounded-xl transition-all"
-              style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: 'var(--text-primary)' }}
-            >
-              <Sparkles size={14} className="text-indigo-400" /> KI-Assistent
-            </Link>
-          </div>
+      <div className="pt-2 pb-2">
+        <p className="text-[11px] font-semibold uppercase tracking-widest mb-5" style={{ color: 'var(--text-muted)' }}>
+          HMS · H23b · Abschlussprüfung 2026
+        </p>
+        <h1 className="text-3xl sm:text-4xl font-extrabold leading-tight mb-3" style={{ color: 'var(--text-primary)', letterSpacing: '-0.025em' }}>
+          {firstName ? `Hallo, ${firstName}.` : 'HMS-Lernplattform'}
+        </h1>
+        <p className="text-sm max-w-md leading-relaxed mb-7" style={{ color: 'var(--text-secondary)' }}>
+          Deine Plattform zur Prüfungsvorbereitung — FRW, Wirtschaft &amp; Recht und mehr.
+        </p>
+        <div className="flex flex-wrap gap-3">
+          <Link
+            href="/frw"
+            className="flex items-center gap-2 text-sm font-semibold text-white px-5 py-2.5 rounded-xl transition-all hover:opacity-90 active:scale-[0.98]"
+            style={{ background: 'var(--accent)', boxShadow: '0 2px 12px rgba(79,114,245,0.35)' }}
+          >
+            <BookOpen size={14} /> Lernen starten
+          </Link>
+          <Link
+            href="/assistant"
+            className="flex items-center gap-2 text-sm font-medium px-5 py-2.5 rounded-xl transition-all hover:border-white/20"
+            style={{ background: 'var(--card-bg)', border: '1px solid var(--border-color)', color: 'var(--text-secondary)' }}
+          >
+            <Bot size={14} /> KI-Assistent
+          </Link>
         </div>
       </div>
 
@@ -124,8 +110,8 @@ export default async function DashboardPage() {
           {/* FRW */}
           <Link
             href="/frw"
-            className="group rounded-2xl p-6 transition-all duration-200 hover:-translate-y-0.5 flex flex-col"
-            style={{ background: 'var(--card-bg)', border: '1px solid rgba(16,185,129,0.25)' }}
+            className="group rounded-2xl p-6 transition-all duration-200 hover:-translate-y-0.5 hover:border-white/15 flex flex-col"
+            style={{ background: 'var(--card-bg)', border: '1px solid var(--border-color)' }}
           >
             <div className="flex items-start justify-between mb-5">
               <div
@@ -161,7 +147,7 @@ export default async function DashboardPage() {
 
             <div
               className="flex items-center gap-4 pt-4 mt-auto"
-              style={{ borderTop: '1px solid rgba(16,185,129,0.12)' }}
+              style={{ borderTop: '1px solid var(--border-color)' }}
             >
               <span className="flex items-center gap-1.5 text-xs" style={{ color: 'var(--text-muted)' }}>
                 <Hash size={11} className="text-emerald-400" /> {totalBuchungen} Buchungen
@@ -176,8 +162,8 @@ export default async function DashboardPage() {
           {/* WR */}
           <Link
             href="/wr"
-            className="group rounded-2xl p-6 transition-all duration-200 hover:-translate-y-0.5 flex flex-col"
-            style={{ background: 'var(--card-bg)', border: '1px solid rgba(59,130,246,0.25)' }}
+            className="group rounded-2xl p-6 transition-all duration-200 hover:-translate-y-0.5 hover:border-white/15 flex flex-col"
+            style={{ background: 'var(--card-bg)', border: '1px solid var(--border-color)' }}
           >
             <div className="flex items-start justify-between mb-5">
               <div
@@ -217,7 +203,7 @@ export default async function DashboardPage() {
 
             <div
               className="flex items-center gap-4 pt-4 mt-auto"
-              style={{ borderTop: '1px solid rgba(59,130,246,0.12)' }}
+              style={{ borderTop: '1px solid var(--border-color)' }}
             >
               <span className="flex items-center gap-1.5 text-xs" style={{ color: 'var(--text-muted)' }}>
                 <Layers size={11} className="text-blue-400" /> {wrTotal} Themen
@@ -240,15 +226,15 @@ export default async function DashboardPage() {
           </h2>
           <Link
             href={`/${lastProgress.chapter.topic.category === 'frw' ? 'frw' : 'wr'}/${lastProgress.chapter.topic.slug}`}
-            className="flex items-center justify-between gap-4 rounded-2xl p-4 transition-all hover:-translate-y-0.5"
-            style={{ background: 'var(--card-bg)', border: '1px solid rgba(99,102,241,0.2)' }}
+            className="flex items-center justify-between gap-4 rounded-2xl p-4 transition-all hover:-translate-y-0.5 hover:border-white/15"
+            style={{ background: 'var(--card-bg)', border: '1px solid var(--border-color)' }}
           >
             <div className="flex items-center gap-3 min-w-0">
               <div
                 className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
-                style={{ background: 'rgba(99,102,241,0.1)', border: '1px solid rgba(99,102,241,0.2)' }}
+                style={{ background: 'var(--icon-bg)', border: '1px solid var(--border-color)' }}
               >
-                <BookOpen size={15} className="text-indigo-400" />
+                <BookOpen size={15} style={{ color: 'var(--accent)' }} />
               </div>
               <div className="min-w-0">
                 <p className="text-xs font-semibold truncate" style={{ color: 'var(--text-primary)' }}>
@@ -259,7 +245,7 @@ export default async function DashboardPage() {
                 </p>
               </div>
             </div>
-            <div className="flex items-center gap-1.5 text-xs font-medium text-indigo-400 shrink-0">
+            <div className="flex items-center gap-1 text-xs font-medium shrink-0" style={{ color: 'var(--accent)' }}>
               Weitermachen <ChevronRight size={13} />
             </div>
           </Link>
@@ -274,42 +260,42 @@ export default async function DashboardPage() {
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <Link
             href="/frw/trainer"
-            className="rounded-2xl p-5 flex items-center gap-4 transition-all hover:-translate-y-0.5 hover:scale-[1.01]"
-            style={{ background: 'linear-gradient(135deg, rgba(99,102,241,0.1) 0%, rgba(139,92,246,0.06) 100%)', border: '1px solid rgba(99,102,241,0.2)' }}
+            className="rounded-2xl p-5 flex items-center gap-4 transition-all hover:-translate-y-0.5 hover:border-white/15"
+            style={{ background: 'var(--card-bg)', border: '1px solid var(--border-color)' }}
           >
-            <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style={{ background: 'rgba(99,102,241,0.15)' }}>
-              <Dumbbell size={18} className="text-indigo-400" />
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style={{ background: 'var(--icon-bg)' }}>
+              <Dumbbell size={18} className="text-emerald-400" />
             </div>
             <div>
-              <p className="text-sm font-semibold text-indigo-300">Buchungstrainer</p>
+              <p className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>Buchungstrainer</p>
               <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>FRW · alle Kapitel</p>
             </div>
           </Link>
 
           <Link
             href="/progress"
-            className="rounded-2xl p-5 flex items-center gap-4 transition-all hover:-translate-y-0.5 hover:scale-[1.01]"
-            style={{ background: 'linear-gradient(135deg, rgba(16,185,129,0.08) 0%, rgba(5,150,105,0.05) 100%)', border: '1px solid rgba(16,185,129,0.18)' }}
+            className="rounded-2xl p-5 flex items-center gap-4 transition-all hover:-translate-y-0.5 hover:border-white/15"
+            style={{ background: 'var(--card-bg)', border: '1px solid var(--border-color)' }}
           >
-            <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style={{ background: 'rgba(16,185,129,0.12)' }}>
-              <Clock size={18} className="text-emerald-400" />
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style={{ background: 'var(--icon-bg)' }}>
+              <Clock size={18} className="text-blue-400" />
             </div>
             <div>
-              <p className="text-sm font-semibold text-emerald-300">Lernübersicht</p>
+              <p className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>Lernübersicht</p>
               <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>FRW &amp; WR Inhalte</p>
             </div>
           </Link>
 
           <Link
             href="/assistant"
-            className="rounded-2xl p-5 flex items-center gap-4 transition-all hover:-translate-y-0.5 hover:scale-[1.01]"
-            style={{ background: 'linear-gradient(135deg, rgba(59,130,246,0.08) 0%, rgba(99,102,241,0.05) 100%)', border: '1px solid rgba(59,130,246,0.18)' }}
+            className="rounded-2xl p-5 flex items-center gap-4 transition-all hover:-translate-y-0.5 hover:border-white/15"
+            style={{ background: 'var(--card-bg)', border: '1px solid var(--border-color)' }}
           >
-            <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style={{ background: 'rgba(59,130,246,0.12)' }}>
-              <Sparkles size={18} className="text-blue-400" />
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style={{ background: 'var(--icon-bg)' }}>
+              <Bot size={18} style={{ color: 'var(--accent)' }} />
             </div>
             <div>
-              <p className="text-sm font-semibold text-blue-300">KI-Assistent</p>
+              <p className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>KI-Assistent</p>
               <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>Fragen stellen</p>
             </div>
           </Link>
