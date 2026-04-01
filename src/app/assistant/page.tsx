@@ -348,8 +348,13 @@ export default function AssistantPage({
 
   return (
     <div
-      className="-mt-6 sm:-mt-10 -mb-6 sm:-mb-10 -mx-4 sm:-mx-6 lg:-mx-8 fade-in flex flex-col"
-      style={{ height: 'calc(100dvh - 56px)' }}
+      className="-mt-6 sm:-mt-10 -mb-6 sm:-mb-10 fade-in flex flex-col"
+      style={{
+        height: 'calc(100dvh - 56px)',
+        marginLeft: 'calc(50% - 50vw)',
+        width: '100vw',
+        overflowX: 'hidden',
+      }}
     >
 
       {/* ── Header ── */}
