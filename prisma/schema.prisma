@@ -268,11 +268,12 @@ model PromoCode {
 }
 
 model AccountingEntry {
-  id           String   @id @default(cuid())
-  typ          String   // "aufwand" | "ertrag"
-  beschreibung String
-  betrag       Float
-  datum        DateTime @default(now())
-  kategorie    String?
-  createdAt    DateTime @default(now())
+  id            String   @id @default(cuid())
+  typ           String   // "aufwand" | "ertrag" | "einlage"
+  beschreibung  String
+  betrag        Float
+  datum         DateTime @default(now())
+  kategorie     String?
+  wiederkehrend Boolean  @default(false) // true = Fixkosten (monatl.), false = einmaliger Aufwand
+  createdAt     DateTime @default(now())
 }

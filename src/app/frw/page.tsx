@@ -159,7 +159,7 @@ export default async function FrwPage({ searchParams }: Props) {
   // Apply filter
   const filteredTopics = topics.filter(t => {
     if (filter === 'qsp') return t.examType === 'querschnitt'
-    if (filter === 'ap')  return t.examType === 'abschluss'
+    if (filter === 'ap')  return t.examType === 'abschluss' || t.examType === 'querschnitt'
     return true
   })
 
@@ -260,7 +260,7 @@ export default async function FrwPage({ searchParams }: Props) {
           className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs"
           style={{ background: 'rgba(16,185,129,0.06)', border: '1px solid rgba(16,185,129,0.18)', color: '#6ee7b7' }}
         >
-          <span className="font-semibold">QSP</span> — Diese Themen kommen an der Querschnittsprüfung vor (und auch an der Abschlussprüfung)
+          <span className="font-semibold">QSP</span> — Nur diese Themen kommen an der Querschnittsprüfung vor
         </div>
       )}
       {filter === 'ap' && (
@@ -268,7 +268,7 @@ export default async function FrwPage({ searchParams }: Props) {
           className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs"
           style={{ background: 'rgba(99,102,241,0.06)', border: '1px solid rgba(99,102,241,0.18)', color: '#a5b4fc' }}
         >
-          <span className="font-semibold">AP</span> — Diese Themen kommen an der Abschlussprüfung vor, aber <strong>nicht</strong> an der QSP
+          <span className="font-semibold">AP</span> — An der Abschlussprüfung kommen <strong>alle</strong> Themen vor — QSP-Themen und AP-Themen
         </div>
       )}
 

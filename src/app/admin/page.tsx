@@ -61,6 +61,7 @@ interface AccountingEntry {
   betrag: number
   datum: string
   kategorie: string | null
+  wiederkehrend: boolean
   createdAt: string
 }
 
@@ -121,11 +122,11 @@ export default function AdminPage() {
     const now = new Date()
     return new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString().slice(0, 16)
   }
-  const [buchForm, setBuchForm] = useState({ typ: 'ertrag', beschreibung: '', betrag: '', datum: localNow(), kategorie: '', waehrung: 'chf', kurs: '0.80' })
+  const [buchForm, setBuchForm] = useState({ typ: 'ertrag', beschreibung: '', betrag: '', datum: localNow(), kategorie: '', waehrung: 'chf', kurs: '0.80', wiederkehrend: false })
   const [buchSaving, setBuchSaving] = useState(false)
   const [buchDeleting, setBuchDeleting] = useState<string | null>(null)
   const [buchEditEntry, setBuchEditEntry] = useState<AccountingEntry | null>(null)
-  const [buchEditForm, setBuchEditForm] = useState({ typ: 'ertrag', beschreibung: '', betrag: '', datum: '', kategorie: '', waehrung: 'chf', kurs: '0.80' })
+  const [buchEditForm, setBuchEditForm] = useState({ typ: 'ertrag', beschreibung: '', betrag: '', datum: '', kategorie: '', waehrung: 'chf', kurs: '0.80', wiederkehrend: false })
   const [buchEditSaving, setBuchEditSaving] = useState(false)
 
   const loadUsers = useCallback(async (silent = false) => {
@@ -188,7 +189,7 @@ export default function AdminPage() {
       }),
     })
     await loadBuchhaltung()
-    setBuchForm(f => ({ typ: f.typ, beschreibung: '', betrag: '', datum: localNow(), kategorie: '', waehrung: f.waehrung, kurs: f.kurs }))
+    setBuchForm(f => ({ typ: f.typ, beschreibung: '', betrag: '', datum: localNow(), kategorie: '', waehrung: f.waehrung, kurs: f.kurs, wiederkehrend: false }))
     setBuchSaving(false)
   }
 
@@ -215,6 +216,7 @@ export default function AdminPage() {
       kategorie: entry.kategorie ?? '',
       waehrung: 'chf',
       kurs: '0.80',
+      wiederkehrend: entry.wiederkehrend,
     })
   }
 
@@ -234,6 +236,7 @@ export default function AdminPage() {
         datum: new Date(buchEditForm.datum).toISOString(),
       }),
     })
+
     await loadBuchhaltung()
     setBuchEditEntry(null)
     setBuchEditSaving(false)
@@ -1351,24 +1354,30 @@ export default function AdminPage() {
 
       {/* === TAB: BUCHHALTUNG === */}
       {tab === 'buchhaltung' && (() => {
-        const ertraege   = accountingEntries.filter(e => e.typ === 'ertrag').reduce((s, e) => s + e.betrag, 0)
-        const aufwaende  = accountingEntries.filter(e => e.typ === 'aufwand').reduce((s, e) => s + e.betrag, 0)
-        const einlagen   = accountingEntries.filter(e => e.typ === 'einlage').reduce((s, e) => s + e.betrag, 0)
-        const ergebnis   = ertraege - aufwaende
-        const kassenbestand = einlagen + ertraege - aufwaende
+        const ertraege        = accountingEntries.filter(e => e.typ === 'ertrag').reduce((s, e) => s + e.betrag, 0)
+        const aufwaende       = accountingEntries.filter(e => e.typ === 'aufwand').reduce((s, e) => s + e.betrag, 0)
+        const einlagen        = accountingEntries.filter(e => e.typ === 'einlage').reduce((s, e) => s + e.betrag, 0)
+        const ergebnis        = ertraege - aufwaende
+        const kassenbestand   = einlagen + ertraege - aufwaende
+
+        // Unterscheidung: Fixkosten (monatl.) vs. einmalige Aufwände
+        const fixkostenEntries   = accountingEntries.filter(e => e.typ === 'aufwand' && e.wiederkehrend)
+        const einmaligeEntries   = accountingEntries.filter(e => e.typ === 'aufwand' && !e.wiederkehrend)
+        const fixkostenTotal     = fixkostenEntries.reduce((s, e) => s + e.betrag, 0)
+        const einmaligeTotal     = einmaligeEntries.reduce((s, e) => s + e.betrag, 0)
+
+        // Monatlicher Burn = nur Fixkosten (Subscriptions)
+        const monthlyBurn = (() => {
+          if (fixkostenEntries.length === 0) return 0
+          if (fixkostenEntries.length < 2) return fixkostenEntries[0].betrag
+          const dates = fixkostenEntries.map(e => new Date(e.datum).getTime())
+          const days  = Math.max(1, (Math.max(...dates) - Math.min(...dates)) / 86_400_000)
+          return (fixkostenTotal / days) * 30
+        })()
 
         const premiumPreis   = parseFloat(process.env.NEXT_PUBLIC_PREMIUM_PRICE ?? '5')
         const aktivePremium  = users.filter(u => u.isPremium).length
         const monatlicheErl  = aktivePremium * premiumPreis
-
-        // Ø monatliche Kosten aus echten Daten
-        const aufwandEntries = accountingEntries.filter(e => e.typ === 'aufwand')
-        const monthlyBurn = (() => {
-          if (aufwandEntries.length < 2) return aufwaende
-          const dates = aufwandEntries.map(e => new Date(e.datum).getTime())
-          const days  = Math.max(1, (Math.max(...dates) - Math.min(...dates)) / 86_400_000)
-          return (aufwaende / days) * 30
-        })()
 
         const neededUsers      = Math.ceil(monthlyBurn / premiumPreis)
         const breakevenPct     = Math.min(100, neededUsers > 0 ? (aktivePremium / neededUsers) * 100 : 0)
@@ -1394,7 +1403,7 @@ export default function AdminPage() {
                   {kassenbestand < 0 ? '−' : ''}{fmt(Math.abs(kassenbestand))}
                 </p>
                 <p className="text-[11px] mt-1.5" style={{ color: 'rgba(100,116,139,0.8)' }}>
-                  {fmt(einlagen)} Einlagen &nbsp;+&nbsp; {fmt(ertraege)} Erlöse &nbsp;−&nbsp; {fmt(aufwaende)} Aufwände
+                  {fmt(einlagen)} Einlagen &nbsp;+&nbsp; {fmt(ertraege)} Erlöse &nbsp;−&nbsp; {fmt(fixkostenTotal)} Fixkosten &nbsp;−&nbsp; {fmt(einmaligeTotal)} einmalige Aufwände
                 </p>
               </div>
               <div className="text-right shrink-0 space-y-2">
@@ -1414,16 +1423,10 @@ export default function AdminPage() {
             </div>
 
             {/* ── KPI-Karten ── */}
-            <div className="grid grid-cols-4 gap-3">
+            <div className="grid grid-cols-2 gap-3">
               {([
-                ['Erlöse',         ertraege,  '#34d399', 'rgba(52,211,153,0.08)',  'rgba(52,211,153,0.18)',  'Premium-Einnahmen'],
-                ['Aufwände',       aufwaende, '#f87171', 'rgba(239,68,68,0.08)',   'rgba(239,68,68,0.18)',   'Claude API & Tools'],
-                ['Kapitaleinlagen',einlagen,  '#a78bfa', 'rgba(139,92,246,0.08)', 'rgba(139,92,246,0.18)', 'Investiertes EK'],
-                [ergebnis >= 0 ? 'Gewinn' : 'Verlust', Math.abs(ergebnis),
-                  ergebnis >= 0 ? '#60a5fa' : '#f87171',
-                  ergebnis >= 0 ? 'rgba(59,130,246,0.08)' : 'rgba(239,68,68,0.08)',
-                  ergebnis >= 0 ? 'rgba(59,130,246,0.18)' : 'rgba(239,68,68,0.18)',
-                  'Erlöse − Aufwände'],
+                ['Erlöse',           ertraege,      '#34d399', 'rgba(52,211,153,0.08)',  'rgba(52,211,153,0.18)',  'Premium-Einnahmen'],
+                ['Kapitaleinlagen',  einlagen,      '#a78bfa', 'rgba(139,92,246,0.08)', 'rgba(139,92,246,0.18)', 'Investiertes EK'],
               ] as const).map(([label, val, color, bg, border, sub]) => (
                 <div key={label} className="rounded-2xl p-4" style={{ background: bg, border: `1px solid ${border}` }}>
                   <p className="text-[10px] uppercase tracking-wider font-semibold mb-2" style={{ color }}>{label}</p>
@@ -1431,6 +1434,28 @@ export default function AdminPage() {
                   <p className="text-[10px] mt-1.5" style={{ color: 'rgba(100,116,139,0.7)' }}>{sub}</p>
                 </div>
               ))}
+            </div>
+            <div className="grid grid-cols-3 gap-3">
+              <div className="rounded-2xl p-4" style={{ background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.18)' }}>
+                <p className="text-[10px] uppercase tracking-wider font-semibold mb-2" style={{ color: '#f87171' }}>Fixkosten</p>
+                <p className="text-lg font-bold" style={{ color: '#f87171' }}>{fmt(fixkostenTotal)}</p>
+                <p className="text-[10px] mt-1.5" style={{ color: 'rgba(100,116,139,0.7)' }}>Monatl. wiederkehrend</p>
+              </div>
+              <div className="rounded-2xl p-4" style={{ background: 'rgba(251,146,60,0.08)', border: '1px solid rgba(251,146,60,0.18)' }}>
+                <p className="text-[10px] uppercase tracking-wider font-semibold mb-2" style={{ color: '#fb923c' }}>Einmalige Aufwände</p>
+                <p className="text-lg font-bold" style={{ color: '#fb923c' }}>{fmt(einmaligeTotal)}</p>
+                <p className="text-[10px] mt-1.5" style={{ color: 'rgba(100,116,139,0.7)' }}>Variable Kosten</p>
+              </div>
+              <div className="rounded-2xl p-4" style={{
+                background: ergebnis >= 0 ? 'rgba(59,130,246,0.08)' : 'rgba(239,68,68,0.08)',
+                border: `1px solid ${ergebnis >= 0 ? 'rgba(59,130,246,0.18)' : 'rgba(239,68,68,0.18)'}`,
+              }}>
+                <p className="text-[10px] uppercase tracking-wider font-semibold mb-2" style={{ color: ergebnis >= 0 ? '#60a5fa' : '#f87171' }}>
+                  {ergebnis >= 0 ? 'Gewinn' : 'Verlust'}
+                </p>
+                <p className="text-lg font-bold" style={{ color: ergebnis >= 0 ? '#60a5fa' : '#f87171' }}>{fmt(Math.abs(ergebnis))}</p>
+                <p className="text-[10px] mt-1.5" style={{ color: 'rgba(100,116,139,0.7)' }}>Erlöse − Aufwände</p>
+              </div>
             </div>
 
             {/* ── Breakeven-Analyse ── */}
@@ -1440,8 +1465,8 @@ export default function AdminPage() {
                   <BarChart2 size={14} className="text-violet-400" />
                   <span className="text-sm font-semibold text-slate-300">Breakeven-Analyse</span>
                 </div>
-                <span className="text-xs px-2 py-1 rounded-lg" style={{ background: 'rgba(139,92,246,0.1)', color: '#a78bfa', border: '1px solid rgba(139,92,246,0.2)' }}>
-                  Ø {fmt(monthlyBurn)} / Monat
+                <span className="text-xs px-2 py-1 rounded-lg" style={{ background: 'rgba(239,68,68,0.1)', color: '#f87171', border: '1px solid rgba(239,68,68,0.2)' }}>
+                  {fmt(monthlyBurn)} Fixkosten/Monat
                 </span>
               </div>
 
@@ -1551,6 +1576,18 @@ export default function AdminPage() {
                   placeholder="Kategorie (optional)"
                   className="px-3 py-2.5 rounded-xl text-sm outline-none flex-[1.5] min-w-[140px]"
                   style={iStyle} />
+                {buchForm.typ === 'aufwand' && (
+                  <button type="button"
+                    onClick={() => setBuchForm(f => ({ ...f, wiederkehrend: !f.wiederkehrend }))}
+                    className="px-3 py-2 rounded-xl text-xs font-semibold shrink-0 transition-all flex items-center gap-1.5"
+                    style={{
+                      background: buchForm.wiederkehrend ? 'rgba(239,68,68,0.15)' : 'rgba(255,255,255,0.04)',
+                      border: `1px solid ${buchForm.wiederkehrend ? 'rgba(239,68,68,0.35)' : 'rgba(255,255,255,0.08)'}`,
+                      color: buchForm.wiederkehrend ? '#f87171' : '#475569',
+                    }}>
+                    ↻ Fixkosten
+                  </button>
+                )}
                 <button onClick={addBuchEntry}
                   disabled={buchSaving || !buchForm.beschreibung || !buchForm.betrag}
                   className="px-5 py-2.5 rounded-xl text-sm font-semibold transition-all disabled:opacity-40 flex items-center gap-2 shrink-0"
@@ -1582,6 +1619,15 @@ export default function AdminPage() {
                       {entry.kategorie && (
                         <span className="ml-2 text-[10px] px-1.5 py-0.5 rounded-full" style={{ background: 'rgba(255,255,255,0.05)', color: '#64748b' }}>
                           {entry.kategorie}
+                        </span>
+                      )}
+                      {entry.typ === 'aufwand' && (
+                        <span className="ml-1.5 text-[10px] px-1.5 py-0.5 rounded-full" style={
+                          entry.wiederkehrend
+                            ? { background: 'rgba(239,68,68,0.1)', color: '#f87171', border: '1px solid rgba(239,68,68,0.2)' }
+                            : { background: 'rgba(251,146,60,0.1)', color: '#fb923c', border: '1px solid rgba(251,146,60,0.2)' }
+                        }>
+                          {entry.wiederkehrend ? '↻ Fixkosten' : '1× einmalig'}
                         </span>
                       )}
                     </div>
@@ -1684,6 +1730,18 @@ export default function AdminPage() {
                     style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: 'var(--text-primary)' }} />
                 </div>
               </div>
+              {buchEditForm.typ === 'aufwand' && (
+                <button type="button"
+                  onClick={() => setBuchEditForm(f => ({ ...f, wiederkehrend: !f.wiederkehrend }))}
+                  className="w-full py-2 rounded-xl text-sm font-semibold transition-all flex items-center justify-center gap-2"
+                  style={{
+                    background: buchEditForm.wiederkehrend ? 'rgba(239,68,68,0.15)' : 'rgba(255,255,255,0.04)',
+                    border: `1px solid ${buchEditForm.wiederkehrend ? 'rgba(239,68,68,0.35)' : 'rgba(255,255,255,0.08)'}`,
+                    color: buchEditForm.wiederkehrend ? '#f87171' : '#475569',
+                  }}>
+                  ↻ {buchEditForm.wiederkehrend ? 'Fixkosten (monatl. wiederkehrend)' : 'Einmaliger Aufwand'}
+                </button>
+              )}
               <div>
                 <label className="text-xs text-slate-500 block mb-1">Datum & Uhrzeit</label>
                 <input type="datetime-local" value={buchEditForm.datum}

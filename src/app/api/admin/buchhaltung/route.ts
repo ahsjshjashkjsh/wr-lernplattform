@@ -18,7 +18,7 @@ export async function POST(req: Request) {
   const user = await getCurrentUser()
   if (!user?.isAdmin) return Response.json({ error: 'Kein Zugriff.' }, { status: 403 })
 
-  const { typ, beschreibung, betrag, datum, kategorie } = await req.json()
+  const { typ, beschreibung, betrag, datum, kategorie, wiederkehrend } = await req.json()
 
   if (!typ || !beschreibung || !betrag) {
     return Response.json({ error: 'Fehlende Felder.' }, { status: 400 })
@@ -31,6 +31,7 @@ export async function POST(req: Request) {
       betrag: parseFloat(betrag),
       datum: datum ? new Date(datum) : new Date(),
       kategorie: kategorie || null,
+      wiederkehrend: wiederkehrend === true,
     },
   })
 
@@ -41,7 +42,7 @@ export async function PATCH(req: Request) {
   const user = await getCurrentUser()
   if (!user?.isAdmin) return Response.json({ error: 'Kein Zugriff.' }, { status: 403 })
 
-  const { id, typ, beschreibung, betrag, datum, kategorie } = await req.json()
+  const { id, typ, beschreibung, betrag, datum, kategorie, wiederkehrend } = await req.json()
   if (!id) return Response.json({ error: 'Fehlende ID.' }, { status: 400 })
 
   const entry = await prisma.accountingEntry.update({
@@ -52,6 +53,7 @@ export async function PATCH(req: Request) {
       betrag: parseFloat(betrag),
       datum: datum ? new Date(datum) : new Date(),
       kategorie: kategorie || null,
+      wiederkehrend: wiederkehrend === true,
     },
   })
 

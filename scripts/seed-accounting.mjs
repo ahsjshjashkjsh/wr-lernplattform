@@ -17,7 +17,7 @@ const entries = [
   { typ: 'aufwand', beschreibung: 'Anthropic',               betrag: 8.63,  datum: '2026-03-23T11:08:00', kategorie: 'Claude API' },
   { typ: 'aufwand', beschreibung: 'Anthropic',               betrag: 4.32,  datum: '2026-03-23T11:07:00', kategorie: 'Claude API' },
   { typ: 'aufwand', beschreibung: 'Anthropic',               betrag: 4.32,  datum: '2026-03-23T10:43:00', kategorie: 'Claude API' },
-  { typ: 'aufwand', beschreibung: 'Claude.ai Subscription',  betrag: 17.17, datum: '2026-03-13T16:46:00', kategorie: 'Claude API' },
+  { typ: 'aufwand', beschreibung: 'Claude.ai Subscription',  betrag: 17.17, datum: '2026-03-13T16:46:00', kategorie: 'Claude API', wiederkehrend: true },
 
   // === ERTRÄGE (Einzahlungen & Premium-Zahlungen) ===
   { typ: 'ertrag', beschreibung: 'Premium-Zahlung',     betrag: 55.00, datum: '2026-03-29T14:44:00', kategorie: 'Premium' },
@@ -30,9 +30,9 @@ const entries = [
 
 for (const e of entries) {
   await client.query(
-    `INSERT INTO "AccountingEntry" (id, typ, beschreibung, betrag, datum, kategorie, "createdAt")
-     VALUES ($1, $2, $3, $4, $5, $6, NOW())`,
-    [randomUUID(), e.typ, e.beschreibung, e.betrag, new Date(e.datum), e.kategorie]
+    `INSERT INTO "AccountingEntry" (id, typ, beschreibung, betrag, datum, kategorie, wiederkehrend, "createdAt")
+     VALUES ($1, $2, $3, $4, $5, $6, $7, NOW())`,
+    [randomUUID(), e.typ, e.beschreibung, e.betrag, new Date(e.datum), e.kategorie, e.wiederkehrend ?? false]
   )
   console.log(`✓ ${e.typ === 'ertrag' ? '+' : '−'} ${e.betrag.toFixed(2)} CHF — ${e.beschreibung}`)
 }
