@@ -347,19 +347,20 @@ export default function AssistantPage({
   const hasMessages = messages.length > 0
 
   return (
-    <div className="max-w-4xl mx-auto fade-in" style={{ height: 'calc(100vh - 120px)', display: 'flex', flexDirection: 'column' }}>
+    <div
+      className="-mt-6 sm:-mt-10 -mb-6 sm:-mb-10 -mx-4 sm:-mx-6 lg:-mx-8 fade-in flex flex-col"
+      style={{ height: 'calc(100dvh - 56px)' }}
+    >
 
       {/* ── Header ── */}
       <div
-        className="shrink-0 px-5 py-4 rounded-t-2xl flex items-center justify-between"
+        className="shrink-0 w-full"
         style={{
           background: 'rgba(255,255,255,0.03)',
-          borderBottom: '1px solid rgba(255,255,255,0.06)',
-          border: '1px solid rgba(139,92,246,0.15)',
-          borderBottom: 'none',
-          borderRadius: '16px 16px 0 0',
+          borderBottom: '1px solid rgba(139,92,246,0.15)',
         }}
       >
+      <div className="max-w-3xl mx-auto px-5 py-4 flex items-center justify-between">
         <div className="flex items-center gap-3.5">
           {/* Avatar */}
           <div className="relative">
@@ -427,6 +428,7 @@ export default function AssistantPage({
           )}
         </div>
       </div>
+      </div>
 
       {/* ── Messages area ── */}
       <div
@@ -434,16 +436,14 @@ export default function AssistantPage({
         onScroll={handleScroll}
         className="flex-1 overflow-y-auto relative"
         style={{
-          background: 'rgba(0,0,0,0.25)',
-          borderLeft: '1px solid rgba(139,92,246,0.15)',
-          borderRight: '1px solid rgba(139,92,246,0.15)',
+          background: 'rgba(0,0,0,0.2)',
           scrollbarWidth: 'thin',
           scrollbarColor: 'rgba(139,92,246,0.15) transparent',
         }}
       >
         {!hasMessages ? (
           /* ── Empty state ── */
-          <div className="p-6 pb-4">
+          <div className="p-6 pb-4 max-w-4xl mx-auto w-full">
             {/* Welcome */}
             <div className="text-center mb-8 pt-4">
               <div
@@ -494,7 +494,7 @@ export default function AssistantPage({
           </div>
         ) : (
           /* ── Message list ── */
-          <div className="p-5 space-y-5">
+          <div className="p-5 space-y-5 max-w-4xl mx-auto w-full">
             {messages.map(msg => (
               <MessageBubble key={msg.id} message={msg} />
             ))}
@@ -554,87 +554,89 @@ export default function AssistantPage({
 
       {/* ── Quick actions ── */}
       <div
-        className="shrink-0 px-4 pt-2.5 pb-1.5 flex gap-2 overflow-x-auto"
+        className="shrink-0 w-full"
         style={{
           background: 'rgba(255,255,255,0.02)',
-          borderLeft: '1px solid rgba(139,92,246,0.15)',
-          borderRight: '1px solid rgba(139,92,246,0.15)',
           borderTop: '1px solid rgba(255,255,255,0.05)',
-          scrollbarWidth: 'none',
         }}
       >
-        {QUICK_ACTIONS.map(action => (
-          <button
-            key={action.label}
-            onClick={() => sendMessage(action.prompt)}
-            disabled={loading}
-            className="shrink-0 flex items-center gap-1.5 text-[11px] font-medium px-3 py-1.5 rounded-full transition-all disabled:opacity-30 hover:border-violet-500/40 active:scale-95"
-            style={{
-              background: 'rgba(139,92,246,0.07)',
-              border: '1px solid rgba(139,92,246,0.18)',
-              color: 'rgba(196,181,253,0.7)',
-            }}
-          >
-            <action.icon size={11} />
-            {action.label}
-          </button>
-        ))}
+        <div
+          className="max-w-3xl mx-auto px-4 pt-2.5 pb-1.5 flex gap-2 overflow-x-auto"
+          style={{ scrollbarWidth: 'none' }}
+        >
+          {QUICK_ACTIONS.map(action => (
+            <button
+              key={action.label}
+              onClick={() => sendMessage(action.prompt)}
+              disabled={loading}
+              className="shrink-0 flex items-center gap-1.5 text-[11px] font-medium px-3 py-1.5 rounded-full transition-all disabled:opacity-30 hover:border-violet-500/40 active:scale-95"
+              style={{
+                background: 'rgba(139,92,246,0.07)',
+                border: '1px solid rgba(139,92,246,0.18)',
+                color: 'rgba(196,181,253,0.7)',
+              }}
+            >
+              <action.icon size={11} />
+              {action.label}
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* ── Input ── */}
       <div
-        className="shrink-0 p-3 rounded-b-2xl"
+        className="shrink-0 w-full"
         style={{
           background: 'rgba(255,255,255,0.02)',
-          border: '1px solid rgba(139,92,246,0.15)',
           borderTop: '1px solid rgba(255,255,255,0.05)',
-          borderRadius: '0 0 16px 16px',
         }}
       >
-        <div
-          className="flex items-end gap-2.5 rounded-xl px-4 py-3 transition-all"
-          style={{
-            background: 'rgba(255,255,255,0.04)',
-            border: '1px solid rgba(139,92,246,0.2)',
-          }}
-        >
-          <textarea
-            ref={inputRef}
-            value={input}
-            onChange={e => setInput(e.target.value)}
-            onKeyDown={handleKeyDown}
-            placeholder="Stelle eine Frage zu WR oder FRW…"
-            rows={1}
-            disabled={loading}
-            className="flex-1 resize-none bg-transparent text-sm focus:outline-none disabled:opacity-50 placeholder:text-white/20"
+        <div className="max-w-3xl mx-auto p-3">
+          <div
+            className="flex items-end gap-2.5 rounded-xl px-4 py-3 transition-all"
             style={{
-              color: 'rgba(226,220,255,0.9)',
-              maxHeight: '140px',
-              lineHeight: '1.55',
+              background: 'rgba(255,255,255,0.04)',
+              border: '1px solid rgba(139,92,246,0.2)',
             }}
-          />
-          <div className="flex items-center gap-1.5 shrink-0">
-            <span className="text-[10px]" style={{ color: 'rgba(255,255,255,0.15)' }}>
-              {input.length > 0 ? `${input.length}` : 'Enter ↵'}
-            </span>
-            <button
-              onClick={() => sendMessage(input)}
-              disabled={loading || !input.trim()}
-              className="w-9 h-9 rounded-xl flex items-center justify-center transition-all disabled:opacity-30 hover:scale-105 active:scale-95"
+          >
+            <textarea
+              ref={inputRef}
+              value={input}
+              onChange={e => setInput(e.target.value)}
+              onKeyDown={handleKeyDown}
+              placeholder="Stelle eine Frage zu WR oder FRW…"
+              rows={1}
+              disabled={loading}
+              className="flex-1 resize-none bg-transparent text-sm focus:outline-none disabled:opacity-50 placeholder:text-white/20"
               style={{
-                background: input.trim() && !loading
-                  ? 'linear-gradient(135deg, #7c3aed, #6366f1)'
-                  : 'rgba(139,92,246,0.1)',
-                boxShadow: input.trim() && !loading ? '0 4px 16px rgba(99,102,241,0.4)' : 'none',
+                color: 'rgba(226,220,255,0.9)',
+                maxHeight: '140px',
+                lineHeight: '1.55',
               }}
-            >
-              <Send size={14} className="text-white" style={{ transform: 'translateX(1px)' }} />
-            </button>
+            />
+            <div className="flex items-center gap-1.5 shrink-0">
+              <span className="text-[10px]" style={{ color: 'rgba(255,255,255,0.15)' }}>
+                {input.length > 0 ? `${input.length}` : 'Enter ↵'}
+              </span>
+              <button
+                onClick={() => sendMessage(input)}
+                disabled={loading || !input.trim()}
+                className="w-9 h-9 rounded-xl flex items-center justify-center transition-all disabled:opacity-30 hover:scale-105 active:scale-95"
+                style={{
+                  background: input.trim() && !loading
+                    ? 'linear-gradient(135deg, #7c3aed, #6366f1)'
+                    : 'rgba(139,92,246,0.1)',
+                  boxShadow: input.trim() && !loading ? '0 4px 16px rgba(99,102,241,0.4)' : 'none',
+                }}
+              >
+                <Send size={14} className="text-white" style={{ transform: 'translateX(1px)' }} />
+              </button>
+            </div>
           </div>
+          <p className="text-center text-[10px] mt-1.5" style={{ color: 'rgba(255,255,255,0.1)' }}>
+            KI kann Fehler machen — wichtige Informationen immer überprüfen
+          </p>
         </div>
-        <p className="text-center text-[10px] mt-1.5" style={{ color: 'rgba(255,255,255,0.1)' }}>
-          KI kann Fehler machen — wichtige Informationen immer überprüfen
-        </p>
       </div>
 
     </div>
