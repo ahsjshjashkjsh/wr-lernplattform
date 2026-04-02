@@ -164,6 +164,10 @@ body::before {
 .hover-row { transition: background 0.15s ease; }
 .hover-row:hover { background: var(--bg-surface-hover); }
 
+/* ─── Card hover background ─────────────────────────────── */
+.hover-card { transition: background 0.15s ease; }
+.hover-card:hover { background: var(--card-bg-hover); }
+
 /* ─── Prose ─────────────────────────────────────────────── */
 .dark-prose { color: #b0bdd4; line-height: 1.8; }
 .dark-prose strong { color: var(--text-primary); font-weight: 600; }

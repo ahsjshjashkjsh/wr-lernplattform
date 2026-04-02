@@ -97,9 +97,8 @@ export default async function DashboardPage() {
           </Link>
           <Link
             href="/wr"
-            className="inline-flex items-center gap-2 text-sm font-medium px-5 py-2.5 rounded-xl transition-all"
-            style={{ background: 'var(--card-bg)', border: '1px solid var(--border-color)', color: 'var(--text-secondary)' }}
-            onMouseEnter={undefined}
+            className="inline-flex items-center gap-2 text-sm font-medium px-5 py-2.5 rounded-xl card-link"
+            style={{ color: 'var(--text-secondary)' }}
           >
             <Scale size={14} /> WR lernen
           </Link>
@@ -269,13 +268,11 @@ export default async function DashboardPage() {
             <Link
               key={item.href}
               href={item.href}
-              className="group flex items-center justify-between gap-4 px-5 py-4 transition-colors"
+              className="group hover-card flex items-center justify-between gap-4 px-5 py-4"
               style={{
                 background: 'var(--card-bg)',
                 borderTop: idx > 0 ? '1px solid var(--border-color)' : 'none',
               }}
-              onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = 'var(--card-bg-hover)' }}
-              onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = 'var(--card-bg)' }}
             >
               <div className="flex items-center gap-3.5">
                 <item.icon size={15} style={{ color: 'var(--text-muted)' }} className="shrink-0" />

@@ -192,8 +192,6 @@ export default async function FrwPage({ searchParams }: Props) {
           href="/frw/trainer"
           className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all shrink-0 mb-0.5"
           style={{ background: 'var(--card-bg)', border: '1px solid var(--border-color)', color: 'var(--text-secondary)' }}
-          onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.borderColor = 'var(--border-hover)' }}
-          onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.borderColor = 'var(--border-color)' }}
         >
           <Dumbbell size={14} />
           Buchungstrainer
