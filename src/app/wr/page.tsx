@@ -49,16 +49,18 @@ export default async function WrPage() {
   return (
     <div className="space-y-8">
       {/* Header */}
-      <div>
-        <div className="flex items-center gap-2 mb-1">
-          <Scale size={18} className="text-blue-400" />
-          <span className="text-xs font-medium text-blue-400 uppercase tracking-widest">WR</span>
-        </div>
-        <h1 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>
+      <div className="pt-2">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.13em] mb-3" style={{ color: 'var(--text-muted)' }}>
           Wirtschaft &amp; Recht
+        </p>
+        <h1
+          className="text-3xl sm:text-4xl font-extrabold leading-tight mb-2"
+          style={{ color: 'var(--text-primary)', letterSpacing: '-0.03em' }}
+        >
+          Alle Themen
         </h1>
-        <p className="text-sm mt-1" style={{ color: 'var(--text-muted)' }}>
-          {topics.length} Themen · BWL, VWL und Recht für die Abschlussprüfung
+        <p className="text-sm" style={{ color: 'var(--text-muted)' }}>
+          {topics.length} Themen · BWL, VWL und Recht
         </p>
       </div>
 
@@ -100,12 +102,7 @@ export default async function WrPage() {
                   <Link
                     key={topic.id}
                     href={`/wr/${topic.slug}`}
-                    className="group relative rounded-2xl p-5 hover:-translate-y-0.5 hover:border-white/15"
-                    style={{
-                      background: 'var(--card-bg)',
-                      border: '1px solid var(--border-color)',
-                      transition: 'transform 200ms, border-color 200ms',
-                    }}
+                    className="group relative card-link rounded-2xl p-5"
                   >
                     <div className="flex items-center justify-between mb-4">
                       <div

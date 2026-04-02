@@ -74,13 +74,8 @@ function TopicGrid({
           <Link
             key={topic.id}
             href={isLocked ? '/premium' : `/frw/${topic.slug}`}
-            className="group relative rounded-2xl p-5 hover:-translate-y-0.5 hover:border-white/20"
-            style={{
-              background: 'var(--card-bg)',
-              border: `1px solid var(--border-color)`,
-              transition: 'transform 200ms, border-color 200ms',
-              opacity: isLocked ? 0.7 : 1,
-            }}
+            className="group relative card-link rounded-2xl p-5"
+            style={{ opacity: isLocked ? 0.65 : 1 }}
           >
             {isLocked && (
               <div className="absolute top-3 right-3 flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold"
@@ -178,23 +173,27 @@ export default async function FrwPage({ searchParams }: Props) {
   return (
     <div className="space-y-8">
       {/* Header */}
-      <div className="flex items-start justify-between">
+      <div className="flex items-end justify-between pt-2">
         <div>
-          <div className="flex items-center gap-2 mb-1">
-            <Calculator size={18} className="text-emerald-400" />
-            <span className="text-xs font-medium text-emerald-400 uppercase tracking-widest">FRW</span>
-          </div>
-          <h1 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>
+          <p className="text-[11px] font-semibold uppercase tracking-[0.13em] mb-3" style={{ color: 'var(--text-muted)' }}>
             Finanz- &amp; Rechnungswesen
+          </p>
+          <h1
+            className="text-3xl sm:text-4xl font-extrabold leading-tight mb-2"
+            style={{ color: 'var(--text-primary)', letterSpacing: '-0.03em' }}
+          >
+            Alle Kapitel
           </h1>
-          <p className="text-sm mt-1" style={{ color: 'var(--text-muted)' }}>
-            {topics.length} Themen · Alle Inhalte direkt aus dem Lehrmittel
+          <p className="text-sm" style={{ color: 'var(--text-muted)' }}>
+            {topics.length} Themen · direkt aus dem hep-Lehrmittel
           </p>
         </div>
         <Link
           href="/frw/trainer"
-          className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all shrink-0 hover:border-white/15"
+          className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all shrink-0 mb-0.5"
           style={{ background: 'var(--card-bg)', border: '1px solid var(--border-color)', color: 'var(--text-secondary)' }}
+          onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.borderColor = 'var(--border-hover)' }}
+          onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.borderColor = 'var(--border-color)' }}
         >
           <Dumbbell size={14} />
           Buchungstrainer
