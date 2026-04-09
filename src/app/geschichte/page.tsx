@@ -72,6 +72,29 @@ export default async function GeschichtePage() {
         </div>
       </div>
 
+      {/* Video */}
+      <div className="space-y-2">
+        <p className="text-xs font-semibold uppercase tracking-widest" style={{ color: 'var(--text-muted)' }}>
+          Video-Zusammenfassung
+        </p>
+        <div
+          className="rounded-2xl overflow-hidden"
+          style={{ border: '1px solid var(--border-color)' }}
+        >
+          <video
+            controls
+            className="w-full"
+            style={{ display: 'block', background: '#000' }}
+          >
+            <source src="/Wurzeln_eines_Konflikts.mp4" type="video/mp4" />
+            Dein Browser unterstützt kein Video.
+          </video>
+        </div>
+        <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
+          Wurzeln eines Konflikts
+        </p>
+      </div>
+
       {/* Topics */}
       {topics.length > 0 ? (
         <div className="space-y-3">
