@@ -98,6 +98,7 @@ export default function AdminPage() {
   const [createError, setCreateError] = useState('')
   const [createSuccess, setCreateSuccess] = useState('')
   const [search, setSearch] = useState('')
+  const [premiumFilter, setPremiumFilter] = useState<'all' | 'premium' | 'free'>('all')
   const [feedback, setFeedback] = useState<FeedbackItem[]>([])
   const [feedbackFilter, setFeedbackFilter] = useState<'all' | 'pending' | 'accepted' | 'rejected' | 'implemented'>('all')
   const [reviewItem, setReviewItem] = useState<FeedbackItem | null>(null)
@@ -360,11 +361,20 @@ export default function AdminPage() {
     setActionLoading(null)
   }
 
-  const filtered = users.filter(u =>
-    u.name.toLowerCase().includes(search.toLowerCase()) ||
-    u.email.toLowerCase().includes(search.toLowerCase()) ||
-    (u.lastIp ?? '').includes(search)
-  )
+  const isPremiumActive = (u: AdminUser) =>
+    u.isPremium && !!u.premiumUntil && new Date(u.premiumUntil) > new Date()
+
+  const filtered = users.filter(u => {
+    const matchSearch =
+      u.name.toLowerCase().includes(search.toLowerCase()) ||
+      u.email.toLowerCase().includes(search.toLowerCase()) ||
+      (u.lastIp ?? '').includes(search)
+    const matchPremium =
+      premiumFilter === 'all' ? true :
+      premiumFilter === 'premium' ? isPremiumActive(u) :
+      !isPremiumActive(u)
+    return matchSearch && matchPremium
+  })
 
   const totalQuiz = users.reduce((s, u) => s + u._count.quizAttempts, 0)
   const banned = users.filter(u => u.isBanned).length
@@ -692,15 +702,36 @@ export default function AdminPage() {
       {/* === TAB: USERS === */}
       {tab === 'users' && (
         <div className="glass rounded-2xl border overflow-hidden" style={{ borderColor: 'rgba(255,255,255,0.08)' }}>
-          <div className="px-5 py-3 border-b flex items-center gap-3" style={{ borderColor: 'rgba(255,255,255,0.06)' }}>
+          <div className="px-5 py-3 border-b flex flex-wrap items-center gap-2" style={{ borderColor: 'rgba(255,255,255,0.06)' }}>
             <input
               type="text"
               placeholder="Name, E-Mail oder IP suchen..."
               value={search}
               onChange={e => setSearch(e.target.value)}
-              className="flex-1 px-3 py-1.5 rounded-lg text-sm outline-none"
+              className="flex-1 min-w-0 px-3 py-1.5 rounded-lg text-sm outline-none"
               style={inputStyle}
             />
+            {/* Premium-Filter */}
+            <div className="flex items-center gap-1 shrink-0">
+              {(['all', 'premium', 'free'] as const).map(f => (
+                <button
+                  key={f}
+                  onClick={() => setPremiumFilter(f)}
+                  className="px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all"
+                  style={premiumFilter === f ? {
+                    background: f === 'premium' ? 'rgba(245,158,11,0.2)' : f === 'free' ? 'rgba(99,102,241,0.2)' : 'rgba(255,255,255,0.1)',
+                    color: f === 'premium' ? '#fbbf24' : f === 'free' ? '#818cf8' : '#cbd5e1',
+                    border: `1px solid ${f === 'premium' ? 'rgba(245,158,11,0.35)' : f === 'free' ? 'rgba(99,102,241,0.35)' : 'rgba(255,255,255,0.15)'}`,
+                  } : {
+                    background: 'transparent',
+                    color: '#475569',
+                    border: '1px solid transparent',
+                  }}
+                >
+                  {f === 'all' ? 'Alle' : f === 'premium' ? '👑 Premium' : 'Gratis'}
+                </button>
+              ))}
+            </div>
             <span className="text-xs text-slate-500 shrink-0">{filtered.length} / {users.length}</span>
           </div>
 
