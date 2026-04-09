@@ -47,7 +47,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <AuthProvider>
             <div className="relative z-10">
               <Navbar />
-              <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10">
+              <main className="md:ml-[220px] px-4 sm:px-6 lg:px-8 py-6 sm:py-10 max-w-5xl">
                 <MaintenanceGate>{children}</MaintenanceGate>
               </main>
               <Footer />

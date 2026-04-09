@@ -2,8 +2,8 @@ import Link from 'next/link'
 
 export function Footer() {
   return (
-    <footer className="mt-16 border-t py-6" style={{ borderColor: 'var(--border-color)' }}>
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-center gap-6">
+    <footer className="md:ml-[220px] mt-16 border-t py-6" style={{ borderColor: 'var(--border-color)' }}>
+      <div className="px-4 sm:px-6 lg:px-8 flex items-center justify-center gap-6">
         <Link
           href="/impressum"
           className="text-xs transition-colors hover:text-slate-300"
