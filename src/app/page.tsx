@@ -5,7 +5,7 @@ import {
   ArrowRight, BookOpen, Dumbbell,
   Calculator, Hash, FileText,
   Scale, Clock, GraduationCap, Layers, Bot,
-  ChevronRight,
+  ChevronRight, GitCommit,
 } from 'lucide-react'
 
 export const dynamic = 'force-dynamic'
@@ -295,6 +295,80 @@ export default async function DashboardPage() {
         </div>
       </div>
 
+      {/* ── CHANGELOG ─────────────────────────────────────────── */}
+      <div>
+        <p className="text-[11px] font-semibold uppercase tracking-[0.12em] mb-3" style={{ color: 'var(--text-muted)' }}>
+          Änderungen
+        </p>
+        <div className="space-y-2 stagger">
+          {CHANGELOG.map((entry) => (
+            <div
+              key={entry.version}
+              className="rounded-xl px-5 py-4"
+              style={{ background: 'var(--card-bg)', border: '1px solid var(--border-color)' }}
+            >
+              <div className="flex items-center justify-between mb-2.5">
+                <div className="flex items-center gap-2">
+                  <GitCommit size={12} style={{ color: 'var(--accent)' }} />
+                  <span className="text-xs font-bold" style={{ color: 'var(--text-primary)' }}>
+                    {entry.version}
+                  </span>
+                </div>
+                <span className="text-[11px]" style={{ color: 'var(--text-muted)' }}>
+                  {entry.date}
+                </span>
+              </div>
+              <ul className="space-y-1">
+                {entry.changes.map((change, i) => (
+                  <li key={i} className="flex items-start gap-2 text-xs" style={{ color: 'var(--text-secondary)' }}>
+                    <span className="mt-[5px] w-1 h-1 rounded-full shrink-0" style={{ background: 'var(--text-muted)' }} />
+                    {change}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
+      </div>
+
     </div>
   )
 }
+
+const CHANGELOG: { version: string; date: string; changes: string[] }[] = [
+  {
+    version: 'v1.4',
+    date: '09.04.2026',
+    changes: [
+      'QSP: Analyse der Bilanz & Erfolgsrechnung und Kostenrechnung hinzugefügt',
+      'Changelog-Sektion auf dem Dashboard',
+    ],
+  },
+  {
+    version: 'v1.3',
+    date: '29.03.2026',
+    changes: [
+      'Neues Design: Swiss Utility Dark — einheitliches Akzentsystem',
+      'KI-Assistent: Vollbild-Viewport auf Mobile',
+      'Dashboard & Header komplett überarbeitet',
+    ],
+  },
+  {
+    version: 'v1.2',
+    date: '15.03.2026',
+    changes: [
+      'FRW Band 2 Kapitel 2–6 Zusammenfassungen aktualisiert',
+      'Buchungstrainer: neue Kapitel verfügbar',
+      'Lernübersicht: Fortschrittsanzeige verbessert',
+    ],
+  },
+  {
+    version: 'v1.1',
+    date: '01.03.2026',
+    changes: [
+      'FRW-Bereich gesperrt für Überarbeitung (hep-Lehrmittel Band 1–3)',
+      'QSP-Filter auf Themenübersicht eingeführt',
+      'Admin-Dashboard mit Live-Log',
+    ],
+  },
+]
