@@ -128,7 +128,7 @@ export default async function DashboardPage() {
               </span>
             </div>
             <p className="text-xs truncate" style={{ color: 'var(--text-muted)' }}>
-              Prüfungsstoff · Abschlussprüfung 10. April 2026
+              Prüfungsstoff · Prüfung 10. April 2026
             </p>
           </div>
           <ArrowRight size={15} className="shrink-0 text-amber-400 group-hover:translate-x-0.5 transition-transform" />
@@ -367,12 +367,22 @@ export default async function DashboardPage() {
 
 const CHANGELOG: { version: string; date: string; changes: string[] }[] = [
   {
+    version: 'v1.5',
+    date: '09.04.2026',
+    changes: [
+      'Geschichte-Sektion: gesamter Prüfungsstoff direkt auf einer Seite',
+      'Geschichte heute für alle gratis zugänglich (ab 10. April Premium)',
+      'Video "Wurzeln eines Konflikts" eingebettet',
+      'Admin: Premium/Gratis-Filter im Benutzer-Tab',
+      'Premium-Seite: WR-Inhalte & Semester-Hinweis ergänzt',
+    ],
+  },
+  {
     version: 'v1.4',
     date: '09.04.2026',
     changes: [
       'QSP: Analyse der Bilanz & Erfolgsrechnung und Kostenrechnung hinzugefügt',
       'Changelog-Sektion auf dem Dashboard',
-      'Geschichte-Sektion für AP 10. April hinzugefügt',
     ],
   },
   {
