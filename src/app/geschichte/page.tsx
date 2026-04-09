@@ -1,4 +1,6 @@
-import { Clock, Landmark, BookOpen, FileText, CheckCircle, ChevronRight } from 'lucide-react'
+import { Clock, Landmark, BookOpen, FileText, CheckCircle, ChevronRight, Lock, Crown } from 'lucide-react'
+import { getCurrentUser, isPremiumActive } from '@/lib/auth'
+import Link from 'next/link'
 
 export const dynamic = 'force-dynamic'
 
@@ -202,7 +204,7 @@ const TIMELINE = [
 
 // ─── Komponente ─────────────────────────────────────────────────────────────
 
-export default function GeschichtePage() {
+export default async function GeschichtePage() {
   if (new Date() >= EXPIRY) {
     return (
       <div className="flex flex-col items-center justify-center py-24 space-y-4 text-center">
@@ -220,6 +222,38 @@ export default function GeschichtePage() {
             Die Geschichte-Sektion war nur für die Prüfungsvorbereitung am 9./10. April 2026 verfügbar.
           </p>
         </div>
+      </div>
+    )
+  }
+
+  const user = await getCurrentUser()
+  const hasPremium = user ? (user.isAdmin || isPremiumActive(user)) : false
+
+  if (!hasPremium) {
+    return (
+      <div className="flex flex-col items-center justify-center py-24 space-y-5 text-center max-w-sm mx-auto">
+        <div
+          className="w-14 h-14 rounded-2xl flex items-center justify-center"
+          style={{ background: 'rgba(245,158,11,0.12)', border: '1px solid rgba(245,158,11,0.25)' }}
+        >
+          <Lock size={24} className="text-amber-400" />
+        </div>
+        <div>
+          <p className="text-base font-bold mb-2" style={{ color: 'var(--text-primary)' }}>
+            Premium erforderlich
+          </p>
+          <p className="text-sm leading-relaxed" style={{ color: 'var(--text-muted)' }}>
+            Die Geschichte-Sektion ist nur für Premium-Mitglieder verfügbar.
+          </p>
+        </div>
+        <Link
+          href="/premium"
+          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold text-white"
+          style={{ background: 'linear-gradient(135deg, #f59e0b, #d97706)' }}
+        >
+          <Crown size={14} />
+          Premium freischalten — CHF 5 / Monat
+        </Link>
       </div>
     )
   }
