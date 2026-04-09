@@ -100,9 +100,10 @@ export default function PremiumPage() {
         <h2 className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>Was du bekommst</h2>
         <ul className="space-y-2">
           {[
-            { icon: BookOpen, text: 'Alle AP-Kapitel (Abschlussprüfung) in FRW' },
+            { icon: BookOpen, text: 'Alle AP-Kapitel (Abschlussprüfung) in FRW & WR' },
             { icon: Zap, text: 'Vollständiger Zugang zu allen Lernmaterialien' },
             { icon: Lock, text: '30 Tage Zugang ab Freischaltung' },
+            { icon: Crown, text: 'Exklusive Sektionen (z. B. Geschichte-Prüfung)' },
           ].map(({ icon: Icon, text }) => (
             <li key={text} className="flex items-center gap-2.5 text-sm" style={{ color: 'var(--text-secondary)' }}>
               <Icon size={14} className="text-amber-400 shrink-0" />
@@ -111,12 +112,17 @@ export default function PremiumPage() {
           ))}
         </ul>
         <div className="pt-3 mt-1" style={{ borderTop: '1px solid var(--border-color)' }}>
-          <span className="text-2xl font-bold text-amber-400">CHF {PREMIUM_PRICE}</span>
-          <span className="text-xs ml-1.5" style={{ color: 'var(--text-muted)' }}>/ Monat</span>
+          <p className="text-xs leading-relaxed" style={{ color: 'var(--text-muted)' }}>
+            <span className="font-semibold" style={{ color: 'var(--text-secondary)' }}>Geplant:</span>
+            {' '}Wenn möglich werden auch Theorie-Zusammenfassungen für Themen hochgeladen, die noch im laufenden Semester behandelt werden.
+          </p>
         </div>
-        {/* Umtriebskosten-Hinweis */}
-        <p className="text-[11px] pt-1" style={{ color: 'var(--text-muted)' }}>
-          Die CHF {PREMIUM_PRICE} pro Monat dienen als Umtriebskosten und decken den Aufwand sowie die kontinuierliche Weiterentwicklung der Inhalte.
+        <div className="flex items-end gap-2 pt-3 mt-1" style={{ borderTop: '1px solid var(--border-color)' }}>
+          <span className="text-2xl font-bold text-amber-400">CHF {PREMIUM_PRICE}</span>
+          <span className="text-xs mb-1" style={{ color: 'var(--text-muted)' }}>/ Monat</span>
+        </div>
+        <p className="text-[11px]" style={{ color: 'var(--text-muted)' }}>
+          Die CHF {PREMIUM_PRICE} dienen als Umtriebskosten und decken den Aufwand sowie die kontinuierliche Weiterentwicklung der Inhalte.
         </p>
       </div>
 
