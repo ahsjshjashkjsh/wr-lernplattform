@@ -2,9 +2,10 @@ import { prisma } from '@/lib/prisma'
 import { getCurrentUser } from '@/lib/auth'
 import Link from 'next/link'
 import {
-  ArrowRight, BookOpen, Dumbbell, Sparkles,
-  Calculator, Hash, FileText, ChevronRight,
-  Scale, Clock, GraduationCap, Layers, Bot, Landmark,
+  ArrowRight, BookOpen, Dumbbell,
+  Calculator, Hash, FileText,
+  Scale, Clock, GraduationCap, Layers, Bot,
+  ChevronRight, GitCommit, Landmark,
 } from 'lucide-react'
 
 export const dynamic = 'force-dynamic'
@@ -71,278 +72,334 @@ export default async function DashboardPage() {
   const wrTotal = wrByCategory.bwl + wrByCategory.vwl + wrByCategory.recht
 
   return (
-    <div className="space-y-8 fade-in">
+    <div className="space-y-10 fade-in">
 
-      {/* HERO */}
-      <div className="pt-2 pb-2">
-        <p className="text-[11px] font-semibold uppercase tracking-widest mb-5" style={{ color: 'var(--text-muted)' }}>
-          HMS · H23b · Abschlussprüfung 2026
+      {/* ── HERO ──────────────────────────────────────────────── */}
+      <div className="pt-4 pb-2">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.14em] mb-4" style={{ color: 'var(--text-muted)' }}>
+          HMS Handelsmittelschule · H23b · AP 2026
         </p>
-        <h1 className="text-3xl sm:text-4xl font-extrabold leading-tight mb-3" style={{ color: 'var(--text-primary)', letterSpacing: '-0.025em' }}>
-          {firstName ? `Hallo, ${firstName}.` : 'HMS-Lernplattform'}
+        <h1
+          className="text-[2.6rem] sm:text-[3.25rem] font-extrabold leading-[1.05] mb-6"
+          style={{ color: 'var(--text-primary)', letterSpacing: '-0.03em' }}
+        >
+          {firstName ? (
+            <>{firstName}<span style={{ color: 'var(--text-muted)' }}>.</span></>
+          ) : (
+            <>HMS<wbr /><span style={{ color: 'var(--text-muted)' }}>-</span>Lernplattform</>
+          )}
         </h1>
-        <p className="text-sm max-w-md leading-relaxed mb-7" style={{ color: 'var(--text-secondary)' }}>
-          Deine Plattform zur Prüfungsvorbereitung — FRW, Wirtschaft &amp; Recht und mehr.
-        </p>
-        <div className="flex flex-wrap gap-3">
+        <div className="flex flex-wrap gap-2.5">
           <Link
             href="/frw"
-            className="flex items-center gap-2 text-sm font-semibold text-white px-5 py-2.5 rounded-xl transition-all hover:opacity-90 active:scale-[0.98]"
-            style={{ background: 'var(--accent)', boxShadow: '0 2px 12px rgba(79,114,245,0.35)' }}
+            className="inline-flex items-center gap-2 text-sm font-semibold text-white px-5 py-2.5 rounded-xl transition-all hover:opacity-90 active:scale-[0.98]"
+            style={{ background: 'var(--accent)', boxShadow: '0 2px 16px rgba(79,114,245,0.3)' }}
           >
-            <BookOpen size={14} /> Lernen starten
+            <BookOpen size={14} /> FRW lernen
           </Link>
-          <Link
-            href="/assistant"
-            className="flex items-center gap-2 text-sm font-medium px-5 py-2.5 rounded-xl transition-all hover:border-white/20"
-            style={{ background: 'var(--card-bg)', border: '1px solid var(--border-color)', color: 'var(--text-secondary)' }}
-          >
-            <Bot size={14} /> KI-Assistent
-          </Link>
-        </div>
-      </div>
-
-      {/* FÄCHER */}
-      <div>
-        <h2 className="text-xs font-bold uppercase tracking-widest mb-4" style={{ color: 'var(--text-muted)' }}>
-          Fächer
-        </h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-
-          {/* FRW */}
-          <Link
-            href="/frw"
-            className="group rounded-2xl p-6 transition-all duration-200 hover:-translate-y-0.5 hover:border-white/15 flex flex-col"
-            style={{ background: 'var(--card-bg)', border: '1px solid var(--border-color)' }}
-          >
-            <div className="flex items-start justify-between mb-5">
-              <div
-                className="w-12 h-12 rounded-xl flex items-center justify-center"
-                style={{ background: 'rgba(16,185,129,0.12)', border: '1px solid rgba(16,185,129,0.2)' }}
-              >
-                <Calculator size={22} className="text-emerald-400" />
-              </div>
-              <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full text-emerald-300 bg-emerald-500/10 border border-emerald-500/20">
-                Verfügbar
-              </span>
-            </div>
-
-            <h3 className="text-base font-bold mb-1" style={{ color: 'var(--text-primary)' }}>
-              Finanz- &amp; Rechnungswesen
-            </h3>
-            <p className="text-xs mb-4" style={{ color: 'var(--text-muted)' }}>
-              Buchungssätze, Theorie &amp; interaktiver Trainer
-            </p>
-
-            {/* Band chips */}
-            <div className="flex gap-2 mb-5">
-              {['Band 1', 'Band 2', 'Band 3'].map(b => (
-                <span
-                  key={b}
-                  className="text-[10px] font-semibold px-2 py-0.5 rounded-md"
-                  style={{ background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.18)', color: '#6ee7b7' }}
-                >
-                  {b}
-                </span>
-              ))}
-            </div>
-
-            <div
-              className="flex items-center gap-4 pt-4 mt-auto"
-              style={{ borderTop: '1px solid var(--border-color)' }}
-            >
-              <span className="flex items-center gap-1.5 text-xs" style={{ color: 'var(--text-muted)' }}>
-                <Hash size={11} className="text-emerald-400" /> {totalBuchungen} Buchungen
-              </span>
-              <span className="flex items-center gap-1.5 text-xs" style={{ color: 'var(--text-muted)' }}>
-                <FileText size={11} className="text-emerald-400" /> {totalBegriffe} Begriffe
-              </span>
-              <ArrowRight size={14} className="ml-auto text-emerald-400 group-hover:translate-x-0.5 transition-transform" />
-            </div>
-          </Link>
-
-          {/* WR */}
           <Link
             href="/wr"
-            className="group rounded-2xl p-6 transition-all duration-200 hover:-translate-y-0.5 hover:border-white/15 flex flex-col"
-            style={{ background: 'var(--card-bg)', border: '1px solid var(--border-color)' }}
+            className="inline-flex items-center gap-2 text-sm font-medium px-5 py-2.5 rounded-xl card-link"
+            style={{ color: 'var(--text-secondary)' }}
           >
-            <div className="flex items-start justify-between mb-5">
-              <div
-                className="w-12 h-12 rounded-xl flex items-center justify-center"
-                style={{ background: 'rgba(59,130,246,0.12)', border: '1px solid rgba(59,130,246,0.2)' }}
-              >
-                <Scale size={22} className="text-blue-400" />
-              </div>
-              <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full text-blue-300 bg-blue-500/10 border border-blue-500/20">
-                Verfügbar
-              </span>
-            </div>
-
-            <h3 className="text-base font-bold mb-1" style={{ color: 'var(--text-primary)' }}>
-              Wirtschaft &amp; Recht
-            </h3>
-            <p className="text-xs mb-4" style={{ color: 'var(--text-muted)' }}>
-              Theorie, Begriffe, Visualisierungen &amp; Quiz
-            </p>
-
-            {/* Category chips */}
-            <div className="flex gap-2 mb-5">
-              {[
-                { label: `BWL`,   count: wrByCategory.bwl,   color: '#60a5fa', bg: 'rgba(59,130,246,0.08)',   border: 'rgba(59,130,246,0.2)' },
-                { label: `VWL`,   count: wrByCategory.vwl,   color: '#4ade80', bg: 'rgba(34,197,94,0.08)',    border: 'rgba(34,197,94,0.2)' },
-                { label: `Recht`, count: wrByCategory.recht, color: '#fb923c', bg: 'rgba(249,115,22,0.08)',   border: 'rgba(249,115,22,0.2)' },
-              ].map(c => (
-                <span
-                  key={c.label}
-                  className="text-[10px] font-semibold px-2 py-0.5 rounded-md"
-                  style={{ background: c.bg, border: `1px solid ${c.border}`, color: c.color }}
-                >
-                  {c.count} {c.label}
-                </span>
-              ))}
-            </div>
-
-            <div
-              className="flex items-center gap-4 pt-4 mt-auto"
-              style={{ borderTop: '1px solid var(--border-color)' }}
-            >
-              <span className="flex items-center gap-1.5 text-xs" style={{ color: 'var(--text-muted)' }}>
-                <Layers size={11} className="text-blue-400" /> {wrTotal} Themen
-              </span>
-              <span className="flex items-center gap-1.5 text-xs" style={{ color: 'var(--text-muted)' }}>
-                <GraduationCap size={11} className="text-blue-400" /> Quiz &amp; Trainer
-              </span>
-              <ArrowRight size={14} className="ml-auto text-blue-400 group-hover:translate-x-0.5 transition-transform" />
-            </div>
+            <Scale size={14} /> WR lernen
           </Link>
-
-        </div>
-
-          {/* Geschichte — nur heute */}
-          {new Date() < GESCHICHTE_EXPIRY && (
-            <Link
-              href="/geschichte"
-              className="group rounded-2xl p-6 transition-all duration-200 hover:-translate-y-0.5 hover:border-amber-500/20 flex flex-col sm:col-span-2"
-              style={{ background: 'rgba(245,158,11,0.06)', border: '1px solid rgba(245,158,11,0.2)' }}
-            >
-              <div className="flex items-start justify-between mb-5">
-                <div
-                  className="w-12 h-12 rounded-xl flex items-center justify-center"
-                  style={{ background: 'rgba(245,158,11,0.12)', border: '1px solid rgba(245,158,11,0.25)' }}
-                >
-                  <Landmark size={22} className="text-amber-400" />
-                </div>
-                <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full text-amber-300 bg-amber-500/10 border border-amber-500/25 animate-pulse">
-                  ⏰ Nur heute
-                </span>
-              </div>
-
-              <h3 className="text-base font-bold mb-1" style={{ color: 'var(--text-primary)' }}>
-                Geschichte
-              </h3>
-              <p className="text-xs mb-4" style={{ color: 'var(--text-muted)' }}>
-                Prüfungsstoff · Abschlussprüfung 10. April 2026
-              </p>
-
-              <div
-                className="flex items-center gap-4 pt-4 mt-auto"
-                style={{ borderTop: '1px solid rgba(245,158,11,0.15)' }}
-              >
-                <span className="text-xs" style={{ color: 'rgba(251,191,36,0.7)' }}>
-                  Zusammenfassung, Begriffe &amp; Quiz
-                </span>
-                <ArrowRight size={14} className="ml-auto text-amber-400 group-hover:translate-x-0.5 transition-transform" />
-              </div>
-            </Link>
-          )}
         </div>
       </div>
 
-      {/* WEITERMACHEN */}
+      {/* ── GESCHICHTE (nur heute) ────────────────────────────── */}
+      {new Date() < GESCHICHTE_EXPIRY && (
+        <Link
+          href="/geschichte"
+          className="group rounded-2xl p-5 flex items-center gap-5 transition-all duration-200 hover:-translate-y-0.5"
+          style={{ background: 'rgba(245,158,11,0.07)', border: '1px solid rgba(245,158,11,0.22)' }}
+        >
+          <div
+            className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0"
+            style={{ background: 'rgba(245,158,11,0.12)', border: '1px solid rgba(245,158,11,0.25)' }}
+          >
+            <Landmark size={20} className="text-amber-400" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 mb-0.5">
+              <span className="text-sm font-bold" style={{ color: 'var(--text-primary)' }}>Geschichte</span>
+              <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full text-amber-300 bg-amber-500/10 border border-amber-500/25 animate-pulse">
+                ⏰ Nur heute
+              </span>
+            </div>
+            <p className="text-xs truncate" style={{ color: 'var(--text-muted)' }}>
+              Prüfungsstoff · Abschlussprüfung 10. April 2026
+            </p>
+          </div>
+          <ArrowRight size={15} className="shrink-0 text-amber-400 group-hover:translate-x-0.5 transition-transform" />
+        </Link>
+      )}
+
+      {/* ── FÄCHER ────────────────────────────────────────────── */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 stagger">
+
+        {/* FRW card */}
+        <Link
+          href="/frw"
+          className="group card-link rounded-2xl p-6 flex flex-col min-h-[200px]"
+        >
+          <div className="flex items-start justify-between mb-auto">
+            <div>
+              <span
+                className="inline-block text-[10px] font-bold uppercase tracking-[0.12em] px-2 py-0.5 rounded mb-3"
+                style={{ background: 'rgba(16,185,129,0.1)', color: '#6ee7b7', border: '1px solid rgba(16,185,129,0.18)' }}
+              >
+                Verfügbar
+              </span>
+              <h2
+                className="text-xl font-bold leading-tight mb-1"
+                style={{ color: 'var(--text-primary)' }}
+              >
+                Finanz- &amp; Rechnungswesen
+              </h2>
+              <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
+                Buchungssätze, Theorie &amp; Trainer · Band 1–3
+              </p>
+            </div>
+            <ArrowRight
+              size={16}
+              className="shrink-0 mt-1 transition-transform duration-200 group-hover:translate-x-0.5"
+              style={{ color: 'var(--text-muted)' }}
+            />
+          </div>
+
+          <div
+            className="flex items-center gap-5 pt-4 mt-6"
+            style={{ borderTop: '1px solid var(--border-color)' }}
+          >
+            <span className="text-xs" style={{ color: 'var(--text-muted)' }}>
+              <span className="font-semibold" style={{ color: 'var(--text-secondary)' }}>{totalBuchungen}</span> Buchungen
+            </span>
+            <span className="text-xs" style={{ color: 'var(--text-muted)' }}>
+              <span className="font-semibold" style={{ color: 'var(--text-secondary)' }}>{totalBegriffe}</span> Begriffe
+            </span>
+            <span className="text-xs" style={{ color: 'var(--text-muted)' }}>
+              <span className="font-semibold" style={{ color: 'var(--text-secondary)' }}>{frwTopics.length}</span> Kapitel
+            </span>
+          </div>
+        </Link>
+
+        {/* WR card */}
+        <Link
+          href="/wr"
+          className="group card-link rounded-2xl p-6 flex flex-col min-h-[200px]"
+        >
+          <div className="flex items-start justify-between mb-auto">
+            <div>
+              <span
+                className="inline-block text-[10px] font-bold uppercase tracking-[0.12em] px-2 py-0.5 rounded mb-3"
+                style={{ background: 'rgba(79,114,245,0.1)', color: '#93aaf7', border: '1px solid rgba(79,114,245,0.2)' }}
+              >
+                Verfügbar
+              </span>
+              <h2
+                className="text-xl font-bold leading-tight mb-1"
+                style={{ color: 'var(--text-primary)' }}
+              >
+                Wirtschaft &amp; Recht
+              </h2>
+              <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
+                Theorie, Begriffe, Quiz &amp; Visualisierungen
+              </p>
+            </div>
+            <ArrowRight
+              size={16}
+              className="shrink-0 mt-1 transition-transform duration-200 group-hover:translate-x-0.5"
+              style={{ color: 'var(--text-muted)' }}
+            />
+          </div>
+
+          <div
+            className="flex items-center gap-5 pt-4 mt-6"
+            style={{ borderTop: '1px solid var(--border-color)' }}
+          >
+            <span className="text-xs" style={{ color: 'var(--text-muted)' }}>
+              <span className="font-semibold" style={{ color: 'var(--text-secondary)' }}>{wrByCategory.bwl}</span> BWL
+            </span>
+            <span className="text-xs" style={{ color: 'var(--text-muted)' }}>
+              <span className="font-semibold" style={{ color: 'var(--text-secondary)' }}>{wrByCategory.vwl}</span> VWL
+            </span>
+            <span className="text-xs" style={{ color: 'var(--text-muted)' }}>
+              <span className="font-semibold" style={{ color: 'var(--text-secondary)' }}>{wrByCategory.recht}</span> Recht
+            </span>
+          </div>
+        </Link>
+
+      </div>
+
+      {/* ── WEITERMACHEN ──────────────────────────────────────── */}
       {lastProgress && (
         <div>
-          <h2 className="text-xs font-bold uppercase tracking-widest mb-3" style={{ color: 'var(--text-muted)' }}>
+          <p className="text-[11px] font-semibold uppercase tracking-[0.12em] mb-3" style={{ color: 'var(--text-muted)' }}>
             Weitermachen
-          </h2>
+          </p>
           <Link
             href={`/${lastProgress.chapter.topic.category === 'frw' ? 'frw' : 'wr'}/${lastProgress.chapter.topic.slug}`}
-            className="flex items-center justify-between gap-4 rounded-2xl p-4 transition-all hover:-translate-y-0.5 hover:border-white/15"
-            style={{ background: 'var(--card-bg)', border: '1px solid var(--border-color)' }}
+            className="group card-link rounded-xl px-5 py-4 flex items-center justify-between gap-4"
           >
             <div className="flex items-center gap-3 min-w-0">
-              <div
-                className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
-                style={{ background: 'var(--icon-bg)', border: '1px solid var(--border-color)' }}
-              >
-                <BookOpen size={15} style={{ color: 'var(--accent)' }} />
-              </div>
+              <span
+                className="w-1.5 h-1.5 rounded-full shrink-0"
+                style={{ background: 'var(--accent)' }}
+              />
               <div className="min-w-0">
-                <p className="text-xs font-semibold truncate" style={{ color: 'var(--text-primary)' }}>
+                <p className="text-sm font-semibold truncate" style={{ color: 'var(--text-primary)' }}>
                   {lastProgress.chapter.topic.title}
                 </p>
                 <p className="text-[11px] mt-0.5" style={{ color: 'var(--text-muted)' }}>
-                  {formatRelativeTime(lastProgress.lastVisited)}
+                  Zuletzt besucht {formatRelativeTime(lastProgress.lastVisited)}
                 </p>
               </div>
             </div>
-            <div className="flex items-center gap-1 text-xs font-medium shrink-0" style={{ color: 'var(--accent)' }}>
+            <span
+              className="flex items-center gap-1 text-xs font-medium shrink-0 group-hover:gap-1.5 transition-all"
+              style={{ color: 'var(--accent)' }}
+            >
               Weitermachen <ChevronRight size={13} />
-            </div>
+            </span>
           </Link>
         </div>
       )}
 
-      {/* SCHNELLZUGRIFF */}
+      {/* ── TOOLS ─────────────────────────────────────────────── */}
       <div>
-        <h2 className="text-xs font-bold uppercase tracking-widest mb-4" style={{ color: 'var(--text-muted)' }}>
-          Schnellzugriff
-        </h2>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          <Link
-            href="/frw/trainer"
-            className="rounded-2xl p-5 flex items-center gap-4 transition-all hover:-translate-y-0.5 hover:border-white/15"
-            style={{ background: 'var(--card-bg)', border: '1px solid var(--border-color)' }}
-          >
-            <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style={{ background: 'var(--icon-bg)' }}>
-              <Dumbbell size={18} className="text-emerald-400" />
-            </div>
-            <div>
-              <p className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>Buchungstrainer</p>
-              <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>FRW · alle Kapitel</p>
-            </div>
-          </Link>
+        <p className="text-[11px] font-semibold uppercase tracking-[0.12em] mb-1" style={{ color: 'var(--text-muted)' }}>
+          Tools
+        </p>
+        <div
+          className="rounded-xl overflow-hidden stagger"
+          style={{ border: '1px solid var(--border-color)' }}
+        >
+          {[
+            {
+              href: '/frw/trainer',
+              label: 'Buchungstrainer',
+              sub: 'FRW · Alle Kapitel interaktiv üben',
+              icon: Dumbbell,
+            },
+            {
+              href: '/progress',
+              label: 'Lernübersicht',
+              sub: 'FRW &amp; WR · Fortschritt im Überblick',
+              icon: Clock,
+            },
+            {
+              href: '/assistant',
+              label: 'KI-Assistent',
+              sub: 'Fragen stellen, Themen vertiefen',
+              icon: Bot,
+            },
+          ].map((item, idx, arr) => (
+            <Link
+              key={item.href}
+              href={item.href}
+              className="group hover-card flex items-center justify-between gap-4 px-5 py-4"
+              style={{
+                background: 'var(--card-bg)',
+                borderTop: idx > 0 ? '1px solid var(--border-color)' : 'none',
+              }}
+            >
+              <div className="flex items-center gap-3.5">
+                <item.icon size={15} style={{ color: 'var(--text-muted)' }} className="shrink-0" />
+                <div>
+                  <p className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>{item.label}</p>
+                  <p
+                    className="text-xs mt-0.5"
+                    style={{ color: 'var(--text-muted)' }}
+                    dangerouslySetInnerHTML={{ __html: item.sub }}
+                  />
+                </div>
+              </div>
+              <ChevronRight
+                size={14}
+                className="shrink-0 transition-transform duration-150 group-hover:translate-x-0.5"
+                style={{ color: 'var(--text-muted)' }}
+              />
+            </Link>
+          ))}
+        </div>
+      </div>
 
-          <Link
-            href="/progress"
-            className="rounded-2xl p-5 flex items-center gap-4 transition-all hover:-translate-y-0.5 hover:border-white/15"
-            style={{ background: 'var(--card-bg)', border: '1px solid var(--border-color)' }}
-          >
-            <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style={{ background: 'var(--icon-bg)' }}>
-              <Clock size={18} className="text-blue-400" />
+      {/* ── CHANGELOG ─────────────────────────────────────────── */}
+      <div>
+        <p className="text-[11px] font-semibold uppercase tracking-[0.12em] mb-3" style={{ color: 'var(--text-muted)' }}>
+          Änderungen
+        </p>
+        <div className="space-y-2 stagger">
+          {CHANGELOG.map((entry) => (
+            <div
+              key={entry.version}
+              className="rounded-xl px-5 py-4"
+              style={{ background: 'var(--card-bg)', border: '1px solid var(--border-color)' }}
+            >
+              <div className="flex items-center justify-between mb-2.5">
+                <div className="flex items-center gap-2">
+                  <GitCommit size={12} style={{ color: 'var(--accent)' }} />
+                  <span className="text-xs font-bold" style={{ color: 'var(--text-primary)' }}>
+                    {entry.version}
+                  </span>
+                </div>
+                <span className="text-[11px]" style={{ color: 'var(--text-muted)' }}>
+                  {entry.date}
+                </span>
+              </div>
+              <ul className="space-y-1">
+                {entry.changes.map((change, i) => (
+                  <li key={i} className="flex items-start gap-2 text-xs" style={{ color: 'var(--text-secondary)' }}>
+                    <span className="mt-[5px] w-1 h-1 rounded-full shrink-0" style={{ background: 'var(--text-muted)' }} />
+                    {change}
+                  </li>
+                ))}
+              </ul>
             </div>
-            <div>
-              <p className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>Lernübersicht</p>
-              <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>FRW &amp; WR Inhalte</p>
-            </div>
-          </Link>
-
-          <Link
-            href="/assistant"
-            className="rounded-2xl p-5 flex items-center gap-4 transition-all hover:-translate-y-0.5 hover:border-white/15"
-            style={{ background: 'var(--card-bg)', border: '1px solid var(--border-color)' }}
-          >
-            <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style={{ background: 'var(--icon-bg)' }}>
-              <Bot size={18} style={{ color: 'var(--accent)' }} />
-            </div>
-            <div>
-              <p className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>KI-Assistent</p>
-              <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>Fragen stellen</p>
-            </div>
-          </Link>
+          ))}
         </div>
       </div>
 
     </div>
   )
 }
+
+const CHANGELOG: { version: string; date: string; changes: string[] }[] = [
+  {
+    version: 'v1.4',
+    date: '09.04.2026',
+    changes: [
+      'QSP: Analyse der Bilanz & Erfolgsrechnung und Kostenrechnung hinzugefügt',
+      'Changelog-Sektion auf dem Dashboard',
+      'Geschichte-Sektion für AP 10. April hinzugefügt',
+    ],
+  },
+  {
+    version: 'v1.3',
+    date: '29.03.2026',
+    changes: [
+      'Neues Design: Swiss Utility Dark — einheitliches Akzentsystem',
+      'KI-Assistent: Vollbild-Viewport auf Mobile',
+      'Dashboard & Header komplett überarbeitet',
+    ],
+  },
+  {
+    version: 'v1.2',
+    date: '15.03.2026',
+    changes: [
+      'FRW Band 2 Kapitel 2–6 Zusammenfassungen aktualisiert',
+      'Buchungstrainer: neue Kapitel verfügbar',
+      'Lernübersicht: Fortschrittsanzeige verbessert',
+    ],
+  },
+  {
+    version: 'v1.1',
+    date: '01.03.2026',
+    changes: [
+      'FRW-Bereich gesperrt für Überarbeitung (hep-Lehrmittel Band 1–3)',
+      'QSP-Filter auf Themenübersicht eingeführt',
+      'Admin-Dashboard mit Live-Log',
+    ],
+  },
+]
