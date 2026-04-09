@@ -226,8 +226,12 @@ export default async function GeschichtePage() {
     )
   }
 
+  // Heute (9. April) für alle gratis — ab morgen Premium erforderlich
+  const freeUntil = new Date('2026-04-10T00:00:00')
+  const isFreeDay = new Date() < freeUntil
+
   const user = await getCurrentUser()
-  const hasPremium = user ? (user.isAdmin || isPremiumActive(user)) : false
+  const hasPremium = isFreeDay || (user ? (user.isAdmin || isPremiumActive(user)) : false)
 
   if (!hasPremium) {
     return (
