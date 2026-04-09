@@ -2,17 +2,20 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { LayoutDashboard, TrendingUp, Bot, CheckCircle, Sun, Moon, LogIn, LogOut, User, Shield, MessageSquarePlus, Menu, X, Calculator, Scale, Crown } from 'lucide-react'
+import { LayoutDashboard, TrendingUp, Bot, CheckCircle, Sun, Moon, LogIn, LogOut, User, Shield, MessageSquarePlus, Menu, X, Calculator, Scale, Crown, Landmark } from 'lucide-react'
 import { useTheme } from '@/components/ThemeProvider'
 import { useAuth } from '@/components/AuthProvider'
 
+const GESCHICHTE_EXPIRY = new Date('2026-04-11T00:00:00')
+
 const nav = [
-  { href: '/',          label: 'Dashboard',   icon: LayoutDashboard },
-  { href: '/frw',       label: 'FRW',         icon: Calculator },
-  { href: '/wr',        label: 'WR',          icon: Scale },
-  { href: '/progress',  label: 'Fortschritt', icon: CheckCircle },
-  { href: '/assistant', label: 'Assistent',   icon: Bot },
-  { href: '/feedback',  label: 'Feedback',    icon: MessageSquarePlus },
+  { href: '/',           label: 'Dashboard',   icon: LayoutDashboard },
+  { href: '/frw',        label: 'FRW',         icon: Calculator },
+  { href: '/wr',         label: 'WR',          icon: Scale },
+  ...(new Date() < GESCHICHTE_EXPIRY ? [{ href: '/geschichte', label: 'Geschichte', icon: Landmark }] : []),
+  { href: '/progress',   label: 'Fortschritt', icon: CheckCircle },
+  { href: '/assistant',  label: 'Assistent',   icon: Bot },
+  { href: '/feedback',   label: 'Feedback',    icon: MessageSquarePlus },
 ]
 
 export function Navbar() {

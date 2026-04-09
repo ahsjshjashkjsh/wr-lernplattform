@@ -4,10 +4,12 @@ import Link from 'next/link'
 import {
   ArrowRight, BookOpen, Dumbbell, Sparkles,
   Calculator, Hash, FileText, ChevronRight,
-  Scale, Clock, GraduationCap, Layers, Bot,
+  Scale, Clock, GraduationCap, Layers, Bot, Landmark,
 } from 'lucide-react'
 
 export const dynamic = 'force-dynamic'
+
+const GESCHICHTE_EXPIRY = new Date('2026-04-11T00:00:00')
 
 function formatRelativeTime(date: Date): string {
   const diffMs = Date.now() - date.getTime()
@@ -215,6 +217,45 @@ export default async function DashboardPage() {
             </div>
           </Link>
 
+        </div>
+
+          {/* Geschichte — nur heute */}
+          {new Date() < GESCHICHTE_EXPIRY && (
+            <Link
+              href="/geschichte"
+              className="group rounded-2xl p-6 transition-all duration-200 hover:-translate-y-0.5 hover:border-amber-500/20 flex flex-col sm:col-span-2"
+              style={{ background: 'rgba(245,158,11,0.06)', border: '1px solid rgba(245,158,11,0.2)' }}
+            >
+              <div className="flex items-start justify-between mb-5">
+                <div
+                  className="w-12 h-12 rounded-xl flex items-center justify-center"
+                  style={{ background: 'rgba(245,158,11,0.12)', border: '1px solid rgba(245,158,11,0.25)' }}
+                >
+                  <Landmark size={22} className="text-amber-400" />
+                </div>
+                <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full text-amber-300 bg-amber-500/10 border border-amber-500/25 animate-pulse">
+                  ⏰ Nur heute
+                </span>
+              </div>
+
+              <h3 className="text-base font-bold mb-1" style={{ color: 'var(--text-primary)' }}>
+                Geschichte
+              </h3>
+              <p className="text-xs mb-4" style={{ color: 'var(--text-muted)' }}>
+                Prüfungsstoff · Abschlussprüfung 10. April 2026
+              </p>
+
+              <div
+                className="flex items-center gap-4 pt-4 mt-auto"
+                style={{ borderTop: '1px solid rgba(245,158,11,0.15)' }}
+              >
+                <span className="text-xs" style={{ color: 'rgba(251,191,36,0.7)' }}>
+                  Zusammenfassung, Begriffe &amp; Quiz
+                </span>
+                <ArrowRight size={14} className="ml-auto text-amber-400 group-hover:translate-x-0.5 transition-transform" />
+              </div>
+            </Link>
+          )}
         </div>
       </div>
 
