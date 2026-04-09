@@ -1,6 +1,24 @@
 import type { Metadata } from 'next'
 import Script from 'next/script'
+import { DM_Sans, Instrument_Serif } from 'next/font/google'
 import './globals.css'
+
+const dmSans = DM_Sans({
+  subsets: ['latin'],
+  weight: 'variable',
+  axes: ['opsz'],
+  style: ['normal', 'italic'],
+  variable: '--font-dm-sans',
+  display: 'swap',
+})
+
+const instrumentSerif = Instrument_Serif({
+  subsets: ['latin'],
+  weight: '400',
+  style: ['normal', 'italic'],
+  variable: '--font-instrument-serif',
+  display: 'swap',
+})
 import { Navbar } from '@/components/layout/navbar'
 import { Footer } from '@/components/layout/footer'
 import { FloatingChat } from '@/components/FloatingChat'
@@ -16,7 +34,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="de" className="h-full" suppressHydrationWarning>
+    <html lang="de" className={`h-full ${dmSans.variable} ${instrumentSerif.variable}`} suppressHydrationWarning>
       <body className="min-h-full">
         <Script
           id="theme-init"
