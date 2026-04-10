@@ -2,7 +2,7 @@ import { prisma } from '@/lib/prisma'
 import { getCurrentUser, isPremiumActive } from '@/lib/auth'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
-import { ChevronLeft, ChevronRight, BookOpen, Hash, FileText, Dumbbell, Lightbulb, AlertCircle, ArrowRight, GraduationCap, Lock, Crown } from 'lucide-react'
+import { ChevronLeft, ChevronRight, BookOpen, Hash, FileText, Dumbbell, Lightbulb, AlertCircle, ArrowRight, GraduationCap, Lock, Crown, BarChart2 } from 'lucide-react'
 import { BookingTrainer } from '@/components/frw/BookingTrainer'
 import { TheoryTrainer } from '@/components/frw/TheoryTrainer'
 import { FlashcardMode } from '@/components/frw/FlashcardMode'
@@ -10,6 +10,11 @@ import { VisitTracker } from '@/components/frw/VisitTracker'
 import { QuizTrainer } from '@/components/QuizTrainer'
 import { MarkdownContent } from '@/components/MarkdownContent'
 import { ProgressBadge } from '@/components/ProgressBadge'
+import { BABVisual } from '@/components/frw/BABVisual'
+
+const FRW_VISUALS: Record<string, React.ComponentType> = {
+  'frw-kostenrechnung': BABVisual,
+}
 import { TheorieTab } from '@/components/TheorieTab'
 
 export const dynamic = 'force-dynamic'
@@ -107,6 +112,7 @@ export default async function FrwChapterPage({ params, searchParams }: Props) {
 
   const user = await getCurrentUser()
   const hasPremium = user ? isPremiumActive(user) : false
+  const hasVisual = slug in FRW_VISUALS
 
 
   const chapter = topic.chapters[0]
@@ -127,6 +133,7 @@ export default async function FrwChapterPage({ params, searchParams }: Props) {
     { id: 'begriffe',    label: 'Begriffe',         icon: FileText      },
     { id: 'ueben',       label: 'Buchungen üben',  icon: Dumbbell      },
     { id: 'theorie-quiz',label: 'Theorie üben',    icon: GraduationCap },
+    ...(hasVisual ? [{ id: 'visual', label: 'Visualisierung', icon: BarChart2 }] : []),
   ]
 
   return (
@@ -343,6 +350,13 @@ export default async function FrwChapterPage({ params, searchParams }: Props) {
         {tab === 'quiz' && (
           hasPremium
             ? <QuizTrainer questions={chapter.quizQuestions} chapterId={chapter.id} />
+            : <FrwPremiumCta />
+        )}
+
+        {/* VISUALISIERUNG */}
+        {tab === 'visual' && (
+          hasPremium
+            ? (() => { const V = FRW_VISUALS[slug]; return V ? <V /> : null })()
             : <FrwPremiumCta />
         )}
 
