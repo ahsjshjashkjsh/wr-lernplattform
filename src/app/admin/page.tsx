@@ -417,7 +417,8 @@ export default function AdminPage() {
   }).sort((a, b) => {
     const aOnline = isOnline(a.lastOnline) ? 1 : 0
     const bOnline = isOnline(b.lastOnline) ? 1 : 0
-    return bOnline - aOnline
+    if (bOnline !== aOnline) return bOnline - aOnline
+    return new Date(b.lastOnline ?? 0).getTime() - new Date(a.lastOnline ?? 0).getTime()
   })
 
   const totalQuiz = users.reduce((s, u) => s + u._count.quizAttempts, 0)
