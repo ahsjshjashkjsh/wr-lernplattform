@@ -281,6 +281,16 @@ model AccountingEntry {
 
 // ─── Buchungstrainer ──────────────────────────────────────────────────────────
 
+// Korrekturen/Overrides für statische Karten (aus buchungstrainer-cards.ts)
+model BuchungstrainerCardOverride {
+  id        Int      @id @default(autoincrement())
+  staticId  Int      @unique  // ID der statischen Karte (1–270)
+  question  String?           // überschriebene Frage, null = Original
+  answer    String?           // überschriebene Hauptlösung, null = Original
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
 // Extra akzeptierte Antworten für eine Karte (static card ID oder customCard ID)
 model BuchungstrainerAlias {
   id         Int      @id @default(autoincrement())

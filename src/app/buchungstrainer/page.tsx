@@ -75,20 +75,31 @@ export default function BuchungstrainerPage() {
   // ── load stars + DB data ───────────────────────────────────────
   useEffect(() => {
     setStars(loadStars())
-    // Load aliases and custom cards (no auth required for reading)
     Promise.all([
       fetch('/api/buchungstrainer/aliases').then(r => r.ok ? r.json() : { aliases: [] }),
       fetch('/api/buchungstrainer/custom-cards').then(r => r.ok ? r.json() : { cards: [] }),
-    ]).then(([aliasData, cardData]) => {
+      fetch('/api/buchungstrainer/overrides').then(r => r.ok ? r.json() : { overrides: [] }),
+    ]).then(([aliasData, cardData, overrideData]) => {
       if (aliasData.aliases) setAliases(aliasData.aliases)
-      if (cardData.cards) {
-        const customCards: Card[] = (cardData.cards as { id: number; question: string; answer: string; isActive: boolean }[])
-          .filter(c => c.isActive)
-          .map(c => ({ id: -(c.id), q: c.question, a: c.answer }))
-        const merged = [...STATIC_CARDS, ...customCards]
-        setAllCards(merged)
-        setOrder(merged.map((_, i) => i))
-      }
+
+      // Apply overrides to static cards
+      const overrideMap = new Map(
+        (overrideData.overrides ?? []).map((o: { staticId: number; question: string | null; answer: string | null }) =>
+          [o.staticId, o]
+        )
+      )
+      const staticCards: Card[] = STATIC_CARDS.map(card => {
+        const ov = overrideMap.get(card.id) as { question: string | null; answer: string | null } | undefined
+        return { id: card.id, q: ov?.question ?? card.q, a: ov?.answer ?? card.a }
+      })
+
+      const customCards: Card[] = (cardData.cards as { id: number; question: string; answer: string; isActive: boolean }[])
+        .filter(c => c.isActive)
+        .map(c => ({ id: -(c.id), q: c.question, a: c.answer }))
+
+      const merged = [...staticCards, ...customCards]
+      setAllCards(merged)
+      setOrder(merged.map((_, i) => i))
     }).catch(() => {})
   }, [])
 
@@ -153,7 +164,7 @@ export default function BuchungstrainerPage() {
     setHint(false)
     setShuffled(false)
     setScore({ ok: 0, fail: 0 })
-  }, [])
+  }, [allCards])
 
   const handleOverride = useCallback(() => {
     setScore(s => ({ ok: s.ok + 1, fail: Math.max(s.fail - 1, 0) }))
@@ -499,16 +510,29 @@ export default function BuchungstrainerPage() {
           />
 
           {/* Correct answer (when wrong) */}
-          {phase === 'wrong' && (
-            <div className="text-center space-y-1">
-              <p className="text-[11px] uppercase tracking-widest font-semibold" style={{ color: 'var(--text-muted)' }}>
-                Richtige Antwort
-              </p>
-              <p className="text-lg font-bold font-mono" style={{ color: '#4ade80' }}>
-                {currentCard.a}
-              </p>
-            </div>
-          )}
+          {phase === 'wrong' && (() => {
+            const isCustomCard = currentCard.id < 0
+            const realId = isCustomCard ? -(currentCard.id) : currentCard.id
+            const cardAliases = aliases.filter(a => a.cardId === realId && a.isCustom === isCustomCard)
+            return (
+              <div className="text-center space-y-1">
+                <p className="text-[11px] uppercase tracking-widest font-semibold" style={{ color: 'var(--text-muted)' }}>
+                  Richtige Antwort
+                </p>
+                <p className="text-lg font-bold font-mono" style={{ color: '#4ade80' }}>
+                  {currentCard.a}
+                </p>
+                {cardAliases.length > 0 && (
+                  <div className="pt-1 space-y-0.5">
+                    <p className="text-[10px] uppercase tracking-widest" style={{ color: 'var(--text-muted)' }}>Auch akzeptiert</p>
+                    {cardAliases.map(a => (
+                      <p key={a.id} className="text-sm font-mono" style={{ color: '#86efac' }}>{a.answer}</p>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )
+          })()}
 
           {/* Buttons */}
           {phase === 'input' ? (
