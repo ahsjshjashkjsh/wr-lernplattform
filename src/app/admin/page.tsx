@@ -88,7 +88,7 @@ function timeAgo(dateStr: string | null) {
 }
 
 export default function AdminPage() {
-  const { user: me } = useAuth()
+  const { user: me, loading: authLoading } = useAuth()
   const isCreator = me?.isCreator ?? false
   const [users, setUsers] = useState<AdminUser[]>([])
   const [bannedIps, setBannedIps] = useState<string[]>([])
@@ -301,17 +301,19 @@ export default function AdminPage() {
     loadUsers()
     loadFeedback()
     loadLogs()
-    loadPremiumRequests()
-    loadPromoCodes()
+    if (isCreator) {
+      loadPremiumRequests()
+      loadPromoCodes()
+    }
     const interval = setInterval(() => {
       loadUsers(true)
       loadFeedback()
       loadLogs()
-      loadPremiumRequests()
+      if (isCreator) loadPremiumRequests()
     }, 3_000)
     return () => clearInterval(interval)
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loadUsers])
+  }, [loadUsers, isCreator])
 
   async function patch(userId: string, data: Record<string, unknown>, key: string) {
     setActionLoading(key)
@@ -432,6 +434,15 @@ export default function AdminPage() {
     background: 'rgba(255,255,255,0.05)',
     border: '1px solid rgba(255,255,255,0.1)',
     color: 'var(--text-primary)',
+  }
+
+  if (!authLoading && !me?.isAdmin) {
+    return (
+      <div className="flex flex-col items-center justify-center py-32 gap-3">
+        <Shield size={32} style={{ color: 'var(--text-muted)' }} className="opacity-30" />
+        <p className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>Kein Zugriff</p>
+      </div>
+    )
   }
 
   return (
