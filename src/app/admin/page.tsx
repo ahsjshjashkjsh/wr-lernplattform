@@ -965,15 +965,17 @@ export default function AdminPage() {
                         >
                           <BookMarked size={13} />
                         </button>
-                        <button
-                          onClick={() => patch(user.id, { isAyri: !user.isAyri } as any, user.id + '-ayri')}
-                          disabled={actionLoading === user.id + '-ayri'}
-                          title={user.isAyri ? 'Ayri-Rolle entfernen' : 'Ayri-Rolle vergeben'}
-                          className="w-8 h-8 rounded-lg flex items-center justify-center transition-all disabled:opacity-40 text-xs font-black"
-                          style={{ background: user.isAyri ? 'rgba(239,68,68,0.2)' : 'rgba(255,255,255,0.05)', color: user.isAyri ? '#f87171' : '#64748b' }}
-                        >
-                          A
-                        </button>
+                        {isCreator && (
+                          <button
+                            onClick={() => patch(user.id, { isAyri: !user.isAyri } as any, user.id + '-ayri')}
+                            disabled={actionLoading === user.id + '-ayri'}
+                            title={user.isAyri ? 'Ayri-Rolle entfernen' : 'Ayri-Rolle vergeben'}
+                            className="w-8 h-8 rounded-lg flex items-center justify-center transition-all disabled:opacity-40 text-xs font-black"
+                            style={{ background: user.isAyri ? 'rgba(239,68,68,0.2)' : 'rgba(255,255,255,0.05)', color: user.isAyri ? '#f87171' : '#64748b' }}
+                          >
+                            A
+                          </button>
+                        )}
                         {isCreator && (
                           <button
                             onClick={() => patch(user.id, { isCreator: !user.isCreator } as any, user.id + '-creator')}

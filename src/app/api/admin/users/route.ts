@@ -110,7 +110,10 @@ export async function PATCH(request: Request) {
   if ((body as any).isPremium === false) { data.isPremium = false; data.premiumUntil = null }
   if ((body as any).isApproved !== undefined) data.isApproved = (body as any).isApproved
   if ((body as any).buchungstrainerRole !== undefined) data.buchungstrainerRole = (body as any).buchungstrainerRole
-  if ((body as any).isAyri !== undefined) data.isAyri = (body as any).isAyri
+  if ((body as any).isAyri !== undefined) {
+    if (!(admin as any).isCreator) return Response.json({ error: 'Nur der Creator kann die Ayri-Rolle vergeben.' }, { status: 403 })
+    data.isAyri = (body as any).isAyri
+  }
   if ((body as any).isCreator !== undefined) data.isCreator = (body as any).isCreator
   if (body.name?.trim()) data.name = body.name.trim()
   if (body.email?.trim()) data.email = body.email.trim().toLowerCase()
