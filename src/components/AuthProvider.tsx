@@ -44,7 +44,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => { refresh() }, [refresh])
 
-  // Heartbeat: sendet alle 30s eine Anfrage um lastOnline + lastIp zu aktualisieren
+  // Heartbeat: sendet alle 30s — aber NUR wenn in den letzten 30s Aktivität war
   // Alle 60s auch User-Daten neu laden (damit Rollen-Änderungen sofort wirken)
   useEffect(() => {
     if (!user) {
@@ -52,9 +52,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return
     }
 
+    let lastActivity = Date.now()
+    const ACTIVITY_WINDOW = 30_000
+
+    const onActivity = () => { lastActivity = Date.now() }
+    const events = ['mousedown', 'mousemove', 'keydown', 'scroll', 'touchstart', 'click']
+    events.forEach(e => window.addEventListener(e, onActivity, { passive: true }))
+
+    // Sofort als aktiv werten (Seite wurde gerade geladen/navigiert)
+    onActivity()
+
     let tick = 0
     const ping = () => {
-      fetch('/api/heartbeat', { method: 'POST' }).catch(() => {})
+      const isActive = Date.now() - lastActivity < ACTIVITY_WINDOW
+      if (isActive) fetch('/api/heartbeat', { method: 'POST' }).catch(() => {})
       tick++
       if (tick % 2 === 0) refresh() // alle 60s User-Daten neu laden
     }
@@ -64,6 +75,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     return () => {
       if (heartbeatRef.current) clearInterval(heartbeatRef.current)
+      events.forEach(e => window.removeEventListener(e, onActivity))
     }
   }, [user?.id, refresh]) // eslint-disable-line react-hooks/exhaustive-deps
 

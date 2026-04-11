@@ -69,10 +69,10 @@ interface AccountingEntry {
   createdAt: string
 }
 
-// Online = lastOnline within last 3 minutes
+// Online = lastOnline within last 45s (30s Aktivitätsfenster + 15s Puffer)
 function isOnline(lastOnline: string | null) {
   if (!lastOnline) return false
-  return Date.now() - new Date(lastOnline).getTime() < 3 * 60 * 1000
+  return Date.now() - new Date(lastOnline).getTime() < 45_000
 }
 
 function timeAgo(dateStr: string | null) {
