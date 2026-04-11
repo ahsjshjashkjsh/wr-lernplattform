@@ -98,6 +98,9 @@ export default function AdminPage() {
   const [tab, setTab] = useState<Tab>('pending')
   const [actionLoading, setActionLoading] = useState<string | null>(null)
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null)
+  const [roleModal, setRoleModal] = useState<AdminUser | null>(null)
+  const [dragRole, setDragRole] = useState<string | null>(null)
+  const [dragOver, setDragOver] = useState<'active' | 'available' | null>(null)
   const [editUser, setEditUser] = useState<AdminUser | null>(null)
   const [editForm, setEditForm] = useState({ name: '', email: '', password: '' })
   const [showEditPw, setShowEditPw] = useState(false)
@@ -335,12 +338,14 @@ export default function AdminPage() {
 
   async function patch(userId: string, data: Record<string, unknown>, key: string) {
     setActionLoading(key)
+    // Optimistisch Modal-State updaten für sofortige UI-Reaktion
+    setRoleModal(prev => prev?.id === userId ? { ...prev, ...data } as AdminUser : prev)
     await fetch('/api/admin/users', {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ userId, ...data }),
     })
-    await loadUsers()
+    await loadUsers(true)
     setActionLoading(null)
   }
 
@@ -468,8 +473,140 @@ export default function AdminPage() {
     )
   }
 
+  // Rollen-Definitionen
+  const ALL_ROLES = [
+    { key: 'isAdmin',            label: 'Admin',    color: '#f59e0b', bg: 'rgba(245,158,11,0.2)',   border: 'rgba(245,158,11,0.4)'  },
+    { key: 'buchungstrainerRole',label: 'Trainer',  color: '#818cf8', bg: 'rgba(99,102,241,0.2)',   border: 'rgba(99,102,241,0.4)'  },
+    { key: 'isPremium',          label: 'Premium',  color: '#34d399', bg: 'rgba(16,185,129,0.2)',   border: 'rgba(16,185,129,0.4)'  },
+    ...(isCreator ? [
+      { key: 'isAyri',           label: 'Ayri',     color: '#f87171', bg: 'rgba(239,68,68,0.2)',    border: 'rgba(239,68,68,0.4)'   },
+      { key: 'isCreator',        label: 'Creator',  color: '#fbbf24', bg: 'rgba(251,191,36,0.2)',   border: 'rgba(251,191,36,0.4)'  },
+    ] : []),
+  ]
+
+  async function toggleRole(userId: string, roleKey: string, value: boolean) {
+    const roleUser = users.find(u => u.id === userId)
+    if (!roleUser) return
+    if (roleKey === 'isPremium' && value) return // Premium nur über Promo-Code/Anfrage
+    await patch(userId, { [roleKey]: value }, userId + '-' + roleKey)
+    setRoleModal(prev => prev?.id === userId ? { ...prev, [roleKey]: value } : prev)
+  }
+
   return (
     <div className="max-w-5xl mx-auto px-4 py-8">
+
+      {/* Rollen-Modal (Drag & Drop) */}
+      {roleModal && (() => {
+        const u = roleModal
+        const locked = u.isCreator
+        const activeRoles = ALL_ROLES.filter(r => (u as any)[r.key])
+        const availableRoles = ALL_ROLES.filter(r => !(u as any)[r.key])
+        return (
+          <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4" style={{ background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(4px)' }}
+            onClick={e => { if (e.target === e.currentTarget) setRoleModal(null) }}>
+            <div className="w-full max-w-md rounded-2xl overflow-hidden" style={{ background: '#0f172a', border: '1px solid rgba(255,255,255,0.1)', boxShadow: '0 25px 80px rgba(0,0,0,0.6)' }}>
+              {/* Header */}
+              <div className="flex items-center justify-between px-5 py-4 border-b" style={{ borderColor: 'rgba(255,255,255,0.08)' }}>
+                <div>
+                  <p className="text-sm font-bold text-slate-200">Rollen verwalten</p>
+                  <p className="text-xs text-slate-500 mt-0.5">{u.name}</p>
+                </div>
+                <button onClick={() => setRoleModal(null)} className="w-7 h-7 rounded-lg flex items-center justify-center text-slate-500 hover:text-slate-300 transition-colors" style={{ background: 'rgba(255,255,255,0.05)' }}>
+                  <X size={14} />
+                </button>
+              </div>
+
+              {locked ? (
+                <div className="px-5 py-8 text-center text-slate-500 text-sm">Creator-Account — Rollen gesperrt.</div>
+              ) : (
+                <div className="p-5 space-y-4">
+                  {/* Aktive Rollen Zone */}
+                  <div>
+                    <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2">Aktive Rollen</p>
+                    <div
+                      className="min-h-[56px] rounded-xl p-3 flex flex-wrap gap-2 transition-all"
+                      style={{
+                        background: dragOver === 'active' ? 'rgba(34,197,94,0.08)' : 'rgba(255,255,255,0.03)',
+                        border: `1px dashed ${dragOver === 'active' ? 'rgba(34,197,94,0.4)' : 'rgba(255,255,255,0.08)'}`,
+                      }}
+                      onDragOver={e => { e.preventDefault(); setDragOver('active') }}
+                      onDragLeave={() => setDragOver(null)}
+                      onDrop={e => {
+                        e.preventDefault()
+                        setDragOver(null)
+                        if (dragRole && !(u as any)[dragRole]) toggleRole(u.id, dragRole, true)
+                        setDragRole(null)
+                      }}
+                    >
+                      {activeRoles.length === 0 && <span className="text-xs text-slate-600 self-center">Keine aktiven Rollen</span>}
+                      {activeRoles.map(r => (
+                        <div
+                          key={r.key}
+                          draggable
+                          onDragStart={() => setDragRole(r.key)}
+                          onDragEnd={() => setDragRole(null)}
+                          onClick={() => toggleRole(u.id, r.key, false)}
+                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold cursor-grab active:cursor-grabbing select-none transition-all hover:opacity-80"
+                          style={{ background: r.bg, border: `1px solid ${r.border}`, color: r.color }}
+                          title="Klicken oder ziehen um zu entfernen"
+                        >
+                          {r.label}
+                          <X size={10} className="opacity-60" />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Verfügbare Rollen Zone */}
+                  <div>
+                    <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2">Verfügbare Rollen</p>
+                    <div
+                      className="min-h-[56px] rounded-xl p-3 flex flex-wrap gap-2 transition-all"
+                      style={{
+                        background: dragOver === 'available' ? 'rgba(239,68,68,0.06)' : 'rgba(255,255,255,0.03)',
+                        border: `1px dashed ${dragOver === 'available' ? 'rgba(239,68,68,0.3)' : 'rgba(255,255,255,0.08)'}`,
+                      }}
+                      onDragOver={e => { e.preventDefault(); setDragOver('available') }}
+                      onDragLeave={() => setDragOver(null)}
+                      onDrop={e => {
+                        e.preventDefault()
+                        setDragOver(null)
+                        if (dragRole && (u as any)[dragRole]) toggleRole(u.id, dragRole, false)
+                        setDragRole(null)
+                      }}
+                    >
+                      {availableRoles.length === 0 && <span className="text-xs text-slate-600 self-center">Alle Rollen vergeben</span>}
+                      {availableRoles.map(r => (
+                        <div
+                          key={r.key}
+                          draggable={r.key !== 'isPremium'}
+                          onDragStart={() => r.key !== 'isPremium' && setDragRole(r.key)}
+                          onDragEnd={() => setDragRole(null)}
+                          onClick={() => r.key !== 'isPremium' && toggleRole(u.id, r.key, true)}
+                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold select-none transition-all"
+                          style={{
+                            background: 'rgba(255,255,255,0.04)',
+                            border: '1px solid rgba(255,255,255,0.08)',
+                            color: '#475569',
+                            cursor: r.key === 'isPremium' ? 'not-allowed' : 'grab',
+                            opacity: r.key === 'isPremium' ? 0.4 : 1,
+                          }}
+                          title={r.key === 'isPremium' ? 'Premium nur über Promo-Code vergeben' : 'Klicken oder ziehen um zu vergeben'}
+                        >
+                          {r.label}
+                          {r.key !== 'isPremium' && <Plus size={10} className="opacity-60" />}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <p className="text-[10px] text-slate-600 text-center">Rollen ziehen oder klicken zum Vergeben / Entfernen</p>
+                </div>
+              )}
+            </div>
+          </div>
+        )
+      })()}
 
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
@@ -969,58 +1106,13 @@ export default function AdminPage() {
                         </button>
 
                         <button
-                          onClick={() => patch(user.id, { isAdmin: !user.isAdmin }, user.id + '-admin')}
-                          disabled={actionLoading === user.id + '-admin' || user.isCreator}
-                          title={user.isCreator ? 'Creator — Rollen gesperrt' : user.isAdmin ? 'Admin entfernen' : 'Zum Admin machen'}
-                          className="w-8 h-8 rounded-lg flex items-center justify-center transition-all disabled:opacity-40"
-                          style={{ background: user.isAdmin ? 'rgba(245,158,11,0.2)' : 'rgba(255,255,255,0.05)', color: user.isAdmin ? '#f59e0b' : '#64748b' }}
+                          onClick={() => setRoleModal(user)}
+                          title="Rollen verwalten"
+                          className="flex items-center gap-1.5 px-2.5 h-8 rounded-lg text-xs font-semibold transition-all"
+                          style={{ background: 'rgba(99,102,241,0.12)', border: '1px solid rgba(99,102,241,0.25)', color: '#818cf8' }}
                         >
-                          <Crown size={13} />
+                          <Shield size={12} /> Rollen
                         </button>
-
-                        <button
-                          onClick={() => patch(user.id, { buchungstrainerRole: !user.buchungstrainerRole } as any, user.id + '-trainer')}
-                          disabled={actionLoading === user.id + '-trainer' || user.isCreator}
-                          title={user.isCreator ? 'Creator — Rollen gesperrt' : user.buchungstrainerRole ? 'Trainer-Rolle entfernen' : 'Buchungstrainer-Rolle vergeben'}
-                          className="w-8 h-8 rounded-lg flex items-center justify-center transition-all disabled:opacity-40"
-                          style={{ background: user.buchungstrainerRole ? 'rgba(99,102,241,0.2)' : 'rgba(255,255,255,0.05)', color: user.buchungstrainerRole ? '#818cf8' : '#64748b' }}
-                        >
-                          <BookMarked size={13} />
-                        </button>
-                        {isCreator && (
-                          <button
-                            onClick={() => patch(user.id, { isAyri: !user.isAyri } as any, user.id + '-ayri')}
-                            disabled={actionLoading === user.id + '-ayri' || user.isCreator}
-                            title={user.isCreator ? 'Creator — Rollen gesperrt' : user.isAyri ? 'Ayri-Rolle entfernen' : 'Ayri-Rolle vergeben'}
-                            className="w-8 h-8 rounded-lg flex items-center justify-center transition-all disabled:opacity-40 text-xs font-black"
-                            style={{ background: user.isAyri ? 'rgba(239,68,68,0.2)' : 'rgba(255,255,255,0.05)', color: user.isAyri ? '#f87171' : '#64748b' }}
-                          >
-                            A
-                          </button>
-                        )}
-                        {isCreator && (
-                          <button
-                            onClick={() => patch(user.id, { isCreator: !user.isCreator } as any, user.id + '-creator')}
-                            disabled={actionLoading === user.id + '-creator'}
-                            title={user.isCreator ? 'Creator-Rolle entfernen' : 'Creator-Rolle vergeben'}
-                            className="w-8 h-8 rounded-lg flex items-center justify-center transition-all disabled:opacity-40"
-                            style={{ background: user.isCreator ? 'rgba(251,191,36,0.2)' : 'rgba(255,255,255,0.05)', color: user.isCreator ? '#fbbf24' : '#64748b' }}
-                          >
-                            <Star size={13} />
-                          </button>
-                        )}
-
-                        {user.isPremium && !user.isCreator && (
-                          <button
-                            onClick={() => patch(user.id, { isPremium: false } as any, user.id + '-premium')}
-                            disabled={actionLoading === user.id + '-premium'}
-                            title="Premium entfernen"
-                            className="w-8 h-8 rounded-lg flex items-center justify-center transition-all disabled:opacity-40"
-                            style={{ background: 'rgba(16,185,129,0.2)', color: '#34d399' }}
-                          >
-                            <Lock size={13} />
-                          </button>
-                        )}
 
                         {!user.isCreator && (user.isBanned ? (
                           <button
