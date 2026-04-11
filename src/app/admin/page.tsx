@@ -263,6 +263,13 @@ export default function AdminPage() {
     setAdminNote('')
   }
 
+  async function deleteFeedback(id: string) {
+    setActionLoading('delete-' + id)
+    await fetch(`/api/feedback?id=${id}`, { method: 'DELETE' })
+    setFeedback(prev => prev.filter(f => f.id !== id))
+    setActionLoading(null)
+  }
+
   async function approvePremium(id: string) {
     setActionLoading('premium-' + id)
     await fetch(`/api/admin/premium/${id}/approve`, { method: 'POST' })
@@ -1065,7 +1072,7 @@ export default function AdminPage() {
                           </div>
                         </div>
                         <p className="text-xs text-slate-400 mb-1">{item.userName} · {new Date(item.createdAt).toLocaleDateString('de-CH')}</p>
-                        <p className="text-sm text-slate-300 whitespace-pre-wrap">{item.message}</p>
+                        <p className="text-sm text-slate-300 whitespace-pre-wrap break-all line-clamp-6">{item.message}</p>
                         {item.adminNote && (
                           <div className="mt-2 px-3 py-2 rounded-lg text-xs text-slate-400 italic" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}>
                             Admin-Notiz: {item.adminNote}
@@ -1086,6 +1093,13 @@ export default function AdminPage() {
                             ✓ Als erledigt markieren
                           </button>
                         )}
+                        <button onClick={() => deleteFeedback(item.id)}
+                          disabled={actionLoading === 'delete-' + item.id}
+                          className="mt-3 ml-2 p-1.5 rounded-lg transition-all hover:bg-red-500/10 disabled:opacity-40"
+                          title="Feedback löschen"
+                          style={{ color: '#f87171' }}>
+                          <Trash2 size={13} />
+                        </button>
                       </div>
                     </div>
                   </div>

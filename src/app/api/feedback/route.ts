@@ -96,6 +96,26 @@ export async function POST(request: Request) {
   }
 }
 
+export async function DELETE(request: Request) {
+  try {
+    const session = await getSession()
+    if (!session) return Response.json({ error: 'Unauthorized' }, { status: 401 })
+
+    const user = await prisma.user.findUnique({ where: { id: session.userId } })
+    if (!user?.isAdmin) return Response.json({ error: 'Forbidden' }, { status: 403 })
+
+    const { searchParams } = new URL(request.url)
+    const id = searchParams.get('id')
+    if (!id) return Response.json({ error: 'id fehlt.' }, { status: 400 })
+
+    await prisma.feedback.delete({ where: { id } })
+    return Response.json({ success: true })
+  } catch (error) {
+    console.error('DELETE /api/feedback error:', error)
+    return Response.json({ error: 'Failed to delete feedback' }, { status: 500 })
+  }
+}
+
 export async function PATCH(request: Request) {
   try {
     const session = await getSession()
