@@ -123,6 +123,11 @@ export async function PATCH(request: Request) {
   if (body.name?.trim()) data.name = body.name.trim()
   if (body.email?.trim()) data.email = body.email.trim().toLowerCase()
   if (body.password && body.password.length >= 6) {
+    // Passwort des Creator-Accounts kann niemand ändern
+    const pwTarget = await prisma.user.findUnique({ where: { id: body.userId }, select: { isCreator: true } })
+    if (pwTarget?.isCreator) {
+      return Response.json({ error: 'Das Passwort des Creator-Accounts kann nicht geändert werden.' }, { status: 400 })
+    }
     data.passwordHash = await bcrypt.hash(body.password, 12)
   }
 
