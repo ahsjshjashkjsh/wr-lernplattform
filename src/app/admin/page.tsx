@@ -2073,11 +2073,13 @@ export default function AdminPage() {
                 <input type="text" value={editForm.name} onChange={e => setEditForm(f => ({ ...f, name: e.target.value }))}
                   className="w-full px-3 py-2.5 rounded-xl text-sm outline-none" style={inputStyle} />
               </div>
-              <div>
-                <label className="text-xs text-slate-400 block mb-1.5">E-Mail</label>
-                <input type="email" value={editForm.email} onChange={e => setEditForm(f => ({ ...f, email: e.target.value }))}
-                  className="w-full px-3 py-2.5 rounded-xl text-sm outline-none" style={inputStyle} />
-              </div>
+              {!editUser?.isCreator && (
+                <div>
+                  <label className="text-xs text-slate-400 block mb-1.5">E-Mail</label>
+                  <input type="email" value={editForm.email} onChange={e => setEditForm(f => ({ ...f, email: e.target.value }))}
+                    className="w-full px-3 py-2.5 rounded-xl text-sm outline-none" style={inputStyle} />
+                </div>
+              )}
               {!editUser?.isCreator && (
                 <div>
                   <label className="text-xs text-slate-400 block mb-1.5">Neues Passwort <span className="text-slate-600">(leer = nicht ändern)</span></label>

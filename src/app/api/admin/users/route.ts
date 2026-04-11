@@ -121,7 +121,9 @@ export async function PATCH(request: Request) {
   }
   if ((body as any).isCreator !== undefined) data.isCreator = (body as any).isCreator
   if (body.name?.trim()) data.name = body.name.trim()
-  if (body.email?.trim()) data.email = body.email.trim().toLowerCase()
+  // E-Mail des Creator-Accounts kann nicht geändert werden
+  const emailTarget = await prisma.user.findUnique({ where: { id: body.userId }, select: { isCreator: true } })
+  if (body.email?.trim() && !emailTarget?.isCreator) data.email = body.email.trim().toLowerCase()
   if (body.password && body.password.length >= 6) {
     // Passwort des Creator-Accounts kann niemand ändern
     const pwTarget = await prisma.user.findUnique({ where: { id: body.userId }, select: { isCreator: true } })
