@@ -1,7 +1,7 @@
 'use client'
 import { useEffect, useState, useRef } from 'react'
 import { useAuth } from './AuthProvider'
-import { X, Shield } from 'lucide-react'
+import { X, Shield, Send } from 'lucide-react'
 
 interface Message {
   id: string
@@ -16,8 +16,25 @@ const AUTO_DISMISS_MS = 10_000
 export function AdminMessagePopup() {
   const { user } = useAuth()
   const [queue, setQueue] = useState<Message[]>([])
+  const [replyText, setReplyText] = useState<Record<string, string>>({})
+  const [replySending, setReplySending] = useState<string | null>(null)
+  const [replySent, setReplySent] = useState<Record<string, boolean>>({})
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const timersRef = useRef<Map<string, ReturnType<typeof setTimeout>>>(new Map())
+
+  async function sendReply(msgId: string) {
+    const content = replyText[msgId]?.trim()
+    if (!content) return
+    setReplySending(msgId)
+    await fetch('/api/messages/reply', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ messageId: msgId, content }),
+    }).catch(() => {})
+    setReplySending(null)
+    setReplySent(prev => ({ ...prev, [msgId]: true }))
+    setReplyText(prev => ({ ...prev, [msgId]: '' }))
+  }
 
   const dismiss = (id: string) => {
     setQueue(q => q.filter(m => m.id !== id))
@@ -98,6 +115,35 @@ export function AdminMessagePopup() {
             </div>
 
             <p className="text-sm text-slate-200 leading-relaxed mt-3">{msg.message}</p>
+
+            {/* Reply */}
+            {msg.showSender && (
+              <div className="mt-3">
+                {replySent[msg.id] ? (
+                  <p className="text-xs text-emerald-400">Antwort gesendet ✓</p>
+                ) : (
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      placeholder="Antworten…"
+                      value={replyText[msg.id] ?? ''}
+                      onChange={e => setReplyText(prev => ({ ...prev, [msg.id]: e.target.value }))}
+                      onKeyDown={e => { if (e.key === 'Enter') sendReply(msg.id) }}
+                      className="flex-1 px-3 py-1.5 rounded-lg text-xs outline-none"
+                      style={{ background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(139,92,246,0.2)', color: '#e2e8f0' }}
+                    />
+                    <button
+                      onClick={() => sendReply(msg.id)}
+                      disabled={replySending === msg.id || !replyText[msg.id]?.trim()}
+                      className="px-2.5 py-1.5 rounded-lg disabled:opacity-40 transition-all"
+                      style={{ background: 'rgba(139,92,246,0.2)', color: '#a78bfa' }}
+                    >
+                      <Send size={12} />
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
 
             <div className="mt-3 flex items-center gap-2">
               <button

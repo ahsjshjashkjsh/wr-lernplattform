@@ -136,7 +136,8 @@ export default function AdminPage() {
   const [buchEditForm, setBuchEditForm] = useState({ typ: 'ertrag', beschreibung: '', betrag: '', datum: '', kategorie: '', waehrung: 'chf', kurs: '0.80', wiederkehrend: false })
   const [buchEditSaving, setBuchEditSaving] = useState(false)
 
-  type MsgLogEntry = { id: string; message: string; senderName: string | null; showSender: boolean; targetName: string | null; seenCount: number; createdAt: string; expired: boolean }
+  type MsgLogReply = { id: string; userName: string; content: string; createdAt: string }
+  type MsgLogEntry = { id: string; message: string; senderName: string | null; showSender: boolean; targetName: string | null; seenCount: number; replies: MsgLogReply[]; createdAt: string; expired: boolean }
   const [msgLog, setMsgLog] = useState<MsgLogEntry[]>([])
   async function loadMsgLog() {
     const res = await fetch('/api/admin/messages/log')
@@ -1925,7 +1926,17 @@ export default function AdminPage() {
                 {m.expired && <span className="text-[10px] text-slate-700">abgelaufen</span>}
               </div>
               <p className="text-sm text-slate-300">{m.message}</p>
-              <p className="text-[10px] text-slate-600">{m.seenCount} mal gesehen</p>
+              <p className="text-[10px] text-slate-600">{m.seenCount} mal gesehen · {m.replies.length} Antwort{m.replies.length !== 1 ? 'en' : ''}</p>
+              {m.replies.length > 0 && (
+                <div className="mt-2 space-y-1 pl-3 border-l border-slate-700">
+                  {m.replies.map(r => (
+                    <div key={r.id}>
+                      <span className="text-[10px] font-semibold text-slate-400">{r.userName}: </span>
+                      <span className="text-[11px] text-slate-300">{r.content}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           ))}
         </div>

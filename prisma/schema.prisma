@@ -230,6 +230,7 @@ model AdminMessage {
   createdAt    DateTime           @default(now())
   expiresAt    DateTime
   seenBy       AdminMessageSeen[]
+  replies      AdminMessageReply[]
 }
 
 model AdminMessageSeen {
@@ -239,6 +240,16 @@ model AdminMessageSeen {
   message   AdminMessage @relation(fields: [messageId], references: [id], onDelete: Cascade)
 
   @@id([messageId, userId])
+}
+
+model AdminMessageReply {
+  id        String       @id @default(cuid())
+  messageId String
+  message   AdminMessage @relation(fields: [messageId], references: [id], onDelete: Cascade)
+  userId    String?
+  userName  String
+  content   String
+  createdAt DateTime     @default(now())
 }
 
 model AssistantMessage {

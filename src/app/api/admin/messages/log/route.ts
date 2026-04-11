@@ -12,6 +12,7 @@ export async function GET() {
     take: 100,
     include: {
       seenBy: { select: { userId: true } },
+      replies: { orderBy: { createdAt: 'asc' }, select: { id: true, userName: true, content: true, createdAt: true } },
     },
   })
 
@@ -30,6 +31,7 @@ export async function GET() {
       showSender: m.showSender,
       targetName: m.targetUserId ? (targetMap.get(m.targetUserId) ?? 'Unbekannt') : null,
       seenCount: m.seenBy.length,
+      replies: m.replies,
       createdAt: m.createdAt,
       expiresAt: m.expiresAt,
       expired: m.expiresAt < new Date(),
