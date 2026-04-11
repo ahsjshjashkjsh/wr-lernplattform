@@ -71,8 +71,8 @@ export default async function WrPage() {
       >
         <span className="text-indigo-400 text-base shrink-0">🔒</span>
         <div className="text-xs leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
-          <span className="font-semibold" style={{ color: 'var(--accent)' }}>AP-Inhalte sind Premium-pflichtig.</span>
-          {' '}Schalte alle Abschlussprüfungs-Kapitel für CHF 5 / Monat frei.{' '}
+          <span className="font-semibold" style={{ color: 'var(--accent)' }}>Alle Inhalte sind Premium-pflichtig.</span>
+          {' '}Schalte alle Themen für CHF 5 / Monat frei — AP-Inhalte folgen demnächst und sind automatisch enthalten.{' '}
           <a href="/premium" className="underline underline-offset-2 transition-colors" style={{ color: 'var(--accent)' }}>
             Premium holen →
           </a>

@@ -197,8 +197,8 @@ export default async function FrwPage({ searchParams }: Props) {
       >
         <span className="shrink-0 text-base" style={{ color: 'var(--accent)' }}>🔒</span>
         <div className="text-xs leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
-          <span className="font-semibold" style={{ color: 'var(--accent)' }}>AP-Inhalte sind Premium-pflichtig.</span>
-          {' '}Schalte alle Abschlussprüfungs-Kapitel für CHF 5 / Monat frei.{' '}
+          <span className="font-semibold" style={{ color: 'var(--accent)' }}>Alle Inhalte sind Premium-pflichtig.</span>
+          {' '}Schalte Theorie, Buchungssätze und alle Kapitel für CHF 5 / Monat frei.{' '}
           <a href="/premium" className="underline underline-offset-2 transition-colors" style={{ color: 'var(--accent)' }}>
             Premium holen →
           </a>
