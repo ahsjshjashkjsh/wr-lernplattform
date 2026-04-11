@@ -191,12 +191,20 @@ export default async function DashboardPage() {
         >
           <div className="flex items-start justify-between mb-auto">
             <div>
-              <span
-                className="inline-block text-[10px] font-bold uppercase tracking-[0.12em] px-2 py-0.5 rounded mb-3"
-                style={{ background: 'rgba(79,114,245,0.1)', color: '#93aaf7', border: '1px solid rgba(79,114,245,0.2)' }}
-              >
-                Verfügbar
-              </span>
+              <div className="flex items-center gap-2 mb-3">
+                <span
+                  className="inline-block text-[10px] font-bold uppercase tracking-[0.12em] px-2 py-0.5 rounded"
+                  style={{ background: 'rgba(79,114,245,0.1)', color: '#93aaf7', border: '1px solid rgba(79,114,245,0.2)' }}
+                >
+                  Verfügbar
+                </span>
+                <span
+                  className="inline-block text-[10px] font-bold uppercase tracking-[0.12em] px-2 py-0.5 rounded"
+                  style={{ background: 'rgba(245,158,11,0.1)', color: '#fbbf24', border: '1px solid rgba(245,158,11,0.25)' }}
+                >
+                  AP demnächst
+                </span>
+              </div>
               <h2
                 className="text-xl font-bold leading-tight mb-1"
                 style={{ color: 'var(--text-primary)' }}

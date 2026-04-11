@@ -90,7 +90,7 @@ export default function PremiumPage() {
         </div>
         <div>
           <h1 className="text-xl font-bold" style={{ color: 'var(--text-primary)' }}>Premium</h1>
-          <p className="text-xs" style={{ color: 'var(--text-muted)' }}>Abschlussprüfungs-Inhalte freischalten</p>
+          <p className="text-xs" style={{ color: 'var(--text-muted)' }}>Alle Inhalte der Plattform freischalten</p>
         </div>
       </div>
 
@@ -100,8 +100,8 @@ export default function PremiumPage() {
         <h2 className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>Was du bekommst</h2>
         <ul className="space-y-2">
           {[
-            { icon: BookOpen, text: 'Alle AP-Kapitel (Abschlussprüfung) in FRW & WR' },
-            { icon: Zap, text: 'Vollständiger Zugang zu allen Lernmaterialien' },
+            { icon: BookOpen, text: 'Alle FRW-Inhalte: Theorie, Buchungssätze & Trainer' },
+            { icon: Zap, text: 'Alle WR-Inhalte: Zusammenfassungen, Begriffe & Quiz' },
             { icon: Lock, text: '30 Tage Zugang ab Freischaltung' },
             { icon: Crown, text: 'Exklusive Sektionen (z. B. Geschichte-Prüfung)' },
           ].map(({ icon: Icon, text }) => (
@@ -113,8 +113,8 @@ export default function PremiumPage() {
         </ul>
         <div className="pt-3 mt-1" style={{ borderTop: '1px solid var(--border-color)' }}>
           <p className="text-xs leading-relaxed" style={{ color: 'var(--text-muted)' }}>
-            <span className="font-semibold" style={{ color: 'var(--text-secondary)' }}>Geplant:</span>
-            {' '}Wenn möglich werden auch Theorie-Zusammenfassungen für Themen hochgeladen, die noch im laufenden Semester behandelt werden.
+            <span className="font-semibold" style={{ color: 'var(--text-secondary)' }}>Demnächst:</span>
+            {' '}AP-Inhalte (Abschlussprüfung) für WR folgen in Kürze und sind automatisch für alle Premium-Mitglieder enthalten.
           </p>
         </div>
         <div className="flex items-end gap-2 pt-3 mt-1" style={{ borderTop: '1px solid var(--border-color)' }}>
