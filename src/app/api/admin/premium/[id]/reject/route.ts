@@ -3,7 +3,7 @@ import { getCurrentUser } from '@/lib/auth'
 
 export async function POST(_req: Request, { params }: { params: Promise<{ id: string }> }) {
   const user = await getCurrentUser()
-  if (!user?.isAdmin) return Response.json({ error: 'Kein Zugriff.' }, { status: 403 })
+  if (!(user as any)?.isCreator) return Response.json({ error: 'Kein Zugriff.' }, { status: 403 })
 
   const { id } = await params
 

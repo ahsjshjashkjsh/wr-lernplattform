@@ -5,7 +5,7 @@ export const dynamic = 'force-dynamic'
 
 export async function GET() {
   const user = await getCurrentUser()
-  if (!user?.isAdmin) return Response.json({ error: 'Kein Zugriff.' }, { status: 403 })
+  if (!(user as any)?.isCreator) return Response.json({ error: 'Kein Zugriff.' }, { status: 403 })
 
   const entries = await prisma.accountingEntry.findMany({
     orderBy: { datum: 'desc' },
@@ -16,7 +16,7 @@ export async function GET() {
 
 export async function POST(req: Request) {
   const user = await getCurrentUser()
-  if (!user?.isAdmin) return Response.json({ error: 'Kein Zugriff.' }, { status: 403 })
+  if (!(user as any)?.isCreator) return Response.json({ error: 'Kein Zugriff.' }, { status: 403 })
 
   const { typ, beschreibung, betrag, datum, kategorie, wiederkehrend } = await req.json()
 
@@ -40,7 +40,7 @@ export async function POST(req: Request) {
 
 export async function PATCH(req: Request) {
   const user = await getCurrentUser()
-  if (!user?.isAdmin) return Response.json({ error: 'Kein Zugriff.' }, { status: 403 })
+  if (!(user as any)?.isCreator) return Response.json({ error: 'Kein Zugriff.' }, { status: 403 })
 
   const { id, typ, beschreibung, betrag, datum, kategorie, wiederkehrend } = await req.json()
   if (!id) return Response.json({ error: 'Fehlende ID.' }, { status: 400 })
@@ -62,7 +62,7 @@ export async function PATCH(req: Request) {
 
 export async function DELETE(req: Request) {
   const user = await getCurrentUser()
-  if (!user?.isAdmin) return Response.json({ error: 'Kein Zugriff.' }, { status: 403 })
+  if (!(user as any)?.isCreator) return Response.json({ error: 'Kein Zugriff.' }, { status: 403 })
 
   const { id } = await req.json()
   if (!id) return Response.json({ error: 'Fehlende ID.' }, { status: 400 })

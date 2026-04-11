@@ -1,6 +1,7 @@
 'use client'
 import { useEffect, useState, useCallback } from 'react'
-import { Shield, Trash2, Crown, Users, BarChart2, Ban, UserPlus, Pencil, X, Check, Eye, EyeOff, RefreshCw, MessageSquare, CheckCircle2, XCircle, Clock, Bug, Lightbulb, FileText, HelpCircle, Wifi, WifiOff, Globe, Activity, Send, Bell, UserCheck, UserX, Tag, Plus, Copy, Lock, TrendingUp, TrendingDown, Calculator, BookMarked } from 'lucide-react'
+import { Shield, Trash2, Crown, Users, BarChart2, Ban, UserPlus, Pencil, X, Check, Eye, EyeOff, RefreshCw, MessageSquare, CheckCircle2, XCircle, Clock, Bug, Lightbulb, FileText, HelpCircle, Wifi, WifiOff, Globe, Activity, Send, Bell, UserCheck, UserX, Tag, Plus, Copy, Lock, TrendingUp, TrendingDown, Calculator, BookMarked, Star } from 'lucide-react'
+import { useAuth } from '@/components/AuthProvider'
 
 interface AdminUser {
   id: string
@@ -13,6 +14,7 @@ interface AdminUser {
   premiumUntil: string | null
   buchungstrainerRole: boolean
   isAyri: boolean
+  isCreator: boolean
   createdAt: string
   lastOnline: string | null
   lastIp: string | null
@@ -86,6 +88,8 @@ function timeAgo(dateStr: string | null) {
 }
 
 export default function AdminPage() {
+  const { user: me } = useAuth()
+  const isCreator = me?.isCreator ?? false
   const [users, setUsers] = useState<AdminUser[]>([])
   const [bannedIps, setBannedIps] = useState<string[]>([])
   const [loading, setLoading] = useState(true)
@@ -622,47 +626,53 @@ export default function AdminPage() {
             {label}
           </button>
         ))}
-        <button
-          onClick={() => setTab('premium')}
-          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all border ${
-            tab === 'premium'
-              ? 'border-amber-500/20 bg-amber-500/10 text-amber-400'
-              : 'border-transparent hover:bg-amber-500/10 hover:text-amber-400'
-          }`}
-          style={tab === 'premium' ? {} : { color: 'var(--text-muted)' }}
-        >
-          <Crown size={13} />
-          Premium
-          {premiumRequests.filter(r => r.status === 'pending').length > 0 && (
-            <span className="ml-1 px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-500 text-white">
-              {premiumRequests.filter(r => r.status === 'pending').length}
-            </span>
-          )}
-        </button>
-        <button
-          onClick={() => { setTab('codes'); loadPromoCodes() }}
-          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all border ${
-            tab === 'codes'
-              ? 'border-emerald-500/20 bg-emerald-500/10 text-emerald-400'
-              : 'border-transparent hover:bg-emerald-500/10 hover:text-emerald-400'
-          }`}
-          style={tab === 'codes' ? {} : { color: 'var(--text-muted)' }}
-        >
-          <Tag size={13} />
-          Rabattcodes
-        </button>
-        <button
-          onClick={() => { setTab('buchhaltung'); loadBuchhaltung() }}
-          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all border ${
-            tab === 'buchhaltung'
-              ? 'border-violet-500/20 bg-violet-500/10 text-violet-400'
-              : 'border-transparent hover:bg-violet-500/10 hover:text-violet-400'
-          }`}
-          style={tab === 'buchhaltung' ? {} : { color: 'var(--text-muted)' }}
-        >
-          <Calculator size={13} />
-          Buchhaltung
-        </button>
+        {isCreator && (
+          <button
+            onClick={() => setTab('premium')}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all border ${
+              tab === 'premium'
+                ? 'border-amber-500/20 bg-amber-500/10 text-amber-400'
+                : 'border-transparent hover:bg-amber-500/10 hover:text-amber-400'
+            }`}
+            style={tab === 'premium' ? {} : { color: 'var(--text-muted)' }}
+          >
+            <Crown size={13} />
+            Premium
+            {premiumRequests.filter(r => r.status === 'pending').length > 0 && (
+              <span className="ml-1 px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-500 text-white">
+                {premiumRequests.filter(r => r.status === 'pending').length}
+              </span>
+            )}
+          </button>
+        )}
+        {isCreator && (
+          <button
+            onClick={() => { setTab('codes'); loadPromoCodes() }}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all border ${
+              tab === 'codes'
+                ? 'border-emerald-500/20 bg-emerald-500/10 text-emerald-400'
+                : 'border-transparent hover:bg-emerald-500/10 hover:text-emerald-400'
+            }`}
+            style={tab === 'codes' ? {} : { color: 'var(--text-muted)' }}
+          >
+            <Tag size={13} />
+            Rabattcodes
+          </button>
+        )}
+        {isCreator && (
+          <button
+            onClick={() => { setTab('buchhaltung'); loadBuchhaltung() }}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all border ${
+              tab === 'buchhaltung'
+                ? 'border-violet-500/20 bg-violet-500/10 text-violet-400'
+                : 'border-transparent hover:bg-violet-500/10 hover:text-violet-400'
+            }`}
+            style={tab === 'buchhaltung' ? {} : { color: 'var(--text-muted)' }}
+          >
+            <Calculator size={13} />
+            Buchhaltung
+          </button>
+        )}
       </div>
 
       {/* === TAB: PENDING === */}
@@ -817,6 +827,11 @@ export default function AdminPage() {
                               Ayri
                             </span>
                           )}
+                          {user.isCreator && (
+                            <span className="flex items-center gap-1 text-xs px-1.5 py-0.5 rounded-md font-bold" style={{ background: 'rgba(251,191,36,0.15)', color: '#fbbf24' }}>
+                              <Star size={9} /> Creator
+                            </span>
+                          )}
                           {online && (
                             <span className="flex items-center gap-1 text-xs font-semibold" style={{ color: '#22c55e' }}>
                               <Wifi size={9} /> Online
@@ -926,6 +941,17 @@ export default function AdminPage() {
                         >
                           A
                         </button>
+                        {isCreator && (
+                          <button
+                            onClick={() => patch(user.id, { isCreator: !user.isCreator } as any, user.id + '-creator')}
+                            disabled={actionLoading === user.id + '-creator'}
+                            title={user.isCreator ? 'Creator-Rolle entfernen' : 'Creator-Rolle vergeben'}
+                            className="w-8 h-8 rounded-lg flex items-center justify-center transition-all disabled:opacity-40"
+                            style={{ background: user.isCreator ? 'rgba(251,191,36,0.2)' : 'rgba(255,255,255,0.05)', color: user.isCreator ? '#fbbf24' : '#64748b' }}
+                          >
+                            <Star size={13} />
+                          </button>
+                        )}
 
                         {user.isPremium && (
                           <button

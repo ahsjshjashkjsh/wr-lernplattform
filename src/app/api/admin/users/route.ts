@@ -29,6 +29,7 @@ export async function GET() {
         premiumUntil: true,
         buchungstrainerRole: true,
         isAyri: true,
+        isCreator: true,
         _count: { select: { quizAttempts: true, progress: true } },
         quizAttempts: { select: { completedAt: true, scorePercent: true }, orderBy: { completedAt: 'desc' }, take: 1 },
         progress: { select: { bestScore: true, status: true }, where: { status: 'completed' } },
@@ -102,6 +103,7 @@ export async function PATCH(request: Request) {
   if ((body as any).isApproved !== undefined) data.isApproved = (body as any).isApproved
   if ((body as any).buchungstrainerRole !== undefined) data.buchungstrainerRole = (body as any).buchungstrainerRole
   if ((body as any).isAyri !== undefined) data.isAyri = (body as any).isAyri
+  if ((body as any).isCreator !== undefined) data.isCreator = (body as any).isCreator
   if (body.name?.trim()) data.name = body.name.trim()
   if (body.email?.trim()) data.email = body.email.trim().toLowerCase()
   if (body.password && body.password.length >= 6) {

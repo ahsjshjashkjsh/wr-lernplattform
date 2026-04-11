@@ -14,7 +14,7 @@ function generatePromoCode(): string {
 
 export async function GET() {
   const user = await getCurrentUser()
-  if (!user?.isAdmin) return Response.json({ error: 'Kein Zugriff.' }, { status: 403 })
+  if (!(user as any)?.isCreator) return Response.json({ error: 'Kein Zugriff.' }, { status: 403 })
 
   const codes = await prisma.promoCode.findMany({
     orderBy: { createdAt: 'desc' },
@@ -28,7 +28,7 @@ export async function GET() {
 
 export async function POST() {
   const user = await getCurrentUser()
-  if (!user?.isAdmin) return Response.json({ error: 'Kein Zugriff.' }, { status: 403 })
+  if (!(user as any)?.isCreator) return Response.json({ error: 'Kein Zugriff.' }, { status: 403 })
 
   let code = generatePromoCode()
   let attempts = 0

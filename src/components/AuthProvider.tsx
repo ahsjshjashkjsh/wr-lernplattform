@@ -11,6 +11,7 @@ export interface AuthUser {
   premiumUntil: string | null
   buchungstrainerRole: boolean
   isAyri: boolean
+  isCreator: boolean
 }
 
 interface AuthContextValue {
