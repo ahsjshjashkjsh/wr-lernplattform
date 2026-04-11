@@ -591,7 +591,7 @@ export default function AdminPage() {
                             cursor: r.key === 'isPremium' ? 'not-allowed' : 'grab',
                             opacity: r.key === 'isPremium' ? 0.4 : 1,
                           }}
-                          title={r.key === 'isPremium' ? 'Premium nur über Promo-Code vergeben' : 'Klicken oder ziehen um zu vergeben'}
+                          title={r.key === 'isPremium' ? 'Premium nur über normalen Kauf oder Rabattcode' : 'Klicken oder ziehen um zu vergeben'}
                         >
                           {r.label}
                           {r.key !== 'isPremium' && <Plus size={10} className="opacity-60" />}
