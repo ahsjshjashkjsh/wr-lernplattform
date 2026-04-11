@@ -258,24 +258,6 @@ export default async function ProgressPage() {
         </div>
       </div>
 
-      {/* Buchungstrainer CTA */}
-      <Link
-        href="/frw/trainer"
-        className="rounded-2xl p-5 flex items-center justify-between gap-4 transition-all hover:-translate-y-0.5"
-        style={{ background: 'linear-gradient(135deg, rgba(99,102,241,0.1) 0%, rgba(139,92,246,0.06) 100%)', border: '1px solid rgba(99,102,241,0.2)' }}
-      >
-        <div>
-          <div className="flex items-center gap-2 mb-1">
-            <Dumbbell size={14} className="text-indigo-400" />
-            <span className="font-bold text-sm text-indigo-300">Buchungstrainer starten</span>
-          </div>
-          <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
-            Kapitel auswählen und alle Buchungssätze interaktiv üben
-          </p>
-        </div>
-        <ArrowRight size={15} className="text-indigo-400 shrink-0" />
-      </Link>
-
       {/* ─── WR SECTION ─── */}
       <div>
         <div className="flex items-center gap-3 mb-4">

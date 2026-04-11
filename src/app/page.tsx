@@ -2,7 +2,7 @@ import { prisma } from '@/lib/prisma'
 import { getCurrentUser } from '@/lib/auth'
 import Link from 'next/link'
 import {
-  ArrowRight, BookOpen, Dumbbell,
+  ArrowRight, BookOpen,
   Calculator, Hash, FileText,
   Scale, Clock, GraduationCap, Layers, Bot,
   ChevronRight, GitCommit, Landmark,
@@ -277,12 +277,6 @@ export default async function DashboardPage() {
         >
           {[
             {
-              href: '/frw/trainer',
-              label: 'Buchungstrainer',
-              sub: 'FRW · Alle Kapitel interaktiv üben',
-              icon: Dumbbell,
-            },
-            {
               href: '/progress',
               label: 'Lernübersicht',
               sub: 'FRW &amp; WR · Fortschritt im Überblick',
@@ -399,7 +393,6 @@ const CHANGELOG: { version: string; date: string; changes: string[] }[] = [
     date: '15.03.2026',
     changes: [
       'FRW Band 2 Kapitel 2–6 Zusammenfassungen aktualisiert',
-      'Buchungstrainer: neue Kapitel verfügbar',
       'Lernübersicht: Fortschrittsanzeige verbessert',
     ],
   },

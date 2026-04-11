@@ -3,7 +3,6 @@ import { getCurrentUser, isPremiumActive } from '@/lib/auth'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { ChevronLeft, ChevronRight, BookOpen, Hash, FileText, Dumbbell, Lightbulb, AlertCircle, ArrowRight, GraduationCap, Lock, Crown, BarChart2 } from 'lucide-react'
-import { BookingTrainer } from '@/components/frw/BookingTrainer'
 import { TheoryTrainer } from '@/components/frw/TheoryTrainer'
 import { FlashcardMode } from '@/components/frw/FlashcardMode'
 import { VisitTracker } from '@/components/frw/VisitTracker'
@@ -294,18 +293,13 @@ export default async function FrwChapterPage({ params, searchParams }: Props) {
           hasPremium ? (
             <div className="space-y-6">
               {chapter.bookingEntries.length > 0 ? (
-                <>
-                  <BookingTrainer entries={chapter.bookingEntries} chapterTitle={topic.title} />
-                  <div className="flex items-center justify-between p-4 rounded-xl" style={{ background: 'rgba(99,102,241,0.06)', border: '1px solid rgba(99,102,241,0.15)' }}>
-                    <div>
-                      <p className="text-sm font-medium text-indigo-300">Alle Kapitel zusammen üben</p>
-                      <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>Kapitel selbst auswählen und kombinieren</p>
-                    </div>
-                    <Link href="/frw/trainer" className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium text-indigo-300 transition-all hover:bg-indigo-500/10">
-                      Zum Gesamttrainer<ArrowRight size={13} />
-                    </Link>
+                <div className="text-center py-12 space-y-3">
+                  <div className="w-14 h-14 rounded-2xl mx-auto flex items-center justify-center" style={{ background: 'rgba(99,102,241,0.1)', border: '1px solid rgba(99,102,241,0.2)' }}>
+                    <Dumbbell size={24} className="text-indigo-400" />
                   </div>
-                </>
+                  <p className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>Buchungstrainer kommt bald</p>
+                  <p className="text-xs" style={{ color: 'var(--text-muted)' }}>Dieser Bereich wird gerade neu aufgebaut.</p>
+                </div>
               ) : (
                 <div className="text-center py-12 space-y-3">
                   <div className="w-14 h-14 rounded-2xl mx-auto flex items-center justify-center" style={{ background: 'rgba(99,102,241,0.1)', border: '1px solid rgba(99,102,241,0.2)' }}>
@@ -329,7 +323,7 @@ export default async function FrwChapterPage({ params, searchParams }: Props) {
                   <div className="flex items-center justify-between p-4 rounded-xl" style={{ background: 'rgba(234,179,8,0.06)', border: '1px solid rgba(234,179,8,0.15)' }}>
                     <div>
                       <p className="text-sm font-medium text-amber-300">Buchungssätze üben</p>
-                      <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>Buchungstrainer für dieses Kapitel</p>
+                      <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>Buchungssätze für dieses Kapitel</p>
                     </div>
                     <Link href={`/frw/${slug}?tab=ueben`} className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium text-amber-300 transition-all hover:bg-amber-500/10">
                       Zu Buchungen<ArrowRight size={13} />

@@ -1,7 +1,7 @@
 import { prisma } from '@/lib/prisma'
 import { getCurrentUser, isPremiumActive } from '@/lib/auth'
 import Link from 'next/link'
-import { ChevronRight, FileText, Hash, Calculator, Dumbbell, Lock } from 'lucide-react'
+import { ChevronRight, FileText, Hash, Calculator, Lock } from 'lucide-react'
 
 export const dynamic = 'force-dynamic'
 
@@ -188,14 +188,6 @@ export default async function FrwPage({ searchParams }: Props) {
             {topics.length} Themen · direkt aus dem hep-Lehrmittel
           </p>
         </div>
-        <Link
-          href="/frw/trainer"
-          className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all shrink-0 mb-0.5"
-          style={{ background: 'var(--card-bg)', border: '1px solid var(--border-color)', color: 'var(--text-secondary)' }}
-        >
-          <Dumbbell size={14} />
-          Buchungstrainer
-        </Link>
       </div>
 
       {/* Premium-Banner */}
