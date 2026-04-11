@@ -127,6 +127,34 @@ export default function BuchungstrainerPage() {
     return () => window.removeEventListener('keydown', h)
   }, [view, goNext, goPrev])
 
+  /* ── keyboard (practice) — global listener ── */
+  useEffect(() => {
+    if (view !== 'practice') return
+    const h = (e: KeyboardEvent) => {
+      // Enter when answered → next card
+      if (e.key === 'Enter' && phaseRef.current !== 'input') {
+        e.preventDefault()
+        if (!isLastRef.current) goNextRef.current()
+      }
+      // K → "Ich hatte recht" when wrong
+      if ((e.key === 'k' || e.key === 'K') && phaseRef.current === 'wrong') {
+        e.preventDefault()
+        overrideRef.current()
+      }
+    }
+    window.addEventListener('keydown', h)
+    return () => window.removeEventListener('keydown', h)
+  }, [view]) // only re-bind when view changes; refs keep values fresh
+
+  // Refs so the event listener above always sees current values
+  const phaseRef    = useRef(phase)
+  const isLastRef   = useRef(isLast)
+  const goNextRef   = useRef(goNext)
+  const overrideRef = useRef(handleOverride)
+  useEffect(() => { phaseRef.current  = phase   }, [phase])
+  useEffect(() => { isLastRef.current = isLast  }, [isLast])
+  useEffect(() => { goNextRef.current = goNext  }, [goNext])
+
   /* ── auto-focus practice input ── */
   useEffect(() => {
     if (view === 'practice' && phase === 'input')
@@ -135,23 +163,23 @@ export default function BuchungstrainerPage() {
 
   useEffect(() => { resetPractice() }, [filter]) // eslint-disable-line
 
-  /* ── practice: Enter key handler ── */
+  /* ── practice: submit (called by input onKeyDown Enter OR Prüfen button) ── */
   function handleEnter() {
-    if (phase === 'input') {
-      if (!inputValue.trim()) return
-      const ok = checkAnswer(inputValue, currentCard.a)
-      setScore(s => ({ ok: s.ok + (ok ? 1 : 0), fail: s.fail + (ok ? 0 : 1) }))
-      setPhase(ok ? 'correct' : 'wrong')
-    } else {
-      // already answered → go next
-      if (!isLast) goNext()
-    }
+    if (phase !== 'input') return
+    if (!inputValue.trim()) return
+    const ok = checkAnswer(inputValue, currentCard.a)
+    setScore(s => ({ ok: s.ok + (ok ? 1 : 0), fail: s.fail + (ok ? 0 : 1) }))
+    setPhase(ok ? 'correct' : 'wrong')
   }
 
   function handleOverride() {
     setScore(s => ({ ok: s.ok + 1, fail: Math.max(s.fail - 1, 0) }))
     setPhase('overridden')
   }
+
+  // keep overrideRef in sync (defined after handleOverride)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => { overrideRef.current = handleOverride }, [phase])
 
   /* ── hint: first char of each account ── */
   function buildHint(answer: string) {
@@ -447,7 +475,12 @@ export default function BuchungstrainerPage() {
                   <button onClick={handleOverride}
                     className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all w-full justify-center"
                     style={{ background: 'rgba(34,197,94,0.12)', border: '1px solid rgba(34,197,94,0.35)', color: '#4ade80' }}>
-                    <CheckCircle2 size={15}/> Ich hatte recht
+                    <CheckCircle2 size={15}/>
+                    Ich hatte recht
+                    <span className="ml-1 text-[11px] font-normal px-1.5 py-0.5 rounded"
+                      style={{ background: 'rgba(34,197,94,0.2)', color: '#86efac' }}>
+                      K
+                    </span>
                   </button>
                 )}
 
@@ -466,7 +499,9 @@ export default function BuchungstrainerPage() {
                   </button>
                 )}
 
-                <p className="text-[11px]" style={{ color: 'var(--text-muted)' }}>Enter = Weiter</p>
+                <p className="text-[11px]" style={{ color: 'var(--text-muted)' }}>
+                  Enter = Weiter{phase === 'wrong' ? ' · K = Ich hatte recht' : ''}
+                </p>
               </div>
             )}
           </div>
