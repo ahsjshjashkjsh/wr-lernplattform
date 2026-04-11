@@ -69,10 +69,10 @@ interface AccountingEntry {
   createdAt: string
 }
 
-// Online = lastOnline within last 45s (30s Aktivitätsfenster + 15s Puffer)
+// Online = lastOnline innerhalb der letzten 75s (60s Aktivitätsfenster + 15s Puffer)
 function isOnline(lastOnline: string | null) {
   if (!lastOnline) return false
-  return Date.now() - new Date(lastOnline).getTime() < 45_000
+  return Date.now() - new Date(lastOnline).getTime() < 75_000
 }
 
 function timeAgo(dateStr: string | null) {
@@ -497,7 +497,7 @@ export default function AdminPage() {
       <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 mb-5">
         {[
           { icon: Users,        label: 'Benutzer',      value: users.length,    color: '#3b82f6', sub: `+${users.filter(u => Date.now() - new Date(u.createdAt).getTime() < 7*86400000).length} diese Woche` },
-          { icon: Activity,     label: 'Online',        value: online,          color: '#22c55e', sub: 'in den letzten 3 Min.' },
+          { icon: Activity,     label: 'Online',        value: online,          color: '#22c55e', sub: 'aktiv in letzter Minute' },
           { icon: BarChart2,    label: 'Quiz-Attempts', value: totalQuiz,       color: '#a855f7', sub: `Ø ${avgScore}% Score` },
           { icon: Ban,          label: 'Gesperrt',      value: banned,          color: '#ef4444', sub: `${bannedIps.length} IPs blockiert` },
           { icon: MessageSquare,label: 'Feedback',      value: pendingFeedback, color: '#f59e0b', sub: 'offen' },
