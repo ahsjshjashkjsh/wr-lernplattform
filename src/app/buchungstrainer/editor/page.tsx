@@ -126,23 +126,20 @@ export default function BuchungstrainerEditorPage() {
 
   // ── save question + main answer ──────────────────────────────────────────────
   async function saveCard(card: CardEntry) {
+    if (!editQ.trim() || !editA.trim()) { setError('Frage und Hauptlösung dürfen nicht leer sein.'); return }
     setSaving(`save-${card.key}`)
     setError(null)
     try {
       if (!card.isCustom) {
-        // Static card: save as override
-        const orig = STATIC_CARDS.find(c => c.id === card.staticId)
-        const qChanged = editQ.trim() !== (orig?.q ?? '')
-        const aChanged = editA.trim() !== (orig?.a ?? '')
-        if (!qChanged && !aChanged && !card.overrideId) { setSaving(null); return }
-
+        // Compare against what's currently stored (origQ/origA already has override applied)
+        // Always send both so the override is complete
         const res = await fetch('/api/buchungstrainer/overrides', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             staticId: card.staticId,
-            question: qChanged ? editQ.trim() : null,
-            answer:   aChanged ? editA.trim() : null,
+            question: editQ.trim(),
+            answer:   editA.trim(),
           }),
         })
         const data = await res.json()

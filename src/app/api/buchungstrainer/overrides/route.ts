@@ -23,8 +23,8 @@ export async function POST(request: Request) {
   if (!body.staticId) return Response.json({ error: 'staticId fehlt.' }, { status: 400 })
 
   const data: Record<string, unknown> = {}
-  if (body.question !== undefined) data.question = body.question.trim() || null
-  if (body.answer !== undefined) data.answer = body.answer.trim() || null
+  if (body.question !== undefined) data.question = body.question ? body.question.trim() || null : null
+  if (body.answer !== undefined) data.answer = body.answer ? body.answer.trim() || null : null
 
   const override = await prisma.buchungstrainerCardOverride.upsert({
     where: { staticId: body.staticId },

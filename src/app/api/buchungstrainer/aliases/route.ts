@@ -22,7 +22,7 @@ export async function POST(request: Request) {
   if (!user) return Response.json({ error: 'Kein Zugriff.' }, { status: 403 })
 
   const body = await request.json() as { cardId?: number; isCustom?: boolean; answer?: string }
-  if (!body.cardId || !body.answer?.trim()) {
+  if (body.cardId == null || !body.answer?.trim()) {
     return Response.json({ error: 'cardId und answer sind erforderlich.' }, { status: 400 })
   }
 
