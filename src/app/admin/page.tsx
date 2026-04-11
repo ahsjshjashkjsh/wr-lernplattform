@@ -56,7 +56,7 @@ interface PremiumRequestItem {
   user: { id: string; name: string; email: string; isPremium: boolean; premiumUntil: string | null }
 }
 
-type Tab = 'pending' | 'users' | 'create' | 'feedback' | 'messages' | 'log' | 'premium' | 'codes' | 'buchhaltung'
+type Tab = 'pending' | 'users' | 'create' | 'feedback' | 'messages' | 'log' | 'premium' | 'codes' | 'buchhaltung' | 'msglog'
 
 interface AccountingEntry {
   id: string
@@ -135,6 +135,13 @@ export default function AdminPage() {
   const [buchEditEntry, setBuchEditEntry] = useState<AccountingEntry | null>(null)
   const [buchEditForm, setBuchEditForm] = useState({ typ: 'ertrag', beschreibung: '', betrag: '', datum: '', kategorie: '', waehrung: 'chf', kurs: '0.80', wiederkehrend: false })
   const [buchEditSaving, setBuchEditSaving] = useState(false)
+
+  type MsgLogEntry = { id: string; message: string; senderName: string | null; showSender: boolean; targetName: string | null; seenCount: number; createdAt: string; expired: boolean }
+  const [msgLog, setMsgLog] = useState<MsgLogEntry[]>([])
+  async function loadMsgLog() {
+    const res = await fetch('/api/admin/messages/log')
+    if (res.ok) { const data = await res.json(); setMsgLog(data.messages) }
+  }
 
   const loadUsers = useCallback(async (silent = false) => {
     if (!silent) setLoading(true)
@@ -671,6 +678,20 @@ export default function AdminPage() {
           >
             <Calculator size={13} />
             Buchhaltung
+          </button>
+        )}
+        {isCreator && (
+          <button
+            onClick={() => { setTab('msglog'); loadMsgLog() }}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all border ${
+              tab === 'msglog'
+                ? 'border-sky-500/20 bg-sky-500/10 text-sky-400'
+                : 'border-transparent hover:bg-sky-500/10 hover:text-sky-400'
+            }`}
+            style={tab === 'msglog' ? {} : { color: 'var(--text-muted)' }}
+          >
+            <Send size={13} />
+            Nachrichten-Log
           </button>
         )}
       </div>
@@ -1866,6 +1887,36 @@ export default function AdminPage() {
               </div>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* === TAB: NACHRICHTEN-LOG === */}
+      {tab === 'msglog' && isCreator && (
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <p className="text-xs text-slate-500">{msgLog.length} Nachrichten total</p>
+            <button onClick={loadMsgLog} className="w-7 h-7 flex items-center justify-center rounded-lg" style={{ background: 'rgba(255,255,255,0.05)', color: '#64748b' }}>
+              <RefreshCw size={12} />
+            </button>
+          </div>
+          {msgLog.length === 0 ? (
+            <p className="text-sm text-center py-10 text-slate-600">Noch keine Nachrichten gesendet.</p>
+          ) : msgLog.map(m => (
+            <div key={m.id} className="rounded-xl px-4 py-3 space-y-1"
+              style={{ background: 'var(--card-bg)', border: `1px solid ${m.expired ? 'rgba(255,255,255,0.05)' : 'rgba(99,102,241,0.2)'}`, opacity: m.expired ? 0.5 : 1 }}>
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="text-xs font-semibold text-slate-300">{m.senderName ?? 'Unbekannt'}</span>
+                <span className="text-[10px] text-slate-600">→</span>
+                <span className="text-[10px] px-1.5 py-0.5 rounded" style={{ background: 'rgba(255,255,255,0.05)', color: '#94a3b8' }}>
+                  {m.targetName ? m.targetName : 'Alle'}
+                </span>
+                <span className="ml-auto text-[10px] text-slate-600">{new Date(m.createdAt).toLocaleString('de-CH', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}</span>
+                {m.expired && <span className="text-[10px] text-slate-700">abgelaufen</span>}
+              </div>
+              <p className="text-sm text-slate-300">{m.message}</p>
+              <p className="text-[10px] text-slate-600">{m.seenCount} mal gesehen</p>
+            </div>
+          ))}
         </div>
       )}
 
