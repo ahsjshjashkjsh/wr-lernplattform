@@ -95,11 +95,14 @@ export async function PATCH(request: Request) {
     return Response.json({ error: 'Du kannst deinen eigenen Admin-Status nicht entfernen.' }, { status: 400 })
   }
 
-  // Creator-Schutz: isAdmin kann dem Creator nicht entzogen werden
-  if (body.isAdmin === false) {
+  // Creator-Schutz: keine Rollen-Änderungen am Creator-Account (ausser isCreator selbst)
+  const isRoleChange = body.isAdmin !== undefined || body.isBanned !== undefined
+    || (body as any).isAyri !== undefined || (body as any).buchungstrainerRole !== undefined
+    || (body as any).isPremium !== undefined || (body as any).isApproved !== undefined
+  if (isRoleChange) {
     const target = await prisma.user.findUnique({ where: { id: body.userId }, select: { isCreator: true } })
     if (target?.isCreator) {
-      return Response.json({ error: 'Dem Creator kann der Admin-Status nicht entzogen werden.' }, { status: 400 })
+      return Response.json({ error: 'Am Creator-Account können keine Rollen geändert werden.' }, { status: 400 })
     }
   }
   if (body.userId === admin.id && body.isBanned === true) {
@@ -157,6 +160,11 @@ export async function DELETE(request: Request) {
 
   if (userId === admin.id) {
     return Response.json({ error: 'Du kannst deinen eigenen Account nicht löschen.' }, { status: 400 })
+  }
+
+  const targetUser = await prisma.user.findUnique({ where: { id: userId }, select: { isCreator: true } })
+  if (targetUser?.isCreator) {
+    return Response.json({ error: 'Der Creator-Account kann nicht gelöscht werden.' }, { status: 400 })
   }
 
   await prisma.quizAttemptAnswer.deleteMany({ where: { attempt: { userId } } })

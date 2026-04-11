@@ -965,8 +965,8 @@ export default function AdminPage() {
 
                         <button
                           onClick={() => patch(user.id, { isAdmin: !user.isAdmin }, user.id + '-admin')}
-                          disabled={actionLoading === user.id + '-admin' || (user.isAdmin && user.isCreator)}
-                          title={user.isCreator && user.isAdmin ? 'Creator — Admin-Status geschützt' : user.isAdmin ? 'Admin entfernen' : 'Zum Admin machen'}
+                          disabled={actionLoading === user.id + '-admin' || user.isCreator}
+                          title={user.isCreator ? 'Creator — Rollen gesperrt' : user.isAdmin ? 'Admin entfernen' : 'Zum Admin machen'}
                           className="w-8 h-8 rounded-lg flex items-center justify-center transition-all disabled:opacity-40"
                           style={{ background: user.isAdmin ? 'rgba(245,158,11,0.2)' : 'rgba(255,255,255,0.05)', color: user.isAdmin ? '#f59e0b' : '#64748b' }}
                         >
@@ -975,8 +975,8 @@ export default function AdminPage() {
 
                         <button
                           onClick={() => patch(user.id, { buchungstrainerRole: !user.buchungstrainerRole } as any, user.id + '-trainer')}
-                          disabled={actionLoading === user.id + '-trainer'}
-                          title={user.buchungstrainerRole ? 'Trainer-Rolle entfernen' : 'Buchungstrainer-Rolle vergeben'}
+                          disabled={actionLoading === user.id + '-trainer' || user.isCreator}
+                          title={user.isCreator ? 'Creator — Rollen gesperrt' : user.buchungstrainerRole ? 'Trainer-Rolle entfernen' : 'Buchungstrainer-Rolle vergeben'}
                           className="w-8 h-8 rounded-lg flex items-center justify-center transition-all disabled:opacity-40"
                           style={{ background: user.buchungstrainerRole ? 'rgba(99,102,241,0.2)' : 'rgba(255,255,255,0.05)', color: user.buchungstrainerRole ? '#818cf8' : '#64748b' }}
                         >
@@ -985,8 +985,8 @@ export default function AdminPage() {
                         {isCreator && (
                           <button
                             onClick={() => patch(user.id, { isAyri: !user.isAyri } as any, user.id + '-ayri')}
-                            disabled={actionLoading === user.id + '-ayri'}
-                            title={user.isAyri ? 'Ayri-Rolle entfernen' : 'Ayri-Rolle vergeben'}
+                            disabled={actionLoading === user.id + '-ayri' || user.isCreator}
+                            title={user.isCreator ? 'Creator — Rollen gesperrt' : user.isAyri ? 'Ayri-Rolle entfernen' : 'Ayri-Rolle vergeben'}
                             className="w-8 h-8 rounded-lg flex items-center justify-center transition-all disabled:opacity-40 text-xs font-black"
                             style={{ background: user.isAyri ? 'rgba(239,68,68,0.2)' : 'rgba(255,255,255,0.05)', color: user.isAyri ? '#f87171' : '#64748b' }}
                           >
@@ -1005,7 +1005,7 @@ export default function AdminPage() {
                           </button>
                         )}
 
-                        {user.isPremium && (
+                        {user.isPremium && !user.isCreator && (
                           <button
                             onClick={() => patch(user.id, { isPremium: false } as any, user.id + '-premium')}
                             disabled={actionLoading === user.id + '-premium'}
@@ -1017,7 +1017,7 @@ export default function AdminPage() {
                           </button>
                         )}
 
-                        {user.isBanned ? (
+                        {!user.isCreator && (user.isBanned ? (
                           <button
                             onClick={() => patch(user.id, { isBanned: false }, user.id + '-ban')}
                             disabled={actionLoading === user.id + '-ban'}
@@ -1037,9 +1037,9 @@ export default function AdminPage() {
                           >
                             <Ban size={13} />
                           </button>
-                        )}
+                        ))}
 
-                        {confirmDelete === user.id ? (
+                        {!user.isCreator && (confirmDelete === user.id ? (
                           <div className="flex items-center gap-1">
                             <button onClick={() => deleteUser(user.id)} disabled={actionLoading === user.id + '-del'}
                               className="text-xs px-2 py-1 rounded-lg font-medium disabled:opacity-40"
@@ -1058,7 +1058,7 @@ export default function AdminPage() {
                             style={{ background: 'rgba(239,68,68,0.1)', color: '#f87171' }}>
                             <Trash2 size={13} />
                           </button>
-                        )}
+                        ))}
                       </div>
                     </div>
                   </div>
