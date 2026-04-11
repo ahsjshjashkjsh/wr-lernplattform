@@ -20,6 +20,7 @@ export async function POST(request: Request) {
       targetUserId: targetUserId || null,
       showSender: showSender !== false,
       senderName: sender?.name ?? null,
+      senderId: session.userId,
       expiresAt,
     },
   })

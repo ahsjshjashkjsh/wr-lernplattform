@@ -7,9 +7,9 @@ export async function GET() {
   const session = await getSession()
   if (!session?.isAdmin) return Response.json({ replies: [] })
 
-  // Alle ungesehenen Antworten holen
+  // Nur Antworten auf Nachrichten, die dieser Admin gesendet hat
   const replies = await prisma.adminMessageReply.findMany({
-    where: { seenByAdmin: false },
+    where: { seenByAdmin: false, message: { senderId: session.userId } },
     orderBy: { createdAt: 'asc' },
     include: {
       message: { select: { message: true, senderName: true } },

@@ -227,6 +227,7 @@ model AdminMessage {
   targetUserId String? // null = an alle
   showSender   Boolean            @default(true)
   senderName   String?            // Name des sendenden Admins
+  senderId     String?            // ID des sendenden Admins (für Reply-Routing)
   createdAt    DateTime           @default(now())
   expiresAt    DateTime
   seenBy       AdminMessageSeen[]
