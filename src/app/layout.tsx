@@ -25,6 +25,7 @@ import { FloatingChat } from '@/components/FloatingChat'
 import { ThemeProvider } from '@/components/ThemeProvider'
 import { AuthProvider } from '@/components/AuthProvider'
 import { AdminMessagePopup } from '@/components/AdminMessagePopup'
+import { AdminReplyPopup } from '@/components/AdminReplyPopup'
 import { MaintenanceGate } from '@/components/MaintenanceGate'
 import { AyriGate } from '@/components/AyriGate'
 
@@ -56,6 +57,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             </div>
             <FloatingChat />
             <AdminMessagePopup />
+            <AdminReplyPopup />
             </AyriGate>
           </AuthProvider>
         </ThemeProvider>

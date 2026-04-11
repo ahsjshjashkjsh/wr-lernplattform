@@ -243,13 +243,14 @@ model AdminMessageSeen {
 }
 
 model AdminMessageReply {
-  id        String       @id @default(cuid())
-  messageId String
-  message   AdminMessage @relation(fields: [messageId], references: [id], onDelete: Cascade)
-  userId    String?
-  userName  String
-  content   String
-  createdAt DateTime     @default(now())
+  id           String       @id @default(cuid())
+  messageId    String
+  message      AdminMessage @relation(fields: [messageId], references: [id], onDelete: Cascade)
+  userId       String?
+  userName     String
+  content      String
+  seenByAdmin  Boolean      @default(false)
+  createdAt    DateTime     @default(now())
 }
 
 model AssistantMessage {
