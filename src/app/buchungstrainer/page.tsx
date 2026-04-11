@@ -179,9 +179,21 @@ export default function BuchungstrainerPage() {
     const ok = checkAnswer(inputValue, currentCard.a)
     setScore(s => ({ ok: s.ok + (ok ? 1 : 0), fail: s.fail + (ok ? 0 : 1) }))
     setPhase(ok ? 'correct' : 'wrong')
-    // block Enter→next for 400ms so the result is visible before continuing
     justSubmitted.current = true
     setTimeout(() => { justSubmitted.current = false }, 400)
+  }
+
+  // Enter with empty input → show answer as wrong (skip/reveal)
+  function handleEnterKey() {
+    if (phase !== 'input') return
+    if (!inputValue.trim()) {
+      setScore(s => ({ ...s, fail: s.fail + 1 }))
+      setPhase('wrong')
+      justSubmitted.current = true
+      setTimeout(() => { justSubmitted.current = false }, 400)
+      return
+    }
+    handleSubmit()
   }
 
   // ── styling helpers ────────────────────────────────────────────
@@ -444,7 +456,7 @@ export default function BuchungstrainerPage() {
             value={inputValue}
             disabled={phase !== 'input'}
             onChange={e => setInputValue(e.target.value)}
-            onKeyDown={e => { if (e.key === 'Enter') handleSubmit() }}
+            onKeyDown={e => { if (e.key === 'Enter') handleEnterKey() }}
             placeholder="Buchungssatz eingeben…"
             className="w-full px-4 sm:px-5 py-4 rounded-2xl text-base font-mono text-center outline-none transition-all"
             style={{
