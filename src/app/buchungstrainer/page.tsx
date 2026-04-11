@@ -1,11 +1,11 @@
 'use client'
 
-import { useState, useEffect, useCallback, useMemo } from 'react'
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import { CARDS } from '@/data/buchungstrainer-cards'
 import {
   Star, List, LayoutGrid, ChevronLeft, ChevronRight,
   Shuffle, RotateCcw, Eye, EyeOff, CheckCircle2,
-  XCircle, HelpCircle, Trophy,
+  XCircle, PenLine, Trophy, Check,
 } from 'lucide-react'
 
 const LS_KEY = 'buchungstrainer-stars'
@@ -21,18 +21,6 @@ function saveStars(s: Set<number>) {
   localStorage.setItem(LS_KEY, JSON.stringify([...s]))
 }
 
-/** Pick `n` random items from `arr`, excluding `excludeIdx` */
-function pickRandom<T>(arr: T[], n: number, excludeIdx: number): T[] {
-  const pool = arr.filter((_, i) => i !== excludeIdx)
-  const result: T[] = []
-  const used = new Set<number>()
-  while (result.length < n && used.size < pool.length) {
-    const i = Math.floor(Math.random() * pool.length)
-    if (!used.has(i)) { used.add(i); result.push(pool[i]) }
-  }
-  return result
-}
-
 function shuffle<T>(arr: T[]): T[] {
   const a = [...arr]
   for (let i = a.length - 1; i > 0; i--) {
@@ -42,34 +30,38 @@ function shuffle<T>(arr: T[]): T[] {
   return a
 }
 
-type View   = 'list' | 'cards' | 'quiz'
+/** Normalize: lowercase, trim, collapse spaces */
+function normalize(s: string) {
+  return s.toLowerCase().trim().replace(/\s+/g, ' ')
+}
+
+type View   = 'list' | 'cards' | 'practice'
 type Filter = 'all'  | 'starred'
 
-type QuizState = {
-  options:    string[]   // 4 shuffled answer strings
-  selected:   string | null
-  overridden: boolean    // "Ich hatte recht" gedrückt
-}
+type PracticeState =
+  | { phase: 'input' }
+  | { phase: 'result'; input: string; correct: boolean; overridden: boolean }
 
 export default function BuchungstrainerPage() {
   const [stars,       setStars]       = useState<Set<number>>(new Set())
   const [view,        setView]        = useState<View>('list')
   const [filter,      setFilter]      = useState<Filter>('all')
 
-  // Shared card navigation
   const [order,       setOrder]       = useState<number[]>(() => CARDS.map((_, i) => i))
   const [cardIndex,   setCardIndex]   = useState(0)
   const [shuffled,    setShuffled]    = useState(false)
 
-  // Flashcard mode
+  // Flashcard
   const [flipped,     setFlipped]     = useState(false)
 
-  // List mode
+  // List
   const [showAnswers, setShowAnswers] = useState(false)
 
-  // Quiz mode
-  const [quiz,        setQuiz]        = useState<QuizState | null>(null)
-  const [quizScore,   setQuizScore]   = useState({ correct: 0, total: 0 })
+  // Practice
+  const [practice,    setPractice]    = useState<PracticeState>({ phase: 'input' })
+  const [inputValue,  setInputValue]  = useState('')
+  const [score,       setScore]       = useState({ correct: 0, wrong: 0 })
+  const inputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => { setStars(loadStars()) }, [])
 
@@ -90,39 +82,35 @@ export default function BuchungstrainerPage() {
 
   const currentCard = CARDS[visibleOrder[cardIndex] ?? 0]
 
-  // Build quiz options whenever card changes in quiz mode
-  useEffect(() => {
-    if (view !== 'quiz' || !currentCard) return
-    const wrong = pickRandom(CARDS, 3, visibleOrder[cardIndex]).map(c => c.a)
-    const options = shuffle([currentCard.a, ...wrong])
-    setQuiz({ options, selected: null, overridden: false })
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [cardIndex, view, visibleOrder])
-
   const goNext = useCallback(() => {
     setFlipped(false)
+    setPractice({ phase: 'input' })
+    setInputValue('')
     setCardIndex(i => Math.min(i + 1, visibleOrder.length - 1))
   }, [visibleOrder.length])
 
   const goPrev = useCallback(() => {
     setFlipped(false)
+    setPractice({ phase: 'input' })
+    setInputValue('')
     setCardIndex(i => Math.max(i - 1, 0))
   }, [])
 
   const doShuffle = useCallback(() => {
     setOrder(prev => shuffle(prev))
-    setCardIndex(0); setFlipped(false); setShuffled(true)
+    setCardIndex(0); setFlipped(false)
+    setPractice({ phase: 'input' }); setInputValue('')
+    setShuffled(true)
   }, [])
 
   const doReset = useCallback(() => {
     setOrder(CARDS.map((_, i) => i))
-    setCardIndex(0); setFlipped(false); setShuffled(false)
-    setQuizScore({ correct: 0, total: 0 })
+    setCardIndex(0); setFlipped(false)
+    setPractice({ phase: 'input' }); setInputValue('')
+    setShuffled(false); setScore({ correct: 0, wrong: 0 })
   }, [])
 
-  const resetQuizScore = () => setQuizScore({ correct: 0, total: 0 })
-
-  // Keyboard nav (flashcard & quiz)
+  // Keyboard nav (flashcard)
   useEffect(() => {
     if (view !== 'cards') return
     const handler = (e: KeyboardEvent) => {
@@ -134,61 +122,39 @@ export default function BuchungstrainerPage() {
     return () => window.removeEventListener('keydown', handler)
   }, [view, goNext, goPrev])
 
-  // Reset index on filter change
+  // Focus input when switching to practice or moving to next card
+  useEffect(() => {
+    if (view === 'practice' && practice.phase === 'input') {
+      setTimeout(() => inputRef.current?.focus(), 50)
+    }
+  }, [view, practice.phase, cardIndex])
+
+  // Reset on filter change
   useEffect(() => {
     setCardIndex(0); setFlipped(false)
+    setPractice({ phase: 'input' }); setInputValue('')
   }, [filter])
 
-  // ── Quiz answer handler ────────────────────────────────────────
-  function handleAnswer(option: string) {
-    if (!quiz || quiz.selected) return
-    const correct = option === currentCard.a
-    setQuizScore(s => ({
+  // ── Practice: submit answer ──────────────────────────────────
+  function submitAnswer() {
+    if (!inputValue.trim()) return
+    const correct = normalize(inputValue) === normalize(currentCard.a)
+    setScore(s => ({
       correct: s.correct + (correct ? 1 : 0),
-      total: s.total + 1,
+      wrong:   s.wrong   + (correct ? 0 : 1),
     }))
-    setQuiz(q => q ? { ...q, selected: option } : q)
+    setPractice({ phase: 'result', input: inputValue, correct, overridden: false })
   }
 
   function handleOverride() {
-    // "Ich hatte recht" — reclassify as correct
-    setQuizScore(s => ({ correct: s.correct + 1, total: s.total }))
-    setQuiz(q => q ? { ...q, overridden: true } : q)
+    // "Ich hatte recht" — reclassify wrong as correct
+    setScore(s => ({ correct: s.correct + 1, wrong: Math.max(s.wrong - 1, 0) }))
+    setPractice(p => p.phase === 'result' ? { ...p, overridden: true, correct: true } : p)
   }
 
-  const starCount = stars.size
-
-  // ── Option styling ─────────────────────────────────────────────
-  function optionStyle(option: string): React.CSSProperties {
-    if (!quiz?.selected) return {
-      background: 'var(--card-bg)',
-      border: '1px solid var(--border-color)',
-      color: 'var(--text-primary)',
-      cursor: 'pointer',
-    }
-    const isCorrect = option === currentCard.a
-    const isSelected = option === quiz.selected
-    if (isCorrect || (isSelected && quiz.overridden)) return {
-      background: 'rgba(34,197,94,0.12)',
-      border: '2px solid rgba(34,197,94,0.5)',
-      color: '#4ade80',
-    }
-    if (isSelected && !quiz.overridden) return {
-      background: 'rgba(239,68,68,0.1)',
-      border: '2px solid rgba(239,68,68,0.4)',
-      color: '#f87171',
-    }
-    return {
-      background: 'var(--card-bg)',
-      border: '1px solid var(--border-color)',
-      color: 'var(--text-muted)',
-      opacity: 0.5,
-    }
-  }
-
-  const answered    = !!quiz?.selected
-  const wasWrong    = answered && quiz!.selected !== currentCard.a && !quiz!.overridden
   const isLastCard  = cardIndex === visibleOrder.length - 1
+  const starCount   = stars.size
+  const totalAnswered = score.correct + score.wrong
 
   return (
     <div className="space-y-6 fade-in">
@@ -198,20 +164,13 @@ export default function BuchungstrainerPage() {
         <p className="text-[11px] font-semibold uppercase tracking-[0.13em] mb-3" style={{ color: 'var(--text-muted)' }}>
           Finanz- &amp; Rechnungswesen
         </p>
-        <h1
-          className="text-3xl sm:text-4xl font-extrabold leading-tight mb-2"
-          style={{ color: 'var(--text-primary)', letterSpacing: '-0.03em' }}
-        >
+        <h1 className="text-3xl sm:text-4xl font-extrabold leading-tight mb-2"
+          style={{ color: 'var(--text-primary)', letterSpacing: '-0.03em' }}>
           Buchungstrainer
         </h1>
         <p className="text-sm" style={{ color: 'var(--text-muted)' }}>
           {CARDS.length} Buchungssätze
           {starCount > 0 ? ` · ${starCount} markiert` : ' · Markiere was du noch nicht kannst'}
-          {view === 'quiz' && quizScore.total > 0 && (
-            <span className="ml-2 font-semibold" style={{ color: quizScore.correct / quizScore.total >= 0.7 ? '#4ade80' : '#f87171' }}>
-              · {quizScore.correct}/{quizScore.total} richtig
-            </span>
-          )}
         </p>
       </div>
 
@@ -227,9 +186,7 @@ export default function BuchungstrainerPage() {
           ] as const).map(tab => (
             <button key={tab.id} onClick={() => setFilter(tab.id)}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all"
-              style={filter === tab.id
-                ? { background: 'var(--accent)', color: 'white' }
-                : { color: 'var(--text-muted)' }}>
+              style={filter === tab.id ? { background: 'var(--accent)', color: 'white' } : { color: 'var(--text-muted)' }}>
               {tab.id === 'starred' && <Star size={11} className={filter === 'starred' ? 'fill-white' : ''} />}
               {tab.label}
             </button>
@@ -240,12 +197,12 @@ export default function BuchungstrainerPage() {
         <div className="flex items-center gap-1 p-1 rounded-xl"
           style={{ background: 'var(--card-bg)', border: '1px solid var(--border-color)' }}>
           {([
-            { id: 'list',  label: 'Liste',        Icon: List },
-            { id: 'cards', label: 'Karteikarten', Icon: LayoutGrid },
-            { id: 'quiz',  label: 'Quiz',         Icon: HelpCircle },
+            { id: 'list',     label: 'Liste',        Icon: List       },
+            { id: 'cards',    label: 'Karteikarten', Icon: LayoutGrid },
+            { id: 'practice', label: 'Practice',     Icon: PenLine    },
           ] as const).map(({ id, label, Icon }) => (
             <button key={id}
-              onClick={() => { setView(id); if (id === 'quiz') resetQuizScore() }}
+              onClick={() => { setView(id); if (id === 'practice') { doReset() } }}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all"
               style={view === id ? { background: 'var(--accent)', color: 'white' } : { color: 'var(--text-muted)' }}>
               <Icon size={13} /> {label}
@@ -253,7 +210,7 @@ export default function BuchungstrainerPage() {
           ))}
         </div>
 
-        {/* List: show/hide answers */}
+        {/* List extras */}
         {view === 'list' && (
           <button onClick={() => setShowAnswers(s => !s)}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium transition-all"
@@ -263,15 +220,15 @@ export default function BuchungstrainerPage() {
           </button>
         )}
 
-        {/* Cards & Quiz: shuffle / reset */}
-        {(view === 'cards' || view === 'quiz') && (
+        {/* Shuffle / Reset */}
+        {(view === 'cards' || view === 'practice') && (
           <>
             <button onClick={doShuffle}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium transition-all"
               style={{ background: 'var(--card-bg)', border: '1px solid var(--border-color)', color: 'var(--text-muted)' }}>
               <Shuffle size={13} /> Mischen
             </button>
-            {(shuffled || quizScore.total > 0) && (
+            {(shuffled || totalAnswered > 0) && (
               <button onClick={doReset}
                 className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium transition-all"
                 style={{ background: 'var(--card-bg)', border: '1px solid var(--border-color)', color: 'var(--text-muted)' }}>
@@ -292,7 +249,7 @@ export default function BuchungstrainerPage() {
         </div>
       )}
 
-      {/* ── LIST VIEW ──────────────────────────────────────────── */}
+      {/* ── LIST ──────────────────────────────────────────────── */}
       {view === 'list' && (filter !== 'starred' || starCount > 0) && (
         <div className="space-y-2">
           {visibleOrder.map(idx => {
@@ -307,25 +264,16 @@ export default function BuchungstrainerPage() {
                 }}>
                 <button onClick={() => toggleStar(card.id)}
                   className="shrink-0 mt-0.5 transition-all hover:scale-110 active:scale-95">
-                  <Star size={16} style={{
-                    color: isStarred ? '#fbbf24' : 'var(--text-muted)',
-                    fill:  isStarred ? '#fbbf24' : 'none',
-                  }} />
+                  <Star size={16} style={{ color: isStarred ? '#fbbf24' : 'var(--text-muted)', fill: isStarred ? '#fbbf24' : 'none' }} />
                 </button>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium leading-snug" style={{ color: 'var(--text-primary)' }}>
-                    {card.q}
-                  </p>
+                  <p className="text-sm font-medium leading-snug" style={{ color: 'var(--text-primary)' }}>{card.q}</p>
                   {showAnswers && (
-                    <p className="text-sm mt-1.5 font-semibold font-mono" style={{ color: 'var(--accent)' }}>
-                      {card.a}
-                    </p>
+                    <p className="text-sm mt-1.5 font-semibold font-mono" style={{ color: 'var(--accent)' }}>{card.a}</p>
                   )}
                 </div>
                 {!showAnswers && (
-                  <span className="shrink-0 text-xs mt-0.5 font-mono" style={{ color: 'var(--text-muted)' }}>
-                    {card.a}
-                  </span>
+                  <span className="shrink-0 text-xs mt-0.5 font-mono" style={{ color: 'var(--text-muted)' }}>{card.a}</span>
                 )}
               </div>
             )
@@ -333,10 +281,9 @@ export default function BuchungstrainerPage() {
         </div>
       )}
 
-      {/* ── FLASHCARD VIEW ─────────────────────────────────────── */}
+      {/* ── FLASHCARDS ────────────────────────────────────────── */}
       {view === 'cards' && visibleOrder.length > 0 && currentCard && (
         <div className="space-y-4">
-          {/* Progress bar */}
           <div className="flex items-center gap-3">
             <span className="text-xs w-12 shrink-0" style={{ color: 'var(--text-muted)' }}>
               {cardIndex + 1} / {visibleOrder.length}
@@ -350,42 +297,25 @@ export default function BuchungstrainerPage() {
             </span>
           </div>
 
-          {/* Card */}
-          <div
-            className="relative rounded-2xl cursor-pointer select-none transition-all duration-150 active:scale-[0.99]"
-            style={{
-              background: 'var(--card-bg)',
-              border: `2px solid ${flipped ? 'var(--accent)' : 'var(--border-color)'}`,
-              minHeight: '220px',
-            }}
-            onClick={() => setFlipped(f => !f)}
-          >
+          <div className="relative rounded-2xl cursor-pointer select-none transition-all duration-150 active:scale-[0.99]"
+            style={{ background: 'var(--card-bg)', border: `2px solid ${flipped ? 'var(--accent)' : 'var(--border-color)'}`, minHeight: '220px' }}
+            onClick={() => setFlipped(f => !f)}>
             <button className="absolute top-4 right-4 z-10 transition-all hover:scale-110 active:scale-95"
               onClick={e => { e.stopPropagation(); toggleStar(currentCard.id) }}>
-              <Star size={20} style={{
-                color: stars.has(currentCard.id) ? '#fbbf24' : 'var(--text-muted)',
-                fill:  stars.has(currentCard.id) ? '#fbbf24' : 'none',
-              }} />
+              <Star size={20} style={{ color: stars.has(currentCard.id) ? '#fbbf24' : 'var(--text-muted)', fill: stars.has(currentCard.id) ? '#fbbf24' : 'none' }} />
             </button>
             <div className="absolute top-4 left-4">
               <span className="text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded"
-                style={flipped
-                  ? { background: 'rgba(79,114,245,0.15)', color: 'var(--accent)' }
-                  : { background: 'rgba(255,255,255,0.06)', color: 'var(--text-muted)' }}>
+                style={flipped ? { background: 'rgba(79,114,245,0.15)', color: 'var(--accent)' } : { background: 'rgba(255,255,255,0.06)', color: 'var(--text-muted)' }}>
                 {flipped ? 'Buchungssatz' : 'Situation'}
               </span>
             </div>
             <div className="flex items-center justify-center px-8 pt-14 pb-10 min-h-[220px]">
               <div className="text-center">
-                {!flipped ? (
-                  <p className="text-base sm:text-lg font-semibold leading-relaxed" style={{ color: 'var(--text-primary)' }}>
-                    {currentCard.q}
-                  </p>
-                ) : (
-                  <p className="text-xl sm:text-2xl font-bold font-mono tracking-wide" style={{ color: 'var(--accent)' }}>
-                    {currentCard.a}
-                  </p>
-                )}
+                {!flipped
+                  ? <p className="text-base sm:text-lg font-semibold leading-relaxed" style={{ color: 'var(--text-primary)' }}>{currentCard.q}</p>
+                  : <p className="text-xl sm:text-2xl font-bold font-mono tracking-wide" style={{ color: 'var(--accent)' }}>{currentCard.a}</p>
+                }
               </div>
             </div>
             {!flipped && (
@@ -395,7 +325,6 @@ export default function BuchungstrainerPage() {
             )}
           </div>
 
-          {/* Nav */}
           <div className="flex items-center gap-3 justify-center">
             <button onClick={goPrev} disabled={cardIndex === 0}
               className="flex items-center gap-1.5 px-5 py-2.5 rounded-xl text-sm font-medium transition-all disabled:opacity-30"
@@ -419,165 +348,175 @@ export default function BuchungstrainerPage() {
         </div>
       )}
 
-      {/* ── QUIZ VIEW ──────────────────────────────────────────── */}
-      {view === 'quiz' && visibleOrder.length > 0 && currentCard && quiz && (
-        <div className="space-y-4">
+      {/* ── PRACTICE ──────────────────────────────────────────── */}
+      {view === 'practice' && visibleOrder.length > 0 && currentCard && (
+        <div className="space-y-5">
 
-          {/* Score + progress */}
-          <div className="flex items-center gap-3">
-            <span className="text-xs w-12 shrink-0" style={{ color: 'var(--text-muted)' }}>
+          {/* Progress + score (X ✓  Y ✗  like Flippity) */}
+          <div className="flex items-center justify-between">
+            <span className="text-sm font-medium" style={{ color: 'var(--text-muted)' }}>
               {cardIndex + 1} / {visibleOrder.length}
             </span>
-            <div className="flex-1 h-1.5 rounded-full overflow-hidden" style={{ background: 'var(--border-color)' }}>
-              <div className="h-full rounded-full transition-all duration-300"
-                style={{ background: 'var(--accent)', width: `${((cardIndex + 1) / visibleOrder.length) * 100}%` }} />
-            </div>
-            {quizScore.total > 0 && (
-              <span className="flex items-center gap-1 text-xs font-semibold shrink-0"
-                style={{ color: quizScore.correct / quizScore.total >= 0.7 ? '#4ade80' : '#f87171' }}>
-                <Trophy size={12} />
-                {quizScore.correct}/{quizScore.total}
+            <div className="flex items-center gap-4 text-sm font-semibold">
+              <span className="flex items-center gap-1.5 text-green-400">
+                {score.correct} <CheckCircle2 size={15} />
               </span>
-            )}
+              <span className="flex items-center gap-1.5 text-red-400">
+                {score.wrong} <XCircle size={15} />
+              </span>
+            </div>
           </div>
 
-          {/* Question card */}
-          <div className="rounded-2xl p-6"
+          {/* Progress bar */}
+          <div className="h-1.5 rounded-full overflow-hidden" style={{ background: 'var(--border-color)' }}>
+            <div className="h-full rounded-full transition-all duration-300"
+              style={{ background: 'var(--accent)', width: `${((cardIndex + 1) / visibleOrder.length) * 100}%` }} />
+          </div>
+
+          {/* Question */}
+          <div className="rounded-2xl px-6 py-8 text-center"
             style={{ background: 'var(--card-bg)', border: '1px solid var(--border-color)' }}>
-            <div className="flex items-start justify-between gap-3 mb-2">
+            <div className="flex items-center justify-between mb-6">
               <span className="text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded"
                 style={{ background: 'rgba(255,255,255,0.06)', color: 'var(--text-muted)' }}>
                 Situation
               </span>
               <button onClick={() => toggleStar(currentCard.id)}
-                className="shrink-0 transition-all hover:scale-110 active:scale-95">
+                className="transition-all hover:scale-110 active:scale-95">
                 <Star size={18} style={{
                   color: stars.has(currentCard.id) ? '#fbbf24' : 'var(--text-muted)',
                   fill:  stars.has(currentCard.id) ? '#fbbf24' : 'none',
                 }} />
               </button>
             </div>
-            <p className="text-base sm:text-lg font-semibold leading-relaxed mt-3" style={{ color: 'var(--text-primary)' }}>
+
+            <p className="text-lg sm:text-xl font-semibold leading-relaxed mb-8" style={{ color: 'var(--text-primary)' }}>
               {currentCard.q}
             </p>
-          </div>
 
-          {/* Options */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-            {quiz.options.map((option, i) => {
-              const isCorrect  = option === currentCard.a
-              const isSelected = option === quiz.selected
-              const showIcon   = !!quiz.selected
-
-              return (
+            {/* Input area */}
+            {practice.phase === 'input' ? (
+              <div className="flex gap-2 max-w-md mx-auto">
+                <input
+                  ref={inputRef}
+                  type="text"
+                  value={inputValue}
+                  onChange={e => setInputValue(e.target.value)}
+                  onKeyDown={e => { if (e.key === 'Enter') submitAnswer() }}
+                  placeholder="Buchungssatz eingeben…"
+                  className="flex-1 px-4 py-3 rounded-xl text-sm font-mono outline-none transition-all"
+                  style={{
+                    background: 'rgba(255,255,255,0.05)',
+                    border: '2px solid var(--border-color)',
+                    color: 'var(--text-primary)',
+                  }}
+                  onFocus={e => { e.currentTarget.style.borderColor = 'var(--accent)' }}
+                  onBlur={e => { e.currentTarget.style.borderColor = 'var(--border-color)' }}
+                />
                 <button
-                  key={i}
-                  onClick={() => handleAnswer(option)}
-                  disabled={!!quiz.selected}
-                  className="w-full text-left px-4 py-3.5 rounded-xl text-sm font-medium transition-all duration-200 flex items-center gap-3 disabled:cursor-default"
-                  style={optionStyle(option)}
+                  onClick={submitAnswer}
+                  disabled={!inputValue.trim()}
+                  className="w-12 h-12 rounded-xl flex items-center justify-center transition-all disabled:opacity-30"
+                  style={{ background: 'var(--accent)' }}
                 >
-                  {/* Letter badge */}
-                  <span className="shrink-0 w-6 h-6 rounded-md flex items-center justify-center text-[11px] font-bold"
-                    style={{ background: 'rgba(255,255,255,0.08)' }}>
-                    {['A','B','C','D'][i]}
-                  </span>
-
-                  <span className="flex-1 font-mono leading-snug">{option}</span>
-
-                  {showIcon && isCorrect && (
-                    <CheckCircle2 size={16} className="shrink-0 text-green-400" />
-                  )}
-                  {showIcon && isSelected && !isCorrect && !quiz.overridden && (
-                    <XCircle size={16} className="shrink-0 text-red-400" />
-                  )}
+                  <Check size={18} className="text-white" />
                 </button>
-              )
-            })}
+              </div>
+            ) : (
+              /* Result */
+              <div className="space-y-4">
+                {/* User input display */}
+                <div className="max-w-md mx-auto px-4 py-3 rounded-xl text-sm font-mono text-center"
+                  style={{
+                    background: practice.correct
+                      ? 'rgba(34,197,94,0.1)'
+                      : 'rgba(239,68,68,0.08)',
+                    border: `2px solid ${practice.correct ? 'rgba(34,197,94,0.4)' : 'rgba(239,68,68,0.35)'}`,
+                    color: practice.correct ? '#4ade80' : '#f87171',
+                  }}>
+                  {practice.input}
+                </div>
+
+                {/* Correct answer (shown when wrong) */}
+                {!practice.correct && (
+                  <div className="max-w-md mx-auto space-y-1">
+                    <p className="text-[11px] uppercase tracking-widest font-semibold" style={{ color: 'var(--text-muted)' }}>
+                      Richtige Antwort
+                    </p>
+                    <div className="px-4 py-3 rounded-xl text-sm font-mono font-bold text-center"
+                      style={{ background: 'rgba(34,197,94,0.1)', border: '1px solid rgba(34,197,94,0.3)', color: '#4ade80' }}>
+                      {currentCard.a}
+                    </div>
+                  </div>
+                )}
+
+                {/* Status icon + override */}
+                <div className="flex items-center justify-center gap-3 flex-wrap">
+                  {practice.correct ? (
+                    <div className="flex items-center gap-1.5 text-sm font-semibold text-green-400">
+                      <CheckCircle2 size={18} />
+                      {practice.overridden ? 'Als richtig gewertet' : 'Richtig!'}
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-1.5 text-sm font-semibold text-red-400">
+                      <XCircle size={18} />
+                      Falsch
+                    </div>
+                  )}
+
+                  {/* "Ich hatte recht" button */}
+                  {!practice.correct && !practice.overridden && (
+                    <button onClick={handleOverride}
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all hover:opacity-90"
+                      style={{ background: 'rgba(34,197,94,0.15)', border: '1px solid rgba(34,197,94,0.35)', color: '#4ade80' }}>
+                      <CheckCircle2 size={12} />
+                      Ich hatte recht
+                    </button>
+                  )}
+                </div>
+
+                {/* Next / Restart */}
+                <div className="flex justify-center">
+                  {!isLastCard ? (
+                    <button onClick={goNext}
+                      className="flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-semibold text-white transition-all hover:opacity-90"
+                      style={{ background: 'var(--accent)' }}>
+                      Weiter <ChevronRight size={15} />
+                    </button>
+                  ) : (
+                    <button onClick={doReset}
+                      className="flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-semibold text-white transition-all hover:opacity-90"
+                      style={{ background: 'var(--accent)' }}>
+                      <RotateCcw size={14} /> Neu starten
+                    </button>
+                  )}
+                </div>
+              </div>
+            )}
           </div>
 
-          {/* Feedback row */}
-          {answered && (
-            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 rounded-xl px-4 py-3"
-              style={{
-                background: wasWrong
-                  ? 'rgba(239,68,68,0.07)'
-                  : 'rgba(34,197,94,0.07)',
-                border: `1px solid ${wasWrong ? 'rgba(239,68,68,0.25)' : 'rgba(34,197,94,0.25)'}`,
-              }}>
-
-              <div className="flex-1 flex items-center gap-2">
-                {wasWrong ? (
-                  <>
-                    <XCircle size={16} className="shrink-0 text-red-400" />
-                    <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>
-                      Falsch — richtig wäre: <span className="font-bold font-mono text-red-300">{currentCard.a}</span>
-                    </p>
-                  </>
-                ) : (
-                  <>
-                    <CheckCircle2 size={16} className="shrink-0 text-green-400" />
-                    <p className="text-xs font-semibold text-green-400">
-                      {quiz.overridden ? 'Als richtig gewertet.' : 'Richtig!'}
-                    </p>
-                  </>
-                )}
-              </div>
-
-              <div className="flex items-center gap-2 shrink-0">
-                {/* "Ich hatte recht" — nur wenn falsch und noch nicht überschrieben */}
-                {wasWrong && !quiz.overridden && (
-                  <button
-                    onClick={handleOverride}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all hover:opacity-90"
-                    style={{ background: 'rgba(34,197,94,0.15)', border: '1px solid rgba(34,197,94,0.35)', color: '#4ade80' }}>
-                    <CheckCircle2 size={12} />
-                    Ich hatte recht
-                  </button>
-                )}
-
-                {/* Weiter / Fertig */}
-                {!isLastCard ? (
-                  <button onClick={goNext}
-                    className="flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-xs font-semibold text-white transition-all hover:opacity-90"
-                    style={{ background: 'var(--accent)' }}>
-                    Weiter <ChevronRight size={13} />
-                  </button>
-                ) : (
-                  <button onClick={doReset}
-                    className="flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-xs font-semibold text-white transition-all hover:opacity-90"
-                    style={{ background: 'var(--accent)' }}>
-                    <RotateCcw size={12} /> Neu starten
-                  </button>
-                )}
-              </div>
-            </div>
-          )}
-
-          {/* Prev nav (quiz) */}
-          {!answered && cardIndex > 0 && (
-            <button onClick={goPrev}
-              className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-medium transition-all"
-              style={{ background: 'var(--card-bg)', border: '1px solid var(--border-color)', color: 'var(--text-muted)' }}>
-              <ChevronLeft size={13} /> Zurück
-            </button>
-          )}
-
+          <p className="text-center text-[11px]" style={{ color: 'var(--text-muted)' }}>
+            Enter zum Bestätigen
+          </p>
         </div>
       )}
 
       {/* Finished banner */}
-      {view === 'quiz' && isLastCard && quiz?.selected && (
+      {view === 'practice' && isLastCard && practice.phase === 'result' && totalAnswered > 0 && (
         <div className="rounded-2xl p-6 text-center"
           style={{ background: 'var(--card-bg)', border: '1px solid var(--border-color)' }}>
           <Trophy size={28} className="mx-auto mb-3 text-amber-400" />
           <p className="text-base font-bold mb-1" style={{ color: 'var(--text-primary)' }}>
             Durchgang abgeschlossen!
           </p>
-          <p className="text-sm mb-4" style={{ color: 'var(--text-muted)' }}>
-            {quizScore.correct} von {quizScore.total} richtig
-            {' '}({Math.round((quizScore.correct / quizScore.total) * 100)}%)
-          </p>
+          <div className="flex items-center justify-center gap-5 mb-4 text-sm font-semibold">
+            <span className="flex items-center gap-1.5 text-green-400">
+              <CheckCircle2 size={16} /> {score.correct} richtig
+            </span>
+            <span className="flex items-center gap-1.5 text-red-400">
+              <XCircle size={16} /> {score.wrong} falsch
+            </span>
+          </div>
           <button onClick={doReset}
             className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold text-white"
             style={{ background: 'var(--accent)' }}>
