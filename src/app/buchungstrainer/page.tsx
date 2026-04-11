@@ -216,7 +216,8 @@ export default function BuchungstrainerPage() {
       </div>
 
       {/* Controls */}
-      <div className="flex flex-wrap items-center gap-2">
+      <div className="overflow-x-auto scrollbar-hide -mx-4 px-4 sm:mx-0 sm:px-0">
+      <div className="flex items-center gap-2 min-w-max sm:min-w-0 sm:flex-wrap pb-1 sm:pb-0">
 
         {/* Filter */}
         <div className="flex gap-1 p-1 rounded-xl"
@@ -240,17 +241,18 @@ export default function BuchungstrainerPage() {
         <div className="flex gap-1 p-1 rounded-xl"
           style={{ background: 'var(--card-bg)', border: '1px solid var(--border-color)' }}>
           {([
-            { id: 'list',     label: 'Liste',        Icon: List       },
-            { id: 'cards',    label: 'Karteikarten', Icon: LayoutGrid },
-            { id: 'practice', label: 'Practice',     Icon: PenLine    },
+            { id: 'list',     label: 'Liste',     Icon: List       },
+            { id: 'cards',    label: 'Karten',    Icon: LayoutGrid },
+            { id: 'practice', label: 'Practice',  Icon: PenLine    },
           ] as const).map(({ id, label, Icon }) => (
             <button key={id}
               onClick={() => { setView(id); if (id === 'practice') doReset() }}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all"
+              className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-medium transition-all"
               style={view === id
                 ? { background: 'var(--accent)', color: 'white' }
                 : { color: 'var(--text-muted)' }}>
-              <Icon size={13} /> {label}
+              <Icon size={13} />
+              <span className="hidden xs:inline sm:inline">{label}</span>
             </button>
           ))}
         </div>
@@ -260,7 +262,7 @@ export default function BuchungstrainerPage() {
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium"
             style={{ background: 'var(--card-bg)', border: '1px solid var(--border-color)', color: 'var(--text-muted)' }}>
             {showAnswers ? <EyeOff size={13} /> : <Eye size={13} />}
-            {showAnswers ? 'Ausblenden' : 'Antworten zeigen'}
+            <span className="hidden sm:inline">{showAnswers ? 'Ausblenden' : 'Antworten zeigen'}</span>
           </button>
         )}
 
@@ -269,17 +271,20 @@ export default function BuchungstrainerPage() {
             <button onClick={doShuffle}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium"
               style={{ background: 'var(--card-bg)', border: '1px solid var(--border-color)', color: 'var(--text-muted)' }}>
-              <Shuffle size={13} /> Mischen
+              <Shuffle size={13} />
+              <span className="hidden sm:inline">Mischen</span>
             </button>
             {(shuffled || totalAnswered > 0) && (
               <button onClick={doReset}
                 className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium"
                 style={{ background: 'var(--card-bg)', border: '1px solid var(--border-color)', color: 'var(--text-muted)' }}>
-                <RotateCcw size={13} /> Neu starten
+                <RotateCcw size={13} />
+                <span className="hidden sm:inline">Neu starten</span>
               </button>
             )}
           </>
         )}
+      </div>
       </div>
 
       {/* Empty starred */}
@@ -315,7 +320,7 @@ export default function BuchungstrainerPage() {
                   )}
                 </div>
                 {!showAnswers && (
-                  <span className="shrink-0 text-xs mt-0.5 font-mono" style={{ color: 'var(--text-muted)' }}>{card.a}</span>
+                  <span className="hidden sm:inline shrink-0 text-xs mt-0.5 font-mono" style={{ color: 'var(--text-muted)' }}>{card.a}</span>
                 )}
               </div>
             )
@@ -365,30 +370,33 @@ export default function BuchungstrainerPage() {
               }
             </div>
             {!flipped && (
-              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 text-[11px]" style={{ color: 'var(--text-muted)' }}>
-                Tippen · Leertaste
+              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 text-[11px] whitespace-nowrap" style={{ color: 'var(--text-muted)' }}>
+                <span className="sm:hidden">Tippen</span>
+                <span className="hidden sm:inline">Tippen · Leertaste</span>
               </div>
             )}
           </div>
 
-          <div className="flex gap-3 justify-center">
+          <div className="flex gap-2 sm:gap-3">
             <button onClick={goPrev} disabled={cardIndex === 0}
-              className="flex items-center gap-1.5 px-5 py-2.5 rounded-xl text-sm font-medium disabled:opacity-30"
+              className="flex-1 flex items-center justify-center gap-1.5 py-3 sm:py-2.5 rounded-xl text-sm font-medium disabled:opacity-30"
               style={{ background: 'var(--card-bg)', border: '1px solid var(--border-color)', color: 'var(--text-secondary)' }}>
-              <ChevronLeft size={16} /> Zurück
+              <ChevronLeft size={16} />
+              <span className="hidden sm:inline">Zurück</span>
             </button>
             <button onClick={() => setFlipped(f => !f)}
-              className="px-5 py-2.5 rounded-xl text-sm font-semibold"
+              className="flex-1 py-3 sm:py-2.5 rounded-xl text-sm font-semibold"
               style={{ background: 'var(--accent)', color: 'white' }}>
               Umdrehen
             </button>
             <button onClick={goNext} disabled={cardIndex === visibleOrder.length - 1}
-              className="flex items-center gap-1.5 px-5 py-2.5 rounded-xl text-sm font-medium disabled:opacity-30"
+              className="flex-1 flex items-center justify-center gap-1.5 py-3 sm:py-2.5 rounded-xl text-sm font-medium disabled:opacity-30"
               style={{ background: 'var(--card-bg)', border: '1px solid var(--border-color)', color: 'var(--text-secondary)' }}>
-              Weiter <ChevronRight size={16} />
+              <span className="hidden sm:inline">Weiter</span>
+              <ChevronRight size={16} />
             </button>
           </div>
-          <p className="text-center text-[11px]" style={{ color: 'var(--text-muted)' }}>
+          <p className="hidden sm:block text-center text-[11px]" style={{ color: 'var(--text-muted)' }}>
             ← → Navigieren · Leertaste Umdrehen
           </p>
         </div>
@@ -429,12 +437,16 @@ export default function BuchungstrainerPage() {
           <input
             ref={inputRef}
             type="text"
+            inputMode="text"
+            autoCapitalize="none"
+            autoCorrect="off"
+            spellCheck={false}
             value={inputValue}
             disabled={phase !== 'input'}
             onChange={e => setInputValue(e.target.value)}
             onKeyDown={e => { if (e.key === 'Enter') handleSubmit() }}
             placeholder="Buchungssatz eingeben…"
-            className="w-full px-5 py-4 rounded-2xl text-base font-mono text-center outline-none transition-all"
+            className="w-full px-4 sm:px-5 py-4 rounded-2xl text-base font-mono text-center outline-none transition-all"
             style={{
               background: 'var(--card-bg)',
               border: `2px solid ${inputBorderColor}`,
@@ -456,24 +468,27 @@ export default function BuchungstrainerPage() {
 
           {/* Buttons */}
           {phase === 'input' ? (
-            <div className="flex gap-2">
-              <button onClick={() => setHint(h => !h)}
-                className="flex items-center gap-1.5 px-4 py-3 rounded-xl text-sm font-medium"
-                style={{ background: 'var(--card-bg)', border: '1px solid var(--border-color)', color: 'var(--text-muted)' }}>
-                <Lightbulb size={14} /> Tipp
-              </button>
-              <button onClick={() => toggleStar(currentCard.id)}
-                className="flex items-center gap-1.5 px-4 py-3 rounded-xl text-sm font-medium transition-all"
-                style={{
-                  background: stars.has(currentCard.id) ? 'rgba(245,158,11,0.1)' : 'var(--card-bg)',
-                  border: `1px solid ${stars.has(currentCard.id) ? 'rgba(245,158,11,0.35)' : 'var(--border-color)'}`,
-                  color: stars.has(currentCard.id) ? '#fbbf24' : 'var(--text-muted)',
-                }}>
-                <Star size={14} style={{ fill: stars.has(currentCard.id) ? '#fbbf24' : 'none' }} />
-                {stars.has(currentCard.id) ? 'Markiert' : 'Markieren'}
-              </button>
+            <div className="flex flex-col gap-2">
+              <div className="flex gap-2">
+                <button onClick={() => setHint(h => !h)}
+                  className="flex items-center gap-1.5 px-4 py-3 rounded-xl text-sm font-medium"
+                  style={{ background: 'var(--card-bg)', border: '1px solid var(--border-color)', color: 'var(--text-muted)' }}>
+                  <Lightbulb size={14} />
+                  <span className="hidden sm:inline">Tipp</span>
+                </button>
+                <button onClick={() => toggleStar(currentCard.id)}
+                  className="flex-1 flex items-center justify-center gap-1.5 px-4 py-3 rounded-xl text-sm font-medium transition-all"
+                  style={{
+                    background: stars.has(currentCard.id) ? 'rgba(245,158,11,0.1)' : 'var(--card-bg)',
+                    border: `1px solid ${stars.has(currentCard.id) ? 'rgba(245,158,11,0.35)' : 'var(--border-color)'}`,
+                    color: stars.has(currentCard.id) ? '#fbbf24' : 'var(--text-muted)',
+                  }}>
+                  <Star size={14} style={{ fill: stars.has(currentCard.id) ? '#fbbf24' : 'none' }} />
+                  {stars.has(currentCard.id) ? 'Markiert' : 'Markieren'}
+                </button>
+              </div>
               <button onClick={handleSubmit} disabled={!inputValue.trim()}
-                className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-semibold text-white disabled:opacity-40"
+                className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl text-sm font-semibold text-white disabled:opacity-40"
                 style={{ background: 'var(--accent)' }}>
                 <CheckCircle2 size={16} /> Prüfen
               </button>
@@ -503,7 +518,7 @@ export default function BuchungstrainerPage() {
                   <RotateCcw size={14} /> Neu starten
                 </button>
               )}
-              <p className="text-center text-[11px]" style={{ color: 'var(--text-muted)' }}>
+              <p className="hidden sm:block text-center text-[11px]" style={{ color: 'var(--text-muted)' }}>
                 Enter = Weiter{phase === 'wrong' ? ' · K = Ich hatte recht' : ''}
               </p>
             </div>
