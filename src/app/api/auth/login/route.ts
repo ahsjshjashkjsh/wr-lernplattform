@@ -40,11 +40,6 @@ export async function POST(request: Request) {
       return Response.json({ error: 'PENDING' }, { status: 403 })
     }
 
-    // Creator-Account: nur von autorisierter IP erlaubt
-    if (user.isCreator && ip !== '213.55.242.176') {
-      return Response.json({ error: 'Ungültige E-Mail oder Passwort.' }, { status: 401 })
-    }
-
     // Update last login info
     await prisma.user.update({
       where: { id: user.id },
