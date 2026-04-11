@@ -12,6 +12,7 @@ interface AdminUser {
   isPremium: boolean
   premiumUntil: string | null
   buchungstrainerRole: boolean
+  isAyri: boolean
   createdAt: string
   lastOnline: string | null
   lastIp: string | null
@@ -811,6 +812,11 @@ export default function AdminPage() {
                               <BookMarked size={9} /> Trainer
                             </span>
                           )}
+                          {user.isAyri && (
+                            <span className="text-xs px-1.5 py-0.5 rounded-md font-bold" style={{ background: 'rgba(239,68,68,0.15)', color: '#f87171' }}>
+                              Ayri
+                            </span>
+                          )}
                           {online && (
                             <span className="flex items-center gap-1 text-xs font-semibold" style={{ color: '#22c55e' }}>
                               <Wifi size={9} /> Online
@@ -910,6 +916,15 @@ export default function AdminPage() {
                           style={{ background: user.buchungstrainerRole ? 'rgba(99,102,241,0.2)' : 'rgba(255,255,255,0.05)', color: user.buchungstrainerRole ? '#818cf8' : '#64748b' }}
                         >
                           <BookMarked size={13} />
+                        </button>
+                        <button
+                          onClick={() => patch(user.id, { isAyri: !user.isAyri } as any, user.id + '-ayri')}
+                          disabled={actionLoading === user.id + '-ayri'}
+                          title={user.isAyri ? 'Ayri-Rolle entfernen' : 'Ayri-Rolle vergeben'}
+                          className="w-8 h-8 rounded-lg flex items-center justify-center transition-all disabled:opacity-40 text-xs font-black"
+                          style={{ background: user.isAyri ? 'rgba(239,68,68,0.2)' : 'rgba(255,255,255,0.05)', color: user.isAyri ? '#f87171' : '#64748b' }}
+                        >
+                          A
                         </button>
 
                         {user.isPremium && (

@@ -25,6 +25,7 @@ model User {
   isPremium              Boolean           @default(false)
   premiumUntil           DateTime?
   buchungstrainerRole    Boolean           @default(false)
+  isAyri                 Boolean           @default(false)
   progress               ChapterProgress[]
   quizAttempts      QuizAttempt[]
   feedback          Feedback[]

@@ -10,6 +10,7 @@ export interface AuthUser {
   isPremium: boolean
   premiumUntil: string | null
   buchungstrainerRole: boolean
+  isAyri: boolean
 }
 
 interface AuthContextValue {

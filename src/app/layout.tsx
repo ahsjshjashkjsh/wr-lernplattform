@@ -26,6 +26,7 @@ import { ThemeProvider } from '@/components/ThemeProvider'
 import { AuthProvider } from '@/components/AuthProvider'
 import { AdminMessagePopup } from '@/components/AdminMessagePopup'
 import { MaintenanceGate } from '@/components/MaintenanceGate'
+import { AyriGate } from '@/components/AyriGate'
 
 export const metadata: Metadata = {
   title: 'HMS-Plattform – Abschlussprüfung',
@@ -45,6 +46,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
         <ThemeProvider>
           <AuthProvider>
+            <AyriGate>
             <div className="relative z-10">
               <Navbar />
               <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10">
@@ -54,6 +56,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             </div>
             <FloatingChat />
             <AdminMessagePopup />
+            </AyriGate>
           </AuthProvider>
         </ThemeProvider>
       </body>
