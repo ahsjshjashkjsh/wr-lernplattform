@@ -54,7 +54,8 @@ export default function BuchungstrainerPage() {
   const [hint,        setHint]        = useState(false)
   const [score,       setScore]       = useState({ ok: 0, fail: 0 })
 
-  const inputRef = useRef<HTMLInputElement>(null)
+  const inputRef        = useRef<HTMLInputElement>(null)
+  const justSubmitted   = useRef(false)   // blocks Enter→next for 400ms after submit
 
   // ── load stars ─────────────────────────────────────────────────
   useEffect(() => { setStars(loadStars()) }, [])
@@ -146,7 +147,9 @@ export default function BuchungstrainerPage() {
     if (view !== 'practice') return
     const h = (e: KeyboardEvent) => {
       // Enter after answering → next card
+      // justSubmitted guard: ignore the very Enter that triggered the submit
       if (e.key === 'Enter' && phase !== 'input') {
+        if (justSubmitted.current) return
         e.preventDefault()
         if (!isLast) goNext()
         return
@@ -176,6 +179,9 @@ export default function BuchungstrainerPage() {
     const ok = checkAnswer(inputValue, currentCard.a)
     setScore(s => ({ ok: s.ok + (ok ? 1 : 0), fail: s.fail + (ok ? 0 : 1) }))
     setPhase(ok ? 'correct' : 'wrong')
+    // block Enter→next for 400ms so the result is visible before continuing
+    justSubmitted.current = true
+    setTimeout(() => { justSubmitted.current = false }, 400)
   }
 
   // ── styling helpers ────────────────────────────────────────────
