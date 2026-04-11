@@ -414,6 +414,10 @@ export default function AdminPage() {
       premiumFilter === 'premium' ? isPremiumActive(u) :
       !isPremiumActive(u)
     return matchSearch && matchPremium
+  }).sort((a, b) => {
+    const aOnline = isOnline(a.lastOnline) ? 1 : 0
+    const bOnline = isOnline(b.lastOnline) ? 1 : 0
+    return bOnline - aOnline
   })
 
   const totalQuiz = users.reduce((s, u) => s + u._count.quizAttempts, 0)
