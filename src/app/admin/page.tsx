@@ -149,13 +149,8 @@ export default function AdminPage() {
     const res = await fetch('/api/admin/users')
     if (res.ok) {
       const data = await res.json()
-      if (silent) {
-        setUsers(prev => JSON.stringify(prev) === JSON.stringify(data.users) ? prev : data.users)
-        setBannedIps(prev => JSON.stringify(prev) === JSON.stringify(data.bannedIps ?? []) ? prev : data.bannedIps ?? [])
-      } else {
-        setUsers(data.users)
-        setBannedIps(data.bannedIps ?? [])
-      }
+      setUsers(data.users)
+      setBannedIps(prev => JSON.stringify(prev) === JSON.stringify(data.bannedIps ?? []) ? prev : data.bannedIps ?? [])
       setLastRefresh(new Date())
     }
     if (!silent) setLoading(false)
