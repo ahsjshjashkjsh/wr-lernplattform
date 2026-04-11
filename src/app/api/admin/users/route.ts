@@ -92,6 +92,14 @@ export async function PATCH(request: Request) {
   if (body.userId === admin.id && body.isAdmin === false) {
     return Response.json({ error: 'Du kannst deinen eigenen Admin-Status nicht entfernen.' }, { status: 400 })
   }
+
+  // Creator-Schutz: isAdmin kann dem Creator nicht entzogen werden
+  if (body.isAdmin === false) {
+    const target = await prisma.user.findUnique({ where: { id: body.userId }, select: { isCreator: true } })
+    if (target?.isCreator) {
+      return Response.json({ error: 'Dem Creator kann der Admin-Status nicht entzogen werden.' }, { status: 400 })
+    }
+  }
   if (body.userId === admin.id && body.isBanned === true) {
     return Response.json({ error: 'Du kannst dich nicht selbst sperren.' }, { status: 400 })
   }

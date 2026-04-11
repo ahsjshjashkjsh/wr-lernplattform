@@ -915,8 +915,8 @@ export default function AdminPage() {
 
                         <button
                           onClick={() => patch(user.id, { isAdmin: !user.isAdmin }, user.id + '-admin')}
-                          disabled={actionLoading === user.id + '-admin'}
-                          title={user.isAdmin ? 'Admin entfernen' : 'Zum Admin machen'}
+                          disabled={actionLoading === user.id + '-admin' || (user.isAdmin && user.isCreator)}
+                          title={user.isCreator && user.isAdmin ? 'Creator — Admin-Status geschützt' : user.isAdmin ? 'Admin entfernen' : 'Zum Admin machen'}
                           className="w-8 h-8 rounded-lg flex items-center justify-center transition-all disabled:opacity-40"
                           style={{ background: user.isAdmin ? 'rgba(245,158,11,0.2)' : 'rgba(255,255,255,0.05)', color: user.isAdmin ? '#f59e0b' : '#64748b' }}
                         >
