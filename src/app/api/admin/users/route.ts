@@ -27,6 +27,7 @@ export async function GET() {
         lastIp: true,
         isPremium: true,
         premiumUntil: true,
+        buchungstrainerRole: true,
         _count: { select: { quizAttempts: true, progress: true } },
         quizAttempts: { select: { completedAt: true, scorePercent: true }, orderBy: { completedAt: 'desc' }, take: 1 },
         progress: { select: { bestScore: true, status: true }, where: { status: 'completed' } },
@@ -98,6 +99,7 @@ export async function PATCH(request: Request) {
   if (body.isBanned !== undefined) data.isBanned = body.isBanned
   if ((body as any).isPremium === false) { data.isPremium = false; data.premiumUntil = null }
   if ((body as any).isApproved !== undefined) data.isApproved = (body as any).isApproved
+  if ((body as any).buchungstrainerRole !== undefined) data.buchungstrainerRole = (body as any).buchungstrainerRole
   if (body.name?.trim()) data.name = body.name.trim()
   if (body.email?.trim()) data.email = body.email.trim().toLowerCase()
   if (body.password && body.password.length >= 6) {

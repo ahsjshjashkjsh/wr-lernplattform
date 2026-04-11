@@ -1,6 +1,6 @@
 'use client'
 import { useEffect, useState, useCallback } from 'react'
-import { Shield, Trash2, Crown, Users, BarChart2, Ban, UserPlus, Pencil, X, Check, Eye, EyeOff, RefreshCw, MessageSquare, CheckCircle2, XCircle, Clock, Bug, Lightbulb, FileText, HelpCircle, Wifi, WifiOff, Globe, Activity, Send, Bell, UserCheck, UserX, Tag, Plus, Copy, Lock, TrendingUp, TrendingDown, Calculator } from 'lucide-react'
+import { Shield, Trash2, Crown, Users, BarChart2, Ban, UserPlus, Pencil, X, Check, Eye, EyeOff, RefreshCw, MessageSquare, CheckCircle2, XCircle, Clock, Bug, Lightbulb, FileText, HelpCircle, Wifi, WifiOff, Globe, Activity, Send, Bell, UserCheck, UserX, Tag, Plus, Copy, Lock, TrendingUp, TrendingDown, Calculator, BookMarked } from 'lucide-react'
 
 interface AdminUser {
   id: string
@@ -11,6 +11,7 @@ interface AdminUser {
   isApproved: boolean
   isPremium: boolean
   premiumUntil: string | null
+  buchungstrainerRole: boolean
   createdAt: string
   lastOnline: string | null
   lastIp: string | null
@@ -798,6 +799,11 @@ export default function AdminPage() {
                               <Crown size={9} /> Premium
                             </span>
                           )}
+                          {user.buchungstrainerRole && (
+                            <span className="flex items-center gap-1 text-xs px-1.5 py-0.5 rounded-md font-medium" style={{ background: 'rgba(99,102,241,0.15)', color: '#818cf8' }}>
+                              <BookMarked size={9} /> Trainer
+                            </span>
+                          )}
                           {online && (
                             <span className="flex items-center gap-1 text-xs font-semibold" style={{ color: '#22c55e' }}>
                               <Wifi size={9} /> Online
@@ -887,6 +893,16 @@ export default function AdminPage() {
                           style={{ background: user.isAdmin ? 'rgba(245,158,11,0.2)' : 'rgba(255,255,255,0.05)', color: user.isAdmin ? '#f59e0b' : '#64748b' }}
                         >
                           <Crown size={13} />
+                        </button>
+
+                        <button
+                          onClick={() => patch(user.id, { buchungstrainerRole: !user.buchungstrainerRole } as any, user.id + '-trainer')}
+                          disabled={actionLoading === user.id + '-trainer'}
+                          title={user.buchungstrainerRole ? 'Trainer-Rolle entfernen' : 'Buchungstrainer-Rolle vergeben'}
+                          className="w-8 h-8 rounded-lg flex items-center justify-center transition-all disabled:opacity-40"
+                          style={{ background: user.buchungstrainerRole ? 'rgba(99,102,241,0.2)' : 'rgba(255,255,255,0.05)', color: user.buchungstrainerRole ? '#818cf8' : '#64748b' }}
+                        >
+                          <BookMarked size={13} />
                         </button>
 
                         {user.isPremium && (

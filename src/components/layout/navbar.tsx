@@ -100,6 +100,20 @@ export function Navbar() {
                         Admin
                       </Link>
                     )}
+                    {(user.isAdmin || user.buchungstrainerRole) && (
+                      <Link
+                        href="/buchungstrainer/editor"
+                        className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all border ${
+                          pathname === '/buchungstrainer/editor'
+                            ? 'border-indigo-500/20 bg-indigo-500/10 text-indigo-400'
+                            : 'border-transparent hover:bg-indigo-500/10 hover:border-indigo-500/20 hover:text-indigo-400'
+                        }`}
+                        style={pathname === '/buchungstrainer/editor' ? {} : { color: 'var(--text-muted)' }}
+                      >
+                        <BookMarked size={13} />
+                        Trainer
+                      </Link>
+                    )}
                     <div className="flex items-center gap-1.5 px-2 py-1.5 rounded-lg text-xs" style={{ color: 'var(--text-muted)' }}>
                       <User size={12} className="text-blue-400" />
                       <span className="font-medium text-slate-300">{user.name}</span>
@@ -222,6 +236,21 @@ export function Navbar() {
               >
                 <Shield size={16} />
                 Admin Dashboard
+              </Link>
+            )}
+            {!loading && (user?.isAdmin || user?.buchungstrainerRole) && (
+              <Link
+                href="/buchungstrainer/editor"
+                onClick={() => setMenuOpen(false)}
+                className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all border ${
+                  pathname === '/buchungstrainer/editor'
+                    ? 'text-indigo-400 bg-indigo-500/10 border-indigo-500/20'
+                    : 'border-transparent'
+                }`}
+                style={pathname === '/buchungstrainer/editor' ? {} : { color: 'var(--text-muted)' }}
+              >
+                <BookMarked size={16} />
+                Buchungstrainer Editor
               </Link>
             )}
 

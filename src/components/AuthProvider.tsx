@@ -9,6 +9,7 @@ export interface AuthUser {
   isBanned: boolean
   isPremium: boolean
   premiumUntil: string | null
+  buchungstrainerRole: boolean
 }
 
 interface AuthContextValue {

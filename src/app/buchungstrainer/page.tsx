@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
-import { CARDS } from '@/data/buchungstrainer-cards'
+import { CARDS as STATIC_CARDS } from '@/data/buchungstrainer-cards'
 import {
   Star, List, LayoutGrid, ChevronLeft, ChevronRight,
   Shuffle, RotateCcw, Eye, EyeOff, PenLine,
@@ -9,6 +9,10 @@ import {
 } from 'lucide-react'
 
 const LS_KEY = 'buchungstrainer-stars'
+
+// Custom cards from DB use negative IDs (-(id)) to avoid collision with static IDs
+type Card = { id: number; q: string; a: string }
+type Alias = { cardId: number; isCustom: boolean; answer: string }
 
 function loadStars(): Set<number> {
   if (typeof window === 'undefined') return new Set()
@@ -26,10 +30,17 @@ function shuffleArr<T>(arr: T[]): T[] {
   }
   return a
 }
-function checkAnswer(input: string, correct: string): boolean {
-  const norm = (s: string) =>
-    s.toLowerCase().trim().replace(/\s*\/\s*/g, '/').replace(/\s+/g, ' ').replace(/\.$/, '')
-  return norm(input) === norm(correct)
+function norm(s: string) {
+  return s.toLowerCase().trim().replace(/\s*\/\s*/g, '/').replace(/\s+/g, ' ').replace(/\.$/, '')
+}
+function checkAnswerWithAliases(input: string, card: Card, aliases: Alias[]): boolean {
+  const ni = norm(input)
+  if (ni === norm(card.a)) return true
+  const isCustom = card.id < 0
+  const realId = isCustom ? -(card.id) : card.id
+  return aliases
+    .filter(a => a.cardId === realId && a.isCustom === isCustom)
+    .some(a => ni === norm(a.answer))
 }
 function buildHint(answer: string) {
   return answer.split('/').map(p => p.trim().charAt(0).toUpperCase() + '…').join(' / ')
@@ -40,11 +51,15 @@ type Filter = 'all'  | 'starred'
 type Phase  = 'input' | 'correct' | 'wrong' | 'overridden'
 
 export default function BuchungstrainerPage() {
+  // ── DB data ────────────────────────────────────────────────────
+  const [aliases,     setAliases]     = useState<Alias[]>([])
+  const [allCards,    setAllCards]    = useState<Card[]>(STATIC_CARDS)
+
   // ── state ──────────────────────────────────────────────────────
   const [stars,       setStars]       = useState<Set<number>>(new Set())
   const [view,        setView]        = useState<View>('list')
   const [filter,      setFilter]      = useState<Filter>('all')
-  const [order,       setOrder]       = useState<number[]>(() => CARDS.map((_, i) => i))
+  const [order,       setOrder]       = useState<number[]>(() => STATIC_CARDS.map((_, i) => i))
   const [cardIndex,   setCardIndex]   = useState(0)
   const [shuffled,    setShuffled]    = useState(false)
   const [flipped,     setFlipped]     = useState(false)
@@ -55,17 +70,34 @@ export default function BuchungstrainerPage() {
   const [score,       setScore]       = useState({ ok: 0, fail: 0 })
 
   const inputRef        = useRef<HTMLInputElement>(null)
-  const justSubmitted   = useRef(false)   // blocks Enter→next for 400ms after submit
+  const justSubmitted   = useRef(false)
 
-  // ── load stars ─────────────────────────────────────────────────
-  useEffect(() => { setStars(loadStars()) }, [])
+  // ── load stars + DB data ───────────────────────────────────────
+  useEffect(() => {
+    setStars(loadStars())
+    // Load aliases and custom cards (no auth required for reading)
+    Promise.all([
+      fetch('/api/buchungstrainer/aliases').then(r => r.ok ? r.json() : { aliases: [] }),
+      fetch('/api/buchungstrainer/custom-cards').then(r => r.ok ? r.json() : { cards: [] }),
+    ]).then(([aliasData, cardData]) => {
+      if (aliasData.aliases) setAliases(aliasData.aliases)
+      if (cardData.cards) {
+        const customCards: Card[] = (cardData.cards as { id: number; question: string; answer: string; isActive: boolean }[])
+          .filter(c => c.isActive)
+          .map(c => ({ id: -(c.id), q: c.question, a: c.answer }))
+        const merged = [...STATIC_CARDS, ...customCards]
+        setAllCards(merged)
+        setOrder(merged.map((_, i) => i))
+      }
+    }).catch(() => {})
+  }, [])
 
   // ── derived ────────────────────────────────────────────────────
   const visibleOrder = useMemo(() => (
-    filter === 'starred' ? order.filter(i => stars.has(CARDS[i].id)) : order
-  ), [order, filter, stars])
+    filter === 'starred' ? order.filter(i => stars.has(allCards[i]?.id ?? -999)) : order
+  ), [order, filter, stars, allCards])
 
-  const currentCard    = CARDS[visibleOrder[cardIndex] ?? 0]
+  const currentCard    = allCards[visibleOrder[cardIndex] ?? 0]
   const isLast         = cardIndex === visibleOrder.length - 1
   const starCount      = stars.size
   const totalAnswered  = score.ok + score.fail
@@ -113,7 +145,7 @@ export default function BuchungstrainerPage() {
   }, [])
 
   const doReset = useCallback(() => {
-    setOrder(CARDS.map((_, i) => i))
+    setOrder(allCards.map((_, i) => i))
     setCardIndex(0)
     setFlipped(false)
     setPhase('input')
@@ -176,7 +208,7 @@ export default function BuchungstrainerPage() {
   // ── practice: submit ───────────────────────────────────────────
   function handleSubmit() {
     if (phase !== 'input' || !inputValue.trim()) return
-    const ok = checkAnswer(inputValue, currentCard.a)
+    const ok = checkAnswerWithAliases(inputValue, currentCard, aliases)
     setScore(s => ({ ok: s.ok + (ok ? 1 : 0), fail: s.fail + (ok ? 0 : 1) }))
     setPhase(ok ? 'correct' : 'wrong')
     justSubmitted.current = true
@@ -222,7 +254,7 @@ export default function BuchungstrainerPage() {
           Buchungstrainer
         </h1>
         <p className="text-sm" style={{ color: 'var(--text-muted)' }}>
-          {CARDS.length} Buchungssätze
+          {allCards.length} Buchungssätze
           {starCount > 0 ? ` · ${starCount} markiert` : ' · Markiere was du noch nicht kannst'}
         </p>
       </div>
@@ -235,7 +267,7 @@ export default function BuchungstrainerPage() {
         <div className="flex gap-1 p-1 rounded-xl"
           style={{ background: 'var(--card-bg)', border: '1px solid var(--border-color)' }}>
           {([
-            { id: 'all',     label: `Alle (${CARDS.length})` },
+            { id: 'all',     label: `Alle (${allCards.length})` },
             { id: 'starred', label: `Markierte (${starCount})` },
           ] as const).map(t => (
             <button key={t.id} onClick={() => setFilter(t.id)}
@@ -313,7 +345,7 @@ export default function BuchungstrainerPage() {
       {view === 'list' && (filter !== 'starred' || starCount > 0) && (
         <div className="space-y-2">
           {visibleOrder.map(idx => {
-            const card = CARDS[idx]
+            const card = allCards[idx]
             const st = stars.has(card.id)
             return (
               <div key={card.id} className="rounded-xl px-4 py-3.5 flex items-start gap-3"

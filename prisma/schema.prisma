@@ -22,9 +22,10 @@ model User {
   resetToken        String?           @unique
   resetTokenExpiry  DateTime?
   createdAt         DateTime          @default(now())
-  isPremium         Boolean           @default(false)
-  premiumUntil      DateTime?
-  progress          ChapterProgress[]
+  isPremium              Boolean           @default(false)
+  premiumUntil           DateTime?
+  buchungstrainerRole    Boolean           @default(false)
+  progress               ChapterProgress[]
   quizAttempts      QuizAttempt[]
   feedback          Feedback[]
   activityLogs      ActivityLog[]
@@ -276,4 +277,27 @@ model AccountingEntry {
   kategorie     String?
   wiederkehrend Boolean  @default(false) // true = Fixkosten (monatl.), false = einmaliger Aufwand
   createdAt     DateTime @default(now())
+}
+
+// ─── Buchungstrainer ──────────────────────────────────────────────────────────
+
+// Extra akzeptierte Antworten für eine Karte (static card ID oder customCard ID)
+model BuchungstrainerAlias {
+  id         Int      @id @default(autoincrement())
+  cardId     Int      // ID der statischen Karte (aus buchungstrainer-cards.ts) ODER customCardId
+  isCustom   Boolean  @default(false) // true = bezieht sich auf BuchungstrainerCustomCard
+  answer     String   // alternative korrekte Antwort
+  createdAt  DateTime @default(now())
+
+  @@index([cardId, isCustom])
+}
+
+// Neue Buchungssätze, die durch Trainer hinzugefügt wurden
+model BuchungstrainerCustomCard {
+  id        Int      @id @default(autoincrement())
+  question  String
+  answer    String   // primäre korrekte Antwort
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }

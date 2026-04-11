@@ -101,6 +101,7 @@ export async function getCurrentUser() {
       createdAt: true,
       isPremium: true,
       premiumUntil: true,
+      buchungstrainerRole: true,
     },
   })
 }
