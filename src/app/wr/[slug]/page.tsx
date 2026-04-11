@@ -114,7 +114,7 @@ export default async function WrTopicPage({ params, searchParams }: Props) {
   const hasVisual = slug in WR_VISUALS
 
   const user = await getCurrentUser()
-  const hasPremium = user ? isPremiumActive(user) : false
+  const hasPremium = user ? ((user as any).isCreator || isPremiumActive(user)) : false
 
   const chapterProgress = user ? await prisma.chapterProgress.findUnique({
     where: { chapterId_userId: { chapterId: chapter.id, userId: user.id } },

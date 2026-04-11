@@ -110,7 +110,7 @@ export default async function FrwChapterPage({ params, searchParams }: Props) {
   if (!topic) notFound()
 
   const user = await getCurrentUser()
-  const hasPremium = user ? isPremiumActive(user) : false
+  const hasPremium = user ? ((user as any).isCreator || isPremiumActive(user)) : false
   const hasVisual = slug in FRW_VISUALS
 
 

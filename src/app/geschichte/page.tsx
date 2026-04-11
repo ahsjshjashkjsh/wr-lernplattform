@@ -231,7 +231,7 @@ export default async function GeschichtePage() {
   const isFreeDay = new Date() < freeUntil
 
   const user = await getCurrentUser()
-  const hasPremium = isFreeDay || (user ? (user.isAdmin || isPremiumActive(user)) : false)
+  const hasPremium = isFreeDay || (user ? ((user as any).isCreator || user.isAdmin || isPremiumActive(user)) : false)
 
   if (!hasPremium) {
     return (
