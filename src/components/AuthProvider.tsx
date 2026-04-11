@@ -44,14 +44,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => { refresh() }, [refresh])
 
-  // Heartbeat: sendet alle 5s eine Anfrage um lastOnline + lastIp zu aktualisieren
+  // Heartbeat: sendet alle 30s eine Anfrage um lastOnline + lastIp zu aktualisieren
+  // Alle 60s auch User-Daten neu laden (damit Rollen-Änderungen sofort wirken)
   useEffect(() => {
     if (!user) {
       if (heartbeatRef.current) clearInterval(heartbeatRef.current)
       return
     }
 
-    const ping = () => fetch('/api/heartbeat', { method: 'POST' }).catch(() => {})
+    let tick = 0
+    const ping = () => {
+      fetch('/api/heartbeat', { method: 'POST' }).catch(() => {})
+      tick++
+      if (tick % 2 === 0) refresh() // alle 60s User-Daten neu laden
+    }
 
     ping()
     heartbeatRef.current = setInterval(ping, 30_000)
@@ -59,7 +65,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return () => {
       if (heartbeatRef.current) clearInterval(heartbeatRef.current)
     }
-  }, [user?.id]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [user?.id, refresh]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const logout = async () => {
     await fetch('/api/auth/logout', { method: 'POST' })
