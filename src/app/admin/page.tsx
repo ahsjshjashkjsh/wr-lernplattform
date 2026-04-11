@@ -1,5 +1,5 @@
 'use client'
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback, useRef } from 'react'
 import { Shield, Trash2, Crown, Users, BarChart2, Ban, UserPlus, Pencil, X, Check, Eye, EyeOff, RefreshCw, MessageSquare, CheckCircle2, XCircle, Clock, Bug, Lightbulb, FileText, HelpCircle, Wifi, WifiOff, Globe, Activity, Send, Bell, UserCheck, UserX, Tag, Plus, Copy, Lock, TrendingUp, TrendingDown, Calculator, BookMarked, Star } from 'lucide-react'
 import { useAuth } from '@/components/AuthProvider'
 
@@ -90,6 +90,8 @@ function timeAgo(dateStr: string | null) {
 export default function AdminPage() {
   const { user: me, loading: authLoading } = useAuth()
   const isCreator = me?.isCreator ?? false
+  const isCreatorRef = useRef(isCreator)
+  useEffect(() => { isCreatorRef.current = isCreator }, [isCreator])
   const [users, setUsers] = useState<AdminUser[]>([])
   const [bannedIps, setBannedIps] = useState<string[]>([])
   const [loading, setLoading] = useState(true)
@@ -303,12 +305,21 @@ export default function AdminPage() {
     setActionLoading(null)
   }
 
+  // Creator-only data: load once when isCreator becomes true
+  useEffect(() => {
+    if (isCreator) {
+      loadPremiumRequests()
+      loadPromoCodes()
+      loadBuchhaltung()
+    }
+  }, [isCreator]) // eslint-disable-line react-hooks/exhaustive-deps
+
   // Live-Polling: erster Load mit Spinner, danach alle 3s still
   useEffect(() => {
     loadUsers()
     loadFeedback()
     loadLogs()
-    if (isCreator) {
+    if (isCreatorRef.current) {
       loadPremiumRequests()
       loadPromoCodes()
     }
@@ -316,11 +327,11 @@ export default function AdminPage() {
       loadUsers(true)
       loadFeedback()
       loadLogs()
-      if (isCreator) loadPremiumRequests()
+      if (isCreatorRef.current) loadPremiumRequests()
     }, 3_000)
     return () => clearInterval(interval)
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loadUsers, isCreator])
+  }, [loadUsers])
 
   async function patch(userId: string, data: Record<string, unknown>, key: string) {
     setActionLoading(key)

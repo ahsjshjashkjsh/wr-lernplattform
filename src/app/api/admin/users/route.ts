@@ -2,6 +2,8 @@ import { prisma } from '@/lib/prisma'
 import { getCurrentUser } from '@/lib/auth'
 import bcrypt from 'bcryptjs'
 
+export const dynamic = 'force-dynamic'
+
 async function requireAdmin() {
   const user = await getCurrentUser()
   if (!user?.isAdmin) return null
