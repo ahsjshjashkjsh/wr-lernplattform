@@ -149,8 +149,13 @@ export default function AdminPage() {
     const res = await fetch('/api/admin/users')
     if (res.ok) {
       const data = await res.json()
-      setUsers(data.users)
-      setBannedIps(data.bannedIps ?? [])
+      if (silent) {
+        setUsers(prev => JSON.stringify(prev) === JSON.stringify(data.users) ? prev : data.users)
+        setBannedIps(prev => JSON.stringify(prev) === JSON.stringify(data.bannedIps ?? []) ? prev : data.bannedIps ?? [])
+      } else {
+        setUsers(data.users)
+        setBannedIps(data.bannedIps ?? [])
+      }
       setLastRefresh(new Date())
     }
     if (!silent) setLoading(false)
@@ -158,12 +163,18 @@ export default function AdminPage() {
 
   async function loadFeedback() {
     const res = await fetch('/api/feedback')
-    if (res.ok) { const data = await res.json(); setFeedback(data.feedback) }
+    if (res.ok) {
+      const data = await res.json()
+      setFeedback(prev => JSON.stringify(prev) === JSON.stringify(data.feedback) ? prev : data.feedback)
+    }
   }
 
   async function loadLogs() {
     const res = await fetch('/api/activity')
-    if (res.ok) { const data = await res.json(); setActivityLogs(data.logs) }
+    if (res.ok) {
+      const data = await res.json()
+      setActivityLogs(prev => JSON.stringify(prev) === JSON.stringify(data.logs) ? prev : data.logs)
+    }
   }
 
   async function loadPremiumRequests() {
