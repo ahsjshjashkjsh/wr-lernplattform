@@ -226,6 +226,7 @@ model AdminMessage {
   message      String
   targetUserId String? // null = an alle
   showSender   Boolean            @default(true)
+  senderName   String?            // Name des sendenden Admins
   createdAt    DateTime           @default(now())
   expiresAt    DateTime
   seenBy       AdminMessageSeen[]

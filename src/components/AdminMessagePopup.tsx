@@ -7,6 +7,7 @@ interface Message {
   id: string
   message: string
   showSender: boolean
+  senderName: string | null
   createdAt: string
 }
 
@@ -81,7 +82,12 @@ export function AdminMessagePopup() {
                     style={{ background: 'rgba(139,92,246,0.15)', border: '1px solid rgba(139,92,246,0.3)' }}>
                     <Shield size={14} className="text-violet-400" />
                   </div>
-                  <p className="text-xs font-bold text-violet-400 uppercase tracking-wide">Admin-Nachricht</p>
+                  <div>
+                    <p className="text-xs font-bold text-violet-400 uppercase tracking-wide">Admin-Nachricht</p>
+                    {msg.senderName && (
+                      <p className="text-[11px] text-slate-400 mt-0.5">von {msg.senderName}</p>
+                    )}
+                  </div>
                 </div>
               ) : (
                 <p className="text-xs font-semibold text-slate-400 uppercase tracking-wide">Nachricht</p>

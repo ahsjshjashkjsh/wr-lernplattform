@@ -8,11 +8,20 @@ export async function POST(request: Request) {
   const { message, targetUserId, showSender } = await request.json()
   if (!message?.trim()) return Response.json({ error: 'Nachricht fehlt' }, { status: 400 })
 
+  // Absender-Name nachschlagen
+  const sender = await prisma.user.findUnique({ where: { id: session.userId }, select: { name: true } })
+
   // Nachrichten laufen nach 1h ab
   const expiresAt = new Date(Date.now() + 60 * 60 * 1000)
 
   const msg = await prisma.adminMessage.create({
-    data: { message: message.trim(), targetUserId: targetUserId || null, showSender: showSender !== false, expiresAt },
+    data: {
+      message: message.trim(),
+      targetUserId: targetUserId || null,
+      showSender: showSender !== false,
+      senderName: sender?.name ?? null,
+      expiresAt,
+    },
   })
 
   return Response.json({ ok: true, id: msg.id })
