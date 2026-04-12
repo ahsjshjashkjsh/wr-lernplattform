@@ -9,19 +9,8 @@ import {
 } from 'lucide-react'
 
 const LS_KEY          = 'buchungstrainer-stars'
-const LS_SESSION_KEY  = 'buchungstrainer-session'
 const LS_HISTORY_KEY  = 'buchungstrainer-history'
 const MAX_HISTORY     = 15
-
-type SavedSession = {
-  sessionId: string
-  cardIndex: number
-  score: { ok: number; fail: number }
-  order: number[]
-  filter: Filter
-  shuffled: boolean
-  totalCards: number
-}
 
 type SessionRecord = {
   id: string
@@ -37,15 +26,6 @@ type SessionRecord = {
   isComplete: boolean
 }
 
-function saveSession(s: SavedSession) {
-  try { localStorage.setItem(LS_SESSION_KEY, JSON.stringify(s)) } catch {}
-}
-function loadSession(): SavedSession | null {
-  try { return JSON.parse(localStorage.getItem(LS_SESSION_KEY) ?? 'null') } catch { return null }
-}
-function clearSession() {
-  try { localStorage.removeItem(LS_SESSION_KEY) } catch {}
-}
 function loadHistory(): SessionRecord[] {
   try { return JSON.parse(localStorage.getItem(LS_HISTORY_KEY) ?? '[]') } catch { return [] }
 }
@@ -119,7 +99,6 @@ export default function BuchungstrainerPage() {
   const [score,       setScore]       = useState({ ok: 0, fail: 0 })
   const [wrongCards,  setWrongCards]  = useState<number[]>([]) // indices into allCards
 
-  const [resumeModal,  setResumeModal]  = useState<SavedSession | null>(null)
   const [history,      setHistory]      = useState<SessionRecord[]>([])
   const [userId,       setUserId]       = useState<string | null>(null)
   const currentSessionId = useRef<string | null>(null)
@@ -222,7 +201,6 @@ export default function BuchungstrainerPage() {
   }, [])
 
   const doReset = useCallback(() => {
-    clearSession()
     currentSessionId.current = Date.now().toString()
     setOrder(allCards.map((_, i) => i))
     setCardIndex(0)
@@ -306,7 +284,6 @@ export default function BuchungstrainerPage() {
     if (cardIndex === 0 && score.ok === 0 && score.fail === 0) return
     const sid = currentSessionId.current
     if (!sid) return
-    saveSession({ sessionId: sid, cardIndex, score, order, filter, shuffled, totalCards: allCards.length })
     const rec: SessionRecord = {
       id: sid,
       startedAt: parseInt(sid),
@@ -358,7 +335,6 @@ export default function BuchungstrainerPage() {
   }
 
   function repeatWrong() {
-    clearSession()
     setOrder(shuffleArr(wrongCards))
     setWrongCards([])
     setCardIndex(0)
@@ -379,28 +355,6 @@ export default function BuchungstrainerPage() {
     phase === 'input'                               ? 'var(--text-primary)'
     : phase === 'correct' || phase === 'overridden' ? '#4ade80'
     : '#f87171'
-
-  // ──────────────────────────────────────────────────────────────
-  function handleResume(s: SavedSession) {
-    currentSessionId.current = s.sessionId
-    setOrder(s.order)
-    setCardIndex(s.cardIndex)
-    setFilter(s.filter)
-    setShuffled(s.shuffled)
-    setScore(s.score)
-    setView('practice')
-    setPhase('input')
-    setInputValue('')
-    setHint(false)
-    setResumeModal(null)
-  }
-
-  function handleResumeDiscard() {
-    clearSession()
-    doReset()
-    setView('practice')
-    setResumeModal(null)
-  }
 
   function markSessionComplete() {
     if (!currentSessionId.current) return
@@ -434,8 +388,6 @@ export default function BuchungstrainerPage() {
         saveHistory(h)
         setHistory([...h])
       }
-    }
-    clearSession()
   }
 
   function startSessionFromHistory(rec: SessionRecord) {
@@ -453,7 +405,6 @@ export default function BuchungstrainerPage() {
   }
 
   function repeatWrongFromHistory(rec: SessionRecord) {
-    clearSession()
     currentSessionId.current = Date.now().toString()
     setOrder(shuffleArr(rec.wrongIndices))
     setWrongCards([])
@@ -542,14 +493,8 @@ export default function BuchungstrainerPage() {
             <button key={id}
               onClick={() => {
                 if (id === 'practice') {
-                  const saved = loadSession()
-                  if (saved && saved.totalCards === allCards.length && (saved.cardIndex > 0 || saved.score.ok + saved.score.fail > 0)) {
-                    setResumeModal(saved)
-                    setView('practice')
-                  } else {
-                    doReset()
-                    setView('practice')
-                  }
+                  doReset()
+                  setView('practice')
                 } else if (id === 'sessions') {
                   if (userId) {
                     fetch('/api/buchungstrainer/sessions').then(r => r.json()).then(d => setHistory(d.sessions ?? [])).catch(() => setHistory(loadHistory()))
@@ -719,34 +664,6 @@ export default function BuchungstrainerPage() {
       {/* ═══════════════════════ PRACTICE ═══════════════════════ */}
       {view === 'practice' && visibleOrder.length > 0 && currentCard && (
         <div className="max-w-lg mx-auto space-y-6">
-
-          {/* Session-Restore Panel */}
-          {resumeModal && (
-            <div className="rounded-2xl p-4" style={{ background: 'var(--card-bg)', border: '1px solid rgba(99,102,241,0.25)' }}>
-              <div className="flex items-center justify-between gap-3 flex-wrap">
-                <div>
-                  <p className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>Letzter Durchgang gespeichert</p>
-                  <div className="flex items-center gap-3 mt-1 text-xs" style={{ color: 'var(--text-muted)' }}>
-                    <span>Karte {resumeModal.cardIndex + 1} / {resumeModal.totalCards}</span>
-                    <span className="text-green-400 flex items-center gap-1"><CheckCircle2 size={11} /> {resumeModal.score.ok}</span>
-                    <span className="text-red-400 flex items-center gap-1"><XCircle size={11} /> {resumeModal.score.fail}</span>
-                  </div>
-                </div>
-                <div className="flex gap-2 shrink-0">
-                  <button onClick={() => handleResume(resumeModal)}
-                    className="px-3 py-1.5 rounded-lg text-xs font-semibold text-white"
-                    style={{ background: 'var(--accent)' }}>
-                    Weitermachen
-                  </button>
-                  <button onClick={handleResumeDiscard}
-                    className="px-3 py-1.5 rounded-lg text-xs font-medium"
-                    style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid var(--border-color)', color: 'var(--text-muted)' }}>
-                    Neu starten
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
 
           {/* Score row */}
           <div className="flex items-center justify-between text-sm font-semibold">
