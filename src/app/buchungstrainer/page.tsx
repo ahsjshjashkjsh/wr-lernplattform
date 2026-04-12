@@ -8,7 +8,27 @@ import {
   CheckCircle2, XCircle, Lightbulb, Trophy,
 } from 'lucide-react'
 
-const LS_KEY = 'buchungstrainer-stars'
+const LS_KEY         = 'buchungstrainer-stars'
+const LS_SESSION_KEY = 'buchungstrainer-session'
+
+type SavedSession = {
+  cardIndex: number
+  score: { ok: number; fail: number }
+  order: number[]
+  filter: Filter
+  shuffled: boolean
+  totalCards: number
+}
+
+function saveSession(s: SavedSession) {
+  try { localStorage.setItem(LS_SESSION_KEY, JSON.stringify(s)) } catch {}
+}
+function loadSession(): SavedSession | null {
+  try { return JSON.parse(localStorage.getItem(LS_SESSION_KEY) ?? 'null') } catch { return null }
+}
+function clearSession() {
+  try { localStorage.removeItem(LS_SESSION_KEY) } catch {}
+}
 
 // Custom cards from DB use negative IDs (-(id)) to avoid collision with static IDs
 type Card = { id: number; q: string; a: string }
@@ -69,6 +89,8 @@ export default function BuchungstrainerPage() {
   const [hint,        setHint]        = useState(false)
   const [score,       setScore]       = useState({ ok: 0, fail: 0 })
 
+  const [resumeModal,  setResumeModal]  = useState<SavedSession | null>(null)
+
   const inputRef        = useRef<HTMLInputElement>(null)
   const justSubmitted   = useRef(false)
 
@@ -99,7 +121,14 @@ export default function BuchungstrainerPage() {
 
       const merged = [...staticCards, ...customCards]
       setAllCards(merged)
-      setOrder(merged.map((_, i) => i))
+
+      // Session-Restore prüfen
+      const saved = loadSession()
+      if (saved && saved.totalCards === merged.length && (saved.cardIndex > 0 || saved.score.ok + saved.score.fail > 0)) {
+        setResumeModal(saved)
+      } else {
+        setOrder(merged.map((_, i) => i))
+      }
     }).catch(() => {})
   }, [])
 
@@ -156,6 +185,7 @@ export default function BuchungstrainerPage() {
   }, [])
 
   const doReset = useCallback(() => {
+    clearSession()
     setOrder(allCards.map((_, i) => i))
     setCardIndex(0)
     setFlipped(false)
@@ -216,6 +246,13 @@ export default function BuchungstrainerPage() {
   // ── reset practice on filter change ───────────────────────────
   useEffect(() => { resetPractice() }, [filter, resetPractice])
 
+  // ── Session speichern (Practice-Modus) ────────────────────────
+  useEffect(() => {
+    if (view !== 'practice') return
+    if (cardIndex === 0 && score.ok === 0 && score.fail === 0) return
+    saveSession({ cardIndex, score, order, filter, shuffled, totalCards: allCards.length })
+  }, [cardIndex, score, order, filter, shuffled, view, allCards.length])
+
   // ── practice: submit ───────────────────────────────────────────
   function handleSubmit() {
     if (phase !== 'input' || !inputValue.trim()) return
@@ -251,8 +288,63 @@ export default function BuchungstrainerPage() {
     : '#f87171'
 
   // ──────────────────────────────────────────────────────────────
+  function handleResume(s: SavedSession) {
+    setOrder(s.order)
+    setCardIndex(s.cardIndex)
+    setFilter(s.filter)
+    setShuffled(s.shuffled)
+    setScore(s.score)
+    setView('practice')
+    setPhase('input')
+    setInputValue('')
+    setHint(false)
+    setResumeModal(null)
+  }
+
+  function handleResumeDiscard() {
+    clearSession()
+    setResumeModal(null)
+  }
+
   return (
     <div className="space-y-6 fade-in">
+
+      {/* ── Session-Restore Modal ─────────────────────────────── */}
+      {resumeModal && (
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4"
+          style={{ background: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(6px)' }}>
+          <div className="w-full max-w-sm rounded-2xl overflow-hidden text-center"
+            style={{ background: '#0f172a', border: '1px solid rgba(255,255,255,0.1)', boxShadow: '0 25px 80px rgba(0,0,0,0.6)' }}>
+            <div style={{ height: 3, background: 'linear-gradient(90deg,var(--accent),#a855f7)' }} />
+            <div className="p-7">
+              <div className="w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-4"
+                style={{ background: 'rgba(99,102,241,0.15)', border: '1px solid rgba(99,102,241,0.3)' }}>
+                <RotateCcw size={24} style={{ color: 'var(--accent)' }} />
+              </div>
+              <h2 className="text-lg font-bold mb-1" style={{ color: 'var(--text-primary)' }}>Weiter wo du aufgehört hast?</h2>
+              <p className="text-sm mb-1" style={{ color: 'var(--text-muted)' }}>
+                Karte {resumeModal.cardIndex + 1} von {resumeModal.totalCards}
+              </p>
+              <div className="flex justify-center gap-4 mt-1 mb-6 text-sm font-semibold">
+                <span className="flex items-center gap-1.5 text-green-400"><CheckCircle2 size={14} /> {resumeModal.score.ok} richtig</span>
+                <span className="flex items-center gap-1.5 text-red-400"><XCircle size={14} /> {resumeModal.score.fail} falsch</span>
+              </div>
+              <div className="flex flex-col gap-2.5">
+                <button onClick={() => handleResume(resumeModal)}
+                  className="w-full py-3 rounded-xl text-sm font-semibold text-white"
+                  style={{ background: 'var(--accent)' }}>
+                  Weitermachen
+                </button>
+                <button onClick={handleResumeDiscard}
+                  className="w-full py-3 rounded-xl text-sm font-medium"
+                  style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', color: 'var(--text-muted)' }}>
+                  Neu starten
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Header */}
       <div className="pt-2">
@@ -616,7 +708,7 @@ export default function BuchungstrainerPage() {
           <p className="text-3xl font-extrabold mb-5" style={{ color: 'var(--accent)' }}>
             {Math.round((score.ok / totalAnswered) * 100)}%
           </p>
-          <button onClick={doReset}
+          <button onClick={() => { clearSession(); doReset() }}
             className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-semibold text-white"
             style={{ background: 'var(--accent)' }}>
             <RotateCcw size={14} /> Nochmal
