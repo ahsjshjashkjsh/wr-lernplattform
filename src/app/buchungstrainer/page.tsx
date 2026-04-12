@@ -122,14 +122,7 @@ export default function BuchungstrainerPage() {
 
       const merged = [...staticCards, ...customCards]
       setAllCards(merged)
-
-      // Session-Restore prüfen
-      const saved = loadSession()
-      if (saved && saved.totalCards === merged.length && (saved.cardIndex > 0 || saved.score.ok + saved.score.fail > 0)) {
-        setResumeModal(saved)
-      } else {
-        setOrder(merged.map((_, i) => i))
-      }
+      setOrder(merged.map((_, i) => i))
     }).catch(() => {})
   }, [])
 
@@ -321,6 +314,8 @@ export default function BuchungstrainerPage() {
 
   function handleResumeDiscard() {
     clearSession()
+    doReset()
+    setView('practice')
     setResumeModal(null)
   }
 
@@ -411,7 +406,19 @@ export default function BuchungstrainerPage() {
             { id: 'practice', label: 'Practice',  Icon: PenLine    },
           ] as const).map(({ id, label, Icon }) => (
             <button key={id}
-              onClick={() => { setView(id); if (id === 'practice') doReset() }}
+              onClick={() => {
+                if (id === 'practice') {
+                  const saved = loadSession()
+                  if (saved && saved.totalCards === allCards.length && (saved.cardIndex > 0 || saved.score.ok + saved.score.fail > 0)) {
+                    setResumeModal(saved)
+                  } else {
+                    doReset()
+                    setView('practice')
+                  }
+                } else {
+                  setView(id)
+                }
+              }}
               className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-medium transition-all"
               style={view === id
                 ? { background: 'var(--accent)', color: 'white' }
