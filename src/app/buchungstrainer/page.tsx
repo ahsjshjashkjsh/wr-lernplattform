@@ -88,6 +88,7 @@ export default function BuchungstrainerPage() {
   const [inputValue,  setInputValue]  = useState('')
   const [hint,        setHint]        = useState(false)
   const [score,       setScore]       = useState({ ok: 0, fail: 0 })
+  const [wrongCards,  setWrongCards]  = useState<number[]>([]) // indices into allCards
 
   const [resumeModal,  setResumeModal]  = useState<SavedSession | null>(null)
 
@@ -194,12 +195,14 @@ export default function BuchungstrainerPage() {
     setHint(false)
     setShuffled(false)
     setScore({ ok: 0, fail: 0 })
+    setWrongCards([])
   }, [allCards])
 
   const handleOverride = useCallback(() => {
     setScore(s => ({ ok: s.ok + 1, fail: Math.max(s.fail - 1, 0) }))
+    setWrongCards(prev => prev.filter(i => i !== visibleOrder[cardIndex]))
     setPhase('overridden')
-  }, [])
+  }, [visibleOrder, cardIndex])
 
   // ── keyboard: flashcards ───────────────────────────────────────
   useEffect(() => {
@@ -258,6 +261,7 @@ export default function BuchungstrainerPage() {
     if (phase !== 'input' || !inputValue.trim()) return
     const ok = checkAnswerWithAliases(inputValue, currentCard, aliases)
     setScore(s => ({ ok: s.ok + (ok ? 1 : 0), fail: s.fail + (ok ? 0 : 1) }))
+    if (!ok) setWrongCards(prev => prev.includes(visibleOrder[cardIndex]) ? prev : [...prev, visibleOrder[cardIndex]])
     setPhase(ok ? 'correct' : 'wrong')
     justSubmitted.current = true
     setTimeout(() => { justSubmitted.current = false }, 400)
@@ -268,12 +272,26 @@ export default function BuchungstrainerPage() {
     if (phase !== 'input') return
     if (!inputValue.trim()) {
       setScore(s => ({ ...s, fail: s.fail + 1 }))
+      if (!wrongCards.includes(visibleOrder[cardIndex]))
+        setWrongCards(prev => [...prev, visibleOrder[cardIndex]])
       setPhase('wrong')
       justSubmitted.current = true
       setTimeout(() => { justSubmitted.current = false }, 400)
       return
     }
     handleSubmit()
+  }
+
+  function repeatWrong() {
+    clearSession()
+    setOrder(shuffleArr(wrongCards))
+    setWrongCards([])
+    setCardIndex(0)
+    setScore({ ok: 0, fail: 0 })
+    setPhase('input')
+    setInputValue('')
+    setHint(false)
+    setFlipped(false)
   }
 
   // ── styling helpers ────────────────────────────────────────────
@@ -708,11 +726,20 @@ export default function BuchungstrainerPage() {
           <p className="text-3xl font-extrabold mb-5" style={{ color: 'var(--accent)' }}>
             {Math.round((score.ok / totalAnswered) * 100)}%
           </p>
-          <button onClick={() => { clearSession(); doReset() }}
-            className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-semibold text-white"
-            style={{ background: 'var(--accent)' }}>
-            <RotateCcw size={14} /> Nochmal
-          </button>
+          <div className="flex flex-col gap-2.5 items-center">
+            {wrongCards.length > 0 && (
+              <button onClick={repeatWrong}
+                className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-semibold text-white"
+                style={{ background: 'linear-gradient(135deg,#ef4444,#f97316)' }}>
+                <XCircle size={14} /> {wrongCards.length} Falsche wiederholen
+              </button>
+            )}
+            <button onClick={() => { clearSession(); doReset() }}
+              className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-semibold"
+              style={{ background: 'var(--card-bg)', border: '1px solid var(--border-color)', color: 'var(--text-muted)' }}>
+              <RotateCcw size={14} /> Nochmal (alle)
+            </button>
+          </div>
         </div>
       )}
 
