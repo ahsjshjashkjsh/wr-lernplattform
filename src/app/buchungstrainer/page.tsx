@@ -388,6 +388,7 @@ export default function BuchungstrainerPage() {
         saveHistory(h)
         setHistory([...h])
       }
+    }
   }
 
   function startSessionFromHistory(rec: SessionRecord) {
