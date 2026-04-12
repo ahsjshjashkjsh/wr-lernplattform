@@ -322,43 +322,6 @@ export default function BuchungstrainerPage() {
   return (
     <div className="space-y-6 fade-in">
 
-      {/* ── Session-Restore Modal ─────────────────────────────── */}
-      {resumeModal && (
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4"
-          style={{ background: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(6px)' }}>
-          <div className="w-full max-w-sm rounded-2xl overflow-hidden text-center"
-            style={{ background: '#0f172a', border: '1px solid rgba(255,255,255,0.1)', boxShadow: '0 25px 80px rgba(0,0,0,0.6)' }}>
-            <div style={{ height: 3, background: 'linear-gradient(90deg,var(--accent),#a855f7)' }} />
-            <div className="p-7">
-              <div className="w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-4"
-                style={{ background: 'rgba(99,102,241,0.15)', border: '1px solid rgba(99,102,241,0.3)' }}>
-                <RotateCcw size={24} style={{ color: 'var(--accent)' }} />
-              </div>
-              <h2 className="text-lg font-bold mb-1" style={{ color: 'var(--text-primary)' }}>Weiter wo du aufgehört hast?</h2>
-              <p className="text-sm mb-1" style={{ color: 'var(--text-muted)' }}>
-                Karte {resumeModal.cardIndex + 1} von {resumeModal.totalCards}
-              </p>
-              <div className="flex justify-center gap-4 mt-1 mb-6 text-sm font-semibold">
-                <span className="flex items-center gap-1.5 text-green-400"><CheckCircle2 size={14} /> {resumeModal.score.ok} richtig</span>
-                <span className="flex items-center gap-1.5 text-red-400"><XCircle size={14} /> {resumeModal.score.fail} falsch</span>
-              </div>
-              <div className="flex flex-col gap-2.5">
-                <button onClick={() => handleResume(resumeModal)}
-                  className="w-full py-3 rounded-xl text-sm font-semibold text-white"
-                  style={{ background: 'var(--accent)' }}>
-                  Weitermachen
-                </button>
-                <button onClick={handleResumeDiscard}
-                  className="w-full py-3 rounded-xl text-sm font-medium"
-                  style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', color: 'var(--text-muted)' }}>
-                  Neu starten
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
       {/* Header */}
       <div className="pt-2">
         <p className="text-[11px] font-semibold uppercase tracking-[0.13em] mb-3"
@@ -411,6 +374,7 @@ export default function BuchungstrainerPage() {
                   const saved = loadSession()
                   if (saved && saved.totalCards === allCards.length && (saved.cardIndex > 0 || saved.score.ok + saved.score.fail > 0)) {
                     setResumeModal(saved)
+                    setView('practice')
                   } else {
                     doReset()
                     setView('practice')
@@ -577,6 +541,34 @@ export default function BuchungstrainerPage() {
       {/* ═══════════════════════ PRACTICE ═══════════════════════ */}
       {view === 'practice' && visibleOrder.length > 0 && currentCard && (
         <div className="max-w-lg mx-auto space-y-6">
+
+          {/* Session-Restore Panel */}
+          {resumeModal && (
+            <div className="rounded-2xl p-4" style={{ background: 'var(--card-bg)', border: '1px solid rgba(99,102,241,0.25)' }}>
+              <div className="flex items-center justify-between gap-3 flex-wrap">
+                <div>
+                  <p className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>Letzter Durchgang gespeichert</p>
+                  <div className="flex items-center gap-3 mt-1 text-xs" style={{ color: 'var(--text-muted)' }}>
+                    <span>Karte {resumeModal.cardIndex + 1} / {resumeModal.totalCards}</span>
+                    <span className="text-green-400 flex items-center gap-1"><CheckCircle2 size={11} /> {resumeModal.score.ok}</span>
+                    <span className="text-red-400 flex items-center gap-1"><XCircle size={11} /> {resumeModal.score.fail}</span>
+                  </div>
+                </div>
+                <div className="flex gap-2 shrink-0">
+                  <button onClick={() => handleResume(resumeModal)}
+                    className="px-3 py-1.5 rounded-lg text-xs font-semibold text-white"
+                    style={{ background: 'var(--accent)' }}>
+                    Weitermachen
+                  </button>
+                  <button onClick={handleResumeDiscard}
+                    className="px-3 py-1.5 rounded-lg text-xs font-medium"
+                    style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid var(--border-color)', color: 'var(--text-muted)' }}>
+                    Neu starten
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Score row */}
           <div className="flex items-center justify-between text-sm font-semibold">
