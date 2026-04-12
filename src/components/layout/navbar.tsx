@@ -2,7 +2,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { LayoutDashboard, TrendingUp, Bot, CheckCircle, Sun, Moon, LogIn, LogOut, User, Shield, MessageSquarePlus, Menu, X, Calculator, Scale, Crown, Landmark, BookMarked } from 'lucide-react'
+import { LayoutDashboard, TrendingUp, Bot, CheckCircle, Sun, Moon, LogIn, LogOut, User, Shield, MessageSquarePlus, Menu, X, Calculator, Scale, Crown, Landmark, BookMarked, ClipboardList } from 'lucide-react'
 import { useTheme } from '@/components/ThemeProvider'
 import { useAuth } from '@/components/AuthProvider'
 
@@ -13,6 +13,7 @@ const nav = [
   { href: '/frw',              label: 'FRW',             icon: Calculator },
   { href: '/buchungstrainer', label: 'Buchungstrainer', icon: BookMarked },
   { href: '/wr',              label: 'WR',              icon: Scale },
+  { href: '/probeprufung',   label: 'Probeprüfung',   icon: ClipboardList },
   ...(new Date() < GESCHICHTE_EXPIRY ? [{ href: '/geschichte', label: 'Geschichte', icon: Landmark }] : []),
   { href: '/progress',   label: 'Fortschritt', icon: CheckCircle },
   { href: '/assistant',  label: 'Assistent',   icon: Bot },
