@@ -5,11 +5,11 @@ import bcrypt from 'bcryptjs'
 export async function POST(request: Request) {
   try {
     const body = await request.json() as { email?: string; password?: string }
-    const email = body.email?.trim().toLowerCase() ?? ''
+    const identifier = body.email?.trim() ?? ''
     const password = body.password ?? ''
 
-    if (!email || !password) {
-      return Response.json({ error: 'E-Mail und Passwort sind erforderlich.' }, { status: 400 })
+    if (!identifier || !password) {
+      return Response.json({ error: 'E-Mail / Nutzername und Passwort sind erforderlich.' }, { status: 400 })
     }
 
     const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim()
@@ -22,14 +22,19 @@ export async function POST(request: Request) {
       return Response.json({ error: 'BANNED' }, { status: 403 })
     }
 
-    const user = await prisma.user.findUnique({ where: { email } })
+    // Supports login by email OR username
+    const isEmail = identifier.includes('@')
+    const user = isEmail
+      ? await prisma.user.findUnique({ where: { email: identifier.toLowerCase() } })
+      : await prisma.user.findFirst({ where: { name: { equals: identifier, mode: 'insensitive' } } })
+
     if (!user) {
-      return Response.json({ error: 'Ungültige E-Mail oder Passwort.' }, { status: 401 })
+      return Response.json({ error: 'Ungültiger Nutzername / E-Mail oder Passwort.' }, { status: 401 })
     }
 
     const valid = await bcrypt.compare(password, user.passwordHash)
     if (!valid) {
-      return Response.json({ error: 'Ungültige E-Mail oder Passwort.' }, { status: 401 })
+      return Response.json({ error: 'Ungültiger Nutzername / E-Mail oder Passwort.' }, { status: 401 })
     }
 
     if (user.isBanned) {

@@ -72,21 +72,21 @@ function LoginForm() {
 
       <form onSubmit={handleSubmit} className="space-y-4">
 
-        {/* Email */}
+        {/* Email / Username */}
         <div>
           <label className="text-xs font-medium text-slate-400 block mb-1.5">
-            E-Mail-Adresse
+            E-Mail oder Nutzername
           </label>
           <input
-            type="email"
+            type="text"
             value={email}
             onChange={e => setEmail(e.target.value)}
             className="w-full px-3 py-2.5 rounded-xl text-sm outline-none transition-all"
             style={inputStyle}
-            placeholder="anna@beispiel.ch"
+            placeholder="anna@beispiel.ch oder anna"
             required
             autoFocus
-            autoComplete="email"
+            autoComplete="username"
           />
         </div>
 
