@@ -5,11 +5,13 @@ import { CARDS as STATIC_CARDS } from '@/data/buchungstrainer-cards'
 import {
   Star, List, LayoutGrid, ChevronLeft, ChevronRight,
   Shuffle, RotateCcw, Eye, EyeOff, PenLine,
-  CheckCircle2, XCircle, Lightbulb, Trophy,
+  CheckCircle2, XCircle, Lightbulb, Trophy, History, PlayCircle, AlertCircle,
 } from 'lucide-react'
 
-const LS_KEY         = 'buchungstrainer-stars'
-const LS_SESSION_KEY = 'buchungstrainer-session'
+const LS_KEY          = 'buchungstrainer-stars'
+const LS_SESSION_KEY  = 'buchungstrainer-session'
+const LS_HISTORY_KEY  = 'buchungstrainer-history'
+const MAX_HISTORY     = 15
 
 type SavedSession = {
   cardIndex: number
@@ -20,6 +22,20 @@ type SavedSession = {
   totalCards: number
 }
 
+type SessionRecord = {
+  id: string
+  startedAt: number
+  completedAt?: number
+  totalCards: number
+  cardsDone: number
+  score: { ok: number; fail: number }
+  wrongIndices: number[]   // indices into allCards
+  order: number[]
+  filter: Filter
+  shuffled: boolean
+  isComplete: boolean
+}
+
 function saveSession(s: SavedSession) {
   try { localStorage.setItem(LS_SESSION_KEY, JSON.stringify(s)) } catch {}
 }
@@ -28,6 +44,18 @@ function loadSession(): SavedSession | null {
 }
 function clearSession() {
   try { localStorage.removeItem(LS_SESSION_KEY) } catch {}
+}
+function loadHistory(): SessionRecord[] {
+  try { return JSON.parse(localStorage.getItem(LS_HISTORY_KEY) ?? '[]') } catch { return [] }
+}
+function saveHistory(h: SessionRecord[]) {
+  try { localStorage.setItem(LS_HISTORY_KEY, JSON.stringify(h.slice(0, MAX_HISTORY))) } catch {}
+}
+function upsertHistory(rec: SessionRecord) {
+  const h = loadHistory()
+  const idx = h.findIndex(r => r.id === rec.id)
+  if (idx >= 0) h[idx] = rec; else h.unshift(rec)
+  saveHistory(h)
 }
 
 // Custom cards from DB use negative IDs (-(id)) to avoid collision with static IDs
@@ -66,7 +94,7 @@ function buildHint(answer: string) {
   return answer.split('/').map(p => p.trim().charAt(0).toUpperCase() + '…').join(' / ')
 }
 
-type View   = 'list' | 'cards' | 'practice'
+type View   = 'list' | 'cards' | 'practice' | 'sessions'
 type Filter = 'all'  | 'starred'
 type Phase  = 'input' | 'correct' | 'wrong' | 'overridden'
 
@@ -91,6 +119,8 @@ export default function BuchungstrainerPage() {
   const [wrongCards,  setWrongCards]  = useState<number[]>([]) // indices into allCards
 
   const [resumeModal,  setResumeModal]  = useState<SavedSession | null>(null)
+  const [history,      setHistory]      = useState<SessionRecord[]>([])
+  const currentSessionId = useRef<string | null>(null)
 
   const inputRef        = useRef<HTMLInputElement>(null)
   const justSubmitted   = useRef(false)
@@ -98,6 +128,7 @@ export default function BuchungstrainerPage() {
   // ── load stars + DB data ───────────────────────────────────────
   useEffect(() => {
     setStars(loadStars())
+    setHistory(loadHistory())
     Promise.all([
       fetch('/api/buchungstrainer/aliases').then(r => r.ok ? r.json() : { aliases: [] }),
       fetch('/api/buchungstrainer/custom-cards').then(r => r.ok ? r.json() : { cards: [] }),
@@ -180,6 +211,7 @@ export default function BuchungstrainerPage() {
 
   const doReset = useCallback(() => {
     clearSession()
+    currentSessionId.current = Date.now().toString()
     setOrder(allCards.map((_, i) => i))
     setCardIndex(0)
     setFlipped(false)
@@ -242,12 +274,41 @@ export default function BuchungstrainerPage() {
   // ── reset practice on filter change ───────────────────────────
   useEffect(() => { resetPractice() }, [filter, resetPractice])
 
+  // ── Session abschliessen wenn fertig ──────────────────────────
+  const sessionMarked = useRef(false)
+  useEffect(() => {
+    if (view === 'practice' && isLast && phase !== 'input' && totalAnswered > 0) {
+      if (!sessionMarked.current) {
+        sessionMarked.current = true
+        markSessionComplete()
+      }
+    } else {
+      sessionMarked.current = false
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [view, isLast, phase, totalAnswered])
+
   // ── Session speichern (Practice-Modus) ────────────────────────
   useEffect(() => {
     if (view !== 'practice') return
     if (cardIndex === 0 && score.ok === 0 && score.fail === 0) return
     saveSession({ cardIndex, score, order, filter, shuffled, totalCards: allCards.length })
-  }, [cardIndex, score, order, filter, shuffled, view, allCards.length])
+    if (!currentSessionId.current) return
+    const rec: SessionRecord = {
+      id: currentSessionId.current,
+      startedAt: parseInt(currentSessionId.current),
+      totalCards: allCards.length,
+      cardsDone: cardIndex + 1,
+      score,
+      wrongIndices: wrongCards,
+      order,
+      filter,
+      shuffled,
+      isComplete: false,
+    }
+    upsertHistory(rec)
+    setHistory(loadHistory())
+  }, [cardIndex, score, order, filter, shuffled, view, allCards.length, wrongCards])
 
   // ── practice: submit ───────────────────────────────────────────
   function handleSubmit() {
@@ -300,6 +361,10 @@ export default function BuchungstrainerPage() {
 
   // ──────────────────────────────────────────────────────────────
   function handleResume(s: SavedSession) {
+    // Versuche die Session-ID aus der History zu finden
+    const h = loadHistory()
+    const existing = h.find(r => !r.isComplete && r.cardsDone === s.cardIndex + 1)
+    currentSessionId.current = existing?.id ?? Date.now().toString()
     setOrder(s.order)
     setCardIndex(s.cardIndex)
     setFilter(s.filter)
@@ -317,6 +382,46 @@ export default function BuchungstrainerPage() {
     doReset()
     setView('practice')
     setResumeModal(null)
+  }
+
+  function markSessionComplete() {
+    if (!currentSessionId.current) return
+    const h = loadHistory()
+    const idx = h.findIndex(r => r.id === currentSessionId.current)
+    if (idx >= 0) {
+      h[idx] = { ...h[idx], isComplete: true, completedAt: Date.now(), wrongIndices: wrongCards }
+      saveHistory(h)
+      setHistory([...h])
+    }
+    clearSession()
+  }
+
+  function startSessionFromHistory(rec: SessionRecord) {
+    currentSessionId.current = Date.now().toString()
+    setOrder(rec.order)
+    setCardIndex(rec.cardsDone - 1)
+    setFilter(rec.filter)
+    setShuffled(rec.shuffled)
+    setScore(rec.score)
+    setWrongCards(rec.wrongIndices)
+    setView('practice')
+    setPhase('input')
+    setInputValue('')
+    setHint(false)
+  }
+
+  function repeatWrongFromHistory(rec: SessionRecord) {
+    clearSession()
+    currentSessionId.current = Date.now().toString()
+    setOrder(shuffleArr(rec.wrongIndices))
+    setWrongCards([])
+    setCardIndex(0)
+    setScore({ ok: 0, fail: 0 })
+    setPhase('input')
+    setInputValue('')
+    setHint(false)
+    setFlipped(false)
+    setView('practice')
   }
 
   return (
@@ -367,6 +472,7 @@ export default function BuchungstrainerPage() {
             { id: 'list',     label: 'Liste',     Icon: List       },
             { id: 'cards',    label: 'Karten',    Icon: LayoutGrid },
             { id: 'practice', label: 'Practice',  Icon: PenLine    },
+            { id: 'sessions', label: 'Sessions',  Icon: History    },
           ] as const).map(({ id, label, Icon }) => (
             <button key={id}
               onClick={() => {
@@ -379,6 +485,9 @@ export default function BuchungstrainerPage() {
                     doReset()
                     setView('practice')
                   }
+                } else if (id === 'sessions') {
+                  setHistory(loadHistory())
+                  setView('sessions')
                 } else {
                   setView(id)
                 }
@@ -739,6 +848,83 @@ export default function BuchungstrainerPage() {
               <RotateCcw size={14} /> Nochmal (alle)
             </button>
           </div>
+        </div>
+      )}
+
+      {/* ═══════════════════════ SESSIONS ══════════════════════ */}
+      {view === 'sessions' && (
+        <div className="space-y-3">
+          {history.length === 0 ? (
+            <div className="rounded-2xl p-10 text-center" style={{ background: 'var(--card-bg)', border: '1px solid var(--border-color)' }}>
+              <History size={28} className="mx-auto mb-3" style={{ color: 'var(--text-muted)' }} />
+              <p className="text-sm font-semibold mb-1" style={{ color: 'var(--text-primary)' }}>Noch keine Sessions</p>
+              <p className="text-xs" style={{ color: 'var(--text-muted)' }}>Starte einen Practice-Durchgang um deine Sessions hier zu sehen.</p>
+            </div>
+          ) : history.map(rec => {
+            const pct = rec.totalCards > 0 ? Math.round((rec.cardsDone / rec.totalCards) * 100) : 0
+            const scorePct = (rec.score.ok + rec.score.fail) > 0 ? Math.round((rec.score.ok / (rec.score.ok + rec.score.fail)) * 100) : 0
+            const date = new Date(rec.startedAt)
+            const dateStr = date.toLocaleDateString('de-CH', { day: '2-digit', month: '2-digit', year: '2-digit' })
+            const timeStr = date.toLocaleTimeString('de-CH', { hour: '2-digit', minute: '2-digit' })
+            return (
+              <div key={rec.id} className="rounded-2xl p-4" style={{ background: 'var(--card-bg)', border: `1px solid ${rec.isComplete ? 'var(--border-color)' : 'rgba(99,102,241,0.3)'}` }}>
+                <div className="flex items-start justify-between gap-3 flex-wrap">
+                  <div className="flex-1 min-w-0">
+                    {/* Status badge */}
+                    <div className="flex items-center gap-2 mb-2">
+                      {rec.isComplete ? (
+                        <span className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded-full"
+                          style={{ background: rec.wrongIndices.length === 0 ? 'rgba(34,197,94,0.15)' : 'rgba(245,158,11,0.12)', color: rec.wrongIndices.length === 0 ? '#4ade80' : '#fbbf24' }}>
+                          {rec.wrongIndices.length === 0 ? <><CheckCircle2 size={10} /> 100%</> : <><AlertCircle size={10} /> {rec.wrongIndices.length} falsch</>}
+                        </span>
+                      ) : (
+                        <span className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded-full"
+                          style={{ background: 'rgba(99,102,241,0.15)', color: '#818cf8' }}>
+                          <PlayCircle size={10} /> Nicht fertig
+                        </span>
+                      )}
+                      <span className="text-[10px]" style={{ color: 'var(--text-muted)' }}>{dateStr} · {timeStr}</span>
+                    </div>
+
+                    {/* Progress */}
+                    <div className="flex items-center gap-2 mb-2">
+                      <div className="flex-1 h-1.5 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.07)' }}>
+                        <div className="h-full rounded-full transition-all" style={{ width: `${pct}%`, background: rec.isComplete ? '#4ade80' : 'var(--accent)' }} />
+                      </div>
+                      <span className="text-xs shrink-0 font-medium" style={{ color: 'var(--text-muted)' }}>{rec.cardsDone}/{rec.totalCards} Karten</span>
+                    </div>
+
+                    {/* Score */}
+                    <div className="flex items-center gap-3 text-xs">
+                      <span className="flex items-center gap-1 text-green-400"><CheckCircle2 size={11} /> {rec.score.ok} richtig</span>
+                      <span className="flex items-center gap-1 text-red-400"><XCircle size={11} /> {rec.score.fail} falsch</span>
+                      {(rec.score.ok + rec.score.fail) > 0 && (
+                        <span className="font-bold" style={{ color: scorePct >= 80 ? '#4ade80' : scorePct >= 50 ? '#fbbf24' : '#f87171' }}>{scorePct}%</span>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Actions */}
+                  <div className="flex flex-col gap-1.5 shrink-0">
+                    {!rec.isComplete && (
+                      <button onClick={() => startSessionFromHistory(rec)}
+                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-white"
+                        style={{ background: 'var(--accent)' }}>
+                        <PlayCircle size={12} /> Weitermachen
+                      </button>
+                    )}
+                    {rec.wrongIndices.length > 0 && (
+                      <button onClick={() => repeatWrongFromHistory(rec)}
+                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold"
+                        style={{ background: 'rgba(239,68,68,0.12)', border: '1px solid rgba(239,68,68,0.25)', color: '#f87171' }}>
+                        <XCircle size={12} /> {rec.wrongIndices.length} Falsche üben
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )
+          })}
         </div>
       )}
 
