@@ -5,7 +5,7 @@ import { CARDS as STATIC_CARDS } from '@/data/buchungstrainer-cards'
 import {
   Star, List, LayoutGrid, ChevronLeft, ChevronRight,
   Shuffle, RotateCcw, Eye, EyeOff, PenLine,
-  CheckCircle2, XCircle, Lightbulb, Trophy, History, PlayCircle, AlertCircle,
+  CheckCircle2, XCircle, Lightbulb, Trophy, History, PlayCircle, AlertCircle, Trash2,
 } from 'lucide-react'
 
 const LS_KEY          = 'buchungstrainer-stars'
@@ -420,6 +420,17 @@ export default function BuchungstrainerPage() {
     setHint(false)
     setFlipped(false)
     setView('practice')
+  }
+
+  function deleteSession(id: string) {
+    const h = loadHistory().filter(r => r.id !== id)
+    saveHistory(h)
+    setHistory(h)
+  }
+
+  function clearAllHistory() {
+    saveHistory([])
+    setHistory([])
   }
 
   return (
@@ -852,6 +863,15 @@ export default function BuchungstrainerPage() {
       {/* ═══════════════════════ SESSIONS ══════════════════════ */}
       {view === 'sessions' && (
         <div className="space-y-3">
+          {history.length > 0 && (
+            <div className="flex justify-end">
+              <button onClick={clearAllHistory}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium"
+                style={{ background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)', color: '#f87171' }}>
+                <Trash2 size={12} /> Alle löschen
+              </button>
+            </div>
+          )}
           {history.length === 0 ? (
             <div className="rounded-2xl p-10 text-center" style={{ background: 'var(--card-bg)', border: '1px solid var(--border-color)' }}>
               <History size={28} className="mx-auto mb-3" style={{ color: 'var(--text-muted)' }} />
@@ -918,6 +938,11 @@ export default function BuchungstrainerPage() {
                         <XCircle size={12} /> {rec.wrongIndices.length} Falsche üben
                       </button>
                     )}
+                    <button onClick={() => deleteSession(rec.id)}
+                      className="flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium"
+                      style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid var(--border-color)', color: 'var(--text-muted)' }}>
+                      <Trash2 size={12} /> Löschen
+                    </button>
                   </div>
                 </div>
               </div>
