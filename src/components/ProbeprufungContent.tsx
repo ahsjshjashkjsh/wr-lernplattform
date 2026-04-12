@@ -66,7 +66,7 @@ export default function ProbeprufungContent() {
   const totalRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
   const allQuestions = EXAM_SECTIONS.flatMap(s => s.questions)
-  const countableQuestions = allQuestions.filter(q => q.points > 0)
+  const countableQuestions = allQuestions.filter(q => !q.isIntroText)
   const totalPoints = EXAM_SECTIONS.reduce((a, s) => a + s.totalPoints, 0)
   const revealedCount = [...revealed].filter(id => countableQuestions.some(q => q.id === id)).length
 
@@ -193,8 +193,8 @@ export default function ProbeprufungContent() {
         {/* Abschnitts-Dots */}
         <div className="flex justify-between px-0.5">
           {EXAM_SECTIONS.map(s => {
-            const sRevealed = s.questions.filter(q => revealed.has(q.id) && q.points > 0).length
-            const sTotal = s.questions.filter(q => q.points > 0).length
+            const sRevealed = s.questions.filter(q => revealed.has(q.id) && !q.isIntroText).length
+            const sTotal = s.questions.filter(q => !q.isIntroText).length
             const done = sRevealed === sTotal
             return (
               <div key={s.id} className="flex items-center gap-1">
@@ -209,8 +209,8 @@ export default function ProbeprufungContent() {
       {/* ── Aufgaben ── */}
       {EXAM_SECTIONS.map((section) => {
         const isCollapsed = collapsed.has(section.id)
-        const sRevealedCount = section.questions.filter(q => revealed.has(q.id) && q.points > 0).length
-        const sTotal = section.questions.filter(q => q.points > 0).length
+        const sRevealedCount = section.questions.filter(q => revealed.has(q.id) && !q.isIntroText).length
+        const sTotal = section.questions.filter(q => !q.isIntroText).length
         const sTimerActive = activeTimer === section.id
 
         return (
@@ -304,7 +304,7 @@ export default function ProbeprufungContent() {
                 {/* Fragen */}
                 {section.questions.map((q) => {
                   const isRevealed = revealed.has(q.id)
-                  const isIntro = q.points === 0
+                  const isIntro = q.isIntroText === true
                   if (isIntro) {
                     return (
                       <div key={q.id} className="px-4 py-3 rounded-xl text-sm leading-relaxed whitespace-pre-line"
