@@ -14,6 +14,7 @@ const LS_HISTORY_KEY  = 'buchungstrainer-history'
 const MAX_HISTORY     = 15
 
 type SavedSession = {
+  sessionId: string
   cardIndex: number
   score: { ok: number; fail: number }
   order: number[]
@@ -292,7 +293,7 @@ export default function BuchungstrainerPage() {
   useEffect(() => {
     if (view !== 'practice') return
     if (cardIndex === 0 && score.ok === 0 && score.fail === 0) return
-    saveSession({ cardIndex, score, order, filter, shuffled, totalCards: allCards.length })
+    saveSession({ sessionId: currentSessionId.current ?? Date.now().toString(), cardIndex, score, order, filter, shuffled, totalCards: allCards.length })
     if (!currentSessionId.current) return
     const rec: SessionRecord = {
       id: currentSessionId.current,
@@ -361,10 +362,7 @@ export default function BuchungstrainerPage() {
 
   // ──────────────────────────────────────────────────────────────
   function handleResume(s: SavedSession) {
-    // Versuche die Session-ID aus der History zu finden
-    const h = loadHistory()
-    const existing = h.find(r => !r.isComplete && r.cardsDone === s.cardIndex + 1)
-    currentSessionId.current = existing?.id ?? Date.now().toString()
+    currentSessionId.current = s.sessionId
     setOrder(s.order)
     setCardIndex(s.cardIndex)
     setFilter(s.filter)
@@ -397,7 +395,7 @@ export default function BuchungstrainerPage() {
   }
 
   function startSessionFromHistory(rec: SessionRecord) {
-    currentSessionId.current = Date.now().toString()
+    currentSessionId.current = rec.id
     setOrder(rec.order)
     setCardIndex(rec.cardsDone - 1)
     setFilter(rec.filter)
