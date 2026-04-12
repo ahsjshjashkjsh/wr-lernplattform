@@ -1,33 +1,78 @@
 'use client'
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { LayoutDashboard, TrendingUp, Bot, CheckCircle, Sun, Moon, LogIn, LogOut, User, Shield, MessageSquarePlus, Menu, X, Calculator, Scale, Crown, Landmark, BookMarked, ClipboardList } from 'lucide-react'
+import {
+  LayoutDashboard, TrendingUp, Bot, CheckCircle, Sun, Moon,
+  LogIn, LogOut, User, Shield, MessageSquarePlus, Menu, X,
+  Calculator, Scale, Crown, Landmark, BookMarked, ClipboardList,
+  ChevronDown,
+} from 'lucide-react'
 import { useTheme } from '@/components/ThemeProvider'
 import { useAuth } from '@/components/AuthProvider'
 
 const GESCHICHTE_EXPIRY = new Date('2026-04-11T00:00:00')
 
-const nav = [
-  { href: '/',           label: 'Dashboard',   icon: LayoutDashboard },
-  { href: '/frw',              label: 'FRW',             icon: Calculator },
-  { href: '/buchungstrainer', label: 'Buchungstrainer', icon: BookMarked },
-  { href: '/wr',              label: 'WR',              icon: Scale },
-  { href: '/probeprufung',   label: 'Probeprüfung',   icon: ClipboardList },
+// Flat nav items (no dropdowns)
+const NAV_SINGLE = [
+  { href: '/',          label: 'Dashboard',   icon: LayoutDashboard },
   ...(new Date() < GESCHICHTE_EXPIRY ? [{ href: '/geschichte', label: 'Geschichte', icon: Landmark }] : []),
-  { href: '/progress',   label: 'Fortschritt', icon: CheckCircle },
-  { href: '/assistant',  label: 'Assistent',   icon: Bot },
-  { href: '/feedback',   label: 'Feedback',    icon: MessageSquarePlus },
+  { href: '/progress',  label: 'Fortschritt', icon: CheckCircle },
+  { href: '/assistant', label: 'Assistent',   icon: Bot },
+  { href: '/feedback',  label: 'Feedback',    icon: MessageSquarePlus },
 ]
+
+// Dropdown groups
+const NAV_GROUPS = [
+  {
+    id: 'wr',
+    label: 'WR',
+    icon: Scale,
+    items: [
+      { href: '/wr',           label: 'WR Themen',    icon: Scale },
+      { href: '/probeprufung', label: 'Probeprüfung', icon: ClipboardList },
+    ],
+  },
+  {
+    id: 'frw',
+    label: 'FRW',
+    icon: Calculator,
+    items: [
+      { href: '/frw',              label: 'FRW Themen',     icon: Calculator },
+      { href: '/buchungstrainer',  label: 'Buchungstrainer', icon: BookMarked },
+    ],
+  },
+]
+
+// All hrefs that belong to a group (for mobile menu)
+const ALL_GROUP_HREFS = NAV_GROUPS.flatMap(g => g.items.map(i => i.href))
+
+function useDropdown() {
+  const [open, setOpen] = useState<string | null>(null)
+  const ref = useRef<HTMLDivElement>(null)
+  useEffect(() => {
+    function handler(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(null)
+    }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [])
+  return { open, setOpen, ref }
+}
 
 export function Navbar() {
   const pathname = usePathname()
   const { theme, toggle } = useTheme()
   const { user, loading, logout } = useAuth()
   const [menuOpen, setMenuOpen] = useState(false)
+  const { open: dropOpen, setOpen: setDropOpen, ref: dropRef } = useDropdown()
 
   function isActive(href: string) {
     return pathname === href || (href !== '/' && pathname.startsWith(href))
+  }
+
+  function isGroupActive(group: typeof NAV_GROUPS[0]) {
+    return group.items.some(i => isActive(i.href))
   }
 
   return (
@@ -46,10 +91,8 @@ export function Navbar() {
 
             {/* Logo */}
             <Link href="/" className="flex items-center gap-3 group" onClick={() => setMenuOpen(false)}>
-              <div
-                className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
-                style={{ background: 'var(--accent)' }}
-              >
+              <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
+                style={{ background: 'var(--accent)' }}>
                 <TrendingUp size={16} className="text-white" />
               </div>
               <div className="leading-none">
@@ -63,22 +106,71 @@ export function Navbar() {
             </Link>
 
             {/* Desktop Nav */}
-            <div className="hidden md:flex items-center gap-1">
-              {nav.map(({ href, label, icon: Icon }) => {
+            <div className="hidden md:flex items-center gap-1" ref={dropRef}>
+
+              {/* Dashboard */}
+              {(() => {
+                const { href, label, icon: Icon } = NAV_SINGLE[0]
                 const active = isActive(href)
                 return (
-                  <Link
-                    key={href}
-                    href={href}
-                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-150 border ${
-                      active
-                        ? 'border-transparent'
-                        : 'border-transparent hover:bg-white/[0.06]'
-                    }`}
-                    style={active ? { color: 'var(--accent)', background: 'var(--accent-bg)', borderColor: 'var(--accent-border)' } : { color: 'var(--text-muted)' }}
-                  >
-                    <Icon size={13} />
-                    {label}
+                  <Link key={href} href={href}
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-150 border ${active ? 'border-transparent' : 'border-transparent hover:bg-white/[0.06]'}`}
+                    style={active ? { color: 'var(--accent)', background: 'var(--accent-bg)', borderColor: 'var(--accent-border)' } : { color: 'var(--text-muted)' }}>
+                    <Icon size={13} />{label}
+                  </Link>
+                )
+              })()}
+
+              {/* WR + FRW Dropdowns */}
+              {NAV_GROUPS.map(group => {
+                const groupActive = isGroupActive(group)
+                const isOpen = dropOpen === group.id
+                return (
+                  <div key={group.id} className="relative">
+                    <button
+                      onClick={() => setDropOpen(isOpen ? null : group.id)}
+                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-150 border ${groupActive ? 'border-transparent' : 'border-transparent hover:bg-white/[0.06]'}`}
+                      style={groupActive ? { color: 'var(--accent)', background: 'var(--accent-bg)', borderColor: 'var(--accent-border)' } : { color: 'var(--text-muted)' }}
+                    >
+                      <group.icon size={13} />
+                      {group.label}
+                      <ChevronDown size={11} className={`transition-transform duration-150 ${isOpen ? 'rotate-180' : ''}`} />
+                    </button>
+
+                    {isOpen && (
+                      <div
+                        className="absolute top-full left-0 mt-1.5 rounded-xl overflow-hidden shadow-lg z-50 min-w-[160px]"
+                        style={{ background: 'var(--card-bg)', border: '1px solid var(--border-color)' }}
+                      >
+                        {group.items.map(item => {
+                          const active = isActive(item.href)
+                          return (
+                            <Link
+                              key={item.href}
+                              href={item.href}
+                              onClick={() => setDropOpen(null)}
+                              className="flex items-center gap-2.5 px-4 py-2.5 text-xs font-medium transition-colors hover:bg-white/[0.05]"
+                              style={active ? { color: 'var(--accent)' } : { color: 'var(--text-secondary)' }}
+                            >
+                              <item.icon size={13} />
+                              {item.label}
+                            </Link>
+                          )
+                        })}
+                      </div>
+                    )}
+                  </div>
+                )
+              })}
+
+              {/* Other nav items */}
+              {NAV_SINGLE.slice(1).map(({ href, label, icon: Icon }) => {
+                const active = isActive(href)
+                return (
+                  <Link key={href} href={href}
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-150 border ${active ? 'border-transparent' : 'border-transparent hover:bg-white/[0.06]'}`}
+                    style={active ? { color: 'var(--accent)', background: 'var(--accent-bg)', borderColor: 'var(--accent-border)' } : { color: 'var(--text-muted)' }}>
+                    <Icon size={13} />{label}
                   </Link>
                 )
               })}
@@ -88,31 +180,17 @@ export function Navbar() {
                 user ? (
                   <div className="flex items-center gap-1 ml-1 pl-1 border-l border-white/10">
                     {user.isAdmin && (
-                      <Link
-                        href="/admin"
-                        className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all border ${
-                          pathname.startsWith('/admin')
-                            ? 'border-amber-500/20 bg-amber-500/10 text-amber-400'
-                            : 'border-transparent hover:bg-amber-500/10 hover:border-amber-500/20 hover:text-amber-400'
-                        }`}
-                        style={pathname.startsWith('/admin') ? {} : { color: 'var(--text-muted)' }}
-                      >
-                        <Shield size={13} />
-                        Admin
+                      <Link href="/admin"
+                        className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all border ${pathname.startsWith('/admin') ? 'border-amber-500/20 bg-amber-500/10 text-amber-400' : 'border-transparent hover:bg-amber-500/10 hover:border-amber-500/20 hover:text-amber-400'}`}
+                        style={pathname.startsWith('/admin') ? {} : { color: 'var(--text-muted)' }}>
+                        <Shield size={13} />Admin
                       </Link>
                     )}
                     {(user.isAdmin || user.buchungstrainerRole) && (
-                      <Link
-                        href="/buchungstrainer/editor"
-                        className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all border ${
-                          pathname === '/buchungstrainer/editor'
-                            ? 'border-indigo-500/20 bg-indigo-500/10 text-indigo-400'
-                            : 'border-transparent hover:bg-indigo-500/10 hover:border-indigo-500/20 hover:text-indigo-400'
-                        }`}
-                        style={pathname === '/buchungstrainer/editor' ? {} : { color: 'var(--text-muted)' }}
-                      >
-                        <BookMarked size={13} />
-                        Trainer
+                      <Link href="/buchungstrainer/editor"
+                        className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all border ${pathname === '/buchungstrainer/editor' ? 'border-indigo-500/20 bg-indigo-500/10 text-indigo-400' : 'border-transparent hover:bg-indigo-500/10 hover:border-indigo-500/20 hover:text-indigo-400'}`}
+                        style={pathname === '/buchungstrainer/editor' ? {} : { color: 'var(--text-muted)' }}>
+                        <BookMarked size={13} />Trainer
                       </Link>
                     )}
                     <div className="flex items-center gap-1.5 px-2 py-1.5 rounded-lg text-xs" style={{ color: 'var(--text-muted)' }}>
@@ -120,76 +198,52 @@ export function Navbar() {
                       <span className="font-medium text-slate-300">{user.name}</span>
                     </div>
                     {user.isPremium && user.premiumUntil && new Date(user.premiumUntil) > new Date() ? (
-                      <Link
-                        href="/premium"
+                      <Link href="/premium"
                         className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium border"
-                        style={{ background: 'rgba(245,158,11,0.1)', borderColor: 'rgba(245,158,11,0.25)', color: '#fbbf24' }}
-                      >
-                        <Crown size={12} />
-                        Premium
+                        style={{ background: 'rgba(245,158,11,0.1)', borderColor: 'rgba(245,158,11,0.25)', color: '#fbbf24' }}>
+                        <Crown size={12} />Premium
                       </Link>
                     ) : (
-                      <Link
-                        href="/premium"
+                      <Link href="/premium"
                         className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all border border-transparent hover:bg-amber-500/10 hover:border-amber-500/20 hover:text-amber-400"
-                        style={{ color: 'var(--text-muted)' }}
-                      >
-                        <Crown size={12} />
-                        Premium
+                        style={{ color: 'var(--text-muted)' }}>
+                        <Crown size={12} />Premium
                       </Link>
                     )}
-                    <button
-                      onClick={logout}
+                    <button onClick={logout}
                       className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all border border-transparent hover:bg-red-500/10 hover:border-red-500/20 hover:text-red-400"
-                      style={{ color: 'var(--text-muted)' }}
-                    >
-                      <LogOut size={13} />
-                      Abmelden
+                      style={{ color: 'var(--text-muted)' }}>
+                      <LogOut size={13} />Abmelden
                     </button>
                   </div>
                 ) : (
                   <div className="flex items-center gap-1 ml-1 pl-1 border-l border-white/10">
-                    <Link
-                      href="/login"
+                    <Link href="/login"
                       className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all border border-transparent hover:bg-blue-500/10 hover:border-blue-500/20 hover:text-blue-400"
-                      style={{ color: 'var(--text-muted)' }}
-                    >
-                      <LogIn size={13} />
-                      Anmelden
+                      style={{ color: 'var(--text-muted)' }}>
+                      <LogIn size={13} />Anmelden
                     </Link>
                   </div>
                 )
               )}
 
               {/* Theme toggle */}
-              <button
-                onClick={toggle}
+              <button onClick={toggle}
                 className="ml-1 w-8 h-8 flex items-center justify-center rounded-lg transition-all border glass glass-hover"
-                title={theme === 'dark' ? 'Helles Design' : 'Dunkles Design'}
-              >
-                {theme === 'dark'
-                  ? <Sun size={14} className="text-amber-400" />
-                  : <Moon size={14} className="text-indigo-500" />
-                }
+                title={theme === 'dark' ? 'Helles Design' : 'Dunkles Design'}>
+                {theme === 'dark' ? <Sun size={14} className="text-amber-400" /> : <Moon size={14} className="text-indigo-500" />}
               </button>
             </div>
 
             {/* Mobile: Theme + Hamburger */}
             <div className="flex md:hidden items-center gap-2">
-              <button
-                onClick={toggle}
-                className="w-8 h-8 flex items-center justify-center rounded-lg transition-all border glass"
-              >
-                {theme === 'dark'
-                  ? <Sun size={14} className="text-amber-400" />
-                  : <Moon size={14} className="text-indigo-500" />
-                }
+              <button onClick={toggle}
+                className="w-8 h-8 flex items-center justify-center rounded-lg transition-all border glass">
+                {theme === 'dark' ? <Sun size={14} className="text-amber-400" /> : <Moon size={14} className="text-indigo-500" />}
               </button>
-              <button
-                onClick={() => setMenuOpen(v => !v)}
+              <button onClick={() => setMenuOpen(v => !v)}
                 className="w-8 h-8 flex items-center justify-center rounded-lg transition-all border glass"
-                aria-label="Menü öffnen"
-              >
+                aria-label="Menü öffnen">
                 {menuOpen ? <X size={16} style={{ color: 'var(--text-primary)' }} /> : <Menu size={16} style={{ color: 'var(--text-muted)' }} />}
               </button>
             </div>
@@ -199,59 +253,86 @@ export function Navbar() {
 
       {/* Mobile Menu */}
       {menuOpen && (
-        <div
-          className="md:hidden fixed inset-0 z-40 flex flex-col"
-          style={{ top: '56px', background: 'var(--nav-bg)', backdropFilter: 'blur(20px)' }}
-        >
+        <div className="md:hidden fixed inset-0 z-40 flex flex-col"
+          style={{ top: '56px', background: 'var(--nav-bg)', backdropFilter: 'blur(20px)' }}>
           <div className="px-4 py-4 space-y-1 overflow-y-auto">
-            {nav.map(({ href, label, icon: Icon }) => {
+
+            {/* Dashboard */}
+            {(() => {
+              const { href, label, icon: Icon } = NAV_SINGLE[0]
               const active = isActive(href)
               return (
-                <Link
-                  key={href}
-                  href={href}
-                  onClick={() => setMenuOpen(false)}
-                  className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all border ${
-                    active
-                      ? 'border-transparent'
-                      : 'border-transparent'
-                  }`}
-                  style={active ? { color: 'var(--accent)', background: 'var(--accent-bg)' } : { color: 'var(--text-muted)' }}
-                >
-                  <Icon size={16} />
-                  {label}
+                <Link key={href} href={href} onClick={() => setMenuOpen(false)}
+                  className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all"
+                  style={active ? { color: 'var(--accent)', background: 'var(--accent-bg)' } : { color: 'var(--text-muted)' }}>
+                  <Icon size={16} />{label}
                 </Link>
               )
-            })}
+            })()}
+
+            {/* WR group */}
+            <div>
+              <p className="px-4 pt-3 pb-1 text-[10px] font-bold uppercase tracking-widest" style={{ color: 'var(--text-muted)' }}>
+                Wirtschaft &amp; Recht
+              </p>
+              {NAV_GROUPS.find(g => g.id === 'wr')!.items.map(item => {
+                const active = isActive(item.href)
+                return (
+                  <Link key={item.href} href={item.href} onClick={() => setMenuOpen(false)}
+                    className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all"
+                    style={active ? { color: 'var(--accent)', background: 'var(--accent-bg)' } : { color: 'var(--text-muted)' }}>
+                    <item.icon size={16} />{item.label}
+                  </Link>
+                )
+              })}
+            </div>
+
+            {/* FRW group */}
+            <div>
+              <p className="px-4 pt-3 pb-1 text-[10px] font-bold uppercase tracking-widest" style={{ color: 'var(--text-muted)' }}>
+                Finanz- &amp; Rechnungswesen
+              </p>
+              {NAV_GROUPS.find(g => g.id === 'frw')!.items.map(item => {
+                const active = isActive(item.href)
+                return (
+                  <Link key={item.href} href={item.href} onClick={() => setMenuOpen(false)}
+                    className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all"
+                    style={active ? { color: 'var(--accent)', background: 'var(--accent-bg)' } : { color: 'var(--text-muted)' }}>
+                    <item.icon size={16} />{item.label}
+                  </Link>
+                )
+              })}
+            </div>
+
+            {/* Other nav items */}
+            <div>
+              <p className="px-4 pt-3 pb-1 text-[10px] font-bold uppercase tracking-widest" style={{ color: 'var(--text-muted)' }}>
+                Mehr
+              </p>
+              {NAV_SINGLE.slice(1).map(({ href, label, icon: Icon }) => {
+                const active = isActive(href)
+                return (
+                  <Link key={href} href={href} onClick={() => setMenuOpen(false)}
+                    className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all"
+                    style={active ? { color: 'var(--accent)', background: 'var(--accent-bg)' } : { color: 'var(--text-muted)' }}>
+                    <Icon size={16} />{label}
+                  </Link>
+                )
+              })}
+            </div>
 
             {!loading && user?.isAdmin && (
-              <Link
-                href="/admin"
-                onClick={() => setMenuOpen(false)}
-                className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all border ${
-                  pathname.startsWith('/admin')
-                    ? 'text-amber-400 bg-amber-500/10 border-amber-500/20'
-                    : 'border-transparent'
-                }`}
-                style={pathname.startsWith('/admin') ? {} : { color: 'var(--text-muted)' }}
-              >
-                <Shield size={16} />
-                Admin Dashboard
+              <Link href="/admin" onClick={() => setMenuOpen(false)}
+                className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all border ${pathname.startsWith('/admin') ? 'text-amber-400 bg-amber-500/10 border-amber-500/20' : 'border-transparent'}`}
+                style={pathname.startsWith('/admin') ? {} : { color: 'var(--text-muted)' }}>
+                <Shield size={16} />Admin Dashboard
               </Link>
             )}
             {!loading && (user?.isAdmin || user?.buchungstrainerRole) && (
-              <Link
-                href="/buchungstrainer/editor"
-                onClick={() => setMenuOpen(false)}
-                className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all border ${
-                  pathname === '/buchungstrainer/editor'
-                    ? 'text-indigo-400 bg-indigo-500/10 border-indigo-500/20'
-                    : 'border-transparent'
-                }`}
-                style={pathname === '/buchungstrainer/editor' ? {} : { color: 'var(--text-muted)' }}
-              >
-                <BookMarked size={16} />
-                Buchungstrainer Editor
+              <Link href="/buchungstrainer/editor" onClick={() => setMenuOpen(false)}
+                className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all border ${pathname === '/buchungstrainer/editor' ? 'text-indigo-400 bg-indigo-500/10 border-indigo-500/20' : 'border-transparent'}`}
+                style={pathname === '/buchungstrainer/editor' ? {} : { color: 'var(--text-muted)' }}>
+                <BookMarked size={16} />Buchungstrainer Editor
               </Link>
             )}
 
@@ -264,44 +345,29 @@ export function Navbar() {
                       <span className="text-sm font-medium text-slate-300">{user.name}</span>
                     </div>
                     {user.isPremium && user.premiumUntil && new Date(user.premiumUntil) > new Date() ? (
-                      <Link
-                        href="/premium"
-                        onClick={() => setMenuOpen(false)}
+                      <Link href="/premium" onClick={() => setMenuOpen(false)}
                         className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium"
-                        style={{ background: 'rgba(245,158,11,0.1)', color: '#fbbf24' }}
-                      >
-                        <Crown size={16} />
-                        Premium aktiv
+                        style={{ background: 'rgba(245,158,11,0.1)', color: '#fbbf24' }}>
+                        <Crown size={16} />Premium aktiv
                       </Link>
                     ) : (
-                      <Link
-                        href="/premium"
-                        onClick={() => setMenuOpen(false)}
+                      <Link href="/premium" onClick={() => setMenuOpen(false)}
                         className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium"
-                        style={{ color: 'var(--text-muted)' }}
-                      >
-                        <Crown size={16} />
-                        Premium holen
+                        style={{ color: 'var(--text-muted)' }}>
+                        <Crown size={16} />Premium holen
                       </Link>
                     )}
-                    <button
-                      onClick={() => { logout(); setMenuOpen(false) }}
-                      className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all text-red-400"
-                      style={{ background: 'rgba(239,68,68,0.08)' }}
-                    >
-                      <LogOut size={16} />
-                      Abmelden
+                    <button onClick={() => { logout(); setMenuOpen(false) }}
+                      className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-red-400"
+                      style={{ background: 'rgba(239,68,68,0.08)' }}>
+                      <LogOut size={16} />Abmelden
                     </button>
                   </div>
                 ) : (
-                  <Link
-                    href="/login"
-                    onClick={() => setMenuOpen(false)}
+                  <Link href="/login" onClick={() => setMenuOpen(false)}
                     className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-blue-400"
-                    style={{ background: 'rgba(59,130,246,0.08)' }}
-                  >
-                    <LogIn size={16} />
-                    Anmelden
+                    style={{ background: 'rgba(59,130,246,0.08)' }}>
+                    <LogIn size={16} />Anmelden
                   </Link>
                 )
               )}
