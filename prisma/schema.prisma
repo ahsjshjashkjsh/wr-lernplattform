@@ -28,6 +28,7 @@ model User {
   isAyri                 Boolean           @default(false)
   isCreator              Boolean           @default(false)
   progress               ChapterProgress[]
+  buchungstrainerSessions BuchungstrainerSession[]
   quizAttempts      QuizAttempt[]
   feedback          Feedback[]
   activityLogs      ActivityLog[]
@@ -298,6 +299,27 @@ model AccountingEntry {
 // ─── Buchungstrainer ──────────────────────────────────────────────────────────
 
 // Korrekturen/Overrides für statische Karten (aus buchungstrainer-cards.ts)
+model BuchungstrainerSession {
+  id          String    @id @default(cuid())
+  userId      String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  startedAt   DateTime
+  completedAt DateTime?
+  totalCards  Int
+  cardsDone   Int
+  scoreOk     Int       @default(0)
+  scoreFail   Int       @default(0)
+  wrongIndices Json     @default("[]")
+  cardOrder   Json      @default("[]")
+  filter      String    @default("all")
+  shuffled    Boolean   @default(false)
+  isComplete  Boolean   @default(false)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([userId])
+}
+
 model BuchungstrainerCardOverride {
   id        Int      @id @default(autoincrement())
   staticId  Int      @unique  // ID der statischen Karte (1–270)

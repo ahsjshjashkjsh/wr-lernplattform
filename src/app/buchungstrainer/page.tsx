@@ -121,6 +121,7 @@ export default function BuchungstrainerPage() {
 
   const [resumeModal,  setResumeModal]  = useState<SavedSession | null>(null)
   const [history,      setHistory]      = useState<SessionRecord[]>([])
+  const [userId,       setUserId]       = useState<string | null>(null)
   const currentSessionId = useRef<string | null>(null)
 
   const inputRef        = useRef<HTMLInputElement>(null)
@@ -129,7 +130,17 @@ export default function BuchungstrainerPage() {
   // ── load stars + DB data ───────────────────────────────────────
   useEffect(() => {
     setStars(loadStars())
-    setHistory(loadHistory())
+    // Lade userId — wenn eingeloggt → History aus DB, sonst localStorage
+    fetch('/api/auth/me').then(r => r.json()).then(d => {
+      if (d.user?.id) {
+        setUserId(d.user.id)
+        fetch('/api/buchungstrainer/sessions').then(r => r.json()).then(sd => {
+          setHistory(sd.sessions ?? [])
+        }).catch(() => setHistory(loadHistory()))
+      } else {
+        setHistory(loadHistory())
+      }
+    }).catch(() => setHistory(loadHistory()))
     Promise.all([
       fetch('/api/buchungstrainer/aliases').then(r => r.ok ? r.json() : { aliases: [] }),
       fetch('/api/buchungstrainer/custom-cards').then(r => r.ok ? r.json() : { cards: [] }),
@@ -293,11 +304,12 @@ export default function BuchungstrainerPage() {
   useEffect(() => {
     if (view !== 'practice') return
     if (cardIndex === 0 && score.ok === 0 && score.fail === 0) return
-    saveSession({ sessionId: currentSessionId.current ?? Date.now().toString(), cardIndex, score, order, filter, shuffled, totalCards: allCards.length })
-    if (!currentSessionId.current) return
+    const sid = currentSessionId.current
+    if (!sid) return
+    saveSession({ sessionId: sid, cardIndex, score, order, filter, shuffled, totalCards: allCards.length })
     const rec: SessionRecord = {
-      id: currentSessionId.current,
-      startedAt: parseInt(currentSessionId.current),
+      id: sid,
+      startedAt: parseInt(sid),
       totalCards: allCards.length,
       cardsDone: cardIndex + 1,
       score,
@@ -307,9 +319,17 @@ export default function BuchungstrainerPage() {
       shuffled,
       isComplete: false,
     }
-    upsertHistory(rec)
-    setHistory(loadHistory())
-  }, [cardIndex, score, order, filter, shuffled, view, allCards.length, wrongCards])
+    if (userId) {
+      fetch('/api/buchungstrainer/sessions', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(rec),
+      }).catch(() => {})
+    } else {
+      upsertHistory(rec)
+      setHistory(loadHistory())
+    }
+  }, [cardIndex, score, order, filter, shuffled, view, allCards.length, wrongCards, userId])
 
   // ── practice: submit ───────────────────────────────────────────
   function handleSubmit() {
@@ -384,12 +404,36 @@ export default function BuchungstrainerPage() {
 
   function markSessionComplete() {
     if (!currentSessionId.current) return
-    const h = loadHistory()
-    const idx = h.findIndex(r => r.id === currentSessionId.current)
-    if (idx >= 0) {
-      h[idx] = { ...h[idx], isComplete: true, completedAt: Date.now(), wrongIndices: wrongCards }
-      saveHistory(h)
-      setHistory([...h])
+    const sid = currentSessionId.current
+    const completedAt = Date.now()
+    if (userId) {
+      fetch('/api/buchungstrainer/sessions', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: sid,
+          startedAt: parseInt(sid),
+          completedAt,
+          totalCards: allCards.length,
+          cardsDone: visibleOrder.length,
+          score,
+          wrongIndices: wrongCards,
+          order,
+          filter,
+          shuffled,
+          isComplete: true,
+        }),
+      }).then(() => {
+        setHistory(prev => prev.map(r => r.id === sid ? { ...r, isComplete: true, completedAt, wrongIndices: wrongCards } : r))
+      }).catch(() => {})
+    } else {
+      const h = loadHistory()
+      const idx = h.findIndex(r => r.id === sid)
+      if (idx >= 0) {
+        h[idx] = { ...h[idx], isComplete: true, completedAt, wrongIndices: wrongCards }
+        saveHistory(h)
+        setHistory([...h])
+      }
     }
     clearSession()
   }
@@ -423,14 +467,26 @@ export default function BuchungstrainerPage() {
   }
 
   function deleteSession(id: string) {
-    const h = loadHistory().filter(r => r.id !== id)
-    saveHistory(h)
-    setHistory(h)
+    if (userId) {
+      fetch(`/api/buchungstrainer/sessions?id=${encodeURIComponent(id)}`, { method: 'DELETE' })
+        .then(() => setHistory(prev => prev.filter(r => r.id !== id)))
+        .catch(() => {})
+    } else {
+      const h = loadHistory().filter(r => r.id !== id)
+      saveHistory(h)
+      setHistory(h)
+    }
   }
 
   function clearAllHistory() {
-    saveHistory([])
-    setHistory([])
+    if (userId) {
+      fetch('/api/buchungstrainer/sessions?all=1', { method: 'DELETE' })
+        .then(() => setHistory([]))
+        .catch(() => {})
+    } else {
+      saveHistory([])
+      setHistory([])
+    }
   }
 
   return (
@@ -495,7 +551,11 @@ export default function BuchungstrainerPage() {
                     setView('practice')
                   }
                 } else if (id === 'sessions') {
-                  setHistory(loadHistory())
+                  if (userId) {
+                    fetch('/api/buchungstrainer/sessions').then(r => r.json()).then(d => setHistory(d.sessions ?? [])).catch(() => setHistory(loadHistory()))
+                  } else {
+                    setHistory(loadHistory())
+                  }
                   setView('sessions')
                 } else {
                   setView(id)
