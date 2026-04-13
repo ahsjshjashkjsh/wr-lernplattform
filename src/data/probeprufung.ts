@@ -38,7 +38,7 @@ export const EXAM_SECTIONS: ExamSection[] = [
         question:
           'Damit die ALPENLODGE wirksames Marketing betreiben kann, muss das Sporthotel den Markt segmentieren.\nWas ist eine Marktsegmentierung?',
         answer:
-          'Marktsegmentierung ist die Aufteilung eines Gesamtmarktes in kleinere, homogene Teilmärkte (Segmente). Diese Teilmärkte bestehen aus Kunden mit ähnlichen Bedürfnissen, Eigenschaften oder Kaufverhalten. Dadurch kann das Unternehmen seine Marketing­massnahmen gezielt auf die relevante Zielgruppe ausrichten.',
+          'Marktsegmentierung ist die Aufteilung des Gesamtmarktes in kleinere Teilgruppen (Segmente) mit ähnlichen Bedürfnissen oder Eigenschaften.\n\nZiel: Das Marketing gezielt auf die Zielgruppe ausrichten, um sie besser anzusprechen.',
       },
       {
         id: 'mkt-b-text',
@@ -57,7 +57,7 @@ export const EXAM_SECTIONS: ExamSection[] = [
         question:
           'Wie gross ist der Marktanteil der ALPENLODGE im Jahr 2021, wenn das Hotel 6\'500 Gäste zählt?',
         answer:
-          'Marktanteil = Absatz ALPENLODGE / Gesamtmarkt × 100\n\nMarktanteil = 6\'500 / 300\'000 × 100\n= 2.17 %\n\n→ Die ALPENLODGE hat einen Marktanteil von ca. 2.2 %.',
+          'Marktanteil = Absatz ALPENLODGE / Gesamtmarkt × 100\n\n= 6\'500 / 300\'000 × 100\n= 2.17 %\n\n→ Die ALPENLODGE hat einen Marktanteil von ca. 2.2 %.',
       },
       {
         id: 'mkt-b2',
@@ -67,7 +67,7 @@ export const EXAM_SECTIONS: ExamSection[] = [
         question:
           'Handelt es sich beim für die ALPENLODGE massgeblichen Markt um einen gesättigten oder um einen ungesättigten Markt?',
         answer:
-          'Es handelt sich um einen ungesättigten Markt.\n\nBegründung: Das Marktpotenzial beträgt 8\'000\'000 × 25 % = 2\'000\'000 Personen. Tatsächlich haben jedoch nur 300\'000 Personen in einem Sporthotel übernachtet. Das entspricht einer Marktausschöpfung von nur 15 %. Es gibt also noch viel ungenutztes Potenzial → ungesättigter Markt.',
+          'Ungesättigter Markt.\n\nMarktpotenzial: 8\'000\'000 × 25 % = 2\'000\'000 Personen.\nTatsächlich haben nur 300\'000 in einem Sporthotel übernachtet.\n→ Es gibt noch viel ungenutztes Potenzial → ungesättigter Markt.',
       },
       {
         id: 'mkt-c',
@@ -76,7 +76,7 @@ export const EXAM_SECTIONS: ExamSection[] = [
         question:
           'Die ALPENLODGE beschliesst, sich fortan als Businesshotel zu positionieren.\nEntwerfen Sie für die ALPENLODGE als Businesshotel einen stimmigen Marketing-Mix und nennen Sie für jedes Marketinginstrument ein konkretes Beispiel.',
         answer:
-          '• Produkt (Product): Businesszimmer mit Schreibtisch, stabilem WLAN und Drucker\n• Preis (Price): Firmenpauschalen / Konferenzpakete zu günstigeren Preisen für Firmen\n• Distribution (Place): Buchbar über Businessreise-Plattformen (z. B. HRS) sowie direkte Firmenverträge\n• Kommunikation (Promotion): LinkedIn-Werbung, Kaltakquise bei regionalen KMU, Messen für Geschäftsreisende',
+          '• Produkt (Product): Businesszimmer mit Schreibtisch, stabilem WLAN und Drucker\n• Preis (Price): Firmenpauschalen / Konferenzpakete zu günstigeren Preisen für Firmen\n• Distribution (Place): Buchbar über Businessreise-Plattformen sowie direkte Firmenverträge\n• Kommunikation (Promotion): LinkedIn-Werbung, Kaltakquise bei regionalen KMU',
       },
       {
         id: 'mkt-d-text',
@@ -95,7 +95,7 @@ export const EXAM_SECTIONS: ExamSection[] = [
         question:
           'Die Zimmer der ALPENLODGE sind stark abgenutzt und werden nicht renoviert. Neue Angebote wie z. B. „4 Nächte schlafen – 3 Nächte bezahlen" werden geschaffen.',
         answer:
-          'Phase: Rückgangsphase (Degenerationsphase)\n\nMerkmale: Der Umsatz sinkt stark, es wird kaum noch investiert. Um die Nachfrage künstlich zu stützen, werden Sonderangebote und Rabattaktionen eingesetzt.',
+          'Phase: Rückgangsphase (Degenerationsphase)\n\nDer Umsatz sinkt stark, es wird kaum noch investiert. Um die Nachfrage zu stützen, werden Sonderangebote und Rabattaktionen eingesetzt.',
       },
       {
         id: 'mkt-d2',
@@ -105,7 +105,7 @@ export const EXAM_SECTIONS: ExamSection[] = [
         question:
           'Die Marketingausgaben der ALPENLODGE sind sehr hoch, der Umsatz ist noch gering. Es muss vorläufig mit Verlusten gerechnet werden.',
         answer:
-          'Phase: Einführungsphase\n\nMerkmale: Das Hotel ist noch wenig bekannt, es müssen hohe Investitionen in Werbung und Markteinführung getätigt werden. Der Umsatz deckt die Kosten noch nicht → Verluste.',
+          'Phase: Einführungsphase\n\nDas Hotel ist noch wenig bekannt, es müssen hohe Investitionen in Werbung und Markteinführung getätigt werden. Der Umsatz deckt die Kosten noch nicht → Verluste.',
       },
       {
         id: 'mkt-d3',
@@ -115,7 +115,7 @@ export const EXAM_SECTIONS: ExamSection[] = [
         question:
           'Die Mund-zu-Mund-Propaganda bewirkt, dass immer mehr neue Gäste bei der ALPENLODGE einen Aufenthalt buchen. Die Gewinnschwelle wird schliesslich überschritten.',
         answer:
-          'Phase: Wachstumsphase\n\nMerkmale: Das Hotel wird bekannter, die Buchungszahlen steigen stark. Mund-zu-Mund-Empfehlungen ersetzen zunehmend teure Werbung. Der Umsatz übersteigt die Kosten → Gewinnschwelle (Break-even) wird erreicht.',
+          'Phase: Wachstumsphase\n\nDas Hotel wird bekannter, die Buchungszahlen steigen stark. Mund-zu-Mund-Empfehlungen ersetzen teure Werbung. Der Umsatz übersteigt die Kosten → Gewinnschwelle wird erreicht.',
       },
     ],
   },
@@ -137,7 +137,7 @@ export const EXAM_SECTIONS: ExamSection[] = [
         points: 1,
         question: 'Wo ist der Kaufpreis geschuldet?',
         answer:
-          'Der Kaufpreis ist am Wohnsitz des Gläubigers (KELLER) geschuldet.\n\nBegründung: Geldschulden sind Bringschulden (OR Art. 74 Abs. 2 Ziff. 1). Der Schuldner (MEIER) muss die Zahlung an den Wohnsitz des Gläubigers (KELLER) bringen.',
+          'Am Wohnsitz des Gläubigers (KELLER).\n\nGeldschulden sind Bringschulden: Der Schuldner (MEIER) muss die Zahlung zum Gläubiger (KELLER) bringen.',
       },
       {
         id: 'vtr-b',
@@ -146,7 +146,7 @@ export const EXAM_SECTIONS: ExamSection[] = [
         question:
           'Könnte KELLER das Occasionsauto zurückverlangen, falls MEIER den Kaufpreis auch nach wiederholter Mahnung nicht bezahlen würde?',
         answer:
-          'Nein, nicht direkt — ausser es wurde ein Eigentumsvorbehalt vereinbart.\n\nOhne Eigentumsvorbehalt geht das Eigentum mit der Übergabe auf MEIER über. KELLER hat kein automatisches Rückforderungsrecht. Er kann jedoch:\n1. Mahnung aussprechen + Nachfrist setzen\n2. Bei Fristablauf: vom Vertrag zurücktreten und Schadenersatz verlangen\n3. Oder Klage auf Zahlung einreichen',
+          'Nein — ausser es wurde ein Eigentumsvorbehalt vereinbart.\n\nOhne Eigentumsvorbehalt geht das Eigentum mit der Übergabe auf MEIER über. KELLER hat kein automatisches Rückforderungsrecht.\n\nKELLER kann aber:\n• Eine Mahnung mit Nachfrist setzen\n• Bei Fristablauf: vom Vertrag zurücktreten\n• Oder auf Zahlung klagen',
       },
       {
         id: 'vtr-c',
@@ -154,7 +154,7 @@ export const EXAM_SECTIONS: ExamSection[] = [
         points: 2,
         question: 'Wann gehen Nutzen und Gefahr nach Gesetz auf MEIER über?',
         answer:
-          'Nutzen und Gefahr gehen am 6. Juni 2021 auf MEIER über — dem Zeitpunkt der Fahrzeugübergabe (OR Art. 185).\n\n→ Ab diesem Datum trägt MEIER das Risiko des zufälligen Untergangs oder der Beschädigung und hat Anspruch auf alle Vorteile (Nutzung, Wertsteigerung) des Fahrzeugs.',
+          'Am 6. Juni 2021 — dem Tag der Fahrzeugübergabe.\n\nAb diesem Zeitpunkt trägt MEIER das Risiko für zufälligen Untergang oder Beschädigung und hat Anspruch auf alle Vorteile des Fahrzeugs.',
       },
       {
         id: 'vtr-d-text',
@@ -173,7 +173,7 @@ export const EXAM_SECTIONS: ExamSection[] = [
         question:
           'Kann MEIER von KELLER verlangen, dass dieser den Scheinwerfer auf eigene Kosten reparieren lässt?',
         answer:
-          'Ja, MEIER kann Sachmängelgewährleistung geltend machen (OR Art. 197 ff.).\n\nMEIER hat folgende Rechte:\n• Nachbesserung (Reparatur auf Kosten KELLERs)\n• Ersatzlieferung\n• Minderung (Preisreduktion)\n• Wandlung (Rückgabe gegen Rückerstattung des Kaufpreises)\n\nVoraussetzung: Der Mangel bestand bereits bei der Übergabe und wurde unverzüglich gerügt.',
+          'Ja. MEIER kann Sachmängelgewährleistung geltend machen.\n\nSie hat folgende Rechte:\n• Nachbesserung (Reparatur auf Kosten KELLERs)\n• Minderung (Kaufpreisreduktion)\n• Wandlung (Rückgabe des Autos gegen Rückerstattung des Kaufpreises)\n\nVoraussetzung: Der Mangel muss unverzüglich nach Entdeckung gemeldet werden.',
       },
       {
         id: 'vtr-d2',
@@ -182,7 +182,7 @@ export const EXAM_SECTIONS: ExamSection[] = [
         isSubQuestion: true,
         question: 'Bis wann muss MEIER den Mangel melden bzw. die Kosten zurückfordern?',
         answer:
-          'MEIER muss den Mangel unverzüglich nach Entdeckung rügen — in der Praxis innerhalb von 2–5 Werktagen (OR Art. 201).\n\nDa die Übergabe am 6. Juni 2021 war, musste MEIER den Mangel spätestens bis ca. 11. Juni 2021 melden.\n\nDie gesetzliche Gewährleistungsfrist beträgt 2 Jahre ab Übergabe (OR Art. 210), also bis 6. Juni 2023.',
+          'MEIER muss den Mangel unverzüglich nach Entdeckung rügen.\n\nDie gesetzliche Gewährleistungsfrist beträgt 2 Jahre ab Übergabe → bis 6. Juni 2023.',
       },
       {
         id: 'vtr-d3',
@@ -191,7 +191,7 @@ export const EXAM_SECTIONS: ExamSection[] = [
         isSubQuestion: true,
         question: 'Hätte KELLER seine Sachgewährleistungspflicht ausschliessen können?',
         answer:
-          'Ja, grundsätzlich ist ein Gewährleistungsausschluss zulässig (OR Art. 199).\n\nAusnahme: Bei arglistiger Täuschung ist der Ausschluss ungültig. Wenn KELLER den Defekt am Scheinwerfer kannte und ihn absichtlich verschwieg, wäre der Ausschluss nichtig.\n\nFazit: Ohne Täuschung → Ausschluss gültig. Mit absichtlichem Verschweigen → Ausschluss ungültig.',
+          'Ja, ein Gewährleistungsausschluss ist grundsätzlich zulässig.\n\nAusnahme: Bei arglistiger Täuschung ist der Ausschluss ungültig. Wenn KELLER den Defekt kannte und ihn absichtlich verschwieg, wäre der Ausschluss nichtig.',
       },
       {
         id: 'vtr-e-text',
@@ -209,7 +209,7 @@ export const EXAM_SECTIONS: ExamSection[] = [
         isSubQuestion: true,
         question: 'Liegt eine Übervorteilung vor?',
         answer:
-          'Ja, eine Übervorteilung (OR Art. 21) liegt vor, wenn folgende Tatbestandsmerkmale erfüllt sind:\n\n1. ✅ Offensichtliches Missverhältnis: CHF 20\'000 bezahlt, Wert CHF 5\'000 → Missverhältnis von CHF 15\'000 (300 % überbezahlt)\n2. ✅ Schwächesituation: Notlage, Unerfahrenheit oder Leichtsinn von MEIER muss vorliegen\n3. ✅ Bewusstes Ausnützen durch KELLER\n\nFazit: Das Missverhältnis ist klar gegeben. Wenn auch Unerfahrenheit/Notlage und Ausnützung nachgewiesen werden können, liegt eine Übervorteilung vor.',
+          'Ja, eine Übervorteilung liegt vor, wenn drei Voraussetzungen erfüllt sind:\n\n1. Offensichtliches Missverhältnis: CHF 5\'000 wert, CHF 20\'000 bezahlt → klar gegeben\n2. Schwächesituation von MEIER (Notlage, Unerfahrenheit oder Leichtsinn)\n3. Bewusstes Ausnützen durch KELLER\n\n→ Das Missverhältnis ist eindeutig. Wenn auch Schwächesituation und Ausnützung vorliegen: Übervorteilung.',
       },
       {
         id: 'vtr-e2',
@@ -218,7 +218,7 @@ export const EXAM_SECTIONS: ExamSection[] = [
         isSubQuestion: true,
         question: 'Wie muss MEIER rechtlich vorgehen?',
         answer:
-          'MEIER muss den Kaufvertrag wegen Übervorteilung anfechten (OR Art. 21 Abs. 1).\n\nVorgehen:\n1. Anfechtungserklärung gegenüber KELLER abgeben\n2. Rückabwicklung des Vertrags verlangen (Rückgabe Auto gegen Rückerstattung des Kaufpreises)\n\nFrist: Die Anfechtung muss innerhalb von 1 Jahr ab Vertragsabschluss erfolgen (OR Art. 21 Abs. 2).\n→ Vertragsabschluss 31. Mai 2021 → Frist bis 31. Mai 2022.',
+          'MEIER muss den Kaufvertrag wegen Übervorteilung anfechten.\n\nVorgehen:\n1. Anfechtungserklärung gegenüber KELLER abgeben\n2. Rückabwicklung verlangen (Auto zurück, Kaufpreis zurück)\n\nFrist: Die Anfechtung muss innerhalb von 1 Jahr ab Vertragsabschluss erfolgen.\n→ Vertragsabschluss 31. Mai 2021 → Frist bis 31. Mai 2022.',
       },
     ],
   },
@@ -240,7 +240,7 @@ export const EXAM_SECTIONS: ExamSection[] = [
         question:
           'Begründen Sie, warum das Einzelunternehmen für dieses Vorhaben ungeeignet ist.',
         answer:
-          'Das Einzelunternehmen ist für die Bäckereibründung in folgenden Punkten problematisch:\n\n• Unbeschränkte persönliche Haftung: ANDI MÜLLER haftet mit seinem gesamten Privat­vermögen. Bei einem Misserfolg ist sein persönliches Eigentum gefährdet.\n• Kapitalbeschaffung: Als Einzelunternehmer ist es schwieriger, grössere Investitionen zu finanzieren (keine Ausgabe von Aktien möglich).\n• Abhängigkeit: Das Unternehmen ist vollständig von einer Person abhängig (Krankheit, Unfall → Betrieb gefährdet).',
+          '• Unbeschränkte persönliche Haftung: ANDI MÜLLER haftet mit seinem gesamten Privatvermögen. Bei einem Misserfolg ist sein persönliches Eigentum gefährdet.\n• Kapitalbeschaffung schwierig: Als Einzelunternehmer kann er kein Kapital über Aktien beschaffen. Investitionen sind schwerer zu finanzieren.',
       },
       {
         id: 'rft-b',
@@ -248,7 +248,7 @@ export const EXAM_SECTIONS: ExamSection[] = [
         points: 2,
         question: 'Nennen Sie eine korrekte Firma für das Unternehmen.',
         answer:
-          'Korrekte Firma: «Andi Müller» oder «Andi Müller Bäckerei»\n\nBegründung: Bei einer Einzelunternehmung muss die Firma zwingend den Familiennamen des Inhabers enthalten (OR Art. 945). Phantasienamen allein (z. B. «Leckerbissen») sind nicht zulässig.',
+          'Korrekte Firma: «Andi Müller» oder «Andi Müller Bäckerei»\n\nBei einer Einzelunternehmung muss die Firma zwingend den Familiennamen des Inhabers enthalten. Phantasienamen allein (z. B. «Leckerbissen») sind nicht zulässig.',
       },
       {
         id: 'rft-c',
@@ -257,7 +257,7 @@ export const EXAM_SECTIONS: ExamSection[] = [
         question:
           'ANDI MÜLLER gründet mit einer Freundin per Handschlag ein Unternehmen.\nWelche Rechtsform liegt vor?',
         answer:
-          'Rechtsform: Einfache Gesellschaft (OR Art. 530 ff.)\n\nMerkmale:\n• Entsteht formlos, bereits per Handschlag oder mündlich\n• Kein Handelsregistereintrag erforderlich\n• Beide Gesellschafter haften unbeschränkt und solidarisch\n• Für temporäre oder informelle Zusammenarbeit geeignet',
+          'Einfache Gesellschaft.\n\n• Entsteht formlos, bereits per Handschlag oder mündlich\n• Kein Handelsregistereintrag erforderlich\n• Beide Gesellschafter haften unbeschränkt und solidarisch',
       },
       {
         id: 'rft-d-text',
@@ -274,7 +274,7 @@ export const EXAM_SECTIONS: ExamSection[] = [
         isSubQuestion: true,
         question: 'Wann entsteht die AG rechtlich?',
         answer:
-          'Die AG entsteht rechtlich mit dem Eintrag ins Handelsregister (OR Art. 643).\n\nErst ab diesem Zeitpunkt ist die AG eine eigenständige juristische Person mit eigener Rechtspersönlichkeit.',
+          'Die AG entsteht mit dem Eintrag ins Handelsregister.\n\nErst ab diesem Zeitpunkt ist die AG eine eigenständige juristische Person mit eigener Rechtspersönlichkeit.',
       },
       {
         id: 'rft-d2',
@@ -283,7 +283,7 @@ export const EXAM_SECTIONS: ExamSection[] = [
         isSubQuestion: true,
         question: 'Wie viel Kapital muss mindestens einbezahlt werden?',
         answer:
-          'Mindestens 20 % des Aktienkapitals oder CHF 50\'000 — es gilt der höhere Betrag (OR Art. 632).\n\nBeispiel: Bei einem Aktienkapital von CHF 100\'000:\n• 20 % = CHF 20\'000\n• Mindestbetrag = CHF 50\'000\n→ Es müssen CHF 50\'000 einbezahlt werden (da CHF 50\'000 > CHF 20\'000).',
+          'Mindestens 20 % des Aktienkapitals oder CHF 50\'000 — es gilt der höhere Betrag.\n\nBeispiel: Bei einem Aktienkapital von CHF 100\'000:\n• 20 % = CHF 20\'000\n• Minimum = CHF 50\'000\n→ Es müssen CHF 50\'000 einbezahlt werden.',
       },
       {
         id: 'rft-e-text',
@@ -301,7 +301,7 @@ export const EXAM_SECTIONS: ExamSection[] = [
         isSubQuestion: true,
         question: 'Welche Mehrheit ist erforderlich?',
         answer:
-          'Für eine Kapitalerhöhung ist ein qualifiziertes Mehr erforderlich (OR Art. 704):\n\n• Mindestens ⅔ (zwei Drittel) der vertretenen Stimmen\nUND\n• Absolute Mehrheit der vertretenen Aktiennennwerte',
+          'Qualifiziertes Mehr:\n\n• Mindestens ⅔ (zwei Drittel) der vertretenen Stimmen\nUND\n• Absolute Mehrheit der vertretenen Aktiennennwerte',
       },
       {
         id: 'rft-e2',
@@ -311,7 +311,7 @@ export const EXAM_SECTIONS: ExamSection[] = [
         question:
           'Wird die Kapitalerhöhung angenommen, wenn Stimmrechtsaktien mehr Stimmen haben als das übrige Kapital?',
         answer:
-          'Ja, die Kapitalerhöhung wird angenommen.\n\nBegründung: Stimmrechtsaktien (Aktien mit erhöhtem Stimmrecht) besitzen mehr Stimmgewicht. Wenn die Inhaber dieser Aktien mehrheitlich für die Kapitalerhöhung stimmen und damit sowohl 2/3 der Stimmen als auch die absolute Mehrheit der Aktiennennwerte erreicht wird, ist das qualifizierte Mehr erfüllt → Kapitalerhöhung angenommen.',
+          'Ja, die Kapitalerhöhung wird angenommen.\n\nStimmrechtsaktien haben mehr Stimmgewicht pro Aktie. Wenn die Inhaber dieser Aktien dafür stimmen und damit ⅔ der Stimmen erreicht werden, ist das qualifizierte Mehr erfüllt → angenommen.',
       },
     ],
   },
@@ -343,7 +343,7 @@ export const EXAM_SECTIONS: ExamSection[] = [
         question:
           'Zeichnen Sie die Angebots- und Nachfragekurve sowie das Marktgleichgewicht ein. [Grafik / Beschriftung]',
         answer:
-          'Preis-Mengen-Diagramm mit:\n• Nachfragekurve (N) von links oben nach rechts unten (fallend)\n• Angebotskurve (A) von links unten nach rechts oben (steigend)\n• Schnittpunkt = Marktgleichgewicht (P*, M*)\n• Achsen beschriftet: Preis (P) auf der y-Achse, Menge (M) auf der x-Achse\n• Lotlinien vom Schnittpunkt auf beide Achsen → P* und M* ablesen',
+          'Preis-Mengen-Diagramm:\n• Nachfragekurve (N): fällt von links oben nach rechts unten\n• Angebotskurve (A): steigt von links unten nach rechts oben\n• Schnittpunkt = Marktgleichgewicht (P*, M*)\n• Achsen: Preis (P) auf y-Achse, Menge (M) auf x-Achse',
       },
       {
         id: 'vwl-a2',
@@ -353,7 +353,7 @@ export const EXAM_SECTIONS: ExamSection[] = [
         question:
           'Wegen eines nassen Sommers ist die Kartoffelernte im Jahr 2021 deutlich unter dem Durchschnitt ausgefallen: Zeichnen Sie die Auswirkungen im gleichen Preis-Mengen-Diagramm mit einer anderen Farbe ein. [Grafik]',
         answer:
-          'Die Angebotskurve verschiebt sich nach links (A → A\'): weniger Kartoffeln werden zu jedem Preis angeboten.\n\nEinzeichnen:\n• Neue Angebotskurve A\' links von A (mit anderer Farbe)\n• Neuer Schnittpunkt mit Nachfragekurve N ergibt neues Gleichgewicht (P*\', M*\')\n• P*\' liegt höher, M*\' liegt links von M*',
+          'Die Angebotskurve verschiebt sich nach links (A → A\').\n\nWeniger Kartoffeln werden produziert → Angebotskurve nach links verschieben.\nNeuer Schnittpunkt mit Nachfragekurve → neues Gleichgewicht (P*\', M*\'):\n• P*\' liegt höher als P*\n• M*\' liegt tiefer als M*',
       },
       {
         id: 'vwl-a3',
@@ -363,7 +363,7 @@ export const EXAM_SECTIONS: ExamSection[] = [
         question:
           'Nennen Sie das neue Marktgleichgewicht und erklären Sie in Worten die Folgen der gekürzten Ernte auf den Gleichgewichtspreis sowie auf die Gleichgewichtsmenge. [Grafik / Antwort]',
         answer:
-          'Neues Marktgleichgewicht: höherer Gleichgewichtspreis (P*\' > P*), tiefere Gleichgewichtsmenge (M*\' < M*).\n\nErklärung:\nDie schlechte Ernte reduziert das Angebot an Kartoffeln → Angebotskurve verschiebt sich nach links. Bei unveränderter Nachfrage entsteht eine Knappheit → Preis steigt, bis sich Angebot und Nachfrage im neuen Gleichgewicht treffen.\n\n→ Gleichgewichtspreis steigt\n→ Gleichgewichtsmenge sinkt',
+          'Neues Marktgleichgewicht: höherer Preis (P*\'), tiefere Menge (M*\').\n\nErklärung:\nDie schlechte Ernte reduziert das Angebot → Angebotskurve verschiebt sich nach links. Bei gleichbleibender Nachfrage entsteht eine Knappheit → Preis steigt.\n\n→ Gleichgewichtspreis steigt\n→ Gleichgewichtsmenge sinkt',
       },
       {
         id: 'vwl-b-text',
@@ -382,7 +382,7 @@ export const EXAM_SECTIONS: ExamSection[] = [
         question:
           'Ein staatlich festgelegter Höchstpreis führt zu einem Angebotsüberschuss.',
         answer:
-          'Falsch.\n\nEin Höchstpreis (Preisdeckel) liegt unter dem Gleichgewichtspreis. Er macht das Gut günstiger → die Nachfrage steigt, das Angebot sinkt → es entsteht ein Nachfrageüberschuss (Mangel), nicht ein Angebotsüberschuss.\n\nAngebotsüberschuss entsteht durch einen Mindestpreis (über dem Gleichgewichtspreis).',
+          'Falsch.\n\nEin Höchstpreis liegt unter dem Gleichgewichtspreis. Er macht das Gut günstiger → Nachfrage steigt, Angebot sinkt → es entsteht ein Nachfrageüberschuss (Mangel), kein Angebotsüberschuss.\n\n(Angebotsüberschuss entsteht bei einem Mindestpreis über dem Gleichgewichtspreis.)',
       },
       {
         id: 'vwl-b2',
@@ -392,7 +392,7 @@ export const EXAM_SECTIONS: ExamSection[] = [
         question:
           'Steigt der Preis eines Komplementärgutes, verschiebt sich die Nachfrage nach rechts.',
         answer:
-          'Falsch.\n\nKomplementärgüter werden zusammen verwendet (z. B. Auto und Benzin). Steigt der Preis des Komplementärgutes, wird die Gesamtkombination teurer → Nachfrage nach beiden Gütern sinkt → Nachfragekurve verschiebt sich nach links.',
+          'Falsch.\n\nKomplementärgüter werden zusammen verwendet (z. B. Auto und Benzin). Steigt der Preis des einen, wird die Kombination teurer → Nachfrage nach beiden sinkt → Nachfragekurve verschiebt sich nach links.',
       },
       {
         id: 'vwl-b3',
@@ -401,7 +401,7 @@ export const EXAM_SECTIONS: ExamSection[] = [
         isSubQuestion: true,
         question: 'Ein Mindestpreis liegt unter dem Gleichgewichtspreis.',
         answer:
-          'Falsch.\n\nEin wirksamer Mindestpreis (Preisuntergrenze) muss über dem Gleichgewichtspreis liegen. Nur dann erzwingt er einen höheren Preis als der Markt bilden würde. Ein Mindestpreis unter dem Gleichgewichtspreis wäre wirkungslos, da der Markt ohnehin höher handelt.',
+          'Falsch.\n\nEin wirksamer Mindestpreis muss über dem Gleichgewichtspreis liegen. Nur dann erzwingt er einen höheren Marktpreis. Ein Mindestpreis unterhalb des Gleichgewichtspreises wäre wirkungslos.',
       },
     ],
   },
@@ -415,7 +415,7 @@ export const EXAM_SECTIONS: ExamSection[] = [
     richtzeitMinutes: 10,
     totalPoints: 12,
     context:
-      'Die Schweizerische Nationalbank (SNB) entscheidet über den Leitzins und die Geldmenge in der Schweiz. Diese Entscheide beeinflussen Investitionen, Konsum und Preisniveau.',
+      'Die Schweizerische Nationalbank (SNB) entscheidet über den Leitzins und die Geldmenge in der Schweiz.',
     questions: [
       {
         id: 'geld-a',
@@ -423,7 +423,7 @@ export const EXAM_SECTIONS: ExamSection[] = [
         points: 2,
         question: 'Was versteht man unter expansiver Geldpolitik?',
         answer:
-          'Expansive Geldpolitik: Die Zentralbank erhöht die Geldmenge und senkt die Zinsen, um die Wirtschaft anzukurbeln.\n\nMassnahmen:\n• Leitzinssenkung → Kredite werden günstiger\n• Anleihenkäufe (Geldmenge erhöhen)\n\nZiel: Investitionen und Konsum fördern, Wirtschaftswachstum stimulieren, Deflation verhindern.',
+          'Expansive Geldpolitik: Die SNB senkt den Leitzins und erhöht die Geldmenge, um die Wirtschaft anzukurbeln.\n\n→ Kredite werden günstiger → Unternehmen investieren mehr, Haushalte konsumieren mehr\n→ Ziel: Wirtschaft ankurbeln, Arbeitslosigkeit senken',
       },
       {
         id: 'geld-b',
@@ -431,39 +431,39 @@ export const EXAM_SECTIONS: ExamSection[] = [
         points: 2,
         question: 'Welche Auswirkungen hat eine Zinserhöhung auf Investitionen und Konsum?',
         answer:
-          'Zinserhöhung führt zu:\n\n• Investitionen sinken: Kredite werden teurer → Unternehmen investieren weniger, da Finanzierungskosten steigen\n• Konsum sinkt: Hypotheken und Konsumkredite werden teurer → Haushalte geben weniger aus\n• Sparen attraktiver: Höhere Zinsen auf Sparkonten → weniger Konsum\n\n→ Insgesamt: dämpfender Effekt auf Wirtschaft (kontraktive Wirkung).',
+          '• Investitionen sinken: Kredite werden teurer → Unternehmen investieren weniger\n• Konsum sinkt: Hypotheken und Konsumkredite werden teurer → Haushalte geben weniger aus\n• Sparen wird attraktiver → noch weniger Konsum\n\n→ Dämpfender Effekt auf die Wirtschaft (kontraktive Wirkung)',
       },
       {
         id: 'geld-c',
         label: 'c)',
         points: 2,
-        question: 'Nennen Sie mögliche Ursachen für Deflation.',
+        question: 'Nennen Sie mögliche Ursachen für Inflation.',
         answer:
-          'Ursachen für Deflation (anhaltend sinkende Preise):\n\n• Nachfragerückgang: Konsumenten kaufen weniger → Unternehmen senken Preise\n• Überproduktion: Angebot übersteigt die Nachfrage dauerhaft\n• Zu geringe Geldmenge im Umlauf\n• Kreditklemme: Banken vergeben weniger Kredite → weniger Investitionen\n• Deflationäre Erwartungen: Konsumenten verschieben Käufe → Nachfrage sinkt weiter',
+          'Ursachen für Inflation (steigende Preise):\n\n• Nachfrageüberhang: Mehr Nachfrage als Angebot → Preise steigen\n• Steigende Produktionskosten (z. B. Rohstoffe, Löhne) → Unternehmen erhöhen Preise\n• Zu viel Geld im Umlauf (Geldmenge steigt schneller als Wirtschaft)\n• Importierte Inflation: Preisanstieg im Ausland wirkt sich auf Schweizer Preise aus',
       },
       {
         id: 'geld-d',
         label: 'd)',
         points: 2,
-        question: 'Was versteht man unter Stagflation?',
+        question: 'Was ist kontraktive Geldpolitik und wann setzt die SNB sie ein?',
         answer:
-          'Stagflation = gleichzeitiges Auftreten von:\n• Stagnation (fehlendes Wirtschaftswachstum oder Rezession)\n• Inflation (steigende Preise)\n• Oft auch steigende Arbeitslosigkeit\n\nProblem: Die üblichen Gegenmassnahmen widersprechen sich:\n→ Gegen Inflation: Zinsen erhöhen (bremst Wirtschaft weiter)\n→ Gegen Rezession: Zinsen senken (verstärkt Inflation)\n\nBeispiel: Ölkrise 1973–74.',
+          'Kontraktive Geldpolitik: Die SNB erhöht den Leitzins und verringert die Geldmenge.\n\n→ Kredite werden teurer → weniger Investitionen und Konsum → Nachfrage sinkt → Preise steigen langsamer\n\nEingesetzt bei: Zu hoher Inflation (Preise steigen zu stark)',
       },
       {
         id: 'geld-e',
         label: 'e)',
         points: 2,
-        question: 'Welche Auswirkungen haben Zinsänderungen auf Inflation und Wirtschaftswachstum?',
+        question: 'Welche Auswirkungen hat eine Zinssenkung auf die Wirtschaft?',
         answer:
-          'Zinssenkung:\n• Inflation steigt (mehr Geld im Umlauf, mehr Nachfrage)\n• Wirtschaftswachstum steigt (günstigere Kredite → mehr Investitionen)\n\nZinserhöhung:\n• Inflation sinkt (weniger Geld im Umlauf, gedämpfte Nachfrage)\n• Wirtschaftswachstum sinkt (teurere Kredite → weniger Investitionen)\n\n→ Zielkonflikt: Preisstabilität vs. Wachstum.',
+          '• Kredite werden günstiger → mehr Investitionen\n• Konsum steigt (günstigere Konsumkredite)\n• Sparen wird weniger attraktiv → mehr Geld fliesst in die Wirtschaft\n• Wirtschaftswachstum steigt\n• Risiko: Inflation kann steigen',
       },
       {
         id: 'geld-f',
         label: 'f)',
         points: 2,
-        question: 'Welche Geldpolitik ist bei Stagflation sinnvoll?',
+        question: 'Was ist der Unterschied zwischen expansiver und kontraktiver Geldpolitik?',
         answer:
-          'Bei Stagflation gibt es keine ideale geldpolitische Lösung — es besteht ein Zielkonflikt.\n\nMögliche Ansätze:\n• Priorität Inflation bekämpfen: Zinsen erhöhen → Inflation sinkt, aber Rezession verschlimmert sich\n• Priorität Wirtschaft stützen: Zinsen senken → Wachstum steigt, aber Inflation verschlimmert sich\n\nIn der Praxis bevorzugt die SNB meist Preisstabilität (Inflationsbekämpfung) als vorrangiges Ziel, da Inflation schwerer langfristig zu kontrollieren ist.',
+          'Expansive Geldpolitik:\n• Zinsen senken, Geldmenge erhöhen\n• Ziel: Wirtschaft ankurbeln\n• Risiko: Inflation\n\nKontraktive Geldpolitik:\n• Zinsen erhöhen, Geldmenge verringern\n• Ziel: Inflation bekämpfen\n• Risiko: Wirtschaft kühlt ab',
       },
     ],
   },
@@ -483,9 +483,9 @@ export const EXAM_SECTIONS: ExamSection[] = [
         id: 'konj-a',
         label: 'a)',
         points: 2,
-        question: 'Nennen Sie zwei Frühindikatoren der Konjunktur.',
+        question: 'Nennen Sie die vier Phasen des Konjunkturzyklus.',
         answer:
-          '1. KOF-Konjunkturbarometer: Prognostiziert die Entwicklung der Schweizer Wirtschaft in den nächsten 6–9 Monaten\n2. Auftragseingang der Industrie: Zeigt künftige Produktionstätigkeit an\n\nWeitere mögliche Antworten:\n• Konsumentenstimmungsindex (SECO)\n• Einkaufsmanager-Index (PMI)\n• Aktienkursentwicklung (z. B. SMI)',
+          '1. Aufschwung (Expansion): Wirtschaft wächst, Beschäftigung steigt\n2. Hochkonjunktur (Boom): Maximale Auslastung, Inflation kann steigen\n3. Abschwung (Rezession): Nachfrage sinkt, Unternehmen entlassen Mitarbeitende\n4. Tiefkonjunktur (Depression): Tiefpunkt, hohe Arbeitslosigkeit, geringes Wachstum',
       },
       {
         id: 'konj-b',
@@ -493,7 +493,7 @@ export const EXAM_SECTIONS: ExamSection[] = [
         points: 2,
         question: 'Was versteht man unter konjunktureller Arbeitslosigkeit?',
         answer:
-          'Konjunkturelle Arbeitslosigkeit entsteht durch einen Rückgang der wirtschaftlichen Aktivität (Konjunkturabschwung / Rezession).\n\n• Unternehmen erhalten weniger Aufträge → produzieren weniger → entlassen Mitarbeitende\n• Ist vorübergehend: Erholt sich die Wirtschaft, steigt die Beschäftigung wieder\n\nBeispiel: Während der Corona-Krise 2020 stieg die konjunkturelle Arbeitslosigkeit stark an.',
+          'Konjunkturelle Arbeitslosigkeit entsteht durch einen Rückgang der wirtschaftlichen Aktivität (Konjunkturabschwung).\n\n• Unternehmen erhalten weniger Aufträge → produzieren weniger → entlassen Mitarbeitende\n• Ist vorübergehend: Erholt sich die Wirtschaft, sinkt die Arbeitslosigkeit wieder',
       },
       {
         id: 'konj-c',
@@ -501,7 +501,7 @@ export const EXAM_SECTIONS: ExamSection[] = [
         points: 2,
         question: 'Nennen Sie zwei weitere Arten von Arbeitslosigkeit.',
         answer:
-          '1. Strukturelle Arbeitslosigkeit: Entsteht durch dauerhaften Strukturwandel (z. B. Digitalisierung, Automatisierung, Branchenwandel). Langfristiger Natur.\n\n2. Saisonale Arbeitslosigkeit: Entsteht durch jahreszeitliche Schwankungen in bestimmten Branchen (z. B. Tourismus, Baubranche, Landwirtschaft).\n\nWeitere mögliche Antwort:\n• Friktionelle Arbeitslosigkeit (Sucharbeitslosigkeit): Kurzfristige Arbeitslosigkeit beim Stellenwechsel.',
+          '1. Strukturelle Arbeitslosigkeit: Entsteht durch dauerhaften Wandel (z. B. Digitalisierung, Automatisierung). Langfristiger Natur.\n\n2. Saisonale Arbeitslosigkeit: Entsteht durch jahreszeitliche Schwankungen (z. B. Tourismus, Baubranche).',
       },
       {
         id: 'konj-d',
@@ -509,7 +509,7 @@ export const EXAM_SECTIONS: ExamSection[] = [
         points: 2,
         question: 'Nennen Sie zwei Massnahmen zur Bekämpfung der Arbeitslosigkeit.',
         answer:
-          '1. Kurzarbeitsentschädigung (KAE): Der Staat übernimmt einen Teil der Lohnkosten, damit Unternehmen Mitarbeitende nicht entlassen müssen.\n\n2. Staatliche Investitionsprogramme (Fiskalpolitik): Der Staat erhöht die Ausgaben (z. B. Infrastrukturprojekte) → schafft Nachfrage und Arbeitsplätze.\n\nWeitere mögliche Antworten:\n• Weiterbildungs- und Umschulungsprogramme\n• Arbeitsvermittlung / RAV-Beratung',
+          '1. Kurzarbeitsentschädigung (KAE): Der Staat übernimmt einen Teil der Lohnkosten, damit Unternehmen Mitarbeitende nicht entlassen müssen.\n\n2. Staatliche Investitionsprogramme: Der Staat erhöht die Ausgaben (z. B. Infrastruktur) → schafft Nachfrage und Arbeitsplätze.',
       },
       {
         id: 'konj-e-text',
@@ -526,16 +526,16 @@ export const EXAM_SECTIONS: ExamSection[] = [
         isSubQuestion: true,
         question: 'Ein Rückgang der Nachfrage kann zu Arbeitslosigkeit führen.',
         answer:
-          'Richtig.\n\nWenn die Nachfrage sinkt, produzieren Unternehmen weniger → sie benötigen weniger Arbeitskräfte → Arbeitslosigkeit steigt (konjunkturelle oder nachfragebedingte Arbeitslosigkeit).',
+          'Richtig.\n\nWenn die Nachfrage sinkt, produzieren Unternehmen weniger → sie benötigen weniger Arbeitskräfte → konjunkturelle Arbeitslosigkeit steigt.',
       },
       {
         id: 'konj-e2',
         label: 'e2)',
         points: 1,
         isSubQuestion: true,
-        question: 'Die keynesianische Theorie ist angebotsorientiert.',
+        question: 'Expansive Fiskalpolitik bedeutet, dass der Staat seine Ausgaben senkt.',
         answer:
-          'Falsch.\n\nDie keynesianische Theorie ist nachfrageorientiert. Sie besagt, dass der Staat durch höhere Ausgaben die gesamtwirtschaftliche Nachfrage ankurbeln kann (Fiskalpolitik). Angebotsorientierte Wirtschaftspolitik ist das Gegenteil davon (z. B. Monetarismus, Neoklassik).',
+          'Falsch.\n\nExpansive Fiskalpolitik bedeutet, dass der Staat seine Ausgaben erhöht (z. B. Infrastrukturprojekte, Sozialtransfers), um die Wirtschaft anzukurbeln und Arbeitslosigkeit zu senken.',
       },
       {
         id: 'konj-e3',
@@ -544,7 +544,7 @@ export const EXAM_SECTIONS: ExamSection[] = [
         isSubQuestion: true,
         question: 'Der Staat kann durch höhere Ausgaben die Wirtschaft ankurbeln.',
         answer:
-          'Richtig.\n\nLaut keynesianischer Theorie kann der Staat in einer Rezession durch erhöhte Staatsausgaben (z. B. Infrastruktur, Bildung, Sozialtransfers) die Gesamtnachfrage steigern und so die Wirtschaft ankurbeln (expansive Fiskalpolitik). Dies führt zu mehr Aufträgen, mehr Beschäftigung und mehr Einkommen.',
+          'Richtig.\n\nDer Staat kann durch erhöhte Ausgaben (z. B. Infrastruktur, Bildung) die Nachfrage steigern → mehr Aufträge für Unternehmen → mehr Beschäftigung → Wirtschaft erholt sich.',
       },
     ],
   },
