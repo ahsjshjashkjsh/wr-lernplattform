@@ -287,7 +287,7 @@ export default function BuchungstrainerPage() {
     const rec: SessionRecord = {
       id: sid,
       startedAt: parseInt(sid),
-      totalCards: allCards.length,
+      totalCards: visibleOrder.length,
       cardsDone: cardIndex + 1,
       score,
       wrongIndices: wrongCards,
@@ -306,7 +306,7 @@ export default function BuchungstrainerPage() {
       upsertHistory(rec)
       setHistory(loadHistory())
     }
-  }, [cardIndex, score, order, filter, shuffled, view, allCards.length, wrongCards, userId])
+  }, [cardIndex, score, order, filter, shuffled, view, visibleOrder.length, wrongCards, userId])
 
   // ── practice: submit ───────────────────────────────────────────
   function handleSubmit() {
@@ -370,7 +370,7 @@ export default function BuchungstrainerPage() {
           id: sid,
           startedAt: parseInt(sid),
           completedAt,
-          totalCards: allCards.length,
+          totalCards: visibleOrder.length,
           cardsDone: visibleOrder.length,
           score,
           wrongIndices: wrongCards,
