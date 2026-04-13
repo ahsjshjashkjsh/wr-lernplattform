@@ -203,6 +203,7 @@ export default function BuchungstrainerPage() {
   const doReset = useCallback(() => {
     currentSessionId.current = Date.now().toString()
     setOrder(allCards.map((_, i) => i))
+    setFilter('all')
     setCardIndex(0)
     setFlipped(false)
     setPhase('input')
@@ -335,7 +336,9 @@ export default function BuchungstrainerPage() {
   }
 
   function repeatWrong() {
+    currentSessionId.current = Date.now().toString()
     setOrder(shuffleArr(wrongCards))
+    setFilter('all')
     setWrongCards([])
     setCardIndex(0)
     setScore({ ok: 0, fail: 0 })
@@ -408,6 +411,7 @@ export default function BuchungstrainerPage() {
   function repeatWrongFromHistory(rec: SessionRecord) {
     currentSessionId.current = Date.now().toString()
     setOrder(shuffleArr(rec.wrongIndices))
+    setFilter('all')
     setWrongCards([])
     setCardIndex(0)
     setScore({ ok: 0, fail: 0 })
@@ -829,7 +833,7 @@ export default function BuchungstrainerPage() {
                 <XCircle size={14} /> {wrongCards.length} Falsche wiederholen
               </button>
             )}
-            <button onClick={() => { clearSession(); doReset() }}
+            <button onClick={() => { doReset() }}
               className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-semibold"
               style={{ background: 'var(--card-bg)', border: '1px solid var(--border-color)', color: 'var(--text-muted)' }}>
               <RotateCcw size={14} /> Nochmal (alle)
