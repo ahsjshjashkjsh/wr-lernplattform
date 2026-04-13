@@ -935,7 +935,13 @@ export default function BuchungstrainerPage() {
 
                   {/* Actions */}
                   <div className="flex flex-col gap-1.5 shrink-0">
-                    {!rec.isComplete && (
+                    {rec.isComplete ? (
+                      <button onClick={() => { setFilter('all'); doReset(); setView('practice') }}
+                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-white"
+                        style={{ background: 'rgba(34,197,94,0.7)' }}>
+                        <RotateCcw size={12} /> Neu starten
+                      </button>
+                    ) : (
                       <button onClick={() => startSessionFromHistory(rec)}
                         className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-white"
                         style={{ background: 'var(--accent)' }}>
