@@ -335,7 +335,7 @@ export default function BuchungstrainerPage() {
   }
 
   function repeatWrong() {
-    currentSessionId.current = Date.now().toString()
+    // Session-ID bleibt gleich — gleiche Session bis 100%
     setOrder(shuffleArr(wrongCards))
     setFilter('all')
     setWrongCards([])
@@ -377,16 +377,18 @@ export default function BuchungstrainerPage() {
           order: visibleOrder,
           filter: 'all',
           shuffled,
-          isComplete: true,
+          isComplete: wrongCards.length === 0,  // nur 100% = wirklich fertig
         }),
       }).then(() => {
-        setHistory(prev => prev.map(r => r.id === sid ? { ...r, isComplete: true, completedAt, wrongIndices: wrongCards } : r))
+        const done = wrongCards.length === 0
+        setHistory(prev => prev.map(r => r.id === sid ? { ...r, isComplete: done, completedAt: done ? completedAt : undefined, wrongIndices: wrongCards } : r))
       }).catch(() => {})
     } else {
       const h = loadHistory()
       const idx = h.findIndex(r => r.id === sid)
       if (idx >= 0) {
-        h[idx] = { ...h[idx], isComplete: true, completedAt, wrongIndices: wrongCards }
+        const done = wrongCards.length === 0
+        h[idx] = { ...h[idx], isComplete: done, completedAt: done ? completedAt : undefined, wrongIndices: wrongCards }
         saveHistory(h)
         setHistory([...h])
       }
@@ -814,16 +816,29 @@ export default function BuchungstrainerPage() {
       {/* Abschluss */}
       {view === 'practice' && isLast && phase !== 'input' && totalAnswered > 0 && (
         <div className="max-w-lg mx-auto rounded-2xl p-6 text-center"
-          style={{ background: 'var(--card-bg)', border: '1px solid var(--border-color)' }}>
-          <Trophy size={32} className="mx-auto mb-3 text-amber-400" />
-          <p className="text-lg font-bold mb-3" style={{ color: 'var(--text-primary)' }}>Fertig!</p>
+          style={{
+            background: wrongCards.length === 0 ? 'rgba(34,197,94,0.07)' : 'var(--card-bg)',
+            border: `1px solid ${wrongCards.length === 0 ? 'rgba(34,197,94,0.25)' : 'var(--border-color)'}`,
+          }}>
+          {wrongCards.length === 0
+            ? <Trophy size={32} className="mx-auto mb-3 text-amber-400" />
+            : <XCircle size={32} className="mx-auto mb-3 text-red-400" />
+          }
+          <p className="text-lg font-bold mb-3" style={{ color: 'var(--text-primary)' }}>
+            {wrongCards.length === 0 ? '100% — Perfekt!' : 'Runde abgeschlossen'}
+          </p>
           <div className="flex justify-center gap-8 mb-4 text-sm font-semibold">
             <span className="flex items-center gap-1.5 text-green-400"><CheckCircle2 size={16} /> {score.ok} richtig</span>
             <span className="flex items-center gap-1.5 text-red-400"><XCircle size={16} /> {score.fail} falsch</span>
           </div>
-          <p className="text-3xl font-extrabold mb-5" style={{ color: 'var(--accent)' }}>
+          <p className="text-3xl font-extrabold mb-2" style={{ color: wrongCards.length === 0 ? '#4ade80' : 'var(--accent)' }}>
             {Math.round((score.ok / totalAnswered) * 100)}%
           </p>
+          {wrongCards.length > 0 && (
+            <p className="text-xs mb-5" style={{ color: 'var(--text-muted)' }}>
+              Wiederhole die Falschen bis du 100% erreichst
+            </p>
+          )}
           <div className="flex flex-col gap-2.5 items-center">
             {wrongCards.length > 0 && (
               <button onClick={repeatWrong}
@@ -835,7 +850,7 @@ export default function BuchungstrainerPage() {
             <button onClick={() => { setFilter('all'); doReset() }}
               className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-semibold"
               style={{ background: 'var(--card-bg)', border: '1px solid var(--border-color)', color: 'var(--text-muted)' }}>
-              <RotateCcw size={14} /> Nochmal (alle)
+              <RotateCcw size={14} /> Neue Session starten
             </button>
           </div>
         </div>
