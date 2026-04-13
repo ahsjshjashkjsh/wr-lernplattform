@@ -291,8 +291,8 @@ export default function BuchungstrainerPage() {
       cardsDone: cardIndex + 1,
       score,
       wrongIndices: wrongCards,
-      order,
-      filter,
+      order: visibleOrder,   // exakte Karten dieser Session einfrieren
+      filter: 'all',         // kein Filter beim Wiederherstellen nötig
       shuffled,
       isComplete: false,
     }
@@ -306,7 +306,7 @@ export default function BuchungstrainerPage() {
       upsertHistory(rec)
       setHistory(loadHistory())
     }
-  }, [cardIndex, score, order, filter, shuffled, view, visibleOrder.length, wrongCards, userId])
+  }, [cardIndex, score, visibleOrder, filter, shuffled, view, wrongCards, userId])
 
   // ── practice: submit ───────────────────────────────────────────
   function handleSubmit() {
@@ -374,8 +374,8 @@ export default function BuchungstrainerPage() {
           cardsDone: visibleOrder.length,
           score,
           wrongIndices: wrongCards,
-          order,
-          filter,
+          order: visibleOrder,
+          filter: 'all',
           shuffled,
           isComplete: true,
         }),
