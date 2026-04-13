@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
-import { CARDS as STATIC_CARDS } from '@/data/buchungstrainer-cards'
+import { CARDS as STATIC_CARDS, CARD_META, TOPIC_LABELS, type CardTopic } from '@/data/buchungstrainer-cards'
 import {
   Star, List, LayoutGrid, ChevronLeft, ChevronRight,
   Shuffle, RotateCcw, Eye, EyeOff, PenLine,
@@ -75,8 +75,10 @@ function buildHint(answer: string) {
   return answer.split('/').map(p => p.trim().charAt(0).toUpperCase() + '…').join(' / ')
 }
 
-type View   = 'list' | 'cards' | 'practice' | 'sessions'
-type Filter = 'all'  | 'starred'
+type View       = 'list' | 'cards' | 'practice' | 'sessions'
+type Filter     = 'all'  | 'starred'
+type TopicFilter = CardTopic | 'all'
+type ExamFilter  = 'all' | 'qsp' | 'ap'
 type Phase  = 'input' | 'correct' | 'wrong' | 'overridden'
 
 export default function BuchungstrainerPage() {
@@ -88,6 +90,8 @@ export default function BuchungstrainerPage() {
   const [stars,       setStars]       = useState<Set<number>>(new Set())
   const [view,        setView]        = useState<View>('list')
   const [filter,      setFilter]      = useState<Filter>('all')
+  const [topicFilter, setTopicFilter] = useState<TopicFilter>('all')
+  const [examFilter,  setExamFilter]  = useState<ExamFilter>('all')
   const [order,       setOrder]       = useState<number[]>(() => STATIC_CARDS.map((_, i) => i))
   const [cardIndex,   setCardIndex]   = useState(0)
   const [shuffled,    setShuffled]    = useState(false)
@@ -149,9 +153,36 @@ export default function BuchungstrainerPage() {
   }, [])
 
   // ── derived ────────────────────────────────────────────────────
-  const visibleOrder = useMemo(() => (
-    filter === 'starred' ? order.filter(i => stars.has(allCards[i]?.id ?? -999)) : order
-  ), [order, filter, stars, allCards])
+  const visibleOrder = useMemo(() => {
+    let indices = order
+    if (filter === 'starred')
+      indices = indices.filter(i => stars.has(allCards[i]?.id ?? -999))
+    if (topicFilter !== 'all')
+      indices = indices.filter(i => {
+        const id = allCards[i]?.id ?? -999
+        if (id < 0) return true // custom cards always shown
+        return CARD_META[id]?.topic === topicFilter
+      })
+    if (examFilter !== 'all')
+      indices = indices.filter(i => {
+        const id = allCards[i]?.id ?? -999
+        if (id < 0) return true // custom cards always shown
+        const meta = CARD_META[id]
+        if (!meta) return true
+        return meta.examType === 'both' || meta.examType === examFilter
+      })
+    return indices
+  }, [order, filter, topicFilter, examFilter, stars, allCards])
+
+  const topicCounts = useMemo(() => {
+    const counts: Partial<Record<CardTopic, number>> = {}
+    for (const card of allCards) {
+      if (card.id < 0) continue
+      const meta = CARD_META[card.id]
+      if (meta) counts[meta.topic] = (counts[meta.topic] ?? 0) + 1
+    }
+    return counts
+  }, [allCards])
 
   const currentCard    = allCards[visibleOrder[cardIndex] ?? 0]
   const isLast         = cardIndex === visibleOrder.length - 1
@@ -262,7 +293,7 @@ export default function BuchungstrainerPage() {
   }, [view, phase, cardIndex])
 
   // ── reset practice on filter change ───────────────────────────
-  useEffect(() => { resetPractice() }, [filter, resetPractice])
+  useEffect(() => { resetPractice() }, [filter, topicFilter, examFilter, resetPractice])
 
   // ── Session speichern + Abschluss erkennen (ein einziger Effect) ─
   useEffect(() => {
@@ -526,6 +557,61 @@ export default function BuchungstrainerPage() {
           </>
         )}
       </div>
+      </div>
+
+      {/* Topic + Exam filters */}
+      <div className="space-y-2">
+        {/* Topic chips */}
+        <div className="overflow-x-auto scrollbar-hide -mx-4 px-4 sm:mx-0 sm:px-0">
+          <div className="flex items-center gap-1.5 min-w-max pb-0.5">
+            <button
+              onClick={() => setTopicFilter('all')}
+              className="px-3 py-1.5 rounded-lg text-xs font-medium transition-all whitespace-nowrap"
+              style={topicFilter === 'all'
+                ? { background: 'var(--accent)', color: 'white' }
+                : { background: 'var(--card-bg)', border: '1px solid var(--border-color)', color: 'var(--text-muted)' }}>
+              Alle Themen ({allCards.length})
+            </button>
+            {(Object.keys(TOPIC_LABELS) as CardTopic[]).map(topic => {
+              const count = topicCounts[topic] ?? 0
+              return (
+                <button
+                  key={topic}
+                  onClick={() => setTopicFilter(topicFilter === topic ? 'all' : topic)}
+                  className="px-3 py-1.5 rounded-lg text-xs font-medium transition-all whitespace-nowrap"
+                  style={topicFilter === topic
+                    ? { background: 'var(--accent)', color: 'white' }
+                    : { background: 'var(--card-bg)', border: '1px solid var(--border-color)', color: 'var(--text-muted)' }}>
+                  {TOPIC_LABELS[topic]} ({count})
+                </button>
+              )
+            })}
+          </div>
+        </div>
+        {/* Exam type toggle */}
+        <div className="flex items-center gap-2">
+          <span className="text-xs shrink-0" style={{ color: 'var(--text-muted)' }}>Prüfung:</span>
+          <div className="flex gap-1 p-1 rounded-xl"
+            style={{ background: 'var(--card-bg)', border: '1px solid var(--border-color)' }}>
+            {(['all', 'qsp', 'ap'] as const).map(e => (
+              <button key={e} onClick={() => setExamFilter(e)}
+                className="px-3 py-1 rounded-lg text-xs font-medium transition-all"
+                style={examFilter === e
+                  ? { background: 'var(--accent)', color: 'white' }
+                  : { color: 'var(--text-muted)' }}>
+                {e === 'all' ? 'Alle' : e.toUpperCase()}
+              </button>
+            ))}
+          </div>
+          {(topicFilter !== 'all' || examFilter !== 'all') && (
+            <button
+              onClick={() => { setTopicFilter('all'); setExamFilter('all') }}
+              className="text-xs px-2.5 py-1 rounded-lg transition-all"
+              style={{ color: 'var(--text-muted)', border: '1px solid var(--border-color)' }}>
+              Filter zurücksetzen
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Empty starred */}
