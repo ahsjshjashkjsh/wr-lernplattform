@@ -137,7 +137,7 @@ export const EXAM_SECTIONS: ExamSection[] = [
         points: 1,
         question: 'Wo ist der Kaufpreis geschuldet?',
         answer:
-          'Am Wohnsitz des Gläubigers (KELLER).\n\nGeldschulden sind Bringschulden: Der Schuldner (MEIER) muss die Zahlung zum Gläubiger (KELLER) bringen.',
+          'Am Wohnsitz des Gläubigers (KELLER).\n\nGeldschulden sind Bringschulden (Art. 74 Abs. 2 Ziff. 1 OR): Der Schuldner (MEIER) muss die Zahlung zum Gläubiger (KELLER) bringen.',
       },
       {
         id: 'vtr-b',
@@ -154,7 +154,7 @@ export const EXAM_SECTIONS: ExamSection[] = [
         points: 2,
         question: 'Wann gehen Nutzen und Gefahr nach Gesetz auf MEIER über?',
         answer:
-          'Am 6. Juni 2021 — dem Tag der Fahrzeugübergabe.\n\nAb diesem Zeitpunkt trägt MEIER das Risiko für zufälligen Untergang oder Beschädigung und hat Anspruch auf alle Vorteile des Fahrzeugs.',
+          'Am 6. Juni 2021 — dem Tag der Fahrzeugübergabe (Art. 185 OR).\n\nAb diesem Zeitpunkt trägt MEIER das Risiko für zufälligen Untergang oder Beschädigung und hat Anspruch auf alle Vorteile des Fahrzeugs.',
       },
       {
         id: 'vtr-d-text',
@@ -173,7 +173,7 @@ export const EXAM_SECTIONS: ExamSection[] = [
         question:
           'Kann MEIER von KELLER verlangen, dass dieser den Scheinwerfer auf eigene Kosten reparieren lässt?',
         answer:
-          'Ja. MEIER kann Sachmängelgewährleistung geltend machen.\n\nSie hat folgende Rechte:\n• Nachbesserung (Reparatur auf Kosten KELLERs)\n• Minderung (Kaufpreisreduktion)\n• Wandlung (Rückgabe des Autos gegen Rückerstattung des Kaufpreises)\n\nVoraussetzung: Der Mangel muss unverzüglich nach Entdeckung gemeldet werden.',
+          'Ja. MEIER kann Sachmängelgewährleistung geltend machen (Art. 197 ff. OR).\n\nSie hat folgende Rechte:\n• Wandelung (Rückgabe des Autos, Kaufpreis zurück)\n• Minderung (Preisreduktion)\n• Ersatzlieferung (bei Gattungskauf)\n\nVoraussetzung: Der Mangel muss unverzüglich nach Entdeckung gemeldet (gerügt) werden.',
       },
       {
         id: 'vtr-d2',
@@ -182,7 +182,7 @@ export const EXAM_SECTIONS: ExamSection[] = [
         isSubQuestion: true,
         question: 'Bis wann muss MEIER den Mangel melden bzw. die Kosten zurückfordern?',
         answer:
-          'MEIER muss den Mangel unverzüglich nach Entdeckung rügen.\n\nDie gesetzliche Gewährleistungsfrist beträgt 2 Jahre ab Übergabe → bis 6. Juni 2023.',
+          'MEIER muss den Mangel unverzüglich nach Entdeckung rügen (Art. 201 OR).\n\nDie gesetzliche Gewährleistungsfrist beträgt 2 Jahre ab Übergabe (Art. 210 OR) → bis 6. Juni 2023.',
       },
       {
         id: 'vtr-d3',
@@ -191,7 +191,7 @@ export const EXAM_SECTIONS: ExamSection[] = [
         isSubQuestion: true,
         question: 'Hätte KELLER seine Sachgewährleistungspflicht ausschliessen können?',
         answer:
-          'Ja, ein Gewährleistungsausschluss ist grundsätzlich zulässig.\n\nAusnahme: Bei arglistiger Täuschung ist der Ausschluss ungültig. Wenn KELLER den Defekt kannte und ihn absichtlich verschwieg, wäre der Ausschluss nichtig.',
+          'Ja, ein Gewährleistungsausschluss ist grundsätzlich zulässig (Art. 199 OR).\n\nAusnahme: Bei arglistiger Täuschung ist der Ausschluss ungültig. Wenn KELLER den Defekt kannte und ihn absichtlich verschwieg, wäre der Ausschluss nichtig.',
       },
       {
         id: 'vtr-e-text',
@@ -209,7 +209,7 @@ export const EXAM_SECTIONS: ExamSection[] = [
         isSubQuestion: true,
         question: 'Liegt eine Übervorteilung vor?',
         answer:
-          'Ja, eine Übervorteilung liegt vor, wenn drei Voraussetzungen erfüllt sind:\n\n1. Offensichtliches Missverhältnis: CHF 5\'000 wert, CHF 20\'000 bezahlt → klar gegeben\n2. Schwächesituation von MEIER (Notlage, Unerfahrenheit oder Leichtsinn)\n3. Bewusstes Ausnützen durch KELLER\n\n→ Das Missverhältnis ist eindeutig. Wenn auch Schwächesituation und Ausnützung vorliegen: Übervorteilung.',
+          'Ja, eine Übervorteilung (Art. 21 OR) liegt vor, wenn drei Voraussetzungen erfüllt sind:\n\n1. Offensichtliches Missverhältnis: CHF 5\'000 wert, CHF 20\'000 bezahlt → klar gegeben\n2. Schwächesituation von MEIER (Notlage, Unerfahrenheit oder Leichtsinn)\n3. Bewusstes Ausnützen durch KELLER\n\n→ Das Missverhältnis ist eindeutig. Wenn auch Schwächesituation und Ausnützung vorliegen: Übervorteilung.',
       },
       {
         id: 'vtr-e2',
@@ -218,7 +218,7 @@ export const EXAM_SECTIONS: ExamSection[] = [
         isSubQuestion: true,
         question: 'Wie muss MEIER rechtlich vorgehen?',
         answer:
-          'MEIER muss den Kaufvertrag wegen Übervorteilung anfechten.\n\nVorgehen:\n1. Anfechtungserklärung gegenüber KELLER abgeben\n2. Rückabwicklung verlangen (Auto zurück, Kaufpreis zurück)\n\nFrist: Die Anfechtung muss innerhalb von 1 Jahr ab Vertragsabschluss erfolgen.\n→ Vertragsabschluss 31. Mai 2021 → Frist bis 31. Mai 2022.',
+          'MEIER muss den Kaufvertrag wegen Übervorteilung anfechten (Art. 21 OR).\n\nVorgehen:\n1. Anfechtungserklärung gegenüber KELLER abgeben\n2. Rückabwicklung verlangen (Auto zurück, Kaufpreis zurück)\n\nFrist: Die Anfechtung muss innerhalb von 1 Jahr ab Entdeckung erfolgen (Art. 31 OR).\n→ Vertragsabschluss 31. Mai 2021 → Frist bis 31. Mai 2022.',
       },
     ],
   },
@@ -274,7 +274,7 @@ export const EXAM_SECTIONS: ExamSection[] = [
         isSubQuestion: true,
         question: 'Wann entsteht die AG rechtlich?',
         answer:
-          'Die AG entsteht mit dem Eintrag ins Handelsregister.\n\nErst ab diesem Zeitpunkt ist die AG eine eigenständige juristische Person mit eigener Rechtspersönlichkeit.',
+          'Die AG entsteht mit dem Eintrag ins Handelsregister (Art. 643 OR) — konstitutive Wirkung.\n\nErst ab diesem Zeitpunkt ist die AG eine eigenständige juristische Person mit eigener Rechtspersönlichkeit.',
       },
       {
         id: 'rft-d2',
@@ -283,7 +283,7 @@ export const EXAM_SECTIONS: ExamSection[] = [
         isSubQuestion: true,
         question: 'Wie viel Kapital muss mindestens einbezahlt werden?',
         answer:
-          'Mindestens 20 % des Aktienkapitals oder CHF 50\'000 — es gilt der höhere Betrag.\n\nBeispiel: Bei einem Aktienkapital von CHF 100\'000:\n• 20 % = CHF 20\'000\n• Minimum = CHF 50\'000\n→ Es müssen CHF 50\'000 einbezahlt werden.',
+          'Mindestens 50 % des Aktienkapitals müssen einbezahlt werden.\n\nDas Mindest-Aktienkapital der AG beträgt CHF 100\'000.\n→ Es müssen also mindestens CHF 50\'000 einbezahlt werden.\n\nDas Aktienkapital kann nicht börsenkotiert oder im Handelsregister kleiner als CHF 100\'000 sein.',
       },
       {
         id: 'rft-e-text',
@@ -415,55 +415,55 @@ export const EXAM_SECTIONS: ExamSection[] = [
     richtzeitMinutes: 10,
     totalPoints: 12,
     context:
-      'Die Schweizerische Nationalbank (SNB) entscheidet über den Leitzins und die Geldmenge in der Schweiz.',
+      'Die Schweizerische Nationalbank (SNB) ist verantwortlich für die Geldpolitik und die Preisstabilität in der Schweiz.',
     questions: [
       {
         id: 'geld-a',
         label: 'a)',
         points: 2,
-        question: 'Was versteht man unter expansiver Geldpolitik?',
+        question: 'Nennen Sie die drei Funktionen des Geldes.',
         answer:
-          'Expansive Geldpolitik: Die SNB senkt den Leitzins und erhöht die Geldmenge, um die Wirtschaft anzukurbeln.\n\n→ Kredite werden günstiger → Unternehmen investieren mehr, Haushalte konsumieren mehr\n→ Ziel: Wirtschaft ankurbeln, Arbeitslosigkeit senken',
+          '1. Tauschmittel: Geld ersetzt den Tauschhandel — allgemein akzeptiertes Zahlungsmittel\n2. Recheneinheit: Geld dient als gemeinsamer Massstab für Preise und Werte\n3. Wertaufbewahrungsmittel: Geld ermöglicht, Kaufkraft in die Zukunft zu übertragen',
       },
       {
         id: 'geld-b',
         label: 'b)',
         points: 2,
-        question: 'Welche Auswirkungen hat eine Zinserhöhung auf Investitionen und Konsum?',
+        question: 'Was versteht man unter Inflation und was sind ihre Folgen?',
         answer:
-          '• Investitionen sinken: Kredite werden teurer → Unternehmen investieren weniger\n• Konsum sinkt: Hypotheken und Konsumkredite werden teurer → Haushalte geben weniger aus\n• Sparen wird attraktiver → noch weniger Konsum\n\n→ Dämpfender Effekt auf die Wirtschaft (kontraktive Wirkung)',
+          'Inflation = anhaltender Anstieg des allgemeinen Preisniveaus → Kaufkraft des Geldes sinkt.\n\nFolgen:\n• Kaufkraftverlust: Man kann für denselben Betrag weniger kaufen\n• Umverteilung: Schuldner profitieren (Schulden werden real kleiner), Gläubiger verlieren\n• Unsicherheit für Haushalte und Unternehmen bei Planung und Investition',
       },
       {
         id: 'geld-c',
         label: 'c)',
         points: 2,
-        question: 'Nennen Sie mögliche Ursachen für Inflation.',
+        question: 'Nennen Sie drei Ursachen für Inflation.',
         answer:
-          'Ursachen für Inflation (steigende Preise):\n\n• Nachfrageüberhang: Mehr Nachfrage als Angebot → Preise steigen\n• Steigende Produktionskosten (z. B. Rohstoffe, Löhne) → Unternehmen erhöhen Preise\n• Zu viel Geld im Umlauf (Geldmenge steigt schneller als Wirtschaft)\n• Importierte Inflation: Preisanstieg im Ausland wirkt sich auf Schweizer Preise aus',
+          '1. Nachfrageinflation: Gesamtnachfrage steigt stärker als das Angebot → Preise steigen\n2. Angebotsinflation (Kosteninflation): Produktionskosten steigen (z. B. Rohstoffe, Löhne) → Unternehmen erhöhen Preise\n3. Importierte Inflation: Preisanstieg im Ausland oder Wechselkursveränderungen wirken auf Inlandpreise',
       },
       {
         id: 'geld-d',
         label: 'd)',
         points: 2,
-        question: 'Was ist kontraktive Geldpolitik und wann setzt die SNB sie ein?',
+        question: 'Was ist expansive Geldpolitik und wann setzt die SNB sie ein?',
         answer:
-          'Kontraktive Geldpolitik: Die SNB erhöht den Leitzins und verringert die Geldmenge.\n\n→ Kredite werden teurer → weniger Investitionen und Konsum → Nachfrage sinkt → Preise steigen langsamer\n\nEingesetzt bei: Zu hoher Inflation (Preise steigen zu stark)',
+          'Expansive Geldpolitik: Die SNB senkt den Leitzins und erhöht die Geldmenge.\n\n→ Kredite werden günstiger → mehr Investitionen und Konsum → Wirtschaft wächst\n\nEingesetzt bei: Konjunkturabschwung / Rezession, um die Wirtschaft anzukurbeln\nRisiko: Inflation kann steigen',
       },
       {
         id: 'geld-e',
         label: 'e)',
         points: 2,
-        question: 'Welche Auswirkungen hat eine Zinssenkung auf die Wirtschaft?',
+        question: 'Was ist der LIK und wozu dient er?',
         answer:
-          '• Kredite werden günstiger → mehr Investitionen\n• Konsum steigt (günstigere Konsumkredite)\n• Sparen wird weniger attraktiv → mehr Geld fliesst in die Wirtschaft\n• Wirtschaftswachstum steigt\n• Risiko: Inflation kann steigen',
+          'LIK = Landesindex der Konsumentenpreise.\n\nDer LIK misst die Preisentwicklung eines repräsentativen Warenkorbs für Konsumenten in der Schweiz.\n\nEr dient zur Messung der Inflation: Steigt der LIK, steigt das Preisniveau → Kaufkraft sinkt.',
       },
       {
         id: 'geld-f',
         label: 'f)',
         points: 2,
-        question: 'Was ist der Unterschied zwischen expansiver und kontraktiver Geldpolitik?',
+        question: 'Wie berechnet man den Realzins? Erklären Sie anhand eines Beispiels.',
         answer:
-          'Expansive Geldpolitik:\n• Zinsen senken, Geldmenge erhöhen\n• Ziel: Wirtschaft ankurbeln\n• Risiko: Inflation\n\nKontraktive Geldpolitik:\n• Zinsen erhöhen, Geldmenge verringern\n• Ziel: Inflation bekämpfen\n• Risiko: Wirtschaft kühlt ab',
+          'Realzins = Nominalzins − Inflationsrate\n\nBeispiel:\n• Nominalzins auf Sparkonto: 3 %\n• Inflationsrate: 2 %\n• Realzins: 3 % − 2 % = 1 %\n\nDer Realzins zeigt die tatsächliche Kaufkraftentwicklung des Ersparten.',
       },
     ],
   },
@@ -533,18 +533,18 @@ export const EXAM_SECTIONS: ExamSection[] = [
         label: 'e2)',
         points: 1,
         isSubQuestion: true,
-        question: 'Expansive Fiskalpolitik bedeutet, dass der Staat seine Ausgaben senkt.',
+        question: 'Expansive Fiskalpolitik bedeutet, dass der Staat seine Ausgaben erhöht.',
         answer:
-          'Falsch.\n\nExpansive Fiskalpolitik bedeutet, dass der Staat seine Ausgaben erhöht (z. B. Infrastrukturprojekte, Sozialtransfers), um die Wirtschaft anzukurbeln und Arbeitslosigkeit zu senken.',
+          'Richtig.\n\nExpansive Fiskalpolitik: Der Staat erhöht seine Ausgaben (z. B. Infrastrukturprojekte) oder senkt Steuern, um die Nachfrage anzukurbeln und die Wirtschaft in einer Rezession zu stützen.',
       },
       {
         id: 'konj-e3',
         label: 'e3)',
         points: 2,
         isSubQuestion: true,
-        question: 'Der Staat kann durch höhere Ausgaben die Wirtschaft ankurbeln.',
+        question: 'Was ist Stagflation und warum ist sie wirtschaftspolitisch besonders schwierig?',
         answer:
-          'Richtig.\n\nDer Staat kann durch erhöhte Ausgaben (z. B. Infrastruktur, Bildung) die Nachfrage steigern → mehr Aufträge für Unternehmen → mehr Beschäftigung → Wirtschaft erholt sich.',
+          'Stagflation = gleichzeitig schwaches Wirtschaftswachstum (Stagnation/Rezession) UND steigende Preise (Inflation).\n\nSchwierig, weil die Gegenmassnahmen sich widersprechen:\n• Gegen Inflation: Zinsen erhöhen → Wirtschaft leidet noch mehr\n• Gegen Rezession: Zinsen senken → Inflation steigt weiter\n\n→ Kein Instrument wirkt ohne Nebenwirkungen.',
       },
     ],
   },
