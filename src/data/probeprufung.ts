@@ -325,33 +325,45 @@ export const EXAM_SECTIONS: ExamSection[] = [
     richtzeitMinutes: 10,
     totalPoints: 12,
     context:
-      'Die folgende Grafik zeigt das Marktgleichgewicht von Angebot und Nachfrage für ein Gut.',
+      'Wir wollen uns mit nachfolgenden Aufgaben dem Kartoffelmarkt der Schweiz beschäftigen.',
     questions: [
+      {
+        id: 'vwl-a-text',
+        label: 'a)',
+        points: 0,
+        isIntroText: true,
+        question: 'Erstellen Sie ein Preis-Mengen-Diagramm, welches den Kartoffelmarkt darstellt.',
+        answer: '',
+      },
       {
         id: 'vwl-a1',
         label: 'a1)',
         points: 2,
+        isSubQuestion: true,
         question:
-          'Bestimmen Sie anhand der Grafik den Gleichgewichtspreis und die Gleichgewichtsmenge.',
+          'Zeichnen Sie die Angebots- und Nachfragekurve sowie das Marktgleichgewicht ein. [Grafik / Beschriftung]',
         answer:
-          'Gleichgewichtspreis (P*) und Gleichgewichtsmenge (Q*) befinden sich am Schnittpunkt von Angebots- und Nachfragekurve.\n\n→ P* = der Preis, bei dem angebotene Menge = nachgefragte Menge\n→ Q* = die Menge, die zu diesem Preis umgesetzt wird\n\nIn einem Preis-Mengen-Diagramm: Lotlinien vom Schnittpunkt auf beide Achsen ziehen und ablesen.',
+          'Preis-Mengen-Diagramm mit:\n• Nachfragekurve (N) von links oben nach rechts unten (fallend)\n• Angebotskurve (A) von links unten nach rechts oben (steigend)\n• Schnittpunkt = Marktgleichgewicht (P*, M*)\n• Achsen beschriftet: Preis (P) auf der y-Achse, Menge (M) auf der x-Achse\n• Lotlinien vom Schnittpunkt auf beide Achsen → P* und M* ablesen',
       },
       {
         id: 'vwl-a2',
         label: 'a2)',
         points: 3,
+        isSubQuestion: true,
         question:
-          'Zeichnen Sie in die Grafik ein, wie sich eine Abnahme des Angebots (z. B. durch eine schlechte Ernte) auswirkt, und beschreiben Sie die Veränderung von Preis und Menge.',
+          'Wegen eines nassen Sommers ist die Kartoffelernte im Jahr 2021 deutlich unter dem Durchschnitt ausgefallen: Zeichnen Sie die Auswirkungen im gleichen Preis-Mengen-Diagramm mit einer anderen Farbe ein. [Grafik]',
         answer:
-          'Zeichnung: Die Angebotskurve (S) verschiebt sich nach links (S → S\').\n\nVeränderung:\n• Gleichgewichtspreis steigt (P* → P*\' höher)\n• Gleichgewichtsmenge sinkt (Q* → Q*\' kleiner)\n\nErklärung: Weniger Angebot bei gleicher Nachfrage → Knappheit → Preis steigt, bis sich Angebot und Nachfrage im neuen, höheren Gleichgewicht treffen.',
+          'Die Angebotskurve verschiebt sich nach links (A → A\'): weniger Kartoffeln werden zu jedem Preis angeboten.\n\nEinzeichnen:\n• Neue Angebotskurve A\' links von A (mit anderer Farbe)\n• Neuer Schnittpunkt mit Nachfragekurve N ergibt neues Gleichgewicht (P*\', M*\')\n• P*\' liegt höher, M*\' liegt links von M*',
       },
       {
         id: 'vwl-a3',
         label: 'a3)',
-        points: 1,
-        question: 'Welche Auswirkungen hat eine schlechte Ernte auf Preis und Menge?',
+        points: 3,
+        isSubQuestion: true,
+        question:
+          'Nennen Sie das neue Marktgleichgewicht und erklären Sie in Worten die Folgen der gekürzten Ernte auf den Gleichgewichtspreis sowie auf die Gleichgewichtsmenge. [Grafik / Antwort]',
         answer:
-          'Preis steigt, Menge sinkt.\n\nEine schlechte Ernte reduziert das Angebot → Angebotskurve verschiebt sich nach links → Preiserhöhung und Mengenrückgang.',
+          'Neues Marktgleichgewicht: höherer Gleichgewichtspreis (P*\' > P*), tiefere Gleichgewichtsmenge (M*\' < M*).\n\nErklärung:\nDie schlechte Ernte reduziert das Angebot an Kartoffeln → Angebotskurve verschiebt sich nach links. Bei unveränderter Nachfrage entsteht eine Knappheit → Preis steigt, bis sich Angebot und Nachfrage im neuen Gleichgewicht treffen.\n\n→ Gleichgewichtspreis steigt\n→ Gleichgewichtsmenge sinkt',
       },
       {
         id: 'vwl-b-text',
