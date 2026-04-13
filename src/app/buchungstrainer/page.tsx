@@ -264,26 +264,18 @@ export default function BuchungstrainerPage() {
   // ── reset practice on filter change ───────────────────────────
   useEffect(() => { resetPractice() }, [filter, resetPractice])
 
-  // ── Session abschliessen wenn fertig ──────────────────────────
-  const sessionMarked = useRef(false)
-  useEffect(() => {
-    if (view === 'practice' && isLast && phase !== 'input' && totalAnswered > 0) {
-      if (!sessionMarked.current) {
-        sessionMarked.current = true
-        markSessionComplete()
-      }
-    } else {
-      sessionMarked.current = false
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [view, isLast, phase, totalAnswered])
-
-  // ── Session speichern (Practice-Modus) ────────────────────────
+  // ── Session speichern + Abschluss erkennen (ein einziger Effect) ─
   useEffect(() => {
     if (view !== 'practice') return
     if (cardIndex === 0 && score.ok === 0 && score.fail === 0) return
     const sid = currentSessionId.current
     if (!sid) return
+
+    const isNowLast  = cardIndex === visibleOrder.length - 1
+    const totalAns   = score.ok + score.fail
+    const isNowDone  = isNowLast && phase !== 'input' && totalAns > 0 && wrongCards.length === 0
+    const completedAt = isNowDone ? Date.now() : undefined
+
     const rec: SessionRecord = {
       id: sid,
       startedAt: parseInt(sid),
@@ -291,22 +283,27 @@ export default function BuchungstrainerPage() {
       cardsDone: cardIndex + 1,
       score,
       wrongIndices: wrongCards,
-      order: visibleOrder,   // exakte Karten dieser Session einfrieren
-      filter: 'all',         // kein Filter beim Wiederherstellen nötig
+      order: visibleOrder,
+      filter: 'all',
       shuffled,
-      isComplete: false,
+      isComplete: isNowDone,
     }
     if (userId) {
       fetch('/api/buchungstrainer/sessions', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(rec),
+        body: JSON.stringify({ ...rec, completedAt }),
+      }).then(() => {
+        if (isNowDone) setHistory(prev => prev.map(r =>
+          r.id === sid ? { ...r, isComplete: true, completedAt, wrongIndices: [] } : r
+        ))
       }).catch(() => {})
     } else {
+      if (isNowDone && completedAt) (rec as any).completedAt = completedAt
       upsertHistory(rec)
       setHistory(loadHistory())
     }
-  }, [cardIndex, score, visibleOrder, filter, shuffled, view, wrongCards, userId])
+  }, [cardIndex, score, phase, visibleOrder, shuffled, view, wrongCards, userId])
 
   // ── practice: submit ───────────────────────────────────────────
   function handleSubmit() {
@@ -358,42 +355,6 @@ export default function BuchungstrainerPage() {
     : phase === 'correct' || phase === 'overridden' ? '#4ade80'
     : '#f87171'
 
-  function markSessionComplete() {
-    if (!currentSessionId.current) return
-    const sid = currentSessionId.current
-    const completedAt = Date.now()
-    if (userId) {
-      fetch('/api/buchungstrainer/sessions', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          id: sid,
-          startedAt: parseInt(sid),
-          completedAt,
-          totalCards: visibleOrder.length,
-          cardsDone: visibleOrder.length,
-          score,
-          wrongIndices: wrongCards,
-          order: visibleOrder,
-          filter: 'all',
-          shuffled,
-          isComplete: wrongCards.length === 0,  // nur 100% = wirklich fertig
-        }),
-      }).then(() => {
-        const done = wrongCards.length === 0
-        setHistory(prev => prev.map(r => r.id === sid ? { ...r, isComplete: done, completedAt: done ? completedAt : undefined, wrongIndices: wrongCards } : r))
-      }).catch(() => {})
-    } else {
-      const h = loadHistory()
-      const idx = h.findIndex(r => r.id === sid)
-      if (idx >= 0) {
-        const done = wrongCards.length === 0
-        h[idx] = { ...h[idx], isComplete: done, completedAt: done ? completedAt : undefined, wrongIndices: wrongCards }
-        saveHistory(h)
-        setHistory([...h])
-      }
-    }
-  }
 
   function startSessionFromHistory(rec: SessionRecord) {
     currentSessionId.current = rec.id
