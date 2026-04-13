@@ -397,6 +397,21 @@ export default function BuchungstrainerPage() {
 
   function startSessionFromHistory(rec: SessionRecord) {
     currentSessionId.current = rec.id
+    // Alle Karten bereits beantwortet + noch Falsche → direkt zu den Falschen
+    if (rec.cardsDone >= rec.totalCards && rec.wrongIndices.length > 0) {
+      setOrder(shuffleArr(rec.wrongIndices))
+      setFilter('all')
+      setWrongCards([])
+      setCardIndex(0)
+      setScore({ ok: 0, fail: 0 })
+      setShuffled(rec.shuffled)
+      setView('practice')
+      setPhase('input')
+      setInputValue('')
+      setHint(false)
+      setFlipped(false)
+      return
+    }
     setOrder(rec.order)
     setCardIndex(rec.cardsDone - 1)
     setFilter(rec.filter)
