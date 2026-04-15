@@ -28,6 +28,7 @@ import { AdminMessagePopup } from '@/components/AdminMessagePopup'
 import { AdminReplyPopup } from '@/components/AdminReplyPopup'
 import { MaintenanceGate } from '@/components/MaintenanceGate'
 import { AyriGate } from '@/components/AyriGate'
+import { ImpersonateBanner } from '@/components/ImpersonateBanner'
 
 export const metadata: Metadata = {
   title: 'HMS-Plattform – Abschlussprüfung',
@@ -58,6 +59,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <FloatingChat />
             <AdminMessagePopup />
             <AdminReplyPopup />
+            <ImpersonateBanner />
             </AyriGate>
           </AuthProvider>
         </ThemeProvider>

@@ -488,6 +488,17 @@ export default function AdminPage() {
     setEditUser(null)
   }
 
+  async function impersonateUser(userId: string) {
+    setActionLoading(userId + '-imp')
+    await fetch('/api/admin/impersonate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userId }),
+    })
+    setActionLoading(null)
+    window.location.href = '/'
+  }
+
   async function createUser() {
     setCreateError('')
     setCreateSuccess('')
@@ -1202,6 +1213,17 @@ export default function AdminPage() {
 
                       {/* Actions */}
                       <div className="flex items-center gap-1.5 shrink-0">
+                        {!user.isCreator && user.id !== me?.id && (
+                          <button
+                            onClick={() => impersonateUser(user.id)}
+                            disabled={actionLoading === user.id + '-imp'}
+                            title="Als dieser Benutzer anmelden"
+                            className="w-8 h-8 rounded-lg flex items-center justify-center transition-all disabled:opacity-40"
+                            style={{ background: 'rgba(234,179,8,0.1)', color: '#fbbf24' }}
+                          >
+                            <UserCheck size={13} />
+                          </button>
+                        )}
                         <button
                           onClick={() => { setEditUser(user); setEditForm({ name: user.name, email: user.email, password: '' }) }}
                           title="Bearbeiten"
