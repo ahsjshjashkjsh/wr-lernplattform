@@ -317,6 +317,7 @@ export function FrwBookingTrainer({ bookingEntries }: Props) {
             </button>
           </div>
         )}
+      </div>
       {isRevealed && (
         <p className="hidden sm:block text-center text-[11px]" style={{ color: 'var(--text-muted)' }}>
           Enter = Weiter{cardState === 'wrong' ? ' · K = Ich hatte recht' : ''}
