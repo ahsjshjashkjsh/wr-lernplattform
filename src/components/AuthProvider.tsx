@@ -66,25 +66,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return
     }
 
-    let lastActivity = Date.now()
-    const ACTIVITY_WINDOW = 60_000 // 1 Minute Aktivitätsfenster
-
-    // Nur Aktivität auf DIESER Seite zählt — nicht andere Browser-Tabs
-    const onActivity = () => {
-      if (document.visibilityState === 'visible') lastActivity = Date.now()
-    }
-    const events = ['mousedown', 'mousemove', 'keydown', 'scroll', 'touchstart', 'click']
-    events.forEach(e => window.addEventListener(e, onActivity, { passive: true }))
-    // Auch beim Tab-Wechsel zurück auf diese Seite Aktivität registrieren
-    document.addEventListener('visibilitychange', onActivity)
-
-    onActivity()
-
+    // Online = Tab ist sichtbar. Kein Aktivitätsfenster — wer die Seite offen hat, ist online.
     let tick = 0
     const ping = () => {
-      // Nur senden wenn Tab sichtbar UND in letzter Minute aktiv
-      const isActive = document.visibilityState === 'visible' && Date.now() - lastActivity < ACTIVITY_WINDOW
-      if (isActive) fetch('/api/heartbeat', { method: 'POST' }).catch(() => {})
+      if (document.visibilityState === 'visible') {
+        fetch('/api/heartbeat', { method: 'POST' }).catch(() => {})
+      }
       tick++
       if (tick % 2 === 0) silentRefresh() // alle 60s still updaten
     }
@@ -94,8 +81,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     return () => {
       if (heartbeatRef.current) clearInterval(heartbeatRef.current)
-      events.forEach(e => window.removeEventListener(e, onActivity))
-      document.removeEventListener('visibilitychange', onActivity)
     }
   }, [user?.id, silentRefresh]) // eslint-disable-line react-hooks/exhaustive-deps
 
