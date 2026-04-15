@@ -270,3 +270,100 @@ export const CARDS = [
   { id: 268, q: `Gemäss der Nebenkostenabrechnung für die Geschäftsliegenschaft werden Nebenkosten von 43'000.- belastet.`, a: `RaumA / LiegA` },
   { id: 269, q: `Wechsel der Abschreibungsmethode von direkt zu indirekt (Bsp. Fahrzeuge)`, a: `Fahrzeuge / WB Fahrzeuge` },
 ] as const
+// ── Topic & Exam-Type metadata ─────────────────────────────────────────────
+
+export type CardTopic =
+  | 'warenkonten'
+  | 'wertschriften'
+  | 'delkredere'
+  | 'abschreibungen'
+  | 'rueckstellungen'
+  | 'abgrenzungen'
+  | 'loehne'
+  | 'stille_reserven'
+  | 'einzelunternehmen'
+  | 'ag'
+  | 'liegenschaften'
+  | 'kennzahlen'
+
+export type CardExamType = 'qsp' | 'ap' | 'both'
+
+export const TOPIC_LABELS: Record<CardTopic, string> = {
+  warenkonten:       'Warenkonten & MWST',
+  wertschriften:     'Wertschriften',
+  delkredere:        'Delkredere',
+  abschreibungen:    'Abschreibungen',
+  rueckstellungen:   'Rückstellungen',
+  abgrenzungen:      'Abgrenzungen',
+  loehne:            'Löhne & Personal',
+  stille_reserven:   'Stille Reserven',
+  einzelunternehmen: 'Einzelunternehmen',
+  ag:                'AG',
+  liegenschaften:    'Liegenschaften',
+  kennzahlen:        'Kennzahlen',
+}
+
+type CM = { topic: CardTopic; examType: CardExamType }
+
+function r(start: number, end: number, topic: CardTopic, examType: CardExamType): Record<number, CM> {
+  const out: Record<number, CM> = {}
+  for (let i = start; i <= end; i++) out[i] = { topic, examType }
+  return out
+}
+
+export const CARD_META: Record<number, CM> = {
+  ...r(0,   9,   'warenkonten',       'both'),
+  ...r(10,  13,  'wertschriften',     'both'),
+  ...r(14,  23,  'delkredere',        'both'),
+  ...r(24,  32,  'abschreibungen',    'both'),
+  ...r(33,  36,  'rueckstellungen',   'both'),
+  ...r(37,  40,  'abgrenzungen',      'both'),
+  ...r(41,  44,  'loehne',            'both'),
+  ...r(45,  50,  'stille_reserven',   'ap'  ),
+  ...r(51,  60,  'einzelunternehmen', 'both'),
+  ...r(61,  80,  'ag',                'both'),
+  ...r(81,  107, 'liegenschaften',    'ap'  ),
+  ...r(108, 110, 'ag',                'ap'  ),
+  ...r(111, 113, 'warenkonten',       'ap'  ),
+  ...r(114, 115, 'liegenschaften',    'ap'  ),
+  ...r(116, 119, 'wertschriften',     'ap'  ),
+  ...r(120, 122, 'liegenschaften',    'ap'  ),
+  ...r(123, 126, 'warenkonten',       'ap'  ),
+  ...r(127, 136, 'liegenschaften',    'ap'  ),
+  ...r(137, 141, 'warenkonten',       'both'),
+  ...r(142, 148, 'loehne',            'both'),
+  ...r(149, 150, 'warenkonten',       'ap'  ),
+  ...r(151, 152, 'warenkonten',       'both'),
+  ...r(153, 155, 'loehne',            'ap'  ),
+  ...r(156, 157, 'warenkonten',       'both'),
+  ...r(158, 159, 'loehne',            'both'),
+  ...r(160, 173, 'warenkonten',       'both'),
+  ...r(174, 176, 'wertschriften',     'both'),
+  ...r(177, 179, 'rueckstellungen',   'both'),
+  ...r(180, 181, 'abschreibungen',    'both'),
+  ...r(182, 189, 'delkredere',        'both'),
+  ...r(190, 214, 'kennzahlen',        'ap'  ),
+  ...r(215, 218, 'einzelunternehmen', 'both'),
+  219:              { topic: 'ag',             examType: 'ap'   },
+  ...r(220, 223, 'abschreibungen',    'both'),
+  ...r(224, 225, 'wertschriften',     'ap'  ),
+  ...r(226, 231, 'abgrenzungen',      'both'),
+  ...r(232, 234, 'kennzahlen',        'ap'  ),
+  ...r(235, 240, 'warenkonten',       'both'),
+  ...r(241, 242, 'loehne',            'both'),
+  243:              { topic: 'liegenschaften', examType: 'ap'   },
+  244:              { topic: 'wertschriften',  examType: 'ap'   },
+  ...r(245, 246, 'wertschriften',     'ap'  ),
+  ...r(247, 249, 'delkredere',        'ap'  ),
+  250:              { topic: 'abgrenzungen',   examType: 'ap'   },
+  ...r(251, 252, 'warenkonten',       'ap'  ),
+  253:              { topic: 'wertschriften',  examType: 'ap'   },
+  ...r(254, 255, 'liegenschaften',    'ap'  ),
+  ...r(256, 257, 'warenkonten',       'both'),
+  ...r(258, 261, 'abschreibungen',    'ap'  ),
+  ...r(262, 263, 'wertschriften',     'ap'  ),
+  ...r(264, 265, 'loehne',            'both'),
+  ...r(266, 267, 'loehne',            'ap'  ),
+  268:              { topic: 'liegenschaften', examType: 'ap'   },
+  269:              { topic: 'abschreibungen', examType: 'ap'   },
+}
