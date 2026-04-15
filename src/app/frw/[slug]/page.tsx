@@ -15,6 +15,7 @@ const FRW_VISUALS: Record<string, React.ComponentType> = {
   'frw-kostenrechnung': BABVisual,
 }
 import { TheorieTab } from '@/components/TheorieTab'
+import { FrwBookingTrainer } from '@/components/frw/FrwBookingTrainer'
 
 export const dynamic = 'force-dynamic'
 
@@ -291,25 +292,11 @@ export default async function FrwChapterPage({ params, searchParams }: Props) {
         {/* ÜBEN */}
         {tab === 'ueben' && (
           hasPremium ? (
-            <div className="space-y-6">
-              {chapter.bookingEntries.length > 0 ? (
-                <div className="text-center py-12 space-y-3">
-                  <div className="w-14 h-14 rounded-2xl mx-auto flex items-center justify-center" style={{ background: 'rgba(99,102,241,0.1)', border: '1px solid rgba(99,102,241,0.2)' }}>
-                    <Dumbbell size={24} className="text-indigo-400" />
-                  </div>
-                  <p className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>Buchungstrainer kommt bald</p>
-                  <p className="text-xs" style={{ color: 'var(--text-muted)' }}>Dieser Bereich wird gerade neu aufgebaut.</p>
-                </div>
-              ) : (
-                <div className="text-center py-12 space-y-3">
-                  <div className="w-14 h-14 rounded-2xl mx-auto flex items-center justify-center" style={{ background: 'rgba(99,102,241,0.1)', border: '1px solid rgba(99,102,241,0.2)' }}>
-                    <Dumbbell size={24} className="text-indigo-400" />
-                  </div>
-                  <p className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>Keine Buchungssätze</p>
-                  <p className="text-xs" style={{ color: 'var(--text-muted)' }}>Für dieses Kapitel sind noch keine Übungsaufgaben vorhanden.</p>
-                </div>
-              )}
-            </div>
+            chapter.bookingEntries.length > 0 ? (
+              <FrwBookingTrainer bookingEntries={chapter.bookingEntries} />
+            ) : (
+              <EmptyState icon={Dumbbell} text="Für dieses Kapitel sind noch keine Übungsaufgaben vorhanden." />
+            )
           ) : <FrwPremiumCta />
         )}
 
