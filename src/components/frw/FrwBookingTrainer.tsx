@@ -1,5 +1,5 @@
 'use client'
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { CheckCircle, XCircle, RotateCcw, ChevronRight, Lightbulb, Trophy } from 'lucide-react'
 
 type BookingEntry = {
@@ -42,6 +42,23 @@ export function FrwBookingTrainer({ bookingEntries }: Props) {
   const habenRef = useRef<HTMLInputElement>(null)
 
   const current = deck[index]
+
+  // Keyboard-Shortcuts: K = Ich hatte recht, Enter = Weiter
+  useEffect(() => {
+    const revealed = cardState === 'correct' || cardState === 'wrong' || cardState === 'override'
+    function onKey(e: KeyboardEvent) {
+      const tag = (e.target as HTMLElement)?.tagName
+      if (tag === 'INPUT' || tag === 'TEXTAREA') return
+      if ((e.key === 'k' || e.key === 'K') && cardState === 'wrong') {
+        handleOverride()
+      }
+      if (e.key === 'Enter' && revealed) {
+        next()
+      }
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [cardState]) // eslint-disable-line react-hooks/exhaustive-deps
 
   function checkAnswer() {
     if (!current) return
@@ -284,6 +301,7 @@ export function FrwBookingTrainer({ bookingEntries }: Props) {
                 style={{ background: 'rgba(234,179,8,0.08)', border: '1px solid rgba(234,179,8,0.2)', color: '#fcd34d' }}
               >
                 Ich hatte recht
+                <span className="ml-1 px-1.5 py-0.5 rounded text-[10px] font-bold opacity-60" style={{ background: 'rgba(234,179,8,0.2)' }}>K</span>
               </button>
             )}
             <button
@@ -299,7 +317,11 @@ export function FrwBookingTrainer({ bookingEntries }: Props) {
             </button>
           </div>
         )}
-      </div>
+      {isRevealed && (
+        <p className="hidden sm:block text-center text-[11px]" style={{ color: 'var(--text-muted)' }}>
+          Enter = Weiter{cardState === 'wrong' ? ' · K = Ich hatte recht' : ''}
+        </p>
+      )}
     </div>
   )
 }
