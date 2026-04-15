@@ -87,6 +87,108 @@ function timeAgo(dateStr: string | null) {
   return `vor ${days} Tagen`
 }
 
+function AdminLoginPanel({ onSuccess }: { onSuccess: () => void }) {
+  const [identifier, setIdentifier] = useState('')
+  const [password, setPassword] = useState('')
+  const [showPw, setShowPw] = useState(false)
+  const [error, setError] = useState('')
+  const [loading, setLoading] = useState(false)
+
+  async function handleLogin(e: React.FormEvent) {
+    e.preventDefault()
+    setError('')
+    setLoading(true)
+    try {
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: identifier, password }),
+      })
+      const data = await res.json()
+      if (!res.ok) {
+        setError(data.error ?? 'Anmeldung fehlgeschlagen.')
+        return
+      }
+      if (!data.user?.isAdmin) {
+        setError('Dieses Konto hat keinen Admin-Zugriff.')
+        return
+      }
+      onSuccess()
+    } catch {
+      setError('Verbindungsfehler.')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const inputStyle = {
+    background: 'rgba(255,255,255,0.05)',
+    border: '1px solid rgba(255,255,255,0.1)',
+    color: 'var(--text-primary)',
+  }
+
+  return (
+    <div className="min-h-[80vh] flex items-center justify-center px-4">
+      <div className="w-full max-w-sm space-y-6">
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-12 h-12 rounded-xl flex items-center justify-center"
+            style={{ background: 'linear-gradient(135deg, #f59e0b, #ef4444)' }}>
+            <Shield size={22} className="text-white" />
+          </div>
+          <div className="text-center">
+            <h1 className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>Admin-Bereich</h1>
+            <p className="text-xs" style={{ color: 'var(--text-muted)' }}>Melde dich mit deinem Admin-Konto an</p>
+          </div>
+        </div>
+        <form onSubmit={handleLogin} className="rounded-2xl p-6 space-y-4" style={{ background: 'var(--card-bg)', border: '1px solid var(--border-color)' }}>
+          <div>
+            <label className="text-xs font-medium block mb-1.5" style={{ color: 'var(--text-muted)' }}>E-Mail oder Nutzername</label>
+            <input
+              type="text"
+              value={identifier}
+              onChange={e => setIdentifier(e.target.value)}
+              className="w-full px-3 py-2.5 rounded-xl text-sm outline-none"
+              style={inputStyle}
+              placeholder="admin oder admin@..."
+              required
+              autoFocus
+            />
+          </div>
+          <div>
+            <label className="text-xs font-medium block mb-1.5" style={{ color: 'var(--text-muted)' }}>Passwort</label>
+            <div className="relative">
+              <input
+                type={showPw ? 'text' : 'password'}
+                value={password}
+                onChange={e => setPassword(e.target.value)}
+                className="w-full px-3 py-2.5 rounded-xl text-sm outline-none pr-10"
+                style={inputStyle}
+                placeholder="Passwort"
+                required
+              />
+              <button type="button" onClick={() => setShowPw(v => !v)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300">
+                {showPw ? <EyeOff size={14} /> : <Eye size={14} />}
+              </button>
+            </div>
+          </div>
+          {error && (
+            <div className="text-xs text-red-400 bg-red-500/10 border border-red-500/20 rounded-xl px-3 py-2.5">{error}</div>
+          )}
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full py-2.5 rounded-xl text-sm font-semibold text-white transition-all disabled:opacity-60"
+            style={{ background: 'linear-gradient(135deg, #f59e0b, #ef4444)' }}
+          >
+            {loading ? 'Anmelden...' : 'Anmelden'}
+          </button>
+        </form>
+      </div>
+    </div>
+  )
+}
+
 export default function AdminPage() {
   const { user: me, loading: authLoading } = useAuth()
   const isCreator = me?.isCreator ?? false
@@ -464,7 +566,11 @@ export default function AdminPage() {
     color: 'var(--text-primary)',
   }
 
-  if (!authLoading && !me?.isAdmin) {
+  if (!authLoading && !me) {
+    return <AdminLoginPanel onSuccess={() => window.location.reload()} />
+  }
+
+  if (!authLoading && me && !me.isAdmin) {
     return (
       <div className="flex flex-col items-center justify-center py-32 gap-3">
         <Shield size={32} style={{ color: 'var(--text-muted)' }} className="opacity-30" />
